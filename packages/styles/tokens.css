@@ -1,0 +1,126 @@
+/* ==========================================================================
+   tokens.css — 由 docs/specifications/color_scheme/Design Tokens.json 派生
+   门户 --pt-* / 后台 --ad-* ；色板缩写 p/a/s/n/ok/wn/er
+   本文件为消费层生成物，视觉源文件以 docs 规范为准，禁止反向改规范源。
+   ========================================================================== */
+:root {
+  /* ---- Brand primary (p) ---- */
+  --p-50: #EAF2FB;
+  --p-100: #D3E4F6;
+  --p-200: #A8C7EC;
+  --p-300: #74A4DD;
+  --p-400: #3F7CC5;
+  --p-500: #0B62B8;
+  --p-600: #0053A2;
+  --p-700: #004281;
+  --p-800: #003161;
+  --p-900: #002244;
+  --p-950: #00162E;
+
+  /* ---- Accent aurora cyan (a) ---- */
+  --a-50: #E6FAFB;
+  --a-100: #C1F2F5;
+  --a-200: #8BE4EA;
+  --a-300: #4ED3DD;
+  --a-400: #19C0CE;
+  --a-500: #00B8C6;
+  --a-600: #0096A3;
+  --a-700: #007580;
+  --a-800: #00575F;
+  --a-900: #003D43;
+
+  /* ---- Spot orange (s) ---- */
+  --s-50: #FFF4E8;
+  --s-100: #FFE3C7;
+  --s-500: #F97316;
+  --s-600: #E8620C;
+  --s-700: #C24E08;
+
+  /* ---- Neutral cold gray (n) ---- */
+  --n-0: #FFFFFF;
+  --n-50: #F7F9FC;
+  --n-100: #EFF2F7;
+  --n-200: #E2E7EF;
+  --n-300: #CBD3E0;
+  --n-400: #98A4B7;
+  --n-500: #6B7889;
+  --n-600: #4A5665;
+  --n-700: #363F4D;
+  --n-800: #252C37;
+  --n-900: #161C24;
+  --n-950: #0C1118;
+
+  /* ---- Semantic ---- */
+  --ok-100: #E2F6EA;
+  --ok-500: #16A34A;
+  --ok-600: #0F8A3D;
+  --ok-700: #0B6B30;
+  --wn-100: #FEF1DC;
+  --wn-500: #F79009;
+  --wn-600: #D97706;
+  --wn-700: #B45309;
+  --er-100: #FCEBEB;
+  --er-500: #E5484D;
+  --er-600: #D23439;
+  --er-700: #A9262B;
+
+  /* ---- Gradients ---- */
+  --grad-hero: linear-gradient(135deg, #003161 0%, #0B62B8 55%, #00B8C6 100%);
+  --grad-flow: linear-gradient(90deg, #0B62B8 0%, #00B8C6 100%);
+
+  /* ---- Fonts ---- */
+  --font-sans: "Manrope", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+
+  /* ---- Portal scale (--pt-*) ---- */
+  --pt-fs-display: 64px;
+  --pt-fs-h1: 40px;
+  --pt-fs-h2: 32px;
+  --pt-fs-h3: 22px;
+  --pt-fs-body-lg: 18px;
+  --pt-fs-body: 16px;
+  --pt-fs-sm: 13px;
+  --pt-lh-title: 1.15;
+  --pt-lh-body: 1.65;
+  --pt-ls-title: -0.02em;
+  --pt-container: 1200px;
+  --pt-nav-h: 72px;
+  --pt-space-section: 120px;
+  --pt-space-lg: 48px;
+  --pt-radius-btn: 999px;
+  --pt-radius-card: 20px;
+  --pt-motion: 220ms ease;
+  --pt-shadow-btn: 0 8px 24px rgba(11, 98, 184, 0.28);
+  --pt-shadow-card: 0 4px 24px rgba(0, 34, 68, 0.04);
+  --pt-shadow-hover: 0 16px 40px rgba(0, 34, 68, 0.1);
+
+  /* ---- Admin scale (--ad-*) ---- */
+  --ad-fs-body: 13px;
+  --ad-fs-sm: 12px;
+  --ad-fs-h1: 16px;
+  --ad-fs-h2: 14px;
+  --ad-lh: 1.5;
+  --ad-sp-1: 4px;
+  --ad-sp-2: 8px;
+  --ad-sp-3: 12px;
+  --ad-sp-4: 16px;
+  --ad-sp-6: 24px;
+  --ad-sidebar-w: 208px;
+  --ad-sidebar-w-min: 56px;
+  --ad-header-h: 48px;
+  --ad-table-row-h: 32px;
+  --ad-ctrl-sm: 24px;
+  --ad-ctrl-md: 28px;
+  --ad-ctrl-lg: 32px;
+  --ad-radius: 6px;
+  --ad-radius-sm: 4px;
+  --ad-motion: 160ms ease;
+  --ad-shadow-1: 0 1px 2px rgba(22, 28, 36, 0.04);
+
+  /* ---- Z-index ---- */
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal: 1300;
+  --z-toast: 1400;
+}

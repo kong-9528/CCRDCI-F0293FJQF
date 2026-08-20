@@ -1,0 +1,10 @@
+{
+  "name": "@ctp/styles",
+  "version": "0.0.1",
+  "private": true,
+  "files": ["*.css"],
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./portal.css": "./portal.css"
+  }
+}

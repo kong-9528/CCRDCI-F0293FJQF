@@ -1,0 +1,13 @@
+{
+  "name": "copyright-tech-platform",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev:portal": "pnpm --filter @ctp/portal dev",
+    "build:portal": "pnpm --filter @ctp/portal build",
+    "lint": "pnpm -r lint"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

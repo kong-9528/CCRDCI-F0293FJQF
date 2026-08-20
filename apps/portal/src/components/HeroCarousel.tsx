@@ -1,0 +1,60 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { HERO_SLIDES } from "@/lib/content";
+
+type Props = {
+  onLogin: () => void;
+  onJoin: () => void;
+};
+
+export function HeroCarousel({ onLogin, onJoin }: Props) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = HERO_SLIDES[index];
+
+  return (
+    <section className="p-hero" aria-label="首屏焦点">
+      <div className="p-container p-hero__inner">
+        <div className="p-hero__slides">
+          <div key={slide.id} className="p-hero__slide is-active">
+            <div className="p-eyebrow">{slide.eyebrow}</div>
+            <h1 className="p-display" style={{ margin: "16px 0 0", maxWidth: 900 }}>
+              {slide.title}
+              <br />
+              <span className="p-text-gradient">{slide.highlight}</span>
+            </h1>
+            <p className="p-lead">{slide.lead}</p>
+            <div className="p-hero__actions">
+              <button type="button" className="p-btn p-btn--cta" onClick={onJoin}>
+                寻求合作
+              </button>
+              <button type="button" className="p-btn p-btn--ghost" onClick={onLogin}>
+                已有账号登录
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="p-hero__dots" role="tablist" aria-label="价值主张">
+          {HERO_SLIDES.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`p-hero__dot${i === index ? " is-active" : ""}`}
+              aria-label={s.title}
+              aria-selected={i === index}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
