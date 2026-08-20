@@ -24,10 +24,7 @@ export const OPS_NAV: NavGroup[] = [
   },
   {
     title: "产品管理",
-    items: [
-      { to: "/products/verify", label: "版权核验服务配置", ready: false },
-      { to: "/products/audit", label: "智能审核服务配置", ready: false },
-    ],
+    items: [{ to: "/products", label: "产品管理", ready: true }],
   },
   {
     title: "运营统计",
