@@ -153,6 +153,10 @@ body,
   white-space: nowrap;
 }
 
+.a-cell-clamp--wide {
+  max-width: 480px;
+}
+
 .a-desc--modal {
   grid-template-columns: 1fr;
   gap: var(--ad-sp-2);
@@ -623,5 +627,116 @@ body,
   background: transparent;
   cursor: pointer;
   font: inherit;
+}
+
+/* ---------- 接口服务设置：产品>接口折叠列表 ---------- */
+.a-api-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.a-api-row {
+  border-bottom: 1px solid var(--n-200);
+}
+
+.a-api-row:last-child {
+  border-bottom: none;
+}
+
+.a-api-row__head {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-sp-2);
+  padding: 0 var(--ad-sp-3);
+  min-height: 36px;
+}
+
+.a-api-row__toggle {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ad-sp-2);
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: var(--n-900);
+  text-align: left;
+}
+
+.a-api-row__toggle:hover .a-api-row__title {
+  color: var(--p-600);
+}
+
+.a-api-row__chevron {
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--n-400);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.a-api-row__title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a-api-row__body {
+  padding: var(--ad-sp-2) var(--ad-sp-3) var(--ad-sp-3);
+  background: var(--n-50);
+  border-top: 1px solid var(--n-100);
+}
+
+.a-desc--api {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ad-sp-2) var(--ad-sp-4);
+  margin-bottom: var(--ad-sp-3);
+  padding-bottom: var(--ad-sp-2);
+  border-bottom: 1px solid var(--n-200);
+}
+
+.a-api-params + .a-api-params {
+  margin-top: var(--ad-sp-3);
+}
+
+.a-api-params__title {
+  margin-bottom: var(--ad-sp-1);
+  font-size: var(--ad-fs-sm);
+  font-weight: 600;
+  color: var(--n-700);
+}
+
+.a-table--compact th,
+.a-table--compact td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.a-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--n-800);
+  background: var(--n-100);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.a-method {
+  display: inline-block;
+  min-width: 48px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--p-700);
+  background: var(--p-50);
+  border: 1px solid var(--p-100);
+  border-radius: var(--ad-radius-sm);
+  padding: 1px 6px;
 }
 

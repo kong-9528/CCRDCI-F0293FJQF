@@ -40,6 +40,13 @@ export const OPS_NAV: NavGroup[] = [
       { to: "/content/faqs", label: "FAQ管理", ready: true },
     ],
   },
+  {
+    title: "系统管理",
+    items: [
+      { to: "/system/api-services", label: "接口服务设置", ready: true },
+      { to: "/system/op-logs", label: "操作日志", ready: true },
+    ],
+  },
 ];
 
 export function findNavLabel(pathname: string): string {
