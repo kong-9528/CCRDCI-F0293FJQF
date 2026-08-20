@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/confirmdialog.tsx","./src/components/opsheader.tsx","./src/components/opssidebar.tsx","./src/layouts/opslayout.tsx","./src/lib/catalog.ts","./src/lib/nav.ts","./src/pages/placeholderpage.tsx","./src/pages/customers/customerlistpage.tsx"],"version":"5.9.3"}

@@ -5,6 +5,7 @@
   "files": ["*.css"],
   "exports": {
     "./tokens.css": "./tokens.css",
-    "./portal.css": "./portal.css"
+    "./portal.css": "./portal.css",
+    "./admin.css": "./admin.css"
   }
 }

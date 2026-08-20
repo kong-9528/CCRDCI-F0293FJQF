@@ -1,0 +1,270 @@
+/* ==========================================================================
+   admin.css — 管理系统样式规范（客户后台 / 运营后台共用 · 整齐紧凑高密度）
+   依赖：@import "./tokens.css"   ·   类名前缀：a-
+   使用：<body class="a-admin theme-customer">  客户后台（浅色侧栏）
+         <body class="a-admin theme-ops">       运营后台（深色侧栏）
+   设计语言：13px 基准字号 + 4px 间距栅格 + 低矮控件 + 平阴影，
+             信息层级靠灰阶而非色彩，一屏容纳更多内容。
+   ========================================================================== */
+@import "./tokens.css";
+
+body.a-admin {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--ad-fs-body);
+  line-height: var(--ad-lh);
+  background: var(--n-50);
+  color: var(--n-900);
+  -webkit-font-smoothing: antialiased;
+}
+.theme-ops { background: var(--n-100); }   /* 运营后台页面底再深半档，衬托白卡片 */
+
+/* ==========================================================================
+   布局骨架：侧栏 + 顶栏 + 内容区
+   ========================================================================== */
+.a-layout { display: grid; grid-template-columns: var(--ad-sidebar-w) 1fr; min-height: 100vh; }
+.a-layout.is-collapsed { grid-template-columns: var(--ad-sidebar-w-min) 1fr; }
+
+/* ---------- 侧边导航 ---------- */
+.a-sidebar {
+  background: var(--n-0);
+  border-right: 1px solid var(--n-200);
+  padding: var(--ad-sp-2) 0;
+  overflow-y: auto;
+}
+.theme-ops .a-sidebar { background: var(--n-900); border-right: none; }
+
+.a-sidebar__logo {
+  height: var(--ad-header-h);
+  display: flex; align-items: center;
+  padding: 0 var(--ad-sp-4);
+  font-size: 15px; font-weight: 600;
+  color: var(--p-600);
+  border-bottom: 1px solid var(--n-200);
+  margin-bottom: var(--ad-sp-2);
+}
+.theme-ops .a-sidebar__logo { color: var(--n-0); border-bottom-color: rgba(255,255,255,.08); }
+
+.a-menu__group { padding: var(--ad-sp-2) var(--ad-sp-3) var(--ad-sp-1); font-size: var(--ad-fs-sm); color: var(--n-400); }
+.theme-ops .a-menu__group { color: var(--n-500); }
+
+.a-menu__item {
+  display: flex; align-items: center; gap: var(--ad-sp-2);
+  height: 36px;                          /* 紧凑行高 */
+  margin: 1px var(--ad-sp-2);
+  padding: 0 var(--ad-sp-3);
+  border-radius: var(--ad-radius-sm);
+  color: var(--n-600);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background var(--ad-motion), color var(--ad-motion);
+}
+.a-menu__item:hover { background: var(--n-100); color: var(--n-900); }
+.a-menu__item.is-active {
+  background: var(--p-50);
+  color: var(--p-700);
+  font-weight: 600;
+  border-left-color: var(--p-600);
+}
+/* 运营后台：深底 + 极光青指示条（新锐签名落点） */
+.theme-ops .a-menu__item { color: var(--n-300); }
+.theme-ops .a-menu__item:hover { background: rgba(255,255,255,.07); color: var(--n-0); }
+.theme-ops .a-menu__item.is-active {
+  background: rgba(255,255,255,.10);
+  color: var(--n-0);
+  border-left-color: var(--a-500);
+}
+
+/* ---------- 主区（顶栏 + 内容） ---------- */
+.a-main { display: flex; flex-direction: column; min-width: 0; }
+.a-header {
+  height: var(--ad-header-h);
+  display: flex; align-items: center; gap: var(--ad-sp-4);
+  padding: 0 var(--ad-sp-4);
+  background: var(--n-0);
+  border-bottom: 1px solid var(--n-200);
+  position: sticky; top: 0; z-index: var(--z-sticky);
+}
+.a-header__title { font-size: var(--ad-fs-h1); font-weight: 600; }
+.a-header__crumb { color: var(--n-400); font-size: var(--ad-fs-sm); }
+.a-header__crumb b { color: var(--n-700); font-weight: 500; }
+.a-header__actions { margin-left: auto; display: flex; gap: var(--ad-sp-2); align-items: center; }
+
+.a-content { padding: var(--ad-sp-3); display: flex; flex-direction: column; gap: var(--ad-sp-3); }
+
+/* ==========================================================================
+   卡片 / 面板 —— 紧凑内边距，平阴影
+   ========================================================================== */
+.a-card {
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius);
+  box-shadow: var(--ad-shadow-1);
+}
+.a-card__head {
+  display: flex; align-items: center; gap: var(--ad-sp-2);
+  padding: var(--ad-sp-2) var(--ad-sp-3);
+  border-bottom: 1px solid var(--n-200);
+  font-size: var(--ad-fs-h2);
+  font-weight: 600;
+  min-height: 40px;
+}
+.a-card__head .a-card__extra { margin-left: auto; font-size: var(--ad-fs-sm); font-weight: 400; }
+.a-card__body { padding: var(--ad-sp-3); }
+.a-card__body--flush { padding: 0; }     /* 表格贴边时用 */
+
+/* 统计小卡（一排 4–6 个，紧凑） */
+.a-stat { padding: var(--ad-sp-3); display: flex; flex-direction: column; gap: var(--ad-sp-1); }
+.a-stat__label { font-size: var(--ad-fs-sm); color: var(--n-500); }
+.a-stat__num { font-size: 22px; font-weight: 700; font-family: var(--font-mono); letter-spacing: -0.01em; }
+.a-stat__trend { font-size: var(--ad-fs-sm); }
+.a-stat__trend.up { color: var(--er-500); }     /* 中文金融语境：涨红 */
+.a-stat__trend.down { color: var(--ok-500); }   /* 跌绿 */
+
+/* ==========================================================================
+   按钮 —— 28px 默认高度，三档可选
+   ========================================================================== */
+.a-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--ad-sp-1);
+  height: var(--ad-ctrl-md);
+  padding: 0 var(--ad-sp-3);
+  border-radius: var(--ad-radius-sm);
+  border: 1px solid var(--n-300);
+  background: var(--n-0);
+  color: var(--n-700);
+  font-family: inherit;
+  font-size: var(--ad-fs-body);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--ad-motion), border-color var(--ad-motion), color var(--ad-motion);
+}
+.a-btn:hover { border-color: var(--p-400); color: var(--p-600); }
+.a-btn--primary { background: var(--p-600); border-color: var(--p-600); color: var(--n-0); }
+.a-btn--primary:hover { background: var(--p-500); border-color: var(--p-500); color: var(--n-0); }
+.theme-ops .a-btn--primary:hover { background: var(--p-700); border-color: var(--p-700); } /* 运营后台压暗一档 */
+.a-btn--danger { background: var(--er-500); border-color: var(--er-500); color: var(--n-0); }
+.a-btn--danger:hover { background: var(--er-600); border-color: var(--er-600); color: var(--n-0); }
+.a-btn--text { border-color: transparent; background: transparent; color: var(--p-600); padding: 0 var(--ad-sp-1); }
+.a-btn--text:hover { color: var(--p-500); background: var(--p-50); }
+.a-btn--lg { height: var(--ad-ctrl-lg); padding: 0 var(--ad-sp-4); }
+.a-btn--sm { height: var(--ad-ctrl-sm); padding: 0 var(--ad-sp-2); font-size: var(--ad-fs-sm); }
+.a-btn[disabled] { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+/* ==========================================================================
+   表格 —— 32px 行高，斑马纹，高密度核心
+   ========================================================================== */
+.a-table { width: 100%; border-collapse: collapse; font-size: var(--ad-fs-body); }
+.a-table th {
+  background: var(--n-100);
+  color: var(--n-600);
+  font-weight: 600;
+  text-align: left;
+  height: var(--ad-table-row-h);
+  padding: 0 var(--ad-sp-3);
+  border-bottom: 1px solid var(--n-200);
+  white-space: nowrap;
+  position: sticky; top: 0;             /* 长表格表头吸顶 */
+}
+.a-table td {
+  height: var(--ad-table-row-h);
+  padding: 0 var(--ad-sp-3);
+  border-bottom: 1px solid var(--n-100);
+  color: var(--n-800);
+  white-space: nowrap;
+}
+.a-table tbody tr:nth-child(even) td { background: var(--n-50); }   /* 斑马纹 */
+.a-table tbody tr:hover td { background: var(--p-50); }
+.a-table .num { font-family: var(--font-mono); text-align: right; } /* 数字列等宽右对齐 */
+.a-table .a-btn--text { height: 22px; }
+
+/* 状态点 + 标签 */
+.a-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.a-dot--ok { background: var(--ok-500); } .a-dot--wn { background: var(--wn-500); }
+.a-dot--er { background: var(--er-500); } .a-dot--off { background: var(--n-300); }
+.a-tag {
+  display: inline-flex; align-items: center;
+  height: 20px; padding: 0 var(--ad-sp-2);
+  border-radius: var(--ad-radius-sm);
+  font-size: var(--ad-fs-sm);
+  background: var(--p-50); color: var(--p-700);
+}
+.a-tag--ok { background: var(--ok-100); color: var(--ok-700); }
+.a-tag--wn { background: var(--wn-100); color: var(--wn-700); }
+.a-tag--er { background: var(--er-100); color: var(--er-700); }
+.a-tag--cyan { background: var(--a-50); color: var(--a-700); }
+
+/* ==========================================================================
+   表单 —— 行内紧凑排布：72px 标签 + 28px 控件
+   ========================================================================== */
+.a-form { display: flex; flex-wrap: wrap; gap: var(--ad-sp-2) var(--ad-sp-4); align-items: center; }
+.a-field { display: inline-flex; align-items: center; gap: var(--ad-sp-2); }
+.a-field__label { font-size: var(--ad-fs-body); color: var(--n-600); white-space: nowrap; }
+.a-input, .a-select {
+  height: var(--ad-ctrl-md);
+  padding: 0 var(--ad-sp-2);
+  border: 1px solid var(--n-300);
+  border-radius: var(--ad-radius-sm);
+  font-family: inherit;
+  font-size: var(--ad-fs-body);
+  color: var(--n-900);
+  background: var(--n-0);
+  min-width: 160px;
+  transition: border-color var(--ad-motion), box-shadow var(--ad-motion);
+}
+.a-input:focus, .a-select:focus {
+  outline: none;
+  border-color: var(--p-500);
+  box-shadow: 0 0 0 2px var(--p-100);     /* 焦点环：2px 浅蓝晕 */
+}
+.theme-ops .a-input:focus, .theme-ops .a-select:focus { border-color: var(--p-400); }
+.a-input--sm { min-width: 96px; }
+
+/* 筛选工具条（表格上方标准组合） */
+.a-toolbar {
+  display: flex; align-items: center; gap: var(--ad-sp-2);
+  padding: var(--ad-sp-2) var(--ad-sp-3);
+  border-bottom: 1px solid var(--n-200);
+  flex-wrap: wrap;
+}
+.a-toolbar__right { margin-left: auto; display: flex; gap: var(--ad-sp-2); }
+
+/* ==========================================================================
+   页签 / 分页 / 描述列表
+   ========================================================================== */
+.a-tabs { display: flex; gap: var(--ad-sp-1); border-bottom: 1px solid var(--n-200); padding: 0 var(--ad-sp-3); }
+.a-tabs__item {
+  height: 36px; display: inline-flex; align-items: center;
+  padding: 0 var(--ad-sp-3);
+  color: var(--n-600); text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.a-tabs__item:hover { color: var(--p-600); }
+.a-tabs__item.is-active { color: var(--p-600); font-weight: 600; border-bottom-color: var(--p-600); }
+
+.a-pagination { display: flex; gap: var(--ad-sp-1); align-items: center; justify-content: flex-end; padding: var(--ad-sp-2) var(--ad-sp-3); font-size: var(--ad-fs-sm); color: var(--n-500); }
+.a-pagination button {
+  min-width: var(--ad-ctrl-sm); height: var(--ad-ctrl-sm);
+  border: 1px solid var(--n-300); background: var(--n-0);
+  border-radius: var(--ad-radius-sm); cursor: pointer; color: var(--n-700);
+}
+.a-pagination button.is-active { background: var(--p-600); border-color: var(--p-600); color: var(--n-0); }
+
+.a-desc { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ad-sp-2) var(--ad-sp-4); font-size: var(--ad-fs-body); }
+.a-desc__item { display: flex; gap: var(--ad-sp-2); }
+.a-desc__label { color: var(--n-500); white-space: nowrap; }
+.a-desc__value { color: var(--n-900); font-weight: 500; }
+
+/* ==========================================================================
+   栅格工具（内容区排版，全部落在 4px 栅格上）
+   ========================================================================== */
+.a-row { display: grid; gap: var(--ad-sp-3); }
+.a-row--2 { grid-template-columns: repeat(2, 1fr); }
+.a-row--3 { grid-template-columns: repeat(3, 1fr); }
+.a-row--4 { grid-template-columns: repeat(4, 1fr); }
+.a-row--6 { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 1200px) { .a-row--4, .a-row--6 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .a-row--2, .a-row--3, .a-row--4, .a-row--6 { grid-template-columns: 1fr; } }
+
+/* 空状态 / 页级提示 */
+.a-empty { padding: var(--ad-sp-6); text-align: center; color: var(--n-400); font-size: var(--ad-fs-sm); }
