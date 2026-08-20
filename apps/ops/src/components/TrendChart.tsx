@@ -68,7 +68,10 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         itemWidth: 12,
         itemHeight: 8,
         itemGap: 16,
+        selectedMode: true,
+        inactiveColor: "#B8C0CC",
         textStyle: { color: "#4A5665", fontSize: 12 },
+        pageTextStyle: { color: "#6B7889" },
       },
       xAxis: {
         type: "category",

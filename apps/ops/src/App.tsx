@@ -7,6 +7,7 @@ import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
 import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
 import { CustomerServicesPage } from "@/pages/customers/CustomerServicesPage";
+import { DashboardPage } from "@/pages/DashboardPage";
 import { ProductManagePage } from "@/pages/products/ProductManagePage";
 import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
 import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
@@ -14,13 +15,13 @@ import { ApiServicesPage } from "@/pages/system/ApiServicesPage";
 import { OpLogsPage } from "@/pages/system/OpLogsPage";
 import { RolesPage } from "@/pages/system/RolesPage";
 import { UsersPage } from "@/pages/system/UsersPage";
-import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export function App() {
   return (
     <Routes>
       <Route element={<OpsLayout />}>
-        <Route index element={<Navigate to="/customers" replace />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/customers" element={<CustomerListPage />} />
         <Route path="/customers/new" element={<CustomerCreatePage />} />
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
@@ -37,8 +38,7 @@ export function App() {
         <Route path="/system/users" element={<UsersPage />} />
         <Route path="/system/api-services" element={<ApiServicesPage />} />
         <Route path="/system/op-logs" element={<OpLogsPage />} />
-        <Route path="/dashboard" element={<PlaceholderPage title="仪表盘" />} />
-        <Route path="*" element={<Navigate to="/customers" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
   );
