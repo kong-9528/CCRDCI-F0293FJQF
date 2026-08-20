@@ -528,6 +528,7 @@ a {
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
+  text-decoration: none;
   box-shadow: 0 6px 18px rgba(11, 98, 184, 0.28);
   transition: transform var(--pt-motion), box-shadow var(--pt-motion), filter var(--pt-motion);
 }

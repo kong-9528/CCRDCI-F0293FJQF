@@ -81,13 +81,10 @@ export function PortalNav() {
           <div className="p-nav__actions">
             {ready && user ? (
               <>
-                <button
-                  type="button"
+                <a
                   className="p-nav__console"
-                  title="进入版权技术服务平台（客户平台后续接入）"
-                  onClick={() => {
-                    window.alert("版权技术服务平台将在后续模块接入。当前为门户演示登录态。");
-                  }}
+                  href={process.env.NEXT_PUBLIC_CUSTOMER_URL ?? "http://localhost:3002"}
+                  title="进入版权技术服务平台"
                 >
                   <span className="p-nav__console-icon" aria-hidden>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -98,7 +95,7 @@ export function PortalNav() {
                     </svg>
                   </span>
                   <span className="p-nav__console-text">进入版权技术服务平台</span>
-                </button>
+                </a>
                 <div className="p-nav__user" ref={userRef}>
                   <button
                     type="button"

@@ -5,8 +5,10 @@
   "scripts": {
     "dev:portal": "pnpm --filter @ctp/portal dev",
     "dev:ops": "pnpm --filter @ctp/ops dev",
+    "dev:customer": "pnpm --filter @ctp/customer dev",
     "build:portal": "pnpm --filter @ctp/portal build",
     "build:ops": "pnpm --filter @ctp/ops build",
+    "build:customer": "pnpm --filter @ctp/customer build",
     "lint": "pnpm -r lint"
   },
   "engines": {
