@@ -1,11 +1,15 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { OpsLayout } from "@/layouts/OpsLayout";
+import { ContentManagePage } from "@/pages/content/ContentManagePage";
+import { FaqManagePage } from "@/pages/content/FaqManagePage";
 import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
 import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
 import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
 import { CustomerServicesPage } from "@/pages/customers/CustomerServicesPage";
 import { ProductManagePage } from "@/pages/products/ProductManagePage";
+import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
+import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export function App() {
@@ -19,15 +23,13 @@ export function App() {
         <Route path="/customers/:id/edit" element={<CustomerEditPage />} />
         <Route path="/customer-services" element={<CustomerServicesPage />} />
         <Route path="/products" element={<ProductManagePage />} />
+        <Route path="/stats/customers" element={<CustomerStatsPage />} />
+        <Route path="/stats/products" element={<ProductStatsPage />} />
+        <Route path="/content/hc" element={<ContentManagePage />} />
+        <Route path="/content/catalogs" element={<Navigate to="/content/hc" replace />} />
+        <Route path="/content/articles" element={<Navigate to="/content/hc" replace />} />
+        <Route path="/content/faqs" element={<FaqManagePage />} />
         <Route path="/dashboard" element={<PlaceholderPage title="仪表盘" />} />
-        <Route
-          path="/stats/customers"
-          element={<PlaceholderPage title="客户使用统计" />}
-        />
-        <Route
-          path="/stats/products"
-          element={<PlaceholderPage title="产品使用统计" />}
-        />
         <Route path="*" element={<Navigate to="/customers" replace />} />
       </Route>
     </Routes>

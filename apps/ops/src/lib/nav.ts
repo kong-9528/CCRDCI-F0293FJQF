@@ -29,8 +29,15 @@ export const OPS_NAV: NavGroup[] = [
   {
     title: "运营统计",
     items: [
-      { to: "/stats/customers", label: "客户使用统计", ready: false },
-      { to: "/stats/products", label: "产品使用统计", ready: false },
+      { to: "/stats/customers", label: "客户使用统计", ready: true },
+      { to: "/stats/products", label: "产品使用统计", ready: true },
+    ],
+  },
+  {
+    title: "内容管理",
+    items: [
+      { to: "/content/hc", label: "帮助中心管理", ready: true },
+      { to: "/content/faqs", label: "FAQ管理", ready: true },
     ],
   },
 ];
