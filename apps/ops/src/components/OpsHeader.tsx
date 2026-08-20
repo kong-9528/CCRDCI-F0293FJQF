@@ -17,7 +17,6 @@ export function OpsHeader({ pathname, collapsed, onToggleCollapse }: Props) {
       <div className="a-header__crumb">
         运营后台 / <b>{title}</b>
       </div>
-      <div className="a-header__title">{title}</div>
       <div className="a-header__actions">
         <div className="a-header__user">
           <span className="a-header__avatar">运</span>

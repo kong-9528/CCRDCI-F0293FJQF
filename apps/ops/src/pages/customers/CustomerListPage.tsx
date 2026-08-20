@@ -3,15 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   ACCOUNT_STATUS_LABEL,
-  MOCK_CUSTOMERS,
   PERIOD_STATUS_LABEL,
   PRODUCTS,
+  customerProductCodes,
   productName,
   type AccountStatus,
   type ContractPeriodStatus,
   type CustomerAccount,
   type ProductCode,
 } from "@/lib/catalog";
+import { listPeriodStatus, useCustomerStore } from "@/lib/customersStore";
 
 const PAGE_SIZES = [10, 20, 30, 50] as const;
 
@@ -49,11 +50,13 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 
   if (f.contact.trim() && !row.contactName.includes(f.contact.trim())) return false;
 
-  if (f.product && !row.products.includes(f.product as ProductCode)) return false;
+  const products = customerProductCodes(row);
+  if (f.product && !products.includes(f.product as ProductCode)) return false;
 
   if (f.status && row.status !== f.status) return false;
 
-  if (f.period && row.periodStatus !== f.period) return false;
+  const period = listPeriodStatus(row);
+  if (f.period && period !== f.period) return false;
 
   if (f.expireFrom && row.contractEnd < f.expireFrom) return false;
   if (f.expireTo && row.contractEnd > f.expireTo) return false;
@@ -63,17 +66,17 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 
 export function CustomerListPage() {
   const navigate = useNavigate();
+  const { customers, setStatus } = useCustomerStore();
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
-  const [rows, setRows] = useState<CustomerAccount[]>(MOCK_CUSTOMERS);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
   const [confirm, setConfirm] = useState<CustomerAccount | null>(null);
 
   const filtered = useMemo(
-    () => rows.filter((r) => matchesFilters(r, applied)),
-    [rows, applied],
+    () => customers.filter((r) => matchesFilters(r, applied)),
+    [customers, applied],
   );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -98,9 +101,7 @@ export function CustomerListPage() {
   const toggleStatus = () => {
     if (!confirm) return;
     const next: AccountStatus = confirm.status === "enabled" ? "disabled" : "enabled";
-    setRows((list) =>
-      list.map((r) => (r.id === confirm.id ? { ...r, status: next } : r)),
-    );
+    setStatus(confirm.id, next);
     setConfirm(null);
   };
 
@@ -111,19 +112,6 @@ export function CustomerListPage() {
   return (
     <>
       <div className="a-card">
-        <div className="a-card__head">
-          客户账号列表
-          <div className="a-card__extra">
-            <button
-              type="button"
-              className="a-btn a-btn--primary"
-              onClick={() => navigate("/customers/new")}
-            >
-              新增客户账号
-            </button>
-          </div>
-        </div>
-
         <div className="a-toolbar">
           <div className="a-field">
             <span className="a-field__label">账号</span>
@@ -211,14 +199,19 @@ export function CustomerListPage() {
               />
             </div>
           </div>
-          <div className="a-toolbar__right">
-            <button type="button" className="a-btn" onClick={reset}>
-              重置
-            </button>
-            <button type="button" className="a-btn a-btn--primary" onClick={search}>
-              查询
-            </button>
-          </div>
+          <button type="button" className="a-btn" onClick={reset}>
+            重置
+          </button>
+          <button type="button" className="a-btn a-btn--primary" onClick={search}>
+            查询
+          </button>
+          <button
+            type="button"
+            className="a-btn a-btn--primary"
+            onClick={() => navigate("/customers/new")}
+          >
+            新增客户账号
+          </button>
         </div>
 
         <div className="a-card__body a-card__body--flush">
@@ -242,61 +235,69 @@ export function CustomerListPage() {
                   </td>
                 </tr>
               ) : (
-                pageRows.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
-                    </td>
-                    <td>{row.companyName}</td>
-                    <td>{row.contactName}</td>
-                    <td>
-                      <div className="a-tag--list">
-                        {row.products.map((code) => (
-                          <span key={code} className="a-tag a-tag--cyan">
-                            {productName(code)}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`a-tag${row.status === "enabled" ? " a-tag--ok" : " a-tag--er"}`}>
-                        <span className={`a-dot ${row.status === "enabled" ? "a-dot--ok" : "a-dot--er"}`} />
-                        {ACCOUNT_STATUS_LABEL[row.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <div>{PERIOD_STATUS_LABEL[row.periodStatus as ContractPeriodStatus]}</div>
-                      <div style={{ color: "var(--n-400)", fontSize: 12 }}>
-                        {row.contractStart} ~ {row.contractEnd}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="a-actions">
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => navigate(`/customers/${row.id}`)}
+                pageRows.map((row) => {
+                  const period = listPeriodStatus(row);
+                  const products = customerProductCodes(row);
+                  return (
+                    <tr key={row.id}>
+                      <td>
+                        <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
+                      </td>
+                      <td>{row.companyName}</td>
+                      <td>{row.contactName}</td>
+                      <td>
+                        <div className="a-tag--list">
+                          {products.map((code) => (
+                            <span key={code} className="a-tag a-tag--cyan">
+                              {productName(code)}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`a-tag${row.status === "enabled" ? " a-tag--ok" : " a-tag--er"}`}
                         >
-                          详情
-                        </button>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => navigate(`/customers/${row.id}/edit`)}
-                        >
-                          编辑
-                        </button>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => setConfirm(row)}
-                        >
-                          {row.status === "enabled" ? "停用" : "启用"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <span
+                            className={`a-dot ${row.status === "enabled" ? "a-dot--ok" : "a-dot--er"}`}
+                          />
+                          {ACCOUNT_STATUS_LABEL[row.status]}
+                        </span>
+                      </td>
+                      <td>
+                        <div>{PERIOD_STATUS_LABEL[period as ContractPeriodStatus]}</div>
+                        <div style={{ color: "var(--n-400)", fontSize: 12 }}>
+                          {row.contractStart} ~ {row.contractEnd}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="a-actions">
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => navigate(`/customers/${row.id}`)}
+                          >
+                            详情
+                          </button>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => navigate(`/customers/${row.id}/edit`)}
+                          >
+                            编辑
+                          </button>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => setConfirm(row)}
+                          >
+                            {row.status === "enabled" ? "停用" : "启用"}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -334,11 +335,7 @@ export function CustomerListPage() {
           <button type="button" disabled={safePage <= 1} onClick={() => goPage(safePage - 1)}>
             上一页
           </button>
-          <button
-            type="button"
-            className="is-active"
-            onClick={() => undefined}
-          >
+          <button type="button" className="is-active" onClick={() => undefined}>
             {safePage}
           </button>
           <button

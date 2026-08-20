@@ -1,5 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { OpsLayout } from "@/layouts/OpsLayout";
+import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
+import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
+import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
@@ -9,22 +12,10 @@ export function App() {
       <Route element={<OpsLayout />}>
         <Route index element={<Navigate to="/customers" replace />} />
         <Route path="/customers" element={<CustomerListPage />} />
-        <Route
-          path="/customers/new"
-          element={<PlaceholderPage title="新增客户账号" />}
-        />
-        <Route
-          path="/customers/:id"
-          element={<PlaceholderPage title="客户详情" />}
-        />
-        <Route
-          path="/customers/:id/edit"
-          element={<PlaceholderPage title="编辑客户" />}
-        />
-        <Route
-          path="/dashboard"
-          element={<PlaceholderPage title="仪表盘" />}
-        />
+        <Route path="/customers/new" element={<CustomerCreatePage />} />
+        <Route path="/customers/:id" element={<CustomerDetailPage />} />
+        <Route path="/customers/:id/edit" element={<CustomerEditPage />} />
+        <Route path="/dashboard" element={<PlaceholderPage title="仪表盘" />} />
         <Route
           path="/customer-services"
           element={<PlaceholderPage title="客户产品服务" />}
