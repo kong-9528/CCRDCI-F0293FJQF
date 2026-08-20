@@ -12,6 +12,8 @@ import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
 import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
 import { ApiServicesPage } from "@/pages/system/ApiServicesPage";
 import { OpLogsPage } from "@/pages/system/OpLogsPage";
+import { RolesPage } from "@/pages/system/RolesPage";
+import { UsersPage } from "@/pages/system/UsersPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export function App() {
@@ -31,6 +33,8 @@ export function App() {
         <Route path="/content/catalogs" element={<Navigate to="/content/hc" replace />} />
         <Route path="/content/articles" element={<Navigate to="/content/hc" replace />} />
         <Route path="/content/faqs" element={<FaqManagePage />} />
+        <Route path="/system/roles" element={<RolesPage />} />
+        <Route path="/system/users" element={<UsersPage />} />
         <Route path="/system/api-services" element={<ApiServicesPage />} />
         <Route path="/system/op-logs" element={<OpLogsPage />} />
         <Route path="/dashboard" element={<PlaceholderPage title="仪表盘" />} />

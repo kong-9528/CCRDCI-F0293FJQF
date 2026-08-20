@@ -740,3 +740,51 @@ body,
   padding: 1px 6px;
 }
 
+/* ---------- 角色权限树 ---------- */
+.a-perm-panel {
+  max-height: min(52vh, 420px);
+  overflow: auto;
+  margin-bottom: var(--ad-sp-3);
+  padding: var(--ad-sp-2) var(--ad-sp-3);
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius-sm);
+  background: var(--n-0);
+}
+
+.a-perm-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.a-perm-tree__item {
+  margin: 0;
+}
+
+.a-perm-tree__label {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-sp-2);
+  min-height: 28px;
+  font-size: var(--ad-fs-body);
+  color: var(--n-800);
+  cursor: pointer;
+  user-select: none;
+}
+
+.a-perm-tree__label:hover {
+  color: var(--n-900);
+}
+
+.a-perm-tree__check {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--p-600);
+}
+
+.a-perm-tree__check:disabled {
+  cursor: not-allowed;
+}
+

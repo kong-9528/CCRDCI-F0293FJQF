@@ -43,6 +43,8 @@ export const OPS_NAV: NavGroup[] = [
   {
     title: "系统管理",
     items: [
+      { to: "/system/roles", label: "角色权限", ready: true },
+      { to: "/system/users", label: "用户管理", ready: true },
       { to: "/system/api-services", label: "接口服务设置", ready: true },
       { to: "/system/op-logs", label: "操作日志", ready: true },
     ],

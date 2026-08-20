@@ -292,20 +292,6 @@ export function ContentManagePage() {
                             <button
                               type="button"
                               className="a-btn a-btn--text a-btn--sm"
-                              onClick={() => openCreateCatalog(c.id)}
-                            >
-                              新增目录
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
-                              onClick={() => openCreateArticle(c.id)}
-                            >
-                              新增文章
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
                               onClick={() => openEditCatalog(c)}
                             >
                               编辑
@@ -323,6 +309,20 @@ export function ContentManagePage() {
                               onClick={() => setConfirmDeleteCatalog(c)}
                             >
                               删除
+                            </button>
+                            <button
+                              type="button"
+                              className="a-btn a-btn--text a-btn--sm"
+                              onClick={() => openCreateCatalog(c.id)}
+                            >
+                              新增目录
+                            </button>
+                            <button
+                              type="button"
+                              className="a-btn a-btn--text a-btn--sm"
+                              onClick={() => openCreateArticle(c.id)}
+                            >
+                              新增文章
                             </button>
                           </div>
                         </td>
