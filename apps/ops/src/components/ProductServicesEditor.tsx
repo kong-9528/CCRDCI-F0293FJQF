@@ -44,8 +44,8 @@ export function ProductServicesEditor({
   return (
     <div className="a-stack">
       <div className="a-field__hint">
-        规则：产品额度仅在「有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
-        调用均不可再消耗。同一产品仅可配置一条。
+        规则：产品额度仅在「产品有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
+        调用均不可再消耗。同一产品仅可配置一条。合同服务期仅用于提醒展示，不控制登录与调用。
       </div>
       <div className="a-table-wrap">
         <table className="a-table">

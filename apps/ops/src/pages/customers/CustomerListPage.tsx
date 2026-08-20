@@ -5,7 +5,7 @@ import {
   ACCOUNT_STATUS_LABEL,
   PERIOD_STATUS_LABEL,
   PRODUCTS,
-  customerProductCodes,
+  derivePeriodStatus,
   productName,
   type AccountStatus,
   type ContractPeriodStatus,
@@ -50,7 +50,7 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 
   if (f.contact.trim() && !row.contactName.includes(f.contact.trim())) return false;
 
-  const products = customerProductCodes(row);
+  const products = row.productServices.map((s) => s.product);
   if (f.product && !products.includes(f.product as ProductCode)) return false;
 
   if (f.status && row.status !== f.status) return false;
@@ -157,13 +157,13 @@ export function CustomerListPage() {
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">状态</span>
+            <span className="a-field__label">客户状态</span>
             <select
               className="a-select"
               value={draft.status}
               onChange={(e) => setFilter("status", e.target.value)}
             >
-              <option value="">请选择状态</option>
+              <option value="">请选择客户状态</option>
               <option value="enabled">已启用</option>
               <option value="disabled">已停用</option>
             </select>
@@ -182,7 +182,7 @@ export function CustomerListPage() {
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">到期时间</span>
+            <span className="a-field__label">合同到期时间</span>
             <div className="a-date-range">
               <input
                 type="date"
@@ -222,7 +222,7 @@ export function CustomerListPage() {
                 <th>公司名称</th>
                 <th>联系人姓名</th>
                 <th>开通产品</th>
-                <th>状态</th>
+                <th>客户状态</th>
                 <th>合同服务期</th>
                 <th>操作</th>
               </tr>
@@ -237,7 +237,6 @@ export function CustomerListPage() {
               ) : (
                 pageRows.map((row) => {
                   const period = listPeriodStatus(row);
-                  const products = customerProductCodes(row);
                   return (
                     <tr key={row.id}>
                       <td>
@@ -247,11 +246,23 @@ export function CustomerListPage() {
                       <td>{row.contactName}</td>
                       <td>
                         <div className="a-tag--list">
-                          {products.map((code) => (
-                            <span key={code} className="a-tag a-tag--cyan">
-                              {productName(code)}
-                            </span>
-                          ))}
+                          {row.productServices.map((svc) => {
+                            const expired =
+                              derivePeriodStatus(svc.startDate, svc.endDate) === "expired";
+                            return (
+                              <span
+                                key={svc.product}
+                                className={`a-tag${expired ? " a-tag--muted" : " a-tag--cyan"}`}
+                                title={
+                                  expired
+                                    ? `产品有效期已到期（${svc.startDate} ~ ${svc.endDate}）`
+                                    : `产品有效期 ${svc.startDate} ~ ${svc.endDate}`
+                                }
+                              >
+                                {productName(svc.product)}
+                              </span>
+                            );
+                          })}
                         </div>
                       </td>
                       <td>

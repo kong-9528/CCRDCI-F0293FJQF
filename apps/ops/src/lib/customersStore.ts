@@ -116,7 +116,7 @@ export function setCustomerStatus(id: string, status: AccountStatus): void {
     { ...cur, status },
     [
       {
-        field: "状态",
+        field: "客户状态",
         before: cur.status === "enabled" ? "已启用" : "已停用",
         after: status === "enabled" ? "已启用" : "已停用",
       },
@@ -124,6 +124,75 @@ export function setCustomerStatus(id: string, status: AccountStatus): void {
     status === "enabled" ? "enable" : "disable",
     status === "enabled" ? "启用账号" : "停用账号",
   );
+}
+
+export function updateCustomerProductService(
+  customerId: string,
+  product: ProductServiceConfig["product"],
+  patch: Pick<ProductServiceConfig, "quotaType" | "quotaTotal">,
+): boolean {
+  const cur = getCustomerById(customerId);
+  if (!cur) return false;
+  const before = cur.productServices.find((s) => s.product === product);
+  if (!before) return false;
+  if (patch.quotaType === "total") {
+    const total = patch.quotaTotal ?? 0;
+    if (!Number.isInteger(total) || total <= 0) return false;
+    if (total < before.usedCount) return false;
+  }
+  const nextSvc: ProductServiceConfig = {
+    ...before,
+    quotaType: patch.quotaType,
+    quotaTotal: patch.quotaType === "unlimited" ? null : patch.quotaTotal,
+  };
+  const next: CustomerAccount = {
+    ...cur,
+    productServices: cur.productServices.map((s) =>
+      s.product === product ? nextSvc : s,
+    ),
+  };
+  const bq = before.quotaType === "unlimited" ? "不限" : `按总量 ${before.quotaTotal}`;
+  const aq =
+    nextSvc.quotaType === "unlimited" ? "不限" : `按总量 ${nextSvc.quotaTotal}`;
+  updateCustomer(
+    customerId,
+    next,
+    [{ field: `${productName(product)}·额度`, before: bq, after: aq }],
+    "service",
+    "编辑产品服务项",
+  );
+  return true;
+}
+
+export function setCustomerProductStopped(
+  customerId: string,
+  product: ProductServiceConfig["product"],
+  stopped: boolean,
+): boolean {
+  const cur = getCustomerById(customerId);
+  if (!cur) return false;
+  const before = cur.productServices.find((s) => s.product === product);
+  if (!before || before.stopped === stopped) return false;
+  const next: CustomerAccount = {
+    ...cur,
+    productServices: cur.productServices.map((s) =>
+      s.product === product ? { ...s, stopped } : s,
+    ),
+  };
+  updateCustomer(
+    customerId,
+    next,
+    [
+      {
+        field: productName(product),
+        before: before.stopped ? "已停止" : "可使用",
+        after: stopped ? "已停止" : "已恢复",
+      },
+    ],
+    "service",
+    stopped ? "停止产品服务" : "恢复产品服务",
+  );
+  return true;
 }
 
 function appendLog(
@@ -174,6 +243,8 @@ export function useCustomerStore() {
     create: createCustomer,
     update: updateCustomer,
     setStatus: setCustomerStatus,
+    updateProductService: updateCustomerProductService,
+    setProductStopped: setCustomerProductStopped,
     getLogs: getCustomerLogs,
     getUsage: getCustomerUsage,
     isAccountTaken,

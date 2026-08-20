@@ -87,6 +87,33 @@ body,
   padding: var(--ad-sp-4);
 }
 
+.a-modal--md {
+  width: min(560px, 100%);
+}
+
+.a-desc--modal {
+  grid-template-columns: 1fr;
+  gap: var(--ad-sp-2);
+  margin-bottom: var(--ad-sp-3);
+  padding: var(--ad-sp-2) 0;
+  border-top: 1px solid var(--n-100);
+  border-bottom: 1px solid var(--n-100);
+}
+
+.a-form--modal {
+  margin-bottom: var(--ad-sp-3);
+}
+
+.a-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--ad-fs-body);
+  color: var(--n-700);
+  cursor: pointer;
+  margin-right: var(--ad-sp-2);
+}
+
 .a-modal__title {
   margin: 0 0 var(--ad-sp-2);
   font-size: var(--ad-fs-h1);
@@ -243,6 +270,11 @@ body,
   font-size: var(--ad-fs-sm);
   color: var(--n-600);
   line-height: 1.5;
+}
+
+.a-tag--muted {
+  background: var(--n-100);
+  color: var(--n-500);
 }
 
 .a-tabs button.a-tabs__item {

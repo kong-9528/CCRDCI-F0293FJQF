@@ -22,7 +22,9 @@ export type QuotaType = "unlimited" | "total";
 
 /**
  * 产品服务配置。
- * 规则：额度仅在 startDate~endDate 内可消耗；过期后 usedCount / 剩余次数均不清零，但不可再调用（WebUI / API）。
+ * - 额度仅在 startDate~endDate 内可消耗；过期后 usedCount / 剩余次数均不清零，但不可再调用（WebUI / API）。
+ * - 合同服务期仅用于提醒与展示，不参与登录或调用控制。
+ * - 账号能否登录仅取决于客户状态（启用/停用）。
  */
 export type ProductServiceConfig = {
   product: ProductCode;
@@ -99,7 +101,7 @@ export const PERIOD_STATUS_LABEL: Record<ContractPeriodStatus, string> = {
 
 export const SERVICE_STATUS_LABEL = {
   pending: "未生效",
-  active: "生效中",
+  active: "使用中",
   expired: "已到期",
   stopped: "已停止",
 } as const;

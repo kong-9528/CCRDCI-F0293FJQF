@@ -4,6 +4,7 @@ import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
 import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
 import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
+import { CustomerServicesPage } from "@/pages/customers/CustomerServicesPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 
 export function App() {
@@ -15,11 +16,8 @@ export function App() {
         <Route path="/customers/new" element={<CustomerCreatePage />} />
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/customers/:id/edit" element={<CustomerEditPage />} />
+        <Route path="/customer-services" element={<CustomerServicesPage />} />
         <Route path="/dashboard" element={<PlaceholderPage title="仪表盘" />} />
-        <Route
-          path="/customer-services"
-          element={<PlaceholderPage title="客户产品服务" />}
-        />
         <Route
           path="/products/verify"
           element={<PlaceholderPage title="版权核验服务配置" />}
