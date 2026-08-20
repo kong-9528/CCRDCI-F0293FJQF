@@ -93,101 +93,170 @@ export const PROCESS_STEPS = [
   },
 ] as const;
 
-export type HelpArticle = {
+/** 帮助中心：左侧树（目录可展开；文章可为根节点或挂在目录下） */
+export type HelpGuideNode =
+  | {
+      type: "folder";
+      id: string;
+      title: string;
+      children: HelpGuideNode[];
+    }
+  | {
+      type: "article";
+      id: string;
+      title: string;
+      /** 富文本 HTML，单篇独立展示 */
+      html: string;
+    };
+
+export type HelpFaqItem = {
   id: string;
-  title: string;
-  body: string[];
-  figure?: string;
+  question: string;
+  answerHtml: string;
 };
 
-export type HelpSection = {
-  id: string;
-  title: string;
-  children: HelpArticle[];
-};
-
-export const HELP_SECTIONS: HelpSection[] = [
+export const HELP_GUIDE: HelpGuideNode[] = [
   {
-    id: "getting-started",
-    title: "快速开始",
+    type: "article",
+    id: "overview",
+    title: "平台概览",
+    html: `
+      <p>版权技术服务平台面向企业客户，提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 与开放 API，按调用次数计量。</p>
+      <p>账号由线下签约后运营开通，门户不提供自助注册。</p>
+    `,
+  },
+  {
+    type: "folder",
+    id: "folder-account",
+    title: "账号与登录",
     children: [
       {
+        type: "article",
         id: "account",
         title: "账号开通说明",
-        body: [
-          "本平台为企业客户提供版权数据与智能辅助审核能力。账号需在线下完成合同签署后，由运营人员开通。",
-          "开通后您将收到登录用户名与初始密码，首次登录建议立即修改密码。门户不提供自助注册。",
-        ],
+        html: `
+          <p>本平台为企业客户提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>。账号需在线下完成合同签署后，由运营人员开通。</p>
+          <p>开通后您将收到登录用户名与初始密码，首次登录建议立即修改密码。门户<strong>不提供自助注册</strong>。</p>
+          <ul>
+            <li>签约完成后由运营开通企业租户与登录账号</li>
+            <li>产品权限与调用额度按合同在后台配置</li>
+            <li>如需加额度或续期，请联系客户经理</li>
+          </ul>
+        `,
       },
       {
+        type: "article",
         id: "console",
         title: "进入版权技术服务平台",
-        body: [
-          "登录成功后，导航栏将出现「版权技术服务平台」入口，点击即可进入版权技术服务平台。",
-          "版权技术服务平台可查看额度、调用流水、API 文档，并对已开通且支持 WebUI 的产品进行在线操作。",
-        ],
-        figure: "登录后导航栏出现平台入口示意",
+        html: `
+          <p>登录成功后，导航栏将出现「版权技术服务平台」入口，点击即可进入客户工作台。</p>
+          <figure class="p-help__figure" role="img" aria-label="登录后导航栏出现平台入口示意">登录后导航栏出现平台入口示意</figure>
+          <p>在平台中可查看额度、调用流水、API 文档，并对已开通且支持 WebUI 的产品进行在线操作。</p>
+        `,
       },
     ],
   },
   {
-    id: "products",
+    type: "folder",
+    id: "folder-products",
     title: "产品使用",
     children: [
       {
+        type: "article",
         id: "verify-guide",
         title: "版权核验服务指南",
-        body: [
-          "版权核验服务包含 DCI核验、版权信息核验、版权证书核验。在版权技术服务平台选择已开通产品，按提示提交后同步返回结果。",
-          "若通过 API 对接，请在文档中获取对应产品路径、鉴权方式与错误码说明。",
-        ],
+        html: `
+          <p>版权核验服务包含以下产品：</p>
+          <ul>
+            <li><strong>DCI核验</strong></li>
+            <li><strong>版权信息核验</strong></li>
+            <li><strong>版权证书核验</strong></li>
+          </ul>
+          <p>在版权技术服务平台选择已开通产品，按提示提交后<strong>同步返回结果</strong>。</p>
+          <p>若通过 API 对接，请在文档中获取对应产品路径、鉴权方式与错误码说明。</p>
+        `,
       },
       {
+        type: "article",
         id: "audit-guide",
         title: "智能辅助审核服务指南",
-        body: [
-          "智能辅助审核服务包含内容安全审核、作品登记查重、疑似侵权审核，支持 WebUI 提交或开放 API 接入。",
-          "返回结果包含风险提示与结构化字段，便于业务侧落库与人工复核。",
-        ],
+        html: `
+          <p>智能辅助审核服务包含以下产品：</p>
+          <ul>
+            <li><strong>内容安全审核</strong></li>
+            <li><strong>作品登记查重</strong></li>
+            <li><strong>疑似侵权审核</strong></li>
+          </ul>
+          <p>支持 WebUI 提交或开放 API 接入。返回结果包含风险提示与结构化字段，便于业务侧落库与人工复核。</p>
+        `,
       },
       {
+        type: "article",
         id: "api-key",
         title: "API Key 管理",
-        body: [
-          "在版权技术服务平台创建 API Key，完整密钥仅在创建时展示一次，请妥善保存。",
-          "可随时吊销密钥；吊销后立即失效，请同步更新业务系统配置。",
-        ],
-      },
-    ],
-  },
-  {
-    id: "faq",
-    title: "FAQ",
-    children: [
-      {
-        id: "faq-register",
-        title: "如何注册账号？",
-        body: [
-          "平台不提供自助注册。请联系商务完成线下签约，由运营为您开通企业账号。",
-        ],
-      },
-      {
-        id: "faq-quota",
-        title: "额度不足怎么办？",
-        body: [
-          "调用将返回额度不足提示。请联系客户经理按合同约定追加额度，运营在后台完成加额后即可继续使用。",
-        ],
-      },
-      {
-        id: "faq-password",
-        title: "忘记密码如何找回？",
-        body: [
-          "在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定邮箱发送验证码以校验身份。",
-        ],
+        html: `
+          <p>在版权技术服务平台创建 API Key，<strong>完整密钥仅在创建时展示一次</strong>，请妥善保存。</p>
+          <ol>
+            <li>进入平台后打开密钥管理</li>
+            <li>创建密钥并立即复制保存</li>
+            <li>可随时吊销；吊销后立即失效，请同步更新业务系统配置</li>
+          </ol>
+        `,
       },
     ],
   },
 ];
+
+export const HELP_FAQ: HelpFaqItem[] = [
+  {
+    id: "faq-register",
+    question: "如何注册账号？",
+    answerHtml: `<p>平台不提供自助注册。请联系商务完成线下签约，由运营为您开通企业账号。</p>`,
+  },
+  {
+    id: "faq-quota",
+    question: "额度不足怎么办？",
+    answerHtml: `<p>调用将返回额度不足提示。请联系客户经理按合同约定追加额度，运营在后台完成加额后即可继续使用。</p>`,
+  },
+  {
+    id: "faq-password",
+    question: "忘记密码如何找回？",
+    answerHtml: `<p>在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定邮箱发送验证码以校验身份。</p>`,
+  },
+  {
+    id: "faq-products",
+    question: "两类服务分别包含哪些产品？",
+    answerHtml: `
+      <p><strong>版权核验服务：</strong>DCI核验、版权信息核验、版权证书核验。</p>
+      <p><strong>智能辅助审核服务：</strong>内容安全审核、作品登记查重、疑似侵权审核。</p>
+    `,
+  },
+];
+
+export function findHelpArticle(
+  nodes: HelpGuideNode[],
+  id: string,
+): Extract<HelpGuideNode, { type: "article" }> | null {
+  for (const node of nodes) {
+    if (node.type === "article" && node.id === id) return node;
+    if (node.type === "folder") {
+      const found = findHelpArticle(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+export function firstHelpArticleId(nodes: HelpGuideNode[]): string | null {
+  for (const node of nodes) {
+    if (node.type === "article") return node.id;
+    if (node.type === "folder") {
+      const id = firstHelpArticleId(node.children);
+      if (id) return id;
+    }
+  }
+  return null;
+}
 
 export const CONTACT_INFO = {
   phone: "400-000-0000",

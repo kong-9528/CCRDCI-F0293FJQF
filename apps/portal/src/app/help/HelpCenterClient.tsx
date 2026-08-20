@@ -1,81 +1,193 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { HELP_SECTIONS } from "@/lib/content";
+import { useMemo, useState } from "react";
+import {
+  HELP_FAQ,
+  HELP_GUIDE,
+  findHelpArticle,
+  firstHelpArticleId,
+  type HelpGuideNode,
+} from "@/lib/content";
+
+type Selection =
+  | { kind: "article"; id: string }
+  | { kind: "faq" };
+
+function collectFolderIds(nodes: HelpGuideNode[]): string[] {
+  const ids: string[] = [];
+  for (const node of nodes) {
+    if (node.type === "folder") {
+      ids.push(node.id);
+      ids.push(...collectFolderIds(node.children));
+    }
+  }
+  return ids;
+}
+
+function GuideTree({
+  nodes,
+  activeId,
+  expanded,
+  onToggleFolder,
+  onSelectArticle,
+}: {
+  nodes: HelpGuideNode[];
+  activeId: string | null;
+  expanded: Record<string, boolean>;
+  onToggleFolder: (id: string) => void;
+  onSelectArticle: (id: string) => void;
+}) {
+  return (
+    <ul className="p-help__tree">
+      {nodes.map((node) => {
+        if (node.type === "folder") {
+          const open = expanded[node.id] ?? true;
+          return (
+            <li key={node.id} className="p-help__node p-help__node--folder">
+              <button
+                type="button"
+                className={`p-help__folder-btn${open ? " is-open" : ""}`}
+                aria-expanded={open}
+                onClick={() => onToggleFolder(node.id)}
+              >
+                <span className="p-help__chevron" aria-hidden>
+                  {open ? "▾" : "▸"}
+                </span>
+                <span>{node.title}</span>
+              </button>
+              {open ? (
+                <div className="p-help__folder-body">
+                  <GuideTree
+                    nodes={node.children}
+                    activeId={activeId}
+                    expanded={expanded}
+                    onToggleFolder={onToggleFolder}
+                    onSelectArticle={onSelectArticle}
+                  />
+                </div>
+              ) : null}
+            </li>
+          );
+        }
+
+        return (
+          <li key={node.id} className="p-help__node">
+            <button
+              type="button"
+              className={`p-help__nav-item${activeId === node.id ? " is-active" : ""}`}
+              onClick={() => onSelectArticle(node.id)}
+            >
+              {node.title}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export function HelpCenter() {
-  const [active, setActive] = useState(HELP_SECTIONS[0].children[0].id);
+  const defaultArticleId = firstHelpArticleId(HELP_GUIDE) ?? "account";
+  const [selection, setSelection] = useState<Selection>({
+    kind: "article",
+    id: defaultArticleId,
+  });
+  const [openFaqId, setOpenFaqId] = useState<string | null>(HELP_FAQ[0]?.id ?? null);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const id of collectFolderIds(HELP_GUIDE)) init[id] = true;
+    return init;
+  });
 
-  useEffect(() => {
-    const ids = HELP_SECTIONS.flatMap((s) => s.children.map((c) => c.id));
-    const els = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => Boolean(el));
+  const article = useMemo(() => {
+    if (selection.kind !== "article") return null;
+    return findHelpArticle(HELP_GUIDE, selection.id);
+  }, [selection]);
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]?.target.id) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.25, 1] },
-    );
-
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+  const toggleFolder = (id: string) => {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   return (
     <div className="p-help">
       <div className="p-container">
-        <div className="p-section__head" style={{ marginBottom: 40 }}>
-          <div className="p-eyebrow">Help Center</div>
-          <h1 className="p-h1" style={{ margin: "12px 0 0" }}>
-            帮助中心
-          </h1>
-          <p className="p-lead">了解账号开通、产品使用与常见问题。</p>
+        <div className="p-help__bar">
+          <h1 className="p-help__bar-title">帮助中心</h1>
+          <p className="p-help__bar-desc">接入指南与常见问题</p>
         </div>
 
         <div className="p-help__layout">
           <nav className="p-help__nav" aria-label="帮助目录">
-            {HELP_SECTIONS.map((section) => (
-              <div key={section.id}>
-                <div className="is-group">{section.title}</div>
-                {section.children.map((item) => (
-                  <a
-                    key={item.id}
-                    href={`#${item.id}`}
-                    className={active === item.id ? "is-active" : undefined}
-                    onClick={() => setActive(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                ))}
-              </div>
-            ))}
+            <GuideTree
+              nodes={HELP_GUIDE}
+              activeId={selection.kind === "article" ? selection.id : null}
+              expanded={expanded}
+              onToggleFolder={toggleFolder}
+              onSelectArticle={(id) => setSelection({ kind: "article", id })}
+            />
+
+            <button
+              type="button"
+              className={`p-help__nav-item p-help__nav-item--root${selection.kind === "faq" ? " is-active" : ""}`}
+              onClick={() => setSelection({ kind: "faq" })}
+            >
+              FAQ
+            </button>
           </nav>
 
-          <article className="p-help__article">
-            {HELP_SECTIONS.map((section) => (
-              <div key={section.id}>
-                <h2 id={section.id}>{section.title}</h2>
-                {section.children.map((item) => (
-                  <section key={item.id} id={item.id}>
-                    <h3>{item.title}</h3>
-                    {item.body.map((p) => (
-                      <p key={p}>{p}</p>
-                    ))}
-                    {"figure" in item && item.figure ? (
-                      <div className="p-help__figure" role="img" aria-label={item.figure}>
-                        {item.figure}
+          <div className="p-help__panel">
+            {selection.kind === "article" && article ? (
+              <article className="p-help__article">
+                <h2 className="p-help__article-title">{article.title}</h2>
+                <div
+                  className="p-help__richtext"
+                  dangerouslySetInnerHTML={{ __html: article.html }}
+                />
+              </article>
+            ) : null}
+
+            {selection.kind === "faq" ? (
+              <div className="p-help__faq">
+                <h2 className="p-help__article-title">FAQ</h2>
+                <div className="p-help__accordion">
+                  {HELP_FAQ.map((item) => {
+                    const open = openFaqId === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        className={`p-help__acc-item${open ? " is-open" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          className="p-help__acc-q"
+                          aria-expanded={open}
+                          onClick={() =>
+                            setOpenFaqId((cur) => (cur === item.id ? null : item.id))
+                          }
+                        >
+                          <span>{item.question}</span>
+                          <span className="p-help__acc-icon" aria-hidden>
+                            <span className="p-help__acc-icon-plus">+</span>
+                          </span>
+                        </button>
+                        <div
+                          className="p-help__acc-panel"
+                          aria-hidden={!open}
+                        >
+                          <div className="p-help__acc-panel-inner">
+                            <div
+                              className="p-help__acc-a p-help__richtext"
+                              dangerouslySetInnerHTML={{ __html: item.answerHtml }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    ) : null}
-                  </section>
-                ))}
+                    );
+                  })}
+                </div>
               </div>
-            ))}
-          </article>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
