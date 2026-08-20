@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { PLATFORM_NAME } from "@/lib/content";
-import { JoinDialog } from "@/components/JoinDialog";
 import { LoginModal } from "@/components/LoginModal";
 
 function scrollToHash(hash: string) {
@@ -20,7 +19,6 @@ export function PortalNav() {
   const { user, logout, ready } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [joinOpen, setJoinOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userRef = useRef<HTMLDivElement>(null);
 
@@ -57,6 +55,8 @@ export function PortalNav() {
     router.push(`/#${sectionId}`);
   };
 
+  const initial = user?.displayName?.slice(0, 1).toUpperCase() ?? "U";
+
   return (
     <>
       <header className={`p-nav${scrolled ? " is-scrolled" : ""}`}>
@@ -68,10 +68,13 @@ export function PortalNav() {
           <nav className="p-nav__links" aria-label="主导航">
             <Link href="/">首页</Link>
             <a href="/#verify" onClick={goSection("verify")}>
-              版权核验
+              版权核验服务
             </a>
             <a href="/#audit" onClick={goSection("audit")}>
-              智能审核服务
+              智能辅助审核服务
+            </a>
+            <a href="/#process" onClick={goSection("process")}>
+              合作流程
             </a>
             <Link href="/help">帮助中心</Link>
           </nav>
@@ -80,55 +83,78 @@ export function PortalNav() {
               <>
                 <button
                   type="button"
-                  className="p-nav__platform-entry"
-                  title="进入控制台（客户平台后续接入）"
+                  className="p-nav__console"
+                  title="进入版权技术服务平台（客户平台后续接入）"
                   onClick={() => {
-                    window.alert("客户控制台将在后续模块接入。当前为门户演示登录态。");
+                    window.alert("版权技术服务平台将在后续模块接入。当前为门户演示登录态。");
                   }}
                 >
-                  {PLATFORM_NAME}
+                  <span className="p-nav__console-icon" aria-hidden>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <rect x="1.5" y="2.5" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                      <rect x="9.5" y="2.5" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                      <rect x="1.5" y="8.5" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                      <rect x="9.5" y="8.5" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+                    </svg>
+                  </span>
+                  <span className="p-nav__console-text">进入版权技术服务平台</span>
                 </button>
                 <div className="p-nav__user" ref={userRef}>
                   <button
                     type="button"
-                    className="p-nav__user-btn"
+                    className={`p-nav__account${userMenuOpen ? " is-open" : ""}`}
                     onClick={() => setUserMenuOpen((v) => !v)}
                     aria-expanded={userMenuOpen}
                   >
-                    {user.displayName}
+                    <span className="p-nav__avatar" aria-hidden>
+                      {initial}
+                    </span>
+                    <span className="p-nav__account-name">{user.displayName}</span>
+                    <span className="p-nav__chevron" aria-hidden>
+                      ▾
+                    </span>
                   </button>
                   {userMenuOpen ? (
                     <div className="p-nav__user-menu" role="menu">
+                      <div className="p-nav__user-meta">
+                        <span className="p-nav__avatar p-nav__avatar--lg" aria-hidden>
+                          {initial}
+                        </span>
+                        <div>
+                          <div className="p-nav__user-meta-name">{user.displayName}</div>
+                          <div className="p-nav__user-meta-role">企业账号</div>
+                        </div>
+                      </div>
                       <button
                         type="button"
                         role="menuitem"
+                        className="p-nav__user-menu-item"
                         onClick={() => {
                           setUserMenuOpen(false);
                           logout();
                         }}
                       >
-                        退出
+                        退出登录
                       </button>
                     </div>
                   ) : null}
                 </div>
               </>
             ) : (
-              <>
-                <button type="button" className="p-btn p-btn--outline" style={{ height: 40, padding: "0 20px", fontSize: 14 }} onClick={() => setLoginOpen(true)}>
-                  登录
-                </button>
-                <button type="button" className="p-btn p-btn--cta" style={{ height: 40, padding: "0 20px", fontSize: 14 }} onClick={() => setJoinOpen(true)}>
-                  加入
-                </button>
-              </>
+              <button
+                type="button"
+                className="p-btn p-btn--outline"
+                style={{ height: 40, padding: "0 20px", fontSize: 14 }}
+                onClick={() => setLoginOpen(true)}
+              >
+                登录
+              </button>
             )}
           </div>
         </div>
       </header>
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
-      <JoinDialog open={joinOpen} onClose={() => setJoinOpen(false)} />
     </>
   );
 }

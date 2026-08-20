@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 import { HERO_SLIDES } from "@/lib/content";
 
-type Props = {
-  onLogin: () => void;
-  onJoin: () => void;
-};
-
-export function HeroCarousel({ onLogin, onJoin }: Props) {
+export function HeroCarousel() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -32,14 +27,6 @@ export function HeroCarousel({ onLogin, onJoin }: Props) {
               <span className="p-text-gradient">{slide.highlight}</span>
             </h1>
             <p className="p-lead">{slide.lead}</p>
-            <div className="p-hero__actions">
-              <button type="button" className="p-btn p-btn--cta" onClick={onJoin}>
-                寻求合作
-              </button>
-              <button type="button" className="p-btn p-btn--ghost" onClick={onLogin}>
-                已有账号登录
-              </button>
-            </div>
           </div>
         </div>
         <div className="p-hero__dots" role="tablist" aria-label="价值主张">
