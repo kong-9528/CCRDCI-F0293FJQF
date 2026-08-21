@@ -277,7 +277,7 @@ export function CustomerListPage() {
                       </td>
                       <td>
                         <div>{PERIOD_STATUS_LABEL[period as ContractPeriodStatus]}</div>
-                        <div style={{ color: "var(--n-400)", fontSize: 12 }}>
+                        <div style={{ color: "var(--n-400)", fontSize: 13 }}>
                           {row.contractStart} ~ {row.contractEnd}
                         </div>
                       </td>

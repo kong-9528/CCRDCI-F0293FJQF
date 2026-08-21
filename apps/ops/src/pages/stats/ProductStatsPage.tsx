@@ -5,7 +5,7 @@ import {
   StatsPeriodToggle,
   TrendRangeToggle,
 } from "@/components/StatsControls";
-import { PRODUCTS, type ProductCode } from "@/lib/catalog";
+import { PRODUCTS } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   avgSuccessRate,
@@ -37,7 +37,6 @@ export function ProductStatsPage() {
   const [boardPeriod, setBoardPeriod] = useState<StatsPeriod>("7d");
   const [trendRange, setTrendRange] = useState<TrendRange>("30d");
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
-  const [selected, setSelected] = useState<ProductCode[]>([PRODUCTS[0]!.code]);
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
   const [productsExpanded, setProductsExpanded] = useState(false);
 
@@ -73,17 +72,17 @@ export function ProductStatsPage() {
     : productCards.slice(0, 2);
 
   const trendDates = sliceDates(trendRange);
-  const trendSeries = selected.map((code, idx) => {
+  const trendSeries = PRODUCTS.map((p, idx) => {
     const values = trendDates.map((date) => {
-      const row = data.productDays.find((r) => r.date === date && r.product === code);
+      const row = data.productDays.find((r) => r.date === date && r.product === p.code);
       if (!row) return 0;
       if (trendMetric === "calls") return row.calls;
       if (trendMetric === "activeAccounts") return row.activeAccounts;
       return row.successRate;
     });
     return {
-      id: code,
-      label: PRODUCTS.find((p) => p.code === code)?.name ?? code,
+      id: p.code,
+      label: p.name,
       color: chartColor(idx),
       values,
     };
@@ -104,16 +103,6 @@ export function ProductStatsPage() {
       successRate: avgSuccessRate(rows),
     };
   }).sort((a, b) => b.calls - a.calls);
-
-  const toggleProduct = (code: ProductCode) => {
-    setSelected((prev) => {
-      if (prev.includes(code)) {
-        if (prev.length === 1) return prev;
-        return prev.filter((c) => c !== code);
-      }
-      return [...prev, code];
-    });
-  };
 
   return (
     <div className="a-stack">
@@ -202,19 +191,7 @@ export function ProductStatsPage() {
             <TrendRangeToggle value={trendRange} onChange={setTrendRange} />
           </div>
         </div>
-        <div className="a-card__body a-stack">
-          <div className="a-check-row">
-            {PRODUCTS.map((p) => (
-              <label key={p.code} className="a-check">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(p.code)}
-                  onChange={() => toggleProduct(p.code)}
-                />
-                {p.name}
-              </label>
-            ))}
-          </div>
+        <div className="a-card__body">
           <TrendChart
             labels={trendDates}
             unit={trendMetric === "successRate" ? "%" : ""}

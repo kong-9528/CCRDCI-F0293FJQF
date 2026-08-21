@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom"; // 快速入口暂隐
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import { SegmentedControl, TrendRangeToggle } from "@/components/StatsControls";
 import { PRODUCTS } from "@/lib/catalog";
@@ -20,11 +20,11 @@ const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   calls: "日调用次数",
 };
 
+/* 快速入口配置：暂隐，择机再启用
 type QuickEntry = {
   id: string;
   label: string;
   to: string;
-  /** 任一权限命中即可展示 */
   perms: string[];
 };
 
@@ -67,6 +67,7 @@ const QUICK_ENTRIES: QuickEntry[] = [
     perms: ["stats.products"],
   },
 ];
+*/
 
 function hasPerm(userPerms: string[], required: string[]) {
   const set = new Set(userPerms);
@@ -88,7 +89,7 @@ export function DashboardPage() {
     "products.list",
   ]);
   const showTrend = hasPerm(userPerms, ["stats.customers", "stats.products"]);
-  const quickEntries = QUICK_ENTRIES.filter((e) => hasPerm(userPerms, e.perms));
+  // const quickEntries = QUICK_ENTRIES.filter((e) => hasPerm(userPerms, e.perms));
 
   const totalAccounts = data.customers.length;
   const totalCalls = sumCalls(data.accountDays);
@@ -223,6 +224,7 @@ export function DashboardPage() {
         </div>
       ) : null}
 
+      {/* 快速入口：暂隐，择机再启用
       {quickEntries.length > 0 ? (
         <div className="a-card">
           <div className="a-card__head">快速入口</div>
@@ -237,10 +239,11 @@ export function DashboardPage() {
           </div>
         </div>
       ) : null}
+      */}
 
-      {!showBoard && !showTrend && quickEntries.length === 0 ? (
+      {!showBoard && !showTrend ? (
         <div className="a-card">
-          <div className="a-placeholder">当前账号暂无可展示的仪表盘模块，请联系管理员开通权限。</div>
+          <div className="a-placeholder">当前账号暂无可展示的首页模块，请联系管理员开通权限。</div>
         </div>
       ) : null}
     </div>

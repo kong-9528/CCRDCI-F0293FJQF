@@ -8,6 +8,22 @@
   box-sizing: border-box;
 }
 
+/* 运营后台字号整体上调 1px（不影响客户后台 / 门户） */
+.theme-ops {
+  --ad-fs-body: 14px;
+  --ad-fs-sm: 13px;
+  --ad-fs-h1: 17px;
+  --ad-fs-h2: 15px;
+}
+
+.theme-ops .a-sidebar__logo {
+  font-size: 16px;
+}
+
+.theme-ops .a-stat__num {
+  font-size: 23px;
+}
+
 html,
 body,
 #root {
@@ -25,7 +41,7 @@ body,
   border-radius: 6px;
   background: linear-gradient(135deg, var(--p-500), var(--a-500));
   color: #fff;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   display: grid;
   place-items: center;
@@ -40,6 +56,18 @@ body,
 .a-layout.is-collapsed .a-menu__item {
   justify-content: center;
   padding: 0;
+}
+
+.a-menu__icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.a-menu__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .a-menu__item.is-disabled {
@@ -63,7 +91,7 @@ body,
   color: var(--p-700);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -259,7 +287,7 @@ body,
 
 .a-chart__tick {
   fill: var(--n-400);
-  font-size: 10px;
+  font-size: 11px;
   font-family: var(--font-mono);
 }
 
@@ -382,7 +410,7 @@ body,
 }
 
 .a-stat__num--sm {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .a-product-board {
@@ -683,7 +711,7 @@ body,
   width: 12px;
   flex-shrink: 0;
   color: var(--n-400);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
 }
 
@@ -727,7 +755,7 @@ body,
 
 .a-code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--n-800);
   background: var(--n-100);
   padding: 1px 6px;
@@ -738,7 +766,7 @@ body,
   display: inline-block;
   min-width: 48px;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--p-700);

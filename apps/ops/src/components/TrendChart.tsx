@@ -51,7 +51,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         padding: [10, 12],
         textStyle: {
           color: "#363F4D",
-          fontSize: 12,
+          fontSize: 13,
         },
         extraCssText: "box-shadow: 0 8px 24px rgba(22,28,36,0.12); border-radius: 8px;",
         valueFormatter: (value) => {
@@ -61,7 +61,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         },
       },
       legend: {
-        show: series.length > 1,
+        show: series.length > 0,
         bottom: 0,
         left: "center",
         icon: "roundRect",
@@ -70,7 +70,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         itemGap: 16,
         selectedMode: true,
         inactiveColor: "#B8C0CC",
-        textStyle: { color: "#4A5665", fontSize: 12 },
+        textStyle: { color: "#4A5665", fontSize: 13 },
         pageTextStyle: { color: "#6B7889" },
       },
       xAxis: {
@@ -81,7 +81,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         axisTick: { show: false },
         axisLabel: {
           color: "#6B7889",
-          fontSize: 11,
+          fontSize: 12,
           hideOverlap: true,
           margin: 12,
         },
@@ -96,7 +96,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         axisTick: { show: false },
         axisLabel: {
           color: "#6B7889",
-          fontSize: 11,
+          fontSize: 12,
           formatter: (v: number) => (isPercent ? `${v}%` : `${v}`),
         },
         splitLine: {
