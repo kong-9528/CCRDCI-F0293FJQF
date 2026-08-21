@@ -58,6 +58,7 @@ export function ProductStatsPage() {
     return {
       code: p.code,
       name: p.name,
+      category: p.category,
       opened,
       activeAccounts,
       totalCalls: sumCalls(all),
@@ -106,60 +107,82 @@ export function ProductStatsPage() {
 
   return (
     <div className="a-stack">
-      <div className="a-card">
-        <div className="a-card__head">
-          分产品表盘
+      <section className="a-card a-dash-panel a-dash-panel--product-board">
+        <div className="a-card__head a-dash-panel__head">
+          <span className="a-dash-panel__title">分产品表盘</span>
           <div className="a-card__extra">
             <StatsPeriodToggle value={boardPeriod} onChange={setBoardPeriod} />
           </div>
         </div>
-        <div className="a-card__body">
+        <div className="a-card__body a-dash-panel__body">
           <div className="a-product-board">
-            {visibleProductCards.map((card) => (
-              <div key={card.code} className="a-product-board__card">
-                <div className="a-product-board__name">{card.name}</div>
-                <div className="a-metric-groups">
-                  <div className="a-metric-group">
-                    <div className="a-metric-group__title">账号规模</div>
-                    <div className="a-metric-pair">
-                      <div className="a-metric-pair__item">
-                        <div className="a-stat__label">开通账号数</div>
-                        <div className="a-stat__num">{card.opened}</div>
+            {visibleProductCards.map((card, i) => (
+              <article
+                key={card.code}
+                className={`a-product-board__card a-product-board__card--${card.category}`}
+                style={{ animationDelay: `${i * 45}ms` }}
+              >
+                <header className="a-product-board__head">
+                  <span className="a-product-board__index" aria-hidden>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="a-product-board__titles">
+                    <span className="a-product-board__tag">
+                      {card.category === "verify" ? "版权核验" : "智能审核"}
+                    </span>
+                    <h3 className="a-product-board__name">{card.name}</h3>
+                  </div>
+                </header>
+                <div className="a-product-board__groups">
+                  <div className="a-product-board__group">
+                    <div className="a-product-board__group-title">账号规模</div>
+                    <div className="a-product-board__pair">
+                      <div className="a-product-board__cell">
+                        <span className="a-product-board__label">开通账号数</span>
+                        <span className="a-product-board__value">{card.opened}</span>
                       </div>
-                      <div className="a-metric-pair__item is-period">
-                        <div className="a-stat__label">{periodLabel}活跃账号</div>
-                        <div className="a-stat__num">{card.activeAccounts}</div>
+                      <div className="a-product-board__cell a-product-board__cell--period">
+                        <span className="a-product-board__label">{periodLabel}活跃账号</span>
+                        <span className="a-product-board__value">{card.activeAccounts}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="a-metric-group">
-                    <div className="a-metric-group__title">调用量</div>
-                    <div className="a-metric-pair">
-                      <div className="a-metric-pair__item">
-                        <div className="a-stat__label">总调用次数</div>
-                        <div className="a-stat__num">{card.totalCalls.toLocaleString()}</div>
+                  <div className="a-product-board__group">
+                    <div className="a-product-board__group-title">调用量</div>
+                    <div className="a-product-board__pair">
+                      <div className="a-product-board__cell">
+                        <span className="a-product-board__label">总调用次数</span>
+                        <span className="a-product-board__value">
+                          {card.totalCalls.toLocaleString()}
+                        </span>
                       </div>
-                      <div className="a-metric-pair__item is-period">
-                        <div className="a-stat__label">{periodLabel}调用</div>
-                        <div className="a-stat__num">{card.periodCalls.toLocaleString()}</div>
+                      <div className="a-product-board__cell a-product-board__cell--period">
+                        <span className="a-product-board__label">{periodLabel}调用</span>
+                        <span className="a-product-board__value">
+                          {card.periodCalls.toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div className="a-metric-group">
-                    <div className="a-metric-group__title">成功率</div>
-                    <div className="a-metric-pair">
-                      <div className="a-metric-pair__item">
-                        <div className="a-stat__label">整体成功率</div>
-                        <div className="a-stat__num">{card.overallRate.toFixed(1)}%</div>
+                  <div className="a-product-board__group">
+                    <div className="a-product-board__group-title">成功率</div>
+                    <div className="a-product-board__pair">
+                      <div className="a-product-board__cell">
+                        <span className="a-product-board__label">整体成功率</span>
+                        <span className="a-product-board__value">
+                          {card.overallRate.toFixed(1)}%
+                        </span>
                       </div>
-                      <div className="a-metric-pair__item is-period">
-                        <div className="a-stat__label">{periodLabel}成功率</div>
-                        <div className="a-stat__num">{card.periodRate.toFixed(1)}%</div>
+                      <div className="a-product-board__cell a-product-board__cell--period">
+                        <span className="a-product-board__label">{periodLabel}成功率</span>
+                        <span className="a-product-board__value">
+                          {card.periodRate.toFixed(1)}%
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
             {productCards.length > 2 ? (
               <button
@@ -174,7 +197,7 @@ export function ProductStatsPage() {
             ) : null}
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="a-card">
         <div className="a-card__head">

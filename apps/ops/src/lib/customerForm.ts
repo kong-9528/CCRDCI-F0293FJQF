@@ -38,8 +38,6 @@ export type CustomerFormState = {
   contractAmount: string;
   account: string;
   password: string;
-  accountStart: string;
-  accountEnd: string;
   productServices: ProductFormRow[];
 };
 
@@ -75,8 +73,6 @@ export function emptyCustomerForm(): CustomerFormState {
     contractAmount: "",
     account: "",
     password: generateStrongPassword(),
-    accountStart: "",
-    accountEnd: "",
     productServices: [emptyProductRow()],
   };
 }
@@ -97,8 +93,6 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
     contractAmount: c.contractAmount == null ? "" : String(c.contractAmount),
     account: c.account,
     password: "",
-    accountStart: c.accountStart,
-    accountEnd: c.accountEnd,
     productServices:
       c.productServices.length > 0
         ? c.productServices.map((s) => ({
@@ -202,9 +196,6 @@ export function validateCustomerForm(
     return "新密码须至少 8 位，且大写/小写/数字/特殊符{!_@#}中至少满足 3 种";
   }
 
-  if (!form.accountStart || !form.accountEnd) return "请填写账号有效期";
-  if (form.accountStart > form.accountEnd) return "账号有效期开始不能晚于结束";
-
   const products = parseProductServices(form.productServices);
   if (!products.ok) return products.error;
   return null;
@@ -241,8 +232,6 @@ export function formToCustomerPayload(
     passwordHint: form.password
       ? form.password
       : (base?.passwordHint ?? ""),
-    accountStart: form.accountStart,
-    accountEnd: form.accountEnd,
     productServices: products.value,
     status: base?.status,
   };
@@ -266,7 +255,6 @@ export function diffCustomer(
     before.contractAmount == null ? "" : String(before.contractAmount),
     after.contractAmount == null ? "" : String(after.contractAmount),
   );
-  push("账号有效期", `${before.accountStart}~${before.accountEnd}`, `${after.accountStart}~${after.accountEnd}`);
   push("合作起止", `${before.contractStart}~${before.contractEnd}`, `${after.contractStart}~${after.contractEnd}`);
   if (before.passwordHint !== after.passwordHint) {
     push("密码", "******", "已重置");

@@ -101,7 +101,7 @@ export function DashboardPage() {
     const calls = sumCalls(
       data.accountProductDays.filter((r) => r.product === p.code),
     );
-    return { code: p.code, name: p.name, accounts, calls };
+    return { code: p.code, name: p.name, category: p.category, accounts, calls };
   });
 
   const [trendRange, setTrendRange] = useState<TrendRange>("7d");
@@ -145,56 +145,78 @@ export function DashboardPage() {
     <div className="a-stack">
       {showBoard ? (
         <>
-          <div className="a-card">
-            <div className="a-card__head">总览</div>
-            <div className="a-card__body">
-              <div className="a-metric-groups a-metric-groups--2">
-                <div className="a-metric-group">
-                  <div className="a-metric-group__title">账号</div>
-                  <div className="a-metric-pair a-metric-pair--single">
-                    <div className="a-metric-pair__item">
-                      <div className="a-stat__label">总账号数</div>
-                      <div className="a-stat__num">{totalAccounts}</div>
-                    </div>
+          <section className="a-card a-dash-panel a-dash-panel--overview">
+            <div className="a-card__head a-dash-panel__head">
+              <span className="a-dash-panel__title">总览</span>
+              <span className="a-dash-panel__hint">全平台累计</span>
+            </div>
+            <div className="a-card__body a-dash-panel__body">
+              <div className="a-dash-kpis">
+                <article className="a-dash-kpi a-dash-kpi--accounts">
+                  <div className="a-dash-kpi__glow" aria-hidden />
+                  <div className="a-dash-kpi__meta">
+                    <span className="a-dash-kpi__eyebrow">Accounts</span>
+                    <span className="a-dash-kpi__label">总账号数</span>
                   </div>
-                </div>
-                <div className="a-metric-group">
-                  <div className="a-metric-group__title">调用</div>
-                  <div className="a-metric-pair a-metric-pair--single">
-                    <div className="a-metric-pair__item">
-                      <div className="a-stat__label">总调用次数</div>
-                      <div className="a-stat__num">{totalCalls.toLocaleString()}</div>
-                    </div>
+                  <div className="a-dash-kpi__value">{totalAccounts}</div>
+                  <div className="a-dash-kpi__foot">已开通客户账号</div>
+                </article>
+                <article className="a-dash-kpi a-dash-kpi--calls">
+                  <div className="a-dash-kpi__glow" aria-hidden />
+                  <div className="a-dash-kpi__meta">
+                    <span className="a-dash-kpi__eyebrow">Invocations</span>
+                    <span className="a-dash-kpi__label">总调用次数</span>
                   </div>
-                </div>
+                  <div className="a-dash-kpi__value">
+                    {totalCalls.toLocaleString()}
+                  </div>
+                  <div className="a-dash-kpi__foot">全产品历史累计</div>
+                </article>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="a-card">
-            <div className="a-card__head">分产品概况</div>
-            <div className="a-card__body">
+          <section className="a-card a-dash-panel a-dash-panel--products">
+            <div className="a-card__head a-dash-panel__head">
+              <span className="a-dash-panel__title">分产品概况</span>
+              <span className="a-dash-panel__hint">按产品拆分账号与调用</span>
+            </div>
+            <div className="a-card__body a-dash-panel__body">
               <div className="a-dash-products">
-                {productBoard.map((p) => (
-                  <div key={p.code} className="a-metric-group">
-                    <div className="a-metric-group__title">{p.name}</div>
-                    <div className="a-metric-pair">
-                      <div className="a-metric-pair__item">
-                        <div className="a-stat__label">总账号数</div>
-                        <div className="a-stat__num a-stat__num--sm">{p.accounts}</div>
+                {productBoard.map((p, i) => (
+                  <article
+                    key={p.code}
+                    className={`a-dash-product a-dash-product--${p.category}`}
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <header className="a-dash-product__head">
+                      <span className="a-dash-product__index" aria-hidden>
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="a-dash-product__titles">
+                        <span className="a-dash-product__tag">
+                          {p.category === "verify" ? "版权核验" : "智能审核"}
+                        </span>
+                        <h3 className="a-dash-product__name">{p.name}</h3>
                       </div>
-                      <div className="a-metric-pair__item is-period">
-                        <div className="a-stat__label">总调用次数</div>
-                        <div className="a-stat__num a-stat__num--sm">
+                    </header>
+                    <div className="a-dash-product__metrics">
+                      <div className="a-dash-product__metric">
+                        <span className="a-dash-product__metric-label">总账号数</span>
+                        <span className="a-dash-product__metric-value">{p.accounts}</span>
+                      </div>
+                      <div className="a-dash-product__metric a-dash-product__metric--accent">
+                        <span className="a-dash-product__metric-label">总调用次数</span>
+                        <span className="a-dash-product__metric-value">
                           {p.calls.toLocaleString()}
-                        </div>
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             </div>
-          </div>
+          </section>
         </>
       ) : null}
 

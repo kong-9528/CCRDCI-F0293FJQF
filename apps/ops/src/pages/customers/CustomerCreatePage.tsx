@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ProductServicesEditor } from "@/components/ProductServicesEditor";
 import { CUSTOMER_TYPE_LABEL, generateStrongPassword } from "@/lib/catalog";
 import {
@@ -16,16 +17,15 @@ export function CustomerCreatePage() {
   const [form, setForm] = useState<CustomerFormState>(() => emptyCustomerForm());
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [confirmGenPassword, setConfirmGenPassword] = useState(false);
 
   const set = <K extends keyof CustomerFormState>(key: K, value: CustomerFormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const syncAccountRangeFromContract = () => {
+  const syncProductRangeFromContract = () => {
     setForm((prev) => ({
       ...prev,
-      accountStart: prev.accountStart || prev.contractStart,
-      accountEnd: prev.accountEnd || prev.contractEnd,
       productServices: prev.productServices.map((row) => ({
         ...row,
         startDate: row.startDate || prev.contractStart,
@@ -204,7 +204,7 @@ export function CustomerCreatePage() {
                     className="a-input"
                     value={form.contractStart}
                     onChange={(e) => set("contractStart", e.target.value)}
-                    onBlur={syncAccountRangeFromContract}
+                    onBlur={syncProductRangeFromContract}
                   />
                   <span>至</span>
                   <input
@@ -212,7 +212,7 @@ export function CustomerCreatePage() {
                     className="a-input"
                     value={form.contractEnd}
                     onChange={(e) => set("contractEnd", e.target.value)}
-                    onBlur={syncAccountRangeFromContract}
+                    onBlur={syncProductRangeFromContract}
                   />
                 </div>
               </div>
@@ -256,7 +256,7 @@ export function CustomerCreatePage() {
                   <button
                     type="button"
                     className="a-btn a-btn--sm"
-                    onClick={() => set("password", generateStrongPassword())}
+                    onClick={() => setConfirmGenPassword(true)}
                   >
                     生成强密码
                   </button>
@@ -274,26 +274,6 @@ export function CustomerCreatePage() {
                 </div>
                 <div className="a-field__hint">
                   须含大写 / 小写 / 数字 / 特殊符{"{!_@#}"} 中至少 3 种
-                </div>
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  账号有效期 <span className="a-req">*</span>
-                </span>
-                <div className="a-date-range">
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.accountStart}
-                    onChange={(e) => set("accountStart", e.target.value)}
-                  />
-                  <span>至</span>
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.accountEnd}
-                    onChange={(e) => set("accountEnd", e.target.value)}
-                  />
                 </div>
               </div>
             </div>
@@ -323,6 +303,20 @@ export function CustomerCreatePage() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmGenPassword}
+        title="确认生成强密码"
+        description="生成后将覆盖当前密码。若密码已复制并告知客户，请勿误点；确认后需重新复制并通知客户。"
+        confirmText="确认生成"
+        danger
+        onCancel={() => setConfirmGenPassword(false)}
+        onConfirm={() => {
+          set("password", generateStrongPassword());
+          setCopied(false);
+          setConfirmGenPassword(false);
+        }}
+      />
     </div>
   );
 }

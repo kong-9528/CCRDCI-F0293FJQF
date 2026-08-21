@@ -41,6 +41,8 @@ export function CustomerStatsPage() {
   const pageSize = 10;
 
   const boardDates = sliceDates(boardPeriod);
+  const periodLabel =
+    boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日";
   const boardRows = data.accountDays.filter((r) => boardDates.includes(r.date));
   const totalAccounts = data.customers.length;
   const activeAccounts = new Set(
@@ -94,9 +96,9 @@ export function CustomerStatsPage() {
 
   return (
     <div className="a-stack">
-      <div className="a-card">
-        <div className="a-card__head">
-          表盘概览
+      <section className="a-card a-dash-panel a-dash-panel--stats-board">
+        <div className="a-card__head a-dash-panel__head">
+          <span className="a-dash-panel__title">表盘概览</span>
           <div className="a-card__extra">
             <StatsPeriodToggle
               value={boardPeriod}
@@ -104,61 +106,64 @@ export function CustomerStatsPage() {
             />
           </div>
         </div>
-        <div className="a-card__body">
-          <div className="a-metric-groups">
-            <div className="a-metric-group">
-              <div className="a-metric-group__title">账号规模</div>
-              <div className="a-metric-pair">
-                <div className="a-metric-pair__item">
-                  <div className="a-stat__label">总账号数</div>
-                  <div className="a-stat__num">{totalAccounts}</div>
+        <div className="a-card__body a-dash-panel__body">
+          <div className="a-stats-board">
+            <article className="a-stats-duo a-stats-duo--accounts">
+              <div className="a-stats-duo__glow" aria-hidden />
+              <header className="a-stats-duo__head">
+                <span className="a-stats-duo__eyebrow">Accounts</span>
+                <h3 className="a-stats-duo__title">账号规模</h3>
+              </header>
+              <div className="a-stats-duo__pair">
+                <div className="a-stats-duo__cell">
+                  <span className="a-stats-duo__label">总账号数</span>
+                  <span className="a-stats-duo__value">{totalAccounts}</span>
                 </div>
-                <div className="a-metric-pair__item is-period">
-                  <div className="a-stat__label">
-                    {boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日"}
-                    活跃账号数
-                  </div>
-                  <div className="a-stat__num">{activeAccounts}</div>
+                <div className="a-stats-duo__cell a-stats-duo__cell--period">
+                  <span className="a-stats-duo__label">{periodLabel}活跃账号数</span>
+                  <span className="a-stats-duo__value">{activeAccounts}</span>
                 </div>
               </div>
-            </div>
+            </article>
 
-            <div className="a-metric-group">
-              <div className="a-metric-group__title">调用量</div>
-              <div className="a-metric-pair">
-                <div className="a-metric-pair__item">
-                  <div className="a-stat__label">总调用次数</div>
-                  <div className="a-stat__num">{totalCallsAll.toLocaleString()}</div>
+            <article className="a-stats-duo a-stats-duo--calls">
+              <div className="a-stats-duo__glow" aria-hidden />
+              <header className="a-stats-duo__head">
+                <span className="a-stats-duo__eyebrow">Invocations</span>
+                <h3 className="a-stats-duo__title">调用量</h3>
+              </header>
+              <div className="a-stats-duo__pair">
+                <div className="a-stats-duo__cell">
+                  <span className="a-stats-duo__label">总调用次数</span>
+                  <span className="a-stats-duo__value">{totalCallsAll.toLocaleString()}</span>
                 </div>
-                <div className="a-metric-pair__item is-period">
-                  <div className="a-stat__label">
-                    {boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日"}
-                    调用次数
-                  </div>
-                  <div className="a-stat__num">{periodCalls.toLocaleString()}</div>
+                <div className="a-stats-duo__cell a-stats-duo__cell--period">
+                  <span className="a-stats-duo__label">{periodLabel}调用次数</span>
+                  <span className="a-stats-duo__value">{periodCalls.toLocaleString()}</span>
                 </div>
               </div>
-            </div>
+            </article>
 
-            <div className="a-metric-group">
-              <div className="a-metric-group__title">成功率</div>
-              <div className="a-metric-pair">
-                <div className="a-metric-pair__item">
-                  <div className="a-stat__label">整体成功率</div>
-                  <div className="a-stat__num">{overallRate.toFixed(1)}%</div>
+            <article className="a-stats-duo a-stats-duo--rate">
+              <div className="a-stats-duo__glow" aria-hidden />
+              <header className="a-stats-duo__head">
+                <span className="a-stats-duo__eyebrow">Success</span>
+                <h3 className="a-stats-duo__title">成功率</h3>
+              </header>
+              <div className="a-stats-duo__pair">
+                <div className="a-stats-duo__cell">
+                  <span className="a-stats-duo__label">整体成功率</span>
+                  <span className="a-stats-duo__value">{overallRate.toFixed(1)}%</span>
                 </div>
-                <div className="a-metric-pair__item is-period">
-                  <div className="a-stat__label">
-                    {boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日"}
-                    成功率
-                  </div>
-                  <div className="a-stat__num">{periodRate.toFixed(1)}%</div>
+                <div className="a-stats-duo__cell a-stats-duo__cell--period">
+                  <span className="a-stats-duo__label">{periodLabel}成功率</span>
+                  <span className="a-stats-duo__value">{periodRate.toFixed(1)}%</span>
                 </div>
               </div>
-            </div>
+            </article>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="a-card">
         <div className="a-card__head">

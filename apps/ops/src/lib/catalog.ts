@@ -62,8 +62,6 @@ export type CustomerAccount = {
   account: string;
   /** 演示：明文仅用于重置提示，非真实存储 */
   passwordHint: string;
-  accountStart: string;
-  accountEnd: string;
   status: AccountStatus;
   productServices: ProductServiceConfig[];
   createdAt: string;
@@ -218,8 +216,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 280000,
     account: "acme_corp",
     passwordHint: "Acme#2026demo",
-    accountStart: "2026-01-01",
-    accountEnd: "2026-12-31",
     status: "enabled",
     productServices: [
       svc("dci", "total", 50000, 12840, "2026-01-01", "2026-12-31"),
@@ -245,8 +241,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 520000,
     account: "north_press",
     passwordHint: "North_Press9!",
-    accountStart: "2025-06-01",
-    accountEnd: "2026-05-31",
     status: "enabled",
     productServices: [
       svc("dci", "total", 80000, 22100, "2025-06-01", "2026-05-31"),
@@ -273,8 +267,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 96000,
     account: "pixel_lab",
     passwordHint: "Pixel_Lab3!",
-    accountStart: "2025-03-01",
-    accountEnd: "2026-02-28",
     status: "disabled",
     productServices: [svc("safety", "total", 20000, 15002, "2025-03-01", "2026-02-28", true)],
     createdAt: "2025-02-20 16:00:00",
@@ -296,8 +288,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 180000,
     account: "ocean_music",
     passwordHint: "Ocean#Music26",
-    accountStart: "2026-09-01",
-    accountEnd: "2027-08-31",
     status: "enabled",
     productServices: [
       svc("info", "total", 12000, 0, "2026-09-01", "2027-08-31"),
@@ -322,8 +312,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 210000,
     account: "legacy_art",
     passwordHint: "Legacy_Art1!",
-    accountStart: "2024-01-01",
-    accountEnd: "2025-12-31",
     status: "enabled",
     productServices: [
       svc("dci", "total", 40000, 39980, "2024-01-01", "2025-12-31"),
@@ -350,8 +338,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 150000,
     account: "stream_box",
     passwordHint: "Stream_Box8!",
-    accountStart: "2026-02-15",
-    accountEnd: "2027-02-14",
     status: "enabled",
     productServices: [
       svc("safety", "total", 30000, 4200, "2026-02-15", "2027-02-14"),
@@ -376,8 +362,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 88000,
     account: "cloud_rights",
     passwordHint: "Cloud_Rights2!",
-    accountStart: "2025-08-01",
-    accountEnd: "2026-07-31",
     status: "disabled",
     productServices: [svc("dci", "total", 10000, 3300, "2025-08-01", "2026-07-31")],
     createdAt: "2025-07-25 09:00:00",
@@ -399,8 +383,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 360000,
     account: "nova_film",
     passwordHint: "Nova_Film7!",
-    accountStart: "2026-04-01",
-    accountEnd: "2027-03-31",
     status: "enabled",
     productServices: [
       svc("certificate", "total", 20000, 1200, "2026-04-01", "2027-03-31"),
@@ -427,8 +409,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 45000,
     account: "jade_studio",
     passwordHint: "Jade_Studio5!",
-    accountStart: "2023-05-01",
-    accountEnd: "2024-04-30",
     status: "enabled",
     productServices: [svc("info", "total", 5000, 4988, "2023-05-01", "2024-04-30")],
     createdAt: "2023-04-20 10:00:00",
@@ -453,8 +433,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 680000,
     account: "metro_media",
     passwordHint: "Metro_Media4!",
-    accountStart: "2026-01-15",
-    accountEnd: "2026-12-15",
     status: "enabled",
     productServices: [
       svc("dci", "unlimited", null, 42000, "2026-01-15", "2026-12-15"),
@@ -483,8 +461,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 120000,
     account: "silk_road",
     passwordHint: "Silk_Road6!",
-    accountStart: "2026-07-01",
-    accountEnd: "2027-06-30",
     status: "enabled",
     productServices: [
       svc("duplicate", "total", 9000, 0, "2026-07-01", "2027-06-30"),
@@ -509,8 +485,6 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     contractAmount: 72000,
     account: "beacon_edu",
     passwordHint: "Beacon_Edu9!",
-    accountStart: "2025-01-01",
-    accountEnd: "2025-12-31",
     status: "disabled",
     productServices: [
       svc("info", "total", 8000, 8000, "2025-01-01", "2025-12-31"),

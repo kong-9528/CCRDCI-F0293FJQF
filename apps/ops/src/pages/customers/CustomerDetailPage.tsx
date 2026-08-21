@@ -218,12 +218,6 @@ export function CustomerDetailPage() {
                   </span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">账号有效期</span>
-                  <span className="a-desc__value">
-                    {customer.accountStart} ~ {customer.accountEnd}
-                  </span>
-                </div>
-                <div className="a-desc__item">
                   <span className="a-desc__label">创建时间</span>
                   <span className="a-desc__value">{customer.createdAt}</span>
                 </div>

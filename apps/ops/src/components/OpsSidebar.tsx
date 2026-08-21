@@ -14,33 +14,35 @@ export function OpsSidebar({ collapsed }: Props) {
         {!collapsed ? <span className="a-sidebar__logo-text">运营后台</span> : null}
       </NavLink>
 
-      {OPS_NAV.map((group) => (
-        <div key={group.title}>
-          {!collapsed ? <div className="a-menu__group">{group.title}</div> : null}
-          {group.items.map((item) =>
-            item.ready ? (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
-                title={item.label}
-              >
-                <NavIcon to={item.to} className="a-menu__icon" />
-                {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
-              </NavLink>
-            ) : (
-              <span
-                key={item.to}
-                className="a-menu__item is-disabled"
-                title={`${item.label}（即将接入）`}
-              >
-                <NavIcon to={item.to} className="a-menu__icon" />
-                {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
-              </span>
-            ),
-          )}
-        </div>
-      ))}
+      <nav className="a-sidebar__nav">
+        {OPS_NAV.map((group) => (
+          <div key={group.title}>
+            {!collapsed ? <div className="a-menu__group">{group.title}</div> : null}
+            {group.items.map((item) =>
+              item.ready ? (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
+                  title={item.label}
+                >
+                  <NavIcon to={item.to} className="a-menu__icon" />
+                  {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
+                </NavLink>
+              ) : (
+                <span
+                  key={item.to}
+                  className="a-menu__item is-disabled"
+                  title={`${item.label}（即将接入）`}
+                >
+                  <NavIcon to={item.to} className="a-menu__icon" />
+                  {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
+                </span>
+              ),
+            )}
+          </div>
+        ))}
+      </nav>
     </aside>
   );
 }

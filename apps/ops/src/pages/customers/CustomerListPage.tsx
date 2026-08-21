@@ -314,82 +314,84 @@ export function CustomerListPage() {
           </table>
         </div>
 
-        <div className="a-summary">
-          当前筛选结果共 <b>{filtered.length}</b> 个账号
-          {applied.product
-            ? `，其中配置过「${productName(applied.product as ProductCode)}」的账号已纳入`
-            : ""}
-        </div>
+        <div className="a-list-footer">
+          <div className="a-summary">
+            当前筛选结果共 <b>{filtered.length}</b> 个账号
+            {applied.product
+              ? `，其中配置过「${productName(applied.product as ProductCode)}」的账号已纳入`
+              : ""}
+          </div>
 
-        <div className="a-pagination">
-          <span>
-            共 {filtered.length} 条 · 第 {safePage}/{totalPages} 页
-          </span>
-          <select
-            className="a-select"
-            style={{ minWidth: 88 }}
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value) as (typeof PAGE_SIZES)[number]);
-              setPage(1);
-            }}
-          >
-            {PAGE_SIZES.map((n) => (
-              <option key={n} value={n}>
-                {n} 条/页
-              </option>
-            ))}
-          </select>
-          <button type="button" disabled={safePage <= 1} onClick={() => goPage(1)}>
-            首页
-          </button>
-          <button type="button" disabled={safePage <= 1} onClick={() => goPage(safePage - 1)}>
-            上一页
-          </button>
-          <button type="button" className="is-active" onClick={() => undefined}>
-            {safePage}
-          </button>
-          <button
-            type="button"
-            disabled={safePage >= totalPages}
-            onClick={() => goPage(safePage + 1)}
-          >
-            下一页
-          </button>
-          <button
-            type="button"
-            disabled={safePage >= totalPages}
-            onClick={() => goPage(totalPages)}
-          >
-            尾页
-          </button>
-          <label className="a-pagination__jump">
-            跳至
-            <input
-              className="a-input a-input--sm"
-              value={jump}
-              onChange={(e) => setJump(e.target.value.replace(/\D/g, ""))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && jump) {
-                  goPage(Number(jump));
-                  setJump("");
-                }
-              }}
-            />
-            页
-            <button
-              type="button"
-              className="a-btn a-btn--sm"
-              onClick={() => {
-                if (jump) {
-                  goPage(Number(jump));
-                  setJump("");
-                }
+          <div className="a-pagination">
+            <span>
+              共 {filtered.length} 条 · 第 {safePage}/{totalPages} 页
+            </span>
+            <select
+              className="a-select"
+              style={{ minWidth: 88 }}
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value) as (typeof PAGE_SIZES)[number]);
+                setPage(1);
               }}
             >
-              GO
+              {PAGE_SIZES.map((n) => (
+                <option key={n} value={n}>
+                  {n} 条/页
+                </option>
+              ))}
+            </select>
+            <button type="button" disabled={safePage <= 1} onClick={() => goPage(1)}>
+              首页
             </button>
-          </label>
+            <button type="button" disabled={safePage <= 1} onClick={() => goPage(safePage - 1)}>
+              上一页
+            </button>
+            <button type="button" className="is-active" onClick={() => undefined}>
+              {safePage}
+            </button>
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => goPage(safePage + 1)}
+            >
+              下一页
+            </button>
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => goPage(totalPages)}
+            >
+              尾页
+            </button>
+            <label className="a-pagination__jump">
+              跳至
+              <input
+                className="a-input a-input--sm"
+                value={jump}
+                onChange={(e) => setJump(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && jump) {
+                    goPage(Number(jump));
+                    setJump("");
+                  }
+                }}
+              />
+              页
+              <button
+                type="button"
+                className="a-btn a-btn--sm"
+                onClick={() => {
+                  if (jump) {
+                    goPage(Number(jump));
+                    setJump("");
+                  }
+                }}
+              >
+                GO
+              </button>
+            </label>
+          </div>
         </div>
       </div>
 

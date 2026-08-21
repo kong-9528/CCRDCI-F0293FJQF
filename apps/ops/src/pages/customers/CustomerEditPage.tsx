@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ProductServicesEditor } from "@/components/ProductServicesEditor";
 import {
   CUSTOMER_TYPE_LABEL,
@@ -23,6 +24,7 @@ export function CustomerEditPage() {
   const [form, setForm] = useState<CustomerFormState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [confirmGenPassword, setConfirmGenPassword] = useState(false);
 
   useEffect(() => {
     if (original) setForm(customerToForm(original));
@@ -61,7 +63,7 @@ export function CustomerEditPage() {
       status: original.status,
       createdAt: original.createdAt,
     };
-    // 编辑页：信用代码/公司全称/法人/账号只读；合同起止允许展示但按需求合作金额可改，起止在「展示所有字段」可改合作金额与账号有效期
+    // 编辑页：信用代码/公司全称/法人/账号只读；合同起止与合作金额可改
     next.contactName = form.contactName.trim();
     next.contactPhone = form.contactPhone.trim();
     next.contactEmail = form.contactEmail.trim();
@@ -70,8 +72,6 @@ export function CustomerEditPage() {
     next.contractFiles = form.contractFiles;
     next.contractStart = form.contractStart;
     next.contractEnd = form.contractEnd;
-    next.accountStart = form.accountStart;
-    next.accountEnd = form.accountEnd;
     next.productServices = payload.productServices;
     if (form.password) next.passwordHint = form.password;
 
@@ -267,7 +267,7 @@ export function CustomerEditPage() {
                   <button
                     type="button"
                     className="a-btn a-btn--sm"
-                    onClick={() => set("password", generateStrongPassword())}
+                    onClick={() => setConfirmGenPassword(true)}
                   >
                     生成强密码
                   </button>
@@ -285,26 +285,6 @@ export function CustomerEditPage() {
                   </button>
                 </div>
               </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  账号有效期 <span className="a-req">*</span>
-                </span>
-                <div className="a-date-range">
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.accountStart}
-                    onChange={(e) => set("accountStart", e.target.value)}
-                  />
-                  <span>至</span>
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.accountEnd}
-                    onChange={(e) => set("accountEnd", e.target.value)}
-                  />
-                </div>
-              </div>
             </div>
           </section>
 
@@ -314,8 +294,8 @@ export function CustomerEditPage() {
               rows={form.productServices}
               onChange={(rows) => set("productServices", rows)}
               defaultRange={{
-                startDate: form.accountStart || form.contractStart,
-                endDate: form.accountEnd || form.contractEnd,
+                startDate: form.contractStart,
+                endDate: form.contractEnd,
               }}
               allowStop
             />
@@ -337,6 +317,20 @@ export function CustomerEditPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmGenPassword}
+        title="确认生成强密码"
+        description="生成后将覆盖当前密码。若密码已复制并告知客户，请勿误点；确认后需重新复制并通知客户。"
+        confirmText="确认生成"
+        danger
+        onCancel={() => setConfirmGenPassword(false)}
+        onConfirm={() => {
+          set("password", generateStrongPassword());
+          setCopied(false);
+          setConfirmGenPassword(false);
+        }}
+      />
     </div>
   );
 }

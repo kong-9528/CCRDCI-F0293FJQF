@@ -68,8 +68,8 @@ export function CustomerServicesPage() {
       }
     }
     rows.sort((a, b) => {
-      const byStart = b.customer.accountStart.localeCompare(a.customer.accountStart);
-      if (byStart !== 0) return byStart;
+      const byUpdated = b.customer.updatedAt.localeCompare(a.customer.updatedAt);
+      if (byUpdated !== 0) return byUpdated;
       return a.customer.account.localeCompare(b.customer.account);
     });
     return rows;
@@ -163,8 +163,8 @@ export function CustomerServicesPage() {
         </div>
 
         <div className="a-summary">
-          当前共 <b>{summary.accounts}</b> 个账户正在使用 <b>{summary.services}</b>{" "}
-          项产品服务
+          当前共 <b>{summary.accounts}</b> 个账户的 <b>{summary.services}</b>{" "}
+          个产品在使用中
           {applied.account || applied.product || applied.status
             ? "（基于当前筛选结果中「使用中」的服务项统计）"
             : ""}
