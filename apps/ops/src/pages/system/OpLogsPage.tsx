@@ -31,12 +31,13 @@ export function OpLogsPage() {
 
   return (
     <div className="a-card">
-      <div className="a-tabs" role="tablist">
+      <div className="a-tabs a-tabs--segment" role="tablist">
         {(Object.keys(OP_LOG_SCOPE_LABEL) as OpLogScope[]).map((key) => (
           <button
             key={key}
             type="button"
             role="tab"
+            aria-selected={scope === key}
             className={`a-tabs__item${scope === key ? " is-active" : ""}`}
             onClick={() => switchScope(key)}
           >

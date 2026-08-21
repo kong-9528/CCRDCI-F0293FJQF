@@ -222,22 +222,20 @@ export function ContentManagePage() {
           >
             查询
           </button>
-          <div className="a-toolbar__right">
-            <button
-              type="button"
-              className="a-btn a-btn--primary"
-              onClick={() => openCreateCatalog()}
-            >
-              新增目录
-            </button>
-            <button
-              type="button"
-              className="a-btn a-btn--primary"
-              onClick={() => openCreateArticle()}
-            >
-              新增文章
-            </button>
-          </div>
+          <button
+            type="button"
+            className="a-btn a-btn--primary"
+            onClick={() => openCreateCatalog()}
+          >
+            新增目录
+          </button>
+          <button
+            type="button"
+            className="a-btn a-btn--primary"
+            onClick={() => openCreateArticle()}
+          >
+            新增文章
+          </button>
         </div>
 
         <div className="a-card__body a-card__body--flush">

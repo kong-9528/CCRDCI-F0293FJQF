@@ -148,12 +148,13 @@ export function ApiServicesPage() {
   return (
     <>
       <div className="a-card">
-        <div className="a-tabs" role="tablist">
+        <div className="a-tabs a-tabs--segment" role="tablist">
           {(Object.keys(API_TAB_LABEL) as ApiServiceTab[]).map((key) => (
             <button
               key={key}
               type="button"
               role="tab"
+              aria-selected={tab === key}
               className={`a-tabs__item${tab === key ? " is-active" : ""}`}
               onClick={() => switchTab(key)}
             >

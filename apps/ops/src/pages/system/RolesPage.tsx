@@ -148,11 +148,9 @@ export function RolesPage() {
     <>
       <div className="a-card">
         <div className="a-toolbar">
-          <div className="a-toolbar__right">
-            <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
-              新增角色
-            </button>
-          </div>
+          <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
+            新增角色
+          </button>
         </div>
 
         <div className="a-card__body a-card__body--flush">
