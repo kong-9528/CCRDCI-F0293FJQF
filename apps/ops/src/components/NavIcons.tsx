@@ -140,6 +140,16 @@ export function IconLogs(props: IconProps) {
   );
 }
 
+export function IconPortal(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="2.5" y="3.5" width="11" height="9" rx="1.2" {...stroke} />
+      <path d="M2.5 6.5h11" {...stroke} />
+      <path d="M5 9h2.5M5 11h4" {...stroke} />
+    </Svg>
+  );
+}
+
 const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/dashboard": IconHome,
   "/customers": IconCustomers,
@@ -147,6 +157,7 @@ const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/products": IconProducts,
   "/stats/customers": IconStatsCustomers,
   "/stats/products": IconStatsProducts,
+  "/content/portal": IconPortal,
   "/content/hc": IconHelp,
   "/content/faqs": IconFaq,
   "/system/roles": IconRoles,

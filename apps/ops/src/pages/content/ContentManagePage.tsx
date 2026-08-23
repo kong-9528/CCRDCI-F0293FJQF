@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   VISIBILITY_LABEL,
@@ -9,28 +10,15 @@ import {
 } from "@/lib/contentStore";
 
 type CatalogForm = { name: string; parentId: string; weight: string };
-type ArticleForm = {
-  title: string;
-  catalogId: string;
-  weight: string;
-  summary: string;
-  body: string;
-};
 
 const EMPTY_CATALOG: CatalogForm = { name: "", parentId: "", weight: "10" };
-const EMPTY_ARTICLE: ArticleForm = {
-  title: "",
-  catalogId: "",
-  weight: "10",
-  summary: "",
-  body: "",
-};
 
 type Filters = { keyword: string; type: "" | "catalog" | "article"; status: string };
 
 const EMPTY_FILTERS: Filters = { keyword: "", type: "", status: "" };
 
 export function ContentManagePage() {
+  const navigate = useNavigate();
   const store = useContentStore();
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
@@ -38,10 +26,6 @@ export function ContentManagePage() {
   const [catalogDialog, setCatalogDialog] = useState<"create" | "edit" | null>(null);
   const [editingCatalog, setEditingCatalog] = useState<HelpCatalog | null>(null);
   const [catalogForm, setCatalogForm] = useState<CatalogForm>(EMPTY_CATALOG);
-
-  const [articleDialog, setArticleDialog] = useState<"create" | "edit" | null>(null);
-  const [editingArticle, setEditingArticle] = useState<HelpArticle | null>(null);
-  const [articleForm, setArticleForm] = useState<ArticleForm>(EMPTY_ARTICLE);
 
   const [error, setError] = useState<string | null>(null);
   const [confirmDeleteCatalog, setConfirmDeleteCatalog] = useState<HelpCatalog | null>(null);
@@ -53,7 +37,6 @@ export function ContentManagePage() {
     () => store.catalogSelectOptions(editingCatalog?.id),
     [store, editingCatalog],
   );
-  const catalogOptions = store.catalogSelectOptions();
 
   const rows = useMemo(() => {
     const kw = applied.keyword.trim().toLowerCase();
@@ -96,23 +79,12 @@ export function ContentManagePage() {
   };
 
   const openCreateArticle = (catalogId = "") => {
-    setEditingArticle(null);
-    setArticleForm({ ...EMPTY_ARTICLE, catalogId });
-    setError(null);
-    setArticleDialog("create");
+    const qs = catalogId ? `?catalogId=${encodeURIComponent(catalogId)}` : "";
+    navigate(`/content/hc/articles/new${qs}`);
   };
 
   const openEditArticle = (row: HelpArticle) => {
-    setEditingArticle(row);
-    setArticleForm({
-      title: row.title,
-      catalogId: row.catalogId ?? "",
-      weight: String(row.weight),
-      summary: row.summary,
-      body: row.body,
-    });
-    setError(null);
-    setArticleDialog("edit");
+    navigate(`/content/hc/articles/${row.id}/edit`);
   };
 
   const submitCatalog = () => {
@@ -136,28 +108,6 @@ export function ContentManagePage() {
       });
     }
     setCatalogDialog(null);
-  };
-
-  const submitArticle = () => {
-    if (!articleForm.title.trim()) {
-      setError("请填写文章标题");
-      return;
-    }
-    const weight = Number(articleForm.weight);
-    if (!Number.isInteger(weight) || weight < 0) {
-      setError("排序权重须为非负整数");
-      return;
-    }
-    const payload = {
-      title: articleForm.title,
-      catalogId: articleForm.catalogId || null,
-      weight,
-      summary: articleForm.summary,
-      body: articleForm.body,
-    };
-    if (articleDialog === "create") store.createArticle(payload);
-    else if (editingArticle) store.updateArticle(editingArticle.id, payload);
-    setArticleDialog(null);
   };
 
   const visLabel = (status: Visibility) => VISIBILITY_LABEL[status];
@@ -451,104 +401,6 @@ export function ContentManagePage() {
                 取消
               </button>
               <button type="button" className="a-btn a-btn--primary" onClick={submitCatalog}>
-                保存
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {articleDialog ? (
-        <div
-          className="a-modal-backdrop"
-          role="presentation"
-          onClick={() => setArticleDialog(null)}
-        >
-          <div
-            className="a-modal a-modal--lg"
-            role="dialog"
-            aria-modal
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="a-modal__title">
-              {articleDialog === "create" ? "新增文章" : "编辑文章"}
-            </h3>
-            {articleDialog === "create" ? (
-              <p className="a-modal__desc">
-                新增文章默认为隐藏，需手动「显示」后才会在前端展示。
-              </p>
-            ) : null}
-            <div className="a-form a-form--modal a-form--stack">
-              <div className="a-field a-field--stack">
-                <span className="a-field__label">所属目录</span>
-                <select
-                  className="a-select"
-                  value={articleForm.catalogId}
-                  onChange={(e) =>
-                    setArticleForm((p) => ({ ...p, catalogId: e.target.value }))
-                  }
-                >
-                  <option value="">（根目录）</option>
-                  {catalogOptions.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="a-field a-field--stack">
-                <span className="a-field__label">
-                  文章标题 <span className="a-req">*</span>
-                </span>
-                <input
-                  className="a-input"
-                  value={articleForm.title}
-                  onChange={(e) =>
-                    setArticleForm((p) => ({ ...p, title: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="a-field a-field--stack">
-                <span className="a-field__label">排序权重</span>
-                <input
-                  className="a-input"
-                  value={articleForm.weight}
-                  onChange={(e) =>
-                    setArticleForm((p) => ({
-                      ...p,
-                      weight: e.target.value.replace(/\D/g, ""),
-                    }))
-                  }
-                />
-              </div>
-              <div className="a-field a-field--stack">
-                <span className="a-field__label">摘要</span>
-                <input
-                  className="a-input"
-                  value={articleForm.summary}
-                  onChange={(e) =>
-                    setArticleForm((p) => ({ ...p, summary: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="a-field a-field--stack">
-                <span className="a-field__label">正文（支持 HTML 图文混排）</span>
-                <textarea
-                  className="a-textarea"
-                  rows={8}
-                  value={articleForm.body}
-                  onChange={(e) =>
-                    setArticleForm((p) => ({ ...p, body: e.target.value }))
-                  }
-                />
-              </div>
-            </div>
-            {error ? <div className="a-form-error">{error}</div> : null}
-            <div className="a-modal__actions">
-              <button type="button" className="a-btn" onClick={() => setArticleDialog(null)}>
-                取消
-              </button>
-              <button type="button" className="a-btn a-btn--primary" onClick={submitArticle}>
                 保存
               </button>
             </div>

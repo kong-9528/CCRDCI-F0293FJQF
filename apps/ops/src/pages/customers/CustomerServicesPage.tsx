@@ -8,7 +8,6 @@ import {
   productName,
   type CustomerAccount,
   type ProductServiceConfig,
-  type QuotaType,
 } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 
@@ -327,14 +326,14 @@ export function CustomerServicesPage() {
         customer={editRow?.customer ?? null}
         service={editRow?.service ?? null}
         onCancel={() => setEditRow(null)}
-        onSave={(quotaType: QuotaType, quotaTotal: number | null) => {
+        onSave={(patch) => {
           if (!editRow) return "无效的服务项";
-          const ok = updateProductService(
+          const err = updateProductService(
             editRow.customer.id,
             editRow.service.product,
-            { quotaType, quotaTotal },
+            patch,
           );
-          if (!ok) return "保存失败，请检查额度是否不小于已用次数";
+          if (err) return err;
           setEditRow(null);
           return null;
         }}

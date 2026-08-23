@@ -34,8 +34,9 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "内容管理",
+    title: "DCI技术服务平台门户",
     items: [
+      { to: "/content/portal", label: "门户首页管理", ready: true },
       { to: "/content/hc", label: "帮助中心管理", ready: true },
       { to: "/content/faqs", label: "FAQ管理", ready: true },
     ],
@@ -55,6 +56,8 @@ export function findNavLabel(pathname: string): string {
   if (pathname === "/customers/new") return "新增客户账号";
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";
   if (/^\/customers\/[^/]+$/.test(pathname)) return "客户详情";
+  if (pathname === "/content/hc/articles/new") return "新增文章";
+  if (/^\/content\/hc\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";
   for (const group of OPS_NAV) {
     for (const item of group.items) {
       if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {

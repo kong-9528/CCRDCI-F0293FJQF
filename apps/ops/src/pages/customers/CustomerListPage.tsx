@@ -157,13 +157,13 @@ export function CustomerListPage() {
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">客户状态</span>
+            <span className="a-field__label">账号状态</span>
             <select
               className="a-select"
               value={draft.status}
               onChange={(e) => setFilter("status", e.target.value)}
             >
-              <option value="">请选择客户状态</option>
+              <option value="">请选择账号状态</option>
               <option value="enabled">已启用</option>
               <option value="disabled">已停用</option>
             </select>
@@ -176,9 +176,11 @@ export function CustomerListPage() {
               onChange={(e) => setFilter("period", e.target.value)}
             >
               <option value="">请选择服务期状态</option>
-              <option value="pending">未生效</option>
-              <option value="active">使用中</option>
-              <option value="expired">已到期</option>
+              {(Object.keys(PERIOD_STATUS_LABEL) as ContractPeriodStatus[]).map((key) => (
+                <option key={key} value={key}>
+                  {PERIOD_STATUS_LABEL[key]}
+                </option>
+              ))}
             </select>
           </div>
           <div className="a-field">
@@ -222,7 +224,7 @@ export function CustomerListPage() {
                 <th>公司名称</th>
                 <th>联系人姓名</th>
                 <th>开通产品</th>
-                <th>客户状态</th>
+                <th>账号状态</th>
                 <th>合同服务期</th>
                 <th>操作</th>
               </tr>

@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import {
   CUSTOMER_TYPE_LABEL,
-  PRODUCTS,
   productName,
   type CustomerAccount,
-  type ProductCode,
   type ProductServiceConfig,
   type QuotaType,
 } from "@/lib/catalog";
 
-export type ServiceRowRef = {
-  customerId: string;
-  product: ProductCode;
+export type ServiceEditPatch = {
+  quotaType: QuotaType;
+  quotaTotal: number | null;
+  startDate: string;
+  endDate: string;
 };
 
 type Props = {
@@ -19,14 +19,8 @@ type Props = {
   customer: CustomerAccount | null;
   service: ProductServiceConfig | null;
   onCancel: () => void;
-  onSave: (quotaType: QuotaType, quotaTotal: number | null) => string | null;
+  onSave: (patch: ServiceEditPatch) => string | null;
 };
-
-function categoryLabel(code: ProductCode) {
-  const p = PRODUCTS.find((x) => x.code === code);
-  if (!p) return "—";
-  return p.category === "verify" ? "版权核验服务" : "智能辅助审核服务";
-}
 
 export function EditServiceDialog({
   open,
@@ -37,18 +31,32 @@ export function EditServiceDialog({
 }: Props) {
   const [quotaType, setQuotaType] = useState<QuotaType>("total");
   const [quotaTotal, setQuotaTotal] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || !service) return;
     setQuotaType(service.quotaType);
     setQuotaTotal(service.quotaTotal == null ? "" : String(service.quotaTotal));
+    setStartDate(service.startDate);
+    setEndDate(service.endDate);
     setError(null);
   }, [open, service]);
 
   if (!open || !customer || !service) return null;
 
   const submit = () => {
+    if (!startDate || !endDate) {
+      setError("请填写产品有效期");
+      return;
+    }
+    if (startDate > endDate) {
+      setError("有效期开始不能晚于结束");
+      return;
+    }
+
+    let total: number | null = null;
     if (quotaType === "total") {
       const n = Number(quotaTotal);
       if (!Number.isInteger(n) || n <= 0) {
@@ -59,18 +67,16 @@ export function EditServiceDialog({
         setError(`新额度不能小于已用次数 ${service.usedCount}`);
         return;
       }
-      const err = onSave("total", n);
-      if (err) {
-        setError(err);
-        return;
-      }
-    } else {
-      const err = onSave("unlimited", null);
-      if (err) {
-        setError(err);
-        return;
-      }
+      total = n;
     }
+
+    const err = onSave({
+      quotaType,
+      quotaTotal: total,
+      startDate,
+      endDate,
+    });
+    if (err) setError(err);
   };
 
   return (
@@ -118,53 +124,67 @@ export function EditServiceDialog({
             <span className="a-desc__value">{productName(service.product)}</span>
           </div>
           <div className="a-desc__item">
-            <span className="a-desc__label">能力</span>
-            <span className="a-desc__value">{categoryLabel(service.product)}</span>
-          </div>
-          <div className="a-desc__item">
             <span className="a-desc__label">已用次数</span>
             <span className="a-desc__value">{service.usedCount.toLocaleString()}</span>
           </div>
-          <div className="a-desc__item">
-            <span className="a-desc__label">产品有效期</span>
-            <span className="a-desc__value">
-              {service.startDate} ~ {service.endDate}
-            </span>
-          </div>
         </div>
 
-        <div className="a-form a-form--modal">
-          <div className="a-field">
+        <div className="a-form a-form--modal a-form--stack">
+          <div className="a-field a-field--stack">
             <span className="a-field__label">额度</span>
-            <label className="a-radio">
-              <input
-                type="radio"
-                name="quotaType"
-                checked={quotaType === "unlimited"}
-                onChange={() => setQuotaType("unlimited")}
-              />
-              不限
-            </label>
-            <label className="a-radio">
-              <input
-                type="radio"
-                name="quotaType"
-                checked={quotaType === "total"}
-                onChange={() => setQuotaType("total")}
-              />
-              按总量
-            </label>
-            {quotaType === "total" ? (
-              <input
-                className="a-input a-input--sm"
-                style={{ minWidth: 120 }}
-                inputMode="numeric"
-                placeholder="整数次数"
-                value={quotaTotal}
-                onChange={(e) => setQuotaTotal(e.target.value.replace(/\D/g, ""))}
-              />
-            ) : null}
+            <div className="a-inline-actions" style={{ flexWrap: "wrap" }}>
+              <label className="a-radio">
+                <input
+                  type="radio"
+                  name="quotaType"
+                  checked={quotaType === "unlimited"}
+                  onChange={() => setQuotaType("unlimited")}
+                />
+                不限量
+              </label>
+              <label className="a-radio">
+                <input
+                  type="radio"
+                  name="quotaType"
+                  checked={quotaType === "total"}
+                  onChange={() => setQuotaType("total")}
+                />
+                合作期内总量
+              </label>
+              {quotaType === "total" ? (
+                <input
+                  className="a-input a-input--sm"
+                  style={{ minWidth: 120 }}
+                  inputMode="numeric"
+                  placeholder="次数"
+                  value={quotaTotal}
+                  onChange={(e) => setQuotaTotal(e.target.value.replace(/\D/g, ""))}
+                />
+              ) : null}
+            </div>
           </div>
+
+          <div className="a-field a-field--stack">
+            <span className="a-field__label">
+              产品有效期 <span className="a-req">*</span>
+            </span>
+            <div className="a-date-range">
+              <input
+                type="date"
+                className="a-input"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              <span>至</span>
+              <input
+                type="date"
+                className="a-input"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="a-field__hint">
             额度仅在产品有效期内可消耗；过期后次数不清零，但不可再调用。
           </div>

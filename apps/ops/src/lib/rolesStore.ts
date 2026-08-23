@@ -96,8 +96,18 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "content",
-    label: "门户内容管理",
+    label: "DCI技术服务平台门户",
     children: [
+      {
+        id: "content.portal",
+        label: "门户首页管理页",
+        children: [
+          { id: "content.portal.create", label: "新增主题按钮" },
+          { id: "content.portal.edit", label: "编辑按钮" },
+          { id: "content.portal.delete", label: "删除按钮" },
+          { id: "content.portal.visibility", label: "显示/隐藏按钮" },
+        ],
+      },
       {
         id: "content.catalogs",
         label: "目录管理页",
@@ -224,6 +234,11 @@ let roles: Role[] = [
       "stats.customers",
       "stats.products",
       "content",
+      "content.portal",
+      "content.portal.create",
+      "content.portal.edit",
+      "content.portal.delete",
+      "content.portal.visibility",
       "content.catalogs",
       "content.catalogs.create",
       "content.catalogs.edit",

@@ -10,6 +10,7 @@ import {
   type CustomerOpLog,
   type ProductServiceConfig,
   type ProductUsageStat,
+  type QuotaType,
 } from "@/lib/catalog";
 
 let customers: CustomerAccount[] = structuredClone(MOCK_CUSTOMERS);
@@ -116,7 +117,7 @@ export function setCustomerStatus(id: string, status: AccountStatus): void {
     { ...cur, status },
     [
       {
-        field: "客户状态",
+        field: "账号状态",
         before: cur.status === "enabled" ? "已启用" : "已停用",
         after: status === "enabled" ? "已启用" : "已停用",
       },
@@ -129,39 +130,73 @@ export function setCustomerStatus(id: string, status: AccountStatus): void {
 export function updateCustomerProductService(
   customerId: string,
   product: ProductServiceConfig["product"],
-  patch: Pick<ProductServiceConfig, "quotaType" | "quotaTotal">,
-): boolean {
+  patch: {
+    quotaType: QuotaType;
+    quotaTotal: number | null;
+    startDate: string;
+    endDate: string;
+  },
+): string | null {
   const cur = getCustomerById(customerId);
-  if (!cur) return false;
+  if (!cur) return "客户不存在";
   const before = cur.productServices.find((s) => s.product === product);
-  if (!before) return false;
+  if (!before) return "服务项不存在";
+
+  if (!patch.startDate || !patch.endDate) return "请填写产品有效期";
+  if (patch.startDate > patch.endDate) return "有效期开始不能晚于结束";
+
   if (patch.quotaType === "total") {
     const total = patch.quotaTotal ?? 0;
-    if (!Number.isInteger(total) || total <= 0) return false;
-    if (total < before.usedCount) return false;
+    if (!Number.isInteger(total) || total <= 0) return "按总量时，额度须为正整数";
+    if (total < before.usedCount) {
+      return `新额度不能小于已用次数 ${before.usedCount}`;
+    }
   }
+
   const nextSvc: ProductServiceConfig = {
     ...before,
     quotaType: patch.quotaType,
     quotaTotal: patch.quotaType === "unlimited" ? null : patch.quotaTotal,
+    startDate: patch.startDate,
+    endDate: patch.endDate,
   };
+
   const next: CustomerAccount = {
     ...cur,
     productServices: cur.productServices.map((s) =>
       s.product === product ? nextSvc : s,
     ),
   };
-  const bq = before.quotaType === "unlimited" ? "不限" : `按总量 ${before.quotaTotal}`;
+
+  const changes: { field: string; before: string; after: string }[] = [];
+  const bq = before.quotaType === "unlimited" ? "不限量" : `总量 ${before.quotaTotal}`;
   const aq =
-    nextSvc.quotaType === "unlimited" ? "不限" : `按总量 ${nextSvc.quotaTotal}`;
+    nextSvc.quotaType === "unlimited" ? "不限量" : `总量 ${nextSvc.quotaTotal}`;
+  if (bq !== aq) {
+    changes.push({
+      field: `${productName(product)}·额度`,
+      before: bq,
+      after: aq,
+    });
+  }
+  const br = `${before.startDate}~${before.endDate}`;
+  const ar = `${nextSvc.startDate}~${nextSvc.endDate}`;
+  if (br !== ar) {
+    changes.push({
+      field: `${productName(product)}·有效期`,
+      before: br,
+      after: ar,
+    });
+  }
+
   updateCustomer(
     customerId,
     next,
-    [{ field: `${productName(product)}·额度`, before: bq, after: aq }],
+    changes.length ? changes : [{ field: productName(product), before: "—", after: "已更新" }],
     "service",
     "编辑产品服务项",
   );
-  return true;
+  return null;
 }
 
 export function setCustomerProductStopped(

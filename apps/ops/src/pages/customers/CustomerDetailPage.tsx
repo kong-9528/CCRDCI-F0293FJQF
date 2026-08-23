@@ -208,7 +208,7 @@ export function CustomerDetailPage() {
                   </span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">客户状态</span>
+                  <span className="a-desc__label">账号状态</span>
                   <span className="a-desc__value">
                     <span
                       className={`a-tag${customer.status === "enabled" ? " a-tag--ok" : " a-tag--er"}`}
@@ -232,7 +232,7 @@ export function CustomerDetailPage() {
               <h3 className="a-form-section__title">产品服务配置</h3>
               <div className="a-field__hint" style={{ marginBottom: 8 }}>
                 产品额度仅在产品有效期内可消耗；过期后次数保留但不可再使用（WebUI / API）。
-                合同服务期仅用于业务提醒与展示，不参与登录或调用控制。客户能否登录取决于客户状态（启用/停用）。
+                合同服务期仅用于业务提醒与展示，不参与登录或调用控制。账号能否登录取决于账号状态（启用/停用）。
               </div>
               <div className="a-table-wrap">
                 <table className="a-table">

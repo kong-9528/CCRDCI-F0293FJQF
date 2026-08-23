@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { OpsLayout } from "@/layouts/OpsLayout";
 import { ContentManagePage } from "@/pages/content/ContentManagePage";
+import { ArticleEditPage } from "@/pages/content/ArticleEditPage";
 import { FaqManagePage } from "@/pages/content/FaqManagePage";
+import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
 import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
 import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
@@ -30,7 +32,10 @@ export function App() {
         <Route path="/products" element={<ProductManagePage />} />
         <Route path="/stats/customers" element={<CustomerStatsPage />} />
         <Route path="/stats/products" element={<ProductStatsPage />} />
+        <Route path="/content/portal" element={<PortalContentPage />} />
         <Route path="/content/hc" element={<ContentManagePage />} />
+        <Route path="/content/hc/articles/new" element={<ArticleEditPage />} />
+        <Route path="/content/hc/articles/:id/edit" element={<ArticleEditPage />} />
         <Route path="/content/catalogs" element={<Navigate to="/content/hc" replace />} />
         <Route path="/content/articles" element={<Navigate to="/content/hc" replace />} />
         <Route path="/content/faqs" element={<FaqManagePage />} />
