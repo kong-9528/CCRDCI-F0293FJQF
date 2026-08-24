@@ -45,6 +45,19 @@ export type ContractFile = {
   size: number;
 };
 
+/** 单次签约 / 续约合同记录 */
+export type CustomerContract = {
+  id: string;
+  /** 合同编号 */
+  contractNo: string;
+  startDate: string;
+  endDate: string;
+  amount: number | null;
+  files: ContractFile[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CustomerAccount = {
   id: string;
   customerType: CustomerType;
@@ -55,6 +68,9 @@ export type CustomerAccount = {
   contactPhone: string;
   contactEmail: string;
   address: string;
+  /** 合同历史（首次签约 + 续约等） */
+  contracts: CustomerContract[];
+  /** 摘要：开始日期最新合同的附件（列表/兼容展示） */
   contractFiles: ContractFile[];
   contractStart: string;
   contractEnd: string;
@@ -121,6 +137,68 @@ export function derivePeriodStatus(start: string, end: string): ContractPeriodSt
   if (t < start) return "pending";
   if (t > end) return "expired";
   return "active";
+}
+
+/** 合同按开始日期倒序（同日按更新时间） */
+export function sortContractsByStartDesc(list: CustomerContract[]): CustomerContract[] {
+  return [...list].sort((a, b) => {
+    const byStart = b.startDate.localeCompare(a.startDate);
+    if (byStart !== 0) return byStart;
+    return b.updatedAt.localeCompare(a.updatedAt);
+  });
+}
+
+export function primaryContract(contracts: CustomerContract[]): CustomerContract | null {
+  return sortContractsByStartDesc(contracts)[0] ?? null;
+}
+
+/** 用最新合同回填账号级合同摘要字段 */
+export function withContractSummary(c: CustomerAccount): CustomerAccount {
+  const contracts = c.contracts ?? [];
+  const p = primaryContract(contracts);
+  if (!p) {
+    return {
+      ...c,
+      contracts,
+      contractFiles: [],
+      contractStart: "",
+      contractEnd: "",
+      contractAmount: null,
+    };
+  }
+  return {
+    ...c,
+    contracts,
+    contractFiles: [...p.files],
+    contractStart: p.startDate,
+    contractEnd: p.endDate,
+    contractAmount: p.amount,
+  };
+}
+
+/** 兼容旧 mock：无 contracts 时从摘要字段生成首条合同 */
+export function ensureCustomerContracts(c: CustomerAccount): CustomerAccount {
+  if (c.contracts && c.contracts.length > 0) return withContractSummary(c);
+  const hasFlat =
+    Boolean(c.contractStart) ||
+    Boolean(c.contractEnd) ||
+    (c.contractFiles?.length ?? 0) > 0 ||
+    c.contractAmount != null;
+  const contracts: CustomerContract[] = hasFlat
+    ? [
+        {
+          id: `ct-${c.id}-init`,
+          contractNo: `HT${String(c.id).padStart(6, "0")}`,
+          startDate: c.contractStart,
+          endDate: c.contractEnd,
+          amount: c.contractAmount,
+          files: [...(c.contractFiles ?? [])],
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+        },
+      ]
+    : [];
+  return withContractSummary({ ...c, contracts });
 }
 
 export function deriveServiceStatus(
@@ -196,7 +274,7 @@ function svc(
 }
 
 /** 前端演示数据，后续替换为 API */
-export const MOCK_CUSTOMERS: CustomerAccount[] = [
+export const MOCK_CUSTOMERS = [
   {
     id: "1",
     customerType: "enterprise",
@@ -493,7 +571,9 @@ export const MOCK_CUSTOMERS: CustomerAccount[] = [
     createdAt: "2024-12-18 10:30:00",
     updatedAt: "2026-01-02 09:15:00",
   },
-];
+].map((c) =>
+  ensureCustomerContracts({ ...(c as CustomerAccount), contracts: [] }),
+);
 
 export const MOCK_OP_LOGS: CustomerOpLog[] = [
   {

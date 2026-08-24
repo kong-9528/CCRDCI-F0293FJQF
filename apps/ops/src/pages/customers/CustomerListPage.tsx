@@ -13,6 +13,7 @@ import {
   type ProductCode,
 } from "@/lib/catalog";
 import { listPeriodStatus, useCustomerStore } from "@/lib/customersStore";
+import { getCurrentUserPermissions } from "@/lib/usersStore";
 
 const PAGE_SIZES = [10, 20, 30, 50] as const;
 
@@ -67,6 +68,9 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 export function CustomerListPage() {
   const navigate = useNavigate();
   const { customers, setStatus } = useCustomerStore();
+  const userPerms = getCurrentUserPermissions();
+  const canContracts =
+    userPerms.includes("customers.list.contracts") || userPerms.includes("customers");
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
@@ -306,6 +310,15 @@ export function CustomerListPage() {
                           >
                             {row.status === "enabled" ? "停用" : "启用"}
                           </button>
+                          {canContracts ? (
+                            <button
+                              type="button"
+                              className="a-btn a-btn--text a-btn--sm"
+                              onClick={() => navigate(`/customers/${row.id}/contracts`)}
+                            >
+                              合同
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>

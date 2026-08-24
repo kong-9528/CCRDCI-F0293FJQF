@@ -1,6 +1,7 @@
 import type {
   ContractFile,
   CustomerAccount,
+  CustomerContract,
   ProductCode,
   ProductServiceConfig,
   QuotaType,
@@ -10,6 +11,7 @@ import {
   generateStrongPassword,
   isStrongPassword,
   isValidAccount,
+  primaryContract,
 } from "@/lib/catalog";
 
 export type ProductFormRow = {
@@ -32,6 +34,7 @@ export type CustomerFormState = {
   contactPhone: string;
   contactEmail: string;
   address: string;
+  contractNo: string;
   contractFiles: ContractFile[];
   contractStart: string;
   contractEnd: string;
@@ -67,6 +70,7 @@ export function emptyCustomerForm(): CustomerFormState {
     contactPhone: "",
     contactEmail: "",
     address: "",
+    contractNo: "",
     contractFiles: [],
     contractStart: "",
     contractEnd: "",
@@ -78,6 +82,7 @@ export function emptyCustomerForm(): CustomerFormState {
 }
 
 export function customerToForm(c: CustomerAccount): CustomerFormState {
+  const primary = primaryContract(c.contracts);
   return {
     customerType: "enterprise",
     creditCode: c.creditCode,
@@ -87,6 +92,7 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
     contactPhone: c.contactPhone,
     contactEmail: c.contactEmail,
     address: c.address,
+    contractNo: primary?.contractNo ?? "",
     contractFiles: [...c.contractFiles],
     contractStart: c.contractStart,
     contractEnd: c.contractEnd,
@@ -177,6 +183,10 @@ export function validateCustomerForm(
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim())) {
     return "联系人邮箱格式不正确";
   }
+  if (mode === "create") {
+    if (!form.contractNo.trim()) return "请输入合同编号";
+    if (form.contractNo.trim().length > 200) return "合同编号不能超过 200 个字符";
+  }
   if (!form.contractStart || !form.contractEnd) return "请填写合作起止日期";
   if (form.contractStart > form.contractEnd) return "合作开始日期不能晚于结束日期";
   if (form.contractAmount.trim()) {
@@ -215,6 +225,54 @@ export function formToCustomerPayload(
     ? Number(form.contractAmount)
     : null;
 
+  const stamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+  let contracts: CustomerContract[] = base?.contracts ? [...base.contracts] : [];
+
+  if (!base) {
+    contracts = [
+      {
+        id: `ct-new-${Date.now()}`,
+        contractNo: form.contractNo.trim(),
+        startDate: form.contractStart,
+        endDate: form.contractEnd,
+        amount,
+        files: [...form.contractFiles],
+        createdAt: stamp,
+        updatedAt: stamp,
+      },
+    ];
+  } else {
+    const primary = primaryContract(contracts);
+    if (primary) {
+      contracts = contracts.map((c) =>
+        c.id === primary.id
+          ? {
+              ...c,
+              contractNo: form.contractNo.trim() || c.contractNo,
+              startDate: form.contractStart,
+              endDate: form.contractEnd,
+              amount,
+              files: [...form.contractFiles],
+              updatedAt: stamp,
+            }
+          : c,
+      );
+    } else if (form.contractStart || form.contractEnd) {
+      contracts = [
+        {
+          id: `ct-new-${Date.now()}`,
+          contractNo: form.contractNo.trim() || `HT${Date.now()}`,
+          startDate: form.contractStart,
+          endDate: form.contractEnd,
+          amount,
+          files: [...form.contractFiles],
+          createdAt: stamp,
+          updatedAt: stamp,
+        },
+      ];
+    }
+  }
+
   return {
     customerType: "enterprise",
     creditCode: form.creditCode.trim(),
@@ -224,6 +282,7 @@ export function formToCustomerPayload(
     contactPhone: form.contactPhone.trim(),
     contactEmail: form.contactEmail.trim(),
     address: form.address.trim(),
+    contracts,
     contractFiles: form.contractFiles,
     contractStart: form.contractStart,
     contractEnd: form.contractEnd,

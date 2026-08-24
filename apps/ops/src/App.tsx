@@ -5,6 +5,7 @@ import { ArticleEditPage } from "@/pages/content/ArticleEditPage";
 import { FaqManagePage } from "@/pages/content/FaqManagePage";
 import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
+import { CustomerContractsPage } from "@/pages/customers/CustomerContractsPage";
 import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
 import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
@@ -26,8 +27,9 @@ export function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/customers" element={<CustomerListPage />} />
         <Route path="/customers/new" element={<CustomerCreatePage />} />
-        <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/customers/:id/edit" element={<CustomerEditPage />} />
+        <Route path="/customers/:id/contracts" element={<CustomerContractsPage />} />
+        <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/customer-services" element={<CustomerServicesPage />} />
         <Route path="/products" element={<ProductManagePage />} />
         <Route path="/stats/customers" element={<CustomerStatsPage />} />

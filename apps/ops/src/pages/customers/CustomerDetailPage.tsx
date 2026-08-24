@@ -8,6 +8,7 @@ import {
   canConsumeQuota,
   deriveServiceStatus,
   formatQuota,
+  primaryContract,
   productName,
 } from "@/lib/catalog";
 import { listPeriodStatus, useCustomerStore } from "@/lib/customersStore";
@@ -151,6 +152,12 @@ export function CustomerDetailPage() {
             <section className="a-form-section">
               <h3 className="a-form-section__title">合作信息</h3>
               <div className="a-desc">
+                <div className="a-desc__item">
+                  <span className="a-desc__label">合同编号</span>
+                  <span className="a-desc__value">
+                    {primaryContract(customer.contracts)?.contractNo || "—"}
+                  </span>
+                </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">合作起止</span>
                   <span className="a-desc__value">

@@ -39,6 +39,15 @@ export const PERMISSION_TREE: PermNode[] = [
           { id: "customers.list.edit", label: "编辑按钮" },
           { id: "customers.list.detail", label: "详情按钮" },
           { id: "customers.list.status", label: "启用/停用" },
+          { id: "customers.list.contracts", label: "合同按钮" },
+        ],
+      },
+      {
+        id: "customers.contracts",
+        label: "合同管理页",
+        children: [
+          { id: "customers.contracts.create", label: "新增合同按钮" },
+          { id: "customers.contracts.edit", label: "修改合同按钮" },
         ],
       },
       {
@@ -225,6 +234,10 @@ let roles: Role[] = [
       "customers.list.edit",
       "customers.list.detail",
       "customers.list.status",
+      "customers.list.contracts",
+      "customers.contracts",
+      "customers.contracts.create",
+      "customers.contracts.edit",
       "customers.services",
       "customers.services.edit",
       "customers.services.create",

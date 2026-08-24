@@ -157,6 +157,18 @@ export function CustomerCreatePage() {
           <section className="a-form-section">
             <h3 className="a-form-section__title">合作信息</h3>
             <div className="a-form a-form--grid">
+              <div className="a-field">
+                <span className="a-field__label">
+                  合同编号 <span className="a-req">*</span>
+                </span>
+                <input
+                  className="a-input"
+                  maxLength={200}
+                  placeholder="请输入合同编号"
+                  value={form.contractNo}
+                  onChange={(e) => set("contractNo", e.target.value.slice(0, 200))}
+                />
+              </div>
               <div className="a-field a-field--wide">
                 <span className="a-field__label">合同文件</span>
                 <div className="a-upload-list">

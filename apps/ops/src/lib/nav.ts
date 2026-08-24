@@ -55,6 +55,7 @@ export const OPS_NAV: NavGroup[] = [
 export function findNavLabel(pathname: string): string {
   if (pathname === "/customers/new") return "新增客户账号";
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";
+  if (/^\/customers\/[^/]+\/contracts$/.test(pathname)) return "合同管理";
   if (/^\/customers\/[^/]+$/.test(pathname)) return "客户详情";
   if (pathname === "/content/hc/articles/new") return "新增文章";
   if (/^\/content\/hc\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";

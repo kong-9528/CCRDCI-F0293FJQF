@@ -4,19 +4,24 @@ import {
   MOCK_OP_LOGS,
   derivePeriodStatus,
   deriveServiceStatus,
+  ensureCustomerContracts,
   productName,
+  withContractSummary,
   type AccountStatus,
+  type ContractFile,
   type CustomerAccount,
+  type CustomerContract,
   type CustomerOpLog,
   type ProductServiceConfig,
   type ProductUsageStat,
   type QuotaType,
 } from "@/lib/catalog";
 
-let customers: CustomerAccount[] = structuredClone(MOCK_CUSTOMERS);
+let customers: CustomerAccount[] = structuredClone(MOCK_CUSTOMERS).map(ensureCustomerContracts);
 let opLogs: CustomerOpLog[] = structuredClone(MOCK_OP_LOGS);
 let seq = 100;
 let logSeq = 100;
+let contractSeq = 1000;
 
 const listeners = new Set<() => void>();
 
@@ -57,13 +62,32 @@ export function createCustomer(
 ): CustomerAccount {
   seq += 1;
   const stamp = nowStamp();
-  const row: CustomerAccount = {
+  const contracts = (input.contracts ?? []).map((ct) => ({
+    ...ct,
+    id: ct.id || `ct-${seq}-${++contractSeq}`,
+    createdAt: ct.createdAt || stamp,
+    updatedAt: ct.updatedAt || stamp,
+  }));
+  if (contracts.length === 0 && (input.contractStart || input.contractEnd)) {
+    contracts.push({
+      id: `ct-${seq}-${++contractSeq}`,
+      contractNo: `HT${String(seq).padStart(6, "0")}`,
+      startDate: input.contractStart,
+      endDate: input.contractEnd,
+      amount: input.contractAmount,
+      files: [...(input.contractFiles ?? [])],
+      createdAt: stamp,
+      updatedAt: stamp,
+    });
+  }
+  const row = withContractSummary({
     ...input,
     id: String(seq),
+    contracts,
     status: input.status ?? "enabled",
     createdAt: stamp,
     updatedAt: stamp,
-  };
+  });
   customers = [row, ...customers];
   appendLog({
     customerId: row.id,
@@ -94,7 +118,7 @@ export function updateCustomer(
   const idx = customers.findIndex((c) => c.id === id);
   if (idx < 0) return null;
   const stamp = nowStamp();
-  const row = { ...next, id, updatedAt: stamp };
+  const row = withContractSummary({ ...next, id, updatedAt: stamp });
   customers = customers.map((c) => (c.id === id ? row : c));
   if (changes.length) {
     appendLog({
@@ -107,6 +131,102 @@ export function updateCustomer(
   }
   emit();
   return row;
+}
+
+export type ContractInput = {
+  contractNo: string;
+  startDate: string;
+  endDate: string;
+  amount: number | null;
+  files: ContractFile[];
+};
+
+function validateContractInput(input: ContractInput): string | null {
+  const no = input.contractNo.trim();
+  if (!no) return "请输入合同编号";
+  if (no.length > 200) return "合同编号不能超过 200 个字符";
+  if (!input.startDate || !input.endDate) return "请填写合作起止日期";
+  if (input.startDate > input.endDate) return "合作开始日期不能晚于结束日期";
+  if (input.amount != null && (!Number.isFinite(input.amount) || input.amount < 0)) {
+    return "合同总金额须为非负数字";
+  }
+  return null;
+}
+
+export function addCustomerContract(
+  customerId: string,
+  input: ContractInput,
+): string | null {
+  const cur = getCustomerById(customerId);
+  if (!cur) return "客户不存在";
+  const err = validateContractInput(input);
+  if (err) return err;
+  const stamp = nowStamp();
+  const nextContract: CustomerContract = {
+    id: `ct-${++contractSeq}`,
+    contractNo: input.contractNo.trim(),
+    startDate: input.startDate,
+    endDate: input.endDate,
+    amount: input.amount,
+    files: [...input.files],
+    createdAt: stamp,
+    updatedAt: stamp,
+  };
+  updateCustomer(
+    customerId,
+    { ...cur, contracts: [...cur.contracts, nextContract] },
+    [
+      {
+        field: "合同",
+        before: "—",
+        after: `${nextContract.contractNo}｜${nextContract.startDate}~${nextContract.endDate}`,
+      },
+    ],
+    "edit",
+    "新增合同",
+  );
+  return null;
+}
+
+export function updateCustomerContract(
+  customerId: string,
+  contractId: string,
+  input: ContractInput,
+): string | null {
+  const cur = getCustomerById(customerId);
+  if (!cur) return "客户不存在";
+  const before = cur.contracts.find((c) => c.id === contractId);
+  if (!before) return "合同不存在";
+  const err = validateContractInput(input);
+  if (err) return err;
+  const stamp = nowStamp();
+  const nextContracts = cur.contracts.map((c) =>
+    c.id === contractId
+      ? {
+          ...c,
+          contractNo: input.contractNo.trim(),
+          startDate: input.startDate,
+          endDate: input.endDate,
+          amount: input.amount,
+          files: [...input.files],
+          updatedAt: stamp,
+        }
+      : c,
+  );
+  updateCustomer(
+    customerId,
+    { ...cur, contracts: nextContracts },
+    [
+      {
+        field: `合同·${input.contractNo.trim()}`,
+        before: `${before.contractNo}｜${before.startDate}~${before.endDate}`,
+        after: `${input.contractNo.trim()}｜${input.startDate}~${input.endDate}`,
+      },
+    ],
+    "edit",
+    "修改合同",
+  );
+  return null;
 }
 
 export function setCustomerStatus(id: string, status: AccountStatus): void {
@@ -339,6 +459,8 @@ export function useCustomerStore() {
     updateProductService: updateCustomerProductService,
     addProductService: addCustomerProductService,
     setProductStopped: setCustomerProductStopped,
+    addContract: addCustomerContract,
+    updateContract: updateCustomerContract,
     getLogs: getCustomerLogs,
     getUsage: getCustomerUsage,
     isAccountTaken,

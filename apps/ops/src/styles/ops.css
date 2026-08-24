@@ -1935,3 +1935,178 @@ body,
   text-decoration: underline;
 }
 
+/* ---------- 可搜索下拉（新增产品服务） ---------- */
+.a-combobox {
+  position: relative;
+  width: 100%;
+}
+
+.a-combobox__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--ad-ctrl, 32px);
+  padding: 0 10px;
+  margin: 0;
+  border: 1px solid var(--n-300);
+  border-radius: var(--ad-radius-sm);
+  background: var(--n-0);
+  color: var(--n-800);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.a-combobox__trigger:hover {
+  border-color: var(--n-400);
+}
+
+.a-combobox__trigger.is-placeholder {
+  color: var(--n-400);
+}
+
+.a-combobox__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a-combobox__caret {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--n-400);
+}
+
+.a-combobox__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: var(--z-dropdown);
+  background: var(--n-0);
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius);
+  box-shadow: 0 8px 24px rgba(12, 17, 24, 0.12);
+  overflow: hidden;
+}
+
+.a-combobox__search {
+  padding: 8px;
+  border-bottom: 1px solid var(--n-100);
+}
+
+.a-combobox__search .a-input {
+  width: 100%;
+}
+
+.a-combobox__list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.a-combobox__empty {
+  padding: 12px 10px;
+  color: var(--n-400);
+  font-size: var(--ad-fs-sm);
+  text-align: center;
+}
+
+.a-combobox__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--ad-radius-sm);
+  background: transparent;
+  color: var(--n-800);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.a-combobox__option:hover:not(.is-disabled) {
+  background: var(--p-50);
+}
+
+.a-combobox__option.is-selected {
+  background: var(--p-50);
+  color: var(--p-700);
+}
+
+.a-combobox__option.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  color: var(--n-500);
+}
+
+.a-combobox__option-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.a-combobox__option-sub {
+  font-size: var(--ad-fs-sm);
+  color: var(--n-500);
+}
+
+.a-combobox__badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--n-100);
+  color: var(--n-500);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.a-field__hint--warn {
+  color: var(--wn-600);
+}
+
+/* ---------- 合同管理 ---------- */
+.a-contract-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-sp-3);
+  padding: var(--ad-sp-3);
+}
+
+.a-contract-card {
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius);
+  background: var(--n-0);
+  padding: var(--ad-sp-3);
+}
+
+.a-contract-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ad-sp-3);
+  margin-bottom: var(--ad-sp-2);
+  padding-bottom: var(--ad-sp-2);
+  border-bottom: 1px solid var(--n-100);
+}
+
+.a-contract-card__no {
+  font-size: var(--ad-fs-h2);
+  font-weight: 600;
+  color: var(--n-900);
+}
+
+.a-desc__item--wide {
+  grid-column: 1 / -1;
+}
+
