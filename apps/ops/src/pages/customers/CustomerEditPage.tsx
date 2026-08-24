@@ -297,7 +297,9 @@ export function CustomerEditPage() {
                 startDate: form.contractStart,
                 endDate: form.contractEnd,
               }}
-              allowStop
+              showStatus
+              allowAdd={false}
+              allowRemove={false}
             />
           </section>
 

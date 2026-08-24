@@ -199,6 +199,64 @@ export function updateCustomerProductService(
   return null;
 }
 
+export function addCustomerProductService(
+  customerId: string,
+  input: {
+    product: ProductServiceConfig["product"];
+    quotaType: QuotaType;
+    quotaTotal: number | null;
+    startDate: string;
+    endDate: string;
+  },
+): string | null {
+  const cur = getCustomerById(customerId);
+  if (!cur) return "客户不存在";
+  if (cur.productServices.some((s) => s.product === input.product)) {
+    return "该客户已开通此产品";
+  }
+  if (!input.startDate || !input.endDate) return "请填写产品有效期";
+  if (input.startDate > input.endDate) return "有效期开始不能晚于结束";
+
+  let quotaTotal: number | null = null;
+  if (input.quotaType === "total") {
+    const total = input.quotaTotal ?? 0;
+    if (!Number.isInteger(total) || total <= 0) return "按总量时，额度须为正整数";
+    quotaTotal = total;
+  }
+
+  const nextSvc: ProductServiceConfig = {
+    product: input.product,
+    quotaType: input.quotaType,
+    quotaTotal,
+    usedCount: 0,
+    startDate: input.startDate,
+    endDate: input.endDate,
+    stopped: false,
+  };
+
+  const next: CustomerAccount = {
+    ...cur,
+    productServices: [...cur.productServices, nextSvc],
+  };
+
+  const quotaLabel =
+    nextSvc.quotaType === "unlimited" ? "不限量" : `总量 ${nextSvc.quotaTotal}`;
+  updateCustomer(
+    customerId,
+    next,
+    [
+      {
+        field: `产品·${productName(input.product)}`,
+        before: "未开通",
+        after: `${quotaLabel}｜${nextSvc.startDate}~${nextSvc.endDate}`,
+      },
+    ],
+    "service",
+    "新增产品服务项",
+  );
+  return null;
+}
+
 export function setCustomerProductStopped(
   customerId: string,
   product: ProductServiceConfig["product"],
@@ -279,6 +337,7 @@ export function useCustomerStore() {
     update: updateCustomer,
     setStatus: setCustomerStatus,
     updateProductService: updateCustomerProductService,
+    addProductService: addCustomerProductService,
     setProductStopped: setCustomerProductStopped,
     getLogs: getCustomerLogs,
     getUsage: getCustomerUsage,

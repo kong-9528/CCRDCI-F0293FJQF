@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AddServiceDialog } from "@/components/AddServiceDialog";
 import { EditServiceDialog } from "@/components/EditServiceDialog";
 import {
   PRODUCTS,
@@ -45,12 +46,14 @@ function statusTagClass(status: ServiceRow["status"]) {
 }
 
 export function CustomerServicesPage() {
-  const { customers, updateProductService, setProductStopped } = useCustomerStore();
+  const { customers, updateProductService, addProductService, setProductStopped } =
+    useCustomerStore();
   const [draft, setDraft] = useState<Filters>(EMPTY);
   const [applied, setApplied] = useState<Filters>(EMPTY);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
   const [editRow, setEditRow] = useState<ServiceRow | null>(null);
   const [confirmRow, setConfirmRow] = useState<ServiceRow | null>(null);
 
@@ -158,6 +161,9 @@ export function CustomerServicesPage() {
           </button>
           <button type="button" className="a-btn a-btn--primary" onClick={search}>
             查询
+          </button>
+          <button type="button" className="a-btn a-btn--primary" onClick={() => setAddOpen(true)}>
+            新增服务
           </button>
         </div>
 
@@ -320,6 +326,24 @@ export function CustomerServicesPage() {
           </label>
         </div>
       </div>
+
+      <AddServiceDialog
+        open={addOpen}
+        customers={customers}
+        onCancel={() => setAddOpen(false)}
+        onSave={(input) => {
+          const err = addProductService(input.customerId, {
+            product: input.product,
+            quotaType: input.quotaType,
+            quotaTotal: input.quotaTotal,
+            startDate: input.startDate,
+            endDate: input.endDate,
+          });
+          if (err) return err;
+          setAddOpen(false);
+          return null;
+        }}
+      />
 
       <EditServiceDialog
         open={Boolean(editRow)}

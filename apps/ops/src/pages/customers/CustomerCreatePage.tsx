@@ -288,6 +288,7 @@ export function CustomerCreatePage() {
                 startDate: form.contractStart,
                 endDate: form.contractEnd,
               }}
+              showUsed={false}
             />
           </section>
 

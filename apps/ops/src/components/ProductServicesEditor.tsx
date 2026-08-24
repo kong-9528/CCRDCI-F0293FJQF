@@ -13,17 +13,27 @@ type Props = {
   onChange: (rows: ProductFormRow[]) => void;
   /** 新增产品行时默认带入的有效期 */
   defaultRange?: { startDate: string; endDate: string };
-  /** 编辑态可停止/恢复 */
-  allowStop?: boolean;
+  /** 是否展示「已用」列；新增账号时通常隐藏 */
+  showUsed?: boolean;
+  /** 编辑态展示服务状态列 */
+  showStatus?: boolean;
+  /** 是否允许新增产品行（编辑客户账号时关闭，改由客户产品服务页处理） */
+  allowAdd?: boolean;
+  /** 是否允许移除产品行（开通后不可移除） */
+  allowRemove?: boolean;
 };
 
 export function ProductServicesEditor({
   rows,
   onChange,
   defaultRange,
-  allowStop = false,
+  showUsed = true,
+  showStatus = false,
+  allowAdd = true,
+  allowRemove = true,
 }: Props) {
   const used = new Set(rows.map((r) => r.product).filter(Boolean));
+  const showActions = allowRemove;
 
   const update = (key: string, patch: Partial<ProductFormRow>) => {
     onChange(rows.map((r) => (r.key === key ? { ...r, ...patch } : r)));
@@ -46,6 +56,9 @@ export function ProductServicesEditor({
       <div className="a-field__hint">
         规则：产品额度仅在「产品有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
         调用均不可再消耗。同一产品仅可配置一条。合同服务期仅用于提醒展示，不控制登录与调用。
+        {!allowRemove
+          ? " 产品开通后不可移除；启停与调整请到「客户产品服务」处理。"
+          : ""}
       </div>
       <div className="a-table-wrap">
         <table className="a-table">
@@ -54,10 +67,10 @@ export function ProductServicesEditor({
               <th>产品</th>
               <th>额度类型</th>
               <th>总量</th>
-              <th>已用</th>
+              {showUsed ? <th>已用</th> : null}
               <th>有效期</th>
-              {allowStop ? <th>服务状态</th> : null}
-              <th>操作</th>
+              {showStatus ? <th>服务状态</th> : null}
+              {showActions ? <th>操作</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -121,7 +134,9 @@ export function ProductServicesEditor({
                       <span style={{ color: "var(--n-400)" }}>—</span>
                     )}
                   </td>
-                  <td className="num">{row.usedCount.toLocaleString()}</td>
+                  {showUsed ? (
+                    <td className="num">{row.usedCount.toLocaleString()}</td>
+                  ) : null}
                   <td>
                     <div className="a-date-range">
                       <input
@@ -143,7 +158,7 @@ export function ProductServicesEditor({
                       />
                     </div>
                   </td>
-                  {allowStop ? (
+                  {showStatus ? (
                     <td>
                       {row.stopped ? (
                         <span className="a-tag a-tag--er">已停止</span>
@@ -152,53 +167,57 @@ export function ProductServicesEditor({
                       )}
                     </td>
                   ) : null}
-                  <td>
-                    <div className="a-actions">
-                      {allowStop && row.product ? (
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() =>
-                            update(row.key, { stopped: !row.stopped })
-                          }
-                        >
-                          {row.stopped ? "恢复" : "停止"}
-                        </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
-                        onClick={() => remove(row.key)}
-                      >
-                        移除
-                      </button>
-                    </div>
-                  </td>
+                  {showActions ? (
+                    <td>
+                      <div className="a-actions">
+                        {allowRemove ? (
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => remove(row.key)}
+                          >
+                            移除
+                          </button>
+                        ) : null}
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <div className="a-inline-actions">
-        <button
-          type="button"
-          className="a-btn a-btn--sm"
-          disabled={used.size >= PRODUCTS.length}
-          onClick={add}
-        >
-          新增产品配置
-        </button>
-        {rows.some((r) => r.product) ? (
-          <span className="a-field__hint">
-            已选：
-            {rows
-              .filter((r) => r.product)
-              .map((r) => productName(r.product as ProductCode))
-              .join("、")}
-          </span>
-        ) : null}
-      </div>
+      {allowAdd ? (
+        <div className="a-inline-actions">
+          <button
+            type="button"
+            className="a-btn a-btn--sm"
+            disabled={used.size >= PRODUCTS.length}
+            onClick={add}
+          >
+            新增产品配置
+          </button>
+          {rows.some((r) => r.product) ? (
+            <span className="a-field__hint">
+              已选：
+              {rows
+                .filter((r) => r.product)
+                .map((r) => productName(r.product as ProductCode))
+                .join("、")}
+            </span>
+          ) : null}
+        </div>
+      ) : rows.some((r) => r.product) ? (
+        <div className="a-field__hint">
+          已选：
+          {rows
+            .filter((r) => r.product)
+            .map((r) => productName(r.product as ProductCode))
+            .join("、")}
+          。新增 / 调整 / 启停请前往「客户产品服务」。
+        </div>
+      ) : null}
     </div>
   );
 }
