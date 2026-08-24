@@ -4,6 +4,7 @@ import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { KeysPage } from "@/pages/keys/KeysPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
 import { DuplicateReviewPage } from "@/pages/review/DuplicateReviewPage";
 import { InfringementReviewPage } from "@/pages/review/InfringementReviewPage";
@@ -23,7 +24,7 @@ export function App() {
         <Route path="/review/safety" element={<SafetyReviewPage />} />
         <Route path="/review/duplicate" element={<DuplicateReviewPage />} />
         <Route path="/review/infringement" element={<InfringementReviewPage />} />
-        <Route path="/keys" element={<PlaceholderPage title="密钥管理" note="阶段 4 接入密钥展示与更新。" />} />
+        <Route path="/keys" element={<KeysPage />} />
         <Route path="/account" element={<AccountCenterPage />} />
         <Route path="/api-docs" element={<ApiDocsOverviewPage />} />
         <Route path="/api-docs/:productId" element={<ApiDocProductPage />} />

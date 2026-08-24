@@ -1,29 +1,26 @@
 import { Link } from "react-router-dom";
-import { API_DOC_PRODUCTS } from "@/lib/apiDocs";
+import { API_DOC_PRODUCTS, API_DOC_TOTAL_COUNT, API_DOC_VERSION } from "@/lib/apiDocs";
 
 export function ApiDocsOverviewPage() {
   return (
-    <div className="a-stack">
-      <div className="a-card">
-        <div className="a-card__head">API接口文档</div>
-        <div className="a-card__body">
-          <p className="a-field__hint" style={{ marginBottom: 16 }}>
-            技术服务中心 · 全部产品接口文档 · v2.1（首版骨架，部分接口为示例）
-          </p>
-          <div className="a-quick-grid">
-            {API_DOC_PRODUCTS.map((p) => (
-              <Link key={p.id} to={`/api-docs/${p.id}`} className="a-quick-link">
-                <span>
-                  {p.name}
-                  <span className="a-field__hint" style={{ display: "block", marginTop: 4 }}>
-                    {p.summary}
-                  </span>
-                </span>
-                <span>→</span>
-              </Link>
-            ))}
-          </div>
-        </div>
+    <div className="a-stack c-apidoc-page">
+      <div className="c-apidoc-overview-head">
+        <h1 className="c-apidoc-overview-head__title">API接口文档</h1>
+        <p className="c-apidoc-overview-head__sub">
+          技术服务中心 · 全部产品接口文档 · {API_DOC_VERSION} · 共 {API_DOC_TOTAL_COUNT} 个接口
+        </p>
+      </div>
+      <div className="c-apidoc-grid">
+        {API_DOC_PRODUCTS.map((prod) => (
+          <Link key={prod.id} to={`/api-docs/${prod.id}`} className="c-apidoc-card">
+            <div className="c-apidoc-card__title">{prod.name}</div>
+            <div className="c-apidoc-card__summary">{prod.summary}</div>
+            <div className="c-apidoc-card__tags">
+              <span className="a-tag a-tag--ok">{prod.apis.length} 个接口</span>
+              <span className="a-tag a-tag--cyan">RESTful</span>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );
