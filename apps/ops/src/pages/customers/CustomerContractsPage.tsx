@@ -288,9 +288,6 @@ export function CustomerContractsPage() {
             <h3 className="a-modal__title">
               {dialog === "create" ? "新增合同" : "修改合同"}
             </h3>
-            <p className="a-modal__desc">
-              字段与新增客户账号时的合作信息一致：合同编号、合作起止、金额与附件。
-            </p>
             <div className="a-form a-form--modal a-form--stack">
               <div className="a-field a-field--stack">
                 <span className="a-field__label">

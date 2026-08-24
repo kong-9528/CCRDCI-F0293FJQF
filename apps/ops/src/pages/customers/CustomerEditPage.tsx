@@ -63,15 +63,11 @@ export function CustomerEditPage() {
       status: original.status,
       createdAt: original.createdAt,
     };
-    // 编辑页：信用代码/公司全称/法人/账号只读；合同起止与合作金额可改
+    // 编辑页：信用代码/公司全称/法人/账号/合同信息只读；合同请在合同管理页维护
     next.contactName = form.contactName.trim();
     next.contactPhone = form.contactPhone.trim();
     next.contactEmail = form.contactEmail.trim();
     next.address = form.address.trim();
-    next.contractAmount = payload.contractAmount;
-    next.contractFiles = form.contractFiles;
-    next.contractStart = form.contractStart;
-    next.contractEnd = form.contractEnd;
     next.productServices = payload.productServices;
     if (form.password) next.passwordHint = form.password;
 
@@ -176,78 +172,6 @@ export function CustomerEditPage() {
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">合作信息</h3>
-            <div className="a-form a-form--grid">
-              <div className="a-field a-field--wide">
-                <span className="a-field__label">合同文件</span>
-                <div className="a-upload-list">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,.pdf,.zip"
-                    onChange={(e) => {
-                      const files = e.target.files;
-                      if (!files?.length) return;
-                      const added = Array.from(files).map((f, i) => ({
-                        id: `up-${Date.now()}-${i}`,
-                        name: f.name,
-                        size: f.size,
-                      }));
-                      set("contractFiles", [...form.contractFiles, ...added]);
-                      e.target.value = "";
-                    }}
-                  />
-                  <ul className="a-file-list">
-                    {form.contractFiles.map((f) => (
-                      <li key={f.id}>
-                        <span>{f.name}</span>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() =>
-                            set(
-                              "contractFiles",
-                              form.contractFiles.filter((x) => x.id !== f.id),
-                            )
-                          }
-                        >
-                          移除
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">合作起止日期</span>
-                <div className="a-date-range">
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.contractStart}
-                    onChange={(e) => set("contractStart", e.target.value)}
-                  />
-                  <span>至</span>
-                  <input
-                    type="date"
-                    className="a-input"
-                    value={form.contractEnd}
-                    onChange={(e) => set("contractEnd", e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">合同总金额（元）</span>
-                <input
-                  className="a-input"
-                  value={form.contractAmount}
-                  onChange={(e) => set("contractAmount", e.target.value)}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="a-form-section">
             <h3 className="a-form-section__title">账号信息</h3>
             <div className="a-form a-form--grid">
               <div className="a-field">
@@ -294,8 +218,8 @@ export function CustomerEditPage() {
               rows={form.productServices}
               onChange={(rows) => set("productServices", rows)}
               defaultRange={{
-                startDate: form.contractStart,
-                endDate: form.contractEnd,
+                startDate: original.contractStart,
+                endDate: original.contractEnd,
               }}
               showStatus
               allowAdd={false}

@@ -186,12 +186,12 @@ export function validateCustomerForm(
   if (mode === "create") {
     if (!form.contractNo.trim()) return "请输入合同编号";
     if (form.contractNo.trim().length > 200) return "合同编号不能超过 200 个字符";
-  }
-  if (!form.contractStart || !form.contractEnd) return "请填写合作起止日期";
-  if (form.contractStart > form.contractEnd) return "合作开始日期不能晚于结束日期";
-  if (form.contractAmount.trim()) {
-    const amount = Number(form.contractAmount);
-    if (!Number.isFinite(amount) || amount < 0) return "合同总金额须为非负数字";
+    if (!form.contractStart || !form.contractEnd) return "请填写合作起止日期";
+    if (form.contractStart > form.contractEnd) return "合作开始日期不能晚于结束日期";
+    if (form.contractAmount.trim()) {
+      const amount = Number(form.contractAmount);
+      if (!Number.isFinite(amount) || amount < 0) return "合同总金额须为非负数字";
+    }
   }
 
   if (mode === "create") {
@@ -241,37 +241,23 @@ export function formToCustomerPayload(
         updatedAt: stamp,
       },
     ];
-  } else {
-    const primary = primaryContract(contracts);
-    if (primary) {
-      contracts = contracts.map((c) =>
-        c.id === primary.id
-          ? {
-              ...c,
-              contractNo: form.contractNo.trim() || c.contractNo,
-              startDate: form.contractStart,
-              endDate: form.contractEnd,
-              amount,
-              files: [...form.contractFiles],
-              updatedAt: stamp,
-            }
-          : c,
-      );
-    } else if (form.contractStart || form.contractEnd) {
-      contracts = [
-        {
-          id: `ct-new-${Date.now()}`,
-          contractNo: form.contractNo.trim() || `HT${Date.now()}`,
-          startDate: form.contractStart,
-          endDate: form.contractEnd,
-          amount,
-          files: [...form.contractFiles],
-          createdAt: stamp,
-          updatedAt: stamp,
-        },
-      ];
-    }
   }
+
+  const summary = base
+    ? {
+        contracts,
+        contractFiles: base.contractFiles,
+        contractStart: base.contractStart,
+        contractEnd: base.contractEnd,
+        contractAmount: base.contractAmount,
+      }
+    : {
+        contracts,
+        contractFiles: form.contractFiles,
+        contractStart: form.contractStart,
+        contractEnd: form.contractEnd,
+        contractAmount: amount,
+      };
 
   return {
     customerType: "enterprise",
@@ -282,11 +268,11 @@ export function formToCustomerPayload(
     contactPhone: form.contactPhone.trim(),
     contactEmail: form.contactEmail.trim(),
     address: form.address.trim(),
-    contracts,
-    contractFiles: form.contractFiles,
-    contractStart: form.contractStart,
-    contractEnd: form.contractEnd,
-    contractAmount: amount,
+    contracts: summary.contracts,
+    contractFiles: summary.contractFiles,
+    contractStart: summary.contractStart,
+    contractEnd: summary.contractEnd,
+    contractAmount: summary.contractAmount,
     account: form.account.trim(),
     passwordHint: form.password
       ? form.password

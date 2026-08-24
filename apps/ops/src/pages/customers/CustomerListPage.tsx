@@ -12,7 +12,7 @@ import {
   type CustomerAccount,
   type ProductCode,
 } from "@/lib/catalog";
-import { listPeriodStatus, useCustomerStore } from "@/lib/customersStore";
+import { listContractPeriod, useCustomerStore } from "@/lib/customersStore";
 import { getCurrentUserPermissions } from "@/lib/usersStore";
 
 const PAGE_SIZES = [10, 20, 30, 50] as const;
@@ -56,11 +56,11 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 
   if (f.status && row.status !== f.status) return false;
 
-  const period = listPeriodStatus(row);
-  if (f.period && period !== f.period) return false;
+  const contractPeriod = listContractPeriod(row);
+  if (f.period && contractPeriod.status !== f.period) return false;
 
-  if (f.expireFrom && row.contractEnd < f.expireFrom) return false;
-  if (f.expireTo && row.contractEnd > f.expireTo) return false;
+  if (f.expireFrom && contractPeriod.endDate < f.expireFrom) return false;
+  if (f.expireTo && contractPeriod.endDate > f.expireTo) return false;
 
   return true;
 }
@@ -242,7 +242,7 @@ export function CustomerListPage() {
                 </tr>
               ) : (
                 pageRows.map((row) => {
-                  const period = listPeriodStatus(row);
+                  const contractPeriod = listContractPeriod(row);
                   return (
                     <tr key={row.id}>
                       <td>
@@ -282,9 +282,13 @@ export function CustomerListPage() {
                         </span>
                       </td>
                       <td>
-                        <div>{PERIOD_STATUS_LABEL[period as ContractPeriodStatus]}</div>
+                        <div>
+                          {PERIOD_STATUS_LABEL[contractPeriod.status as ContractPeriodStatus]}
+                        </div>
                         <div style={{ color: "var(--n-400)", fontSize: 13 }}>
-                          {row.contractStart} ~ {row.contractEnd}
+                          {contractPeriod.startDate && contractPeriod.endDate
+                            ? `${contractPeriod.startDate} ~ ${contractPeriod.endDate}`
+                            : "—"}
                         </div>
                       </td>
                       <td>

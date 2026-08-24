@@ -3,23 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   ACCOUNT_STATUS_LABEL,
   CUSTOMER_TYPE_LABEL,
-  PERIOD_STATUS_LABEL,
   SERVICE_STATUS_LABEL,
   canConsumeQuota,
   deriveServiceStatus,
   formatQuota,
-  primaryContract,
   productName,
 } from "@/lib/catalog";
-import { listPeriodStatus, useCustomerStore } from "@/lib/customersStore";
+import { useCustomerStore } from "@/lib/customersStore";
 
 type TabKey = "detail" | "usage" | "logs";
-
-function formatSize(size: number) {
-  if (size < 1024) return `${size} B`;
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-  return `${(size / 1024 / 1024).toFixed(1)} MB`;
-}
 
 export function CustomerDetailPage() {
   const { id = "" } = useParams();
@@ -52,21 +44,6 @@ export function CustomerDetailPage() {
       </div>
     );
   }
-
-  const period = listPeriodStatus(customer);
-
-  const downloadFile = (name: string) => {
-    const blob = new Blob(
-      [`[演示附件] ${name}\n客户：${customer.companyName}\n账号：${customer.account}\n`],
-      { type: "text/plain;charset=utf-8" },
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name.endsWith(".pdf") ? name.replace(/\.pdf$/i, ".txt") : name;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="a-stack">
@@ -150,62 +127,6 @@ export function CustomerDetailPage() {
             </section>
 
             <section className="a-form-section">
-              <h3 className="a-form-section__title">合作信息</h3>
-              <div className="a-desc">
-                <div className="a-desc__item">
-                  <span className="a-desc__label">合同编号</span>
-                  <span className="a-desc__value">
-                    {primaryContract(customer.contracts)?.contractNo || "—"}
-                  </span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">合作起止</span>
-                  <span className="a-desc__value">
-                    {customer.contractStart} ~ {customer.contractEnd}
-                  </span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">合同服务期</span>
-                  <span className="a-desc__value">{PERIOD_STATUS_LABEL[period]}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">合同总金额</span>
-                  <span className="a-desc__value">
-                    {customer.contractAmount == null
-                      ? "—"
-                      : `${customer.contractAmount.toLocaleString()} 元`}
-                  </span>
-                </div>
-              </div>
-              <div className="a-field__hint" style={{ marginTop: 8 }}>
-                合同附件下载（演示；正式环境需单独权限控制）
-              </div>
-              {customer.contractFiles.length === 0 ? (
-                <div className="a-empty" style={{ padding: 16 }}>
-                  暂无合同附件
-                </div>
-              ) : (
-                <ul className="a-file-list">
-                  {customer.contractFiles.map((f) => (
-                    <li key={f.id}>
-                      <span>
-                        {f.name}
-                        <span className="a-field__hint">（{formatSize(f.size)}）</span>
-                      </span>
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
-                        onClick={() => downloadFile(f.name)}
-                      >
-                        下载
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <section className="a-form-section">
               <h3 className="a-form-section__title">账号信息</h3>
               <div className="a-desc">
                 <div className="a-desc__item">
@@ -239,7 +160,7 @@ export function CustomerDetailPage() {
               <h3 className="a-form-section__title">产品服务配置</h3>
               <div className="a-field__hint" style={{ marginBottom: 8 }}>
                 产品额度仅在产品有效期内可消耗；过期后次数保留但不可再使用（WebUI / API）。
-                合同服务期仅用于业务提醒与展示，不参与登录或调用控制。账号能否登录取决于账号状态（启用/停用）。
+                账号能否登录取决于账号状态（启用/停用）。
               </div>
               <div className="a-table-wrap">
                 <table className="a-table">

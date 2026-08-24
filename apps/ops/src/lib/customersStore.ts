@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   MOCK_CUSTOMERS,
   MOCK_OP_LOGS,
-  derivePeriodStatus,
+  deriveAccountContractPeriod,
   deriveServiceStatus,
   ensureCustomerContracts,
   productName,
@@ -440,8 +440,12 @@ export function getCustomerUsage(customer: CustomerAccount): ProductUsageStat[] 
   }));
 }
 
+export function listContractPeriod(c: CustomerAccount) {
+  return deriveAccountContractPeriod(c.contracts);
+}
+
 export function listPeriodStatus(c: CustomerAccount) {
-  return derivePeriodStatus(c.contractStart, c.contractEnd);
+  return listContractPeriod(c).status;
 }
 
 export function useCustomerStore() {

@@ -139,6 +139,51 @@ export function derivePeriodStatus(start: string, end: string): ContractPeriodSt
   return "active";
 }
 
+/** 账号级合同服务期：综合全部合同历史判定状态与展示起止 */
+export type AccountContractPeriod = {
+  status: ContractPeriodStatus;
+  startDate: string;
+  endDate: string;
+};
+
+export function deriveAccountContractPeriod(
+  contracts: CustomerContract[],
+): AccountContractPeriod {
+  const list = contracts ?? [];
+  if (list.length === 0) {
+    return { status: "expired", startDate: "", endDate: "" };
+  }
+
+  const t = todayISO();
+
+  const active = list.filter((c) => c.startDate <= t && t <= c.endDate);
+  if (active.length > 0) {
+    const picked = active.sort((a, b) => b.startDate.localeCompare(a.startDate))[0];
+    return {
+      status: "active",
+      startDate: picked.startDate,
+      endDate: picked.endDate,
+    };
+  }
+
+  const future = list.filter((c) => c.startDate > t);
+  if (future.length > 0) {
+    const picked = future.sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+    return {
+      status: "pending",
+      startDate: picked.startDate,
+      endDate: picked.endDate,
+    };
+  }
+
+  const picked = list.sort((a, b) => b.endDate.localeCompare(a.endDate))[0];
+  return {
+    status: "expired",
+    startDate: picked.startDate,
+    endDate: picked.endDate,
+  };
+}
+
 /** 合同按开始日期倒序（同日按更新时间） */
 export function sortContractsByStartDesc(list: CustomerContract[]): CustomerContract[] {
   return [...list].sort((a, b) => {
