@@ -41,7 +41,7 @@ export const STATUS_LABEL: Record<DciVerifyStatus, string> = {
 };
 
 export const CHANNEL_LABEL: Record<DciChannel, string> = {
-  manual: "手动",
+  manual: "WebUI",
   api: "API",
 };
 

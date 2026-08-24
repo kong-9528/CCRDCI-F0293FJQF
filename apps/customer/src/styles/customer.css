@@ -818,3 +818,158 @@ body,
   font-size: var(--ad-fs-sm);
   color: var(--n-500);
 }
+
+/* ---------- 核验服务页 ---------- */
+.c-verify-page .a-tabs {
+  padding-top: 0;
+}
+
+.c-verify-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-sp-2);
+  flex-wrap: wrap;
+}
+
+.c-verify-panel-head__title {
+  margin: 0;
+  font-size: var(--ad-fs-h1);
+  font-weight: 600;
+  color: var(--n-900);
+}
+
+.c-verify-apidoc {
+  font-size: var(--ad-fs-sm);
+  color: var(--p-600);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.c-verify-apidoc:hover {
+  color: var(--p-700);
+  text-decoration: underline;
+}
+
+.c-verify-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ad-sp-2);
+  align-items: center;
+}
+
+.c-verify-input-row .a-input {
+  flex: 1;
+  min-width: 220px;
+}
+
+.c-verify-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ad-sp-2);
+  align-items: center;
+}
+
+.c-verify-form-row .a-input,
+.c-verify-form-row .a-select {
+  flex: 1;
+  min-width: 160px;
+}
+
+.c-verify-section-title {
+  font-weight: 600;
+  font-size: var(--ad-fs-h2);
+  color: var(--n-900);
+}
+
+.c-verify-hint {
+  margin: 0 0 8px;
+  color: var(--n-600);
+  font-size: var(--ad-fs-body);
+}
+
+.c-cert-upload {
+  border: 2px dashed var(--n-300);
+  border-radius: var(--ad-radius);
+  padding: var(--ad-sp-6);
+  text-align: center;
+  cursor: pointer;
+  background: var(--n-50);
+  transition: border-color var(--ad-motion), background var(--ad-motion);
+}
+
+.c-cert-upload:hover {
+  border-color: var(--p-400);
+  background: var(--p-50);
+}
+
+.c-cert-upload__icon {
+  font-size: 28px;
+  color: var(--n-400);
+  margin-bottom: 8px;
+}
+
+.c-cert-upload__title {
+  font-size: var(--ad-fs-body);
+  color: var(--n-600);
+}
+
+.c-cert-upload__hint {
+  margin-top: 4px;
+  font-size: var(--ad-fs-sm);
+  color: var(--n-400);
+}
+
+.a-tag--muted {
+  background: var(--n-100);
+  color: var(--n-500);
+}
+
+/* ---------- 智能辅助审核页 ---------- */
+.c-review-intro {
+  border-left: 3px solid var(--p-600);
+  background: color-mix(in srgb, var(--p-50) 65%, var(--n-0));
+}
+
+.c-review-intro .c-verify-panel-head__title {
+  color: var(--p-700);
+}
+
+.c-review-intro__body {
+  margin-top: var(--ad-sp-2);
+  font-size: var(--ad-fs-sm);
+  color: var(--n-600);
+  line-height: 1.8;
+}
+
+.c-review-intro__body p {
+  margin: 0;
+}
+
+.c-review-quota__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--n-100);
+  overflow: hidden;
+}
+
+.c-review-quota__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--p-500), var(--a-500));
+  transition: width 0.4s ease;
+}
+
+.c-review-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--n-400);
+  font-size: var(--ad-fs-sm);
+}
+
+.c-review-empty__icon {
+  margin-bottom: 8px;
+  color: var(--n-300);
+  display: flex;
+  justify-content: center;
+}

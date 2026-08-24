@@ -5,7 +5,12 @@ import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
+import { DuplicateReviewPage } from "@/pages/review/DuplicateReviewPage";
+import { InfringementReviewPage } from "@/pages/review/InfringementReviewPage";
+import { SafetyReviewPage } from "@/pages/review/SafetyReviewPage";
 import { DciVerifyPage } from "@/pages/verify/DciVerifyPage";
+import { InfoVerifyPage } from "@/pages/verify/InfoVerifyPage";
+import { CertVerifyPage } from "@/pages/verify/CertVerifyPage";
 
 export function App() {
   return (
@@ -13,26 +18,11 @@ export function App() {
       <Route element={<CustomerLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="/verify/dci" element={<DciVerifyPage />} />
-        <Route
-          path="/verify/info"
-          element={<PlaceholderPage title="版权信息核验" note="阶段 2 接入完整核验能力。" />}
-        />
-        <Route
-          path="/verify/certificate"
-          element={<PlaceholderPage title="版权证书核验" note="阶段 2 接入证书上传与核验。" />}
-        />
-        <Route
-          path="/review/safety"
-          element={<PlaceholderPage title="内容安全审核" note="阶段 3 接入审核服务页。" />}
-        />
-        <Route
-          path="/review/duplicate"
-          element={<PlaceholderPage title="作品登记查重" note="阶段 3 接入查重服务页。" />}
-        />
-        <Route
-          path="/review/infringement"
-          element={<PlaceholderPage title="疑似侵权审核" note="阶段 3 接入侵权审核页。" />}
-        />
+        <Route path="/verify/info" element={<InfoVerifyPage />} />
+        <Route path="/verify/certificate" element={<CertVerifyPage />} />
+        <Route path="/review/safety" element={<SafetyReviewPage />} />
+        <Route path="/review/duplicate" element={<DuplicateReviewPage />} />
+        <Route path="/review/infringement" element={<InfringementReviewPage />} />
         <Route path="/keys" element={<PlaceholderPage title="密钥管理" note="阶段 4 接入密钥展示与更新。" />} />
         <Route path="/account" element={<AccountCenterPage />} />
         <Route path="/api-docs" element={<ApiDocsOverviewPage />} />

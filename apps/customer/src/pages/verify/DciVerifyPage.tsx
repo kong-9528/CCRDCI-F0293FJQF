@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { BatchDciModal } from "@/components/verify/BatchDciModal";
 import {
   CHANNEL_LABEL,
   DCI_BATCH_LIMIT,
@@ -16,11 +18,8 @@ import {
   verifyDciOnce,
   type DciChannel,
   type DciVerifyResult,
-  type DciVerifyStatus,
   type DciWorkType,
 } from "@/lib/dci";
-
-type Mode = "single" | "batch";
 
 type Filters = {
   from: string;
@@ -90,9 +89,7 @@ function ResultCard({
     <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
       <div className="a-result__head">
         <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <span className="a-result__title">
-          {ok ? "核验通过" : "DCI不存在"}
-        </span>
+        <span className="a-result__title">{ok ? "核验通过" : "DCI不存在"}</span>
         <span className={`a-tag ${ok ? "a-tag--ok" : "a-tag--er"}`}>
           {STATUS_LABEL[result.status]}
         </span>
@@ -105,7 +102,7 @@ function ResultCard({
         </div>
       </div>
       {!ok ? (
-        <p style={{ margin: "0 0 8px", color: "var(--n-600)", fontSize: "var(--ad-fs-body)" }}>
+        <p className="c-verify-hint">
           {result.message ?? "系统中无该DCI码记录"}，建议检查输入或联系管理员。
         </p>
       ) : null}
@@ -128,9 +125,9 @@ function ResultCard({
 export function DciVerifyPage() {
   const range0 = defaultDateRange();
   const [workType, setWorkType] = useState<DciWorkType>("software");
-  const [mode, setMode] = useState<Mode>("single");
   const [singleCode, setSingleCode] = useState("");
   const [batchText, setBatchText] = useState("");
+  const [batchOpen, setBatchOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [latest, setLatest] = useState<DciVerifyResult[]>([]);
@@ -220,7 +217,9 @@ export function DciVerifyPage() {
     }
     const invalid = list.filter((c) => !isValidDciCode(c));
     if (invalid.length) {
-      setError(`存在不合法 DCI 码：${invalid.slice(0, 3).join("、")}${invalid.length > 3 ? "…" : ""}`);
+      setError(
+        `存在不合法 DCI 码：${invalid.slice(0, 3).join("、")}${invalid.length > 3 ? "…" : ""}`,
+      );
       return;
     }
     const unique = [...new Set(list.map(normalizeDciCode))];
@@ -234,19 +233,18 @@ export function DciVerifyPage() {
       setLatest(results);
       syncRecords();
       setPage(1);
+      setBatchOpen(false);
       showToast(`批量核验完成：${results.length} 条（同批已去重）`);
     } finally {
       setLoading(false);
     }
   };
 
-  const onFile = async (file: File | null) => {
-    if (!file) return;
+  const onBatchFile = async (file: File) => {
     const text = await file.text();
     const lines = parseDciInputList(text.replace(/\t/g, "\n"));
     setBatchText(lines.join("\n"));
-    setMode("batch");
-    showToast(`已导入 ${lines.length} 行（演示按文本解析）`);
+    showToast(`已导入 ${lines.length} 行`);
   };
 
   const exportExcel = () => {
@@ -280,8 +278,11 @@ export function DciVerifyPage() {
     showToast(`已导出 ${rows.length} 条（上限 ${DCI_EXPORT_LIMIT}）`);
   };
 
+  const demoHint =
+    workType === "software" ? "SW" : workType === "work" ? "WK" : "DS";
+
   return (
-    <div className="a-stack">
+    <div className="a-stack c-verify-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
 
       <div className="a-card">
@@ -301,94 +302,54 @@ export function DciVerifyPage() {
         </div>
 
         <div className="a-card__body a-stack">
-          <div className="a-inline-actions">
+          <div className="c-verify-panel-head">
+            <h2 className="c-verify-panel-head__title">
+              DCI核验 · {WORK_TYPE_LABEL[workType]}
+            </h2>
+            <ApiDocLink productId="dci" />
+          </div>
+
+          <div className="c-verify-input-row">
+            <input
+              className="a-input"
+              placeholder="请输入 DCI 码，支持手动输入或粘贴"
+              value={singleCode}
+              onChange={(e) => setSingleCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void runSingle();
+              }}
+            />
             <button
               type="button"
-              className={`a-btn a-btn--sm${mode === "single" ? " a-btn--primary" : ""}`}
-              onClick={() => setMode("single")}
+              className="a-btn a-btn--primary"
+              disabled={loading}
+              onClick={() => void runSingle()}
             >
-              单条核验
+              {loading ? "核验中…" : "核验"}
             </button>
             <button
               type="button"
-              className={`a-btn a-btn--sm${mode === "batch" ? " a-btn--primary" : ""}`}
-              onClick={() => setMode("batch")}
+              className="a-btn"
+              disabled={loading}
+              onClick={() => {
+                setError(null);
+                setBatchOpen(true);
+              }}
             >
               批量核验
             </button>
-            <span className="a-field__hint">
-              单次上限 {DCI_BATCH_LIMIT} 条 · 每日上限 {DCI_DAILY_LIMIT} 条 · 演示码：DCI-
-              {workType === "software" ? "SW" : workType === "work" ? "WK" : "DS"}DEMO0001
-            </span>
           </div>
 
-          {mode === "single" ? (
-            <div className="a-form">
-              <div className="a-field">
-                <label className="a-field__label" htmlFor="dci-single">
-                  DCI码 <span style={{ color: "var(--er-500)" }}>*</span>
-                </label>
-                <input
-                  id="dci-single"
-                  className="a-input"
-                  style={{ minWidth: 280 }}
-                  placeholder="请输入或粘贴 DCI 码"
-                  value={singleCode}
-                  onChange={(e) => setSingleCode(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void runSingle();
-                  }}
-                />
-              </div>
-              <button
-                type="button"
-                className="a-btn a-btn--primary"
-                disabled={loading}
-                onClick={() => void runSingle()}
-              >
-                {loading ? "核验中…" : "开始核验"}
-              </button>
-            </div>
-          ) : (
-            <div className="a-stack">
-              <div className="a-field a-field--stack">
-                <label className="a-field__label" htmlFor="dci-batch">
-                  批量 DCI 码（换行 / 逗号分隔，同批自动去重）
-                </label>
-                <textarea
-                  id="dci-batch"
-                  className="a-textarea"
-                  placeholder={"DCI-SWDEMO0001\nDCI-SW20240001"}
-                  value={batchText}
-                  onChange={(e) => setBatchText(e.target.value)}
-                />
-              </div>
-              <div className="a-inline-actions">
-                <div className="a-upload">
-                  <input
-                    type="file"
-                    accept=".txt,.csv,.xlsx,.xls"
-                    onChange={(e) => void onFile(e.target.files?.[0] ?? null)}
-                  />
-                  <span className="a-field__hint">支持文本粘贴或 Excel/CSV 上传（演示按文本解析）</span>
-                </div>
-                <button
-                  type="button"
-                  className="a-btn a-btn--primary"
-                  disabled={loading}
-                  onClick={() => void runBatch()}
-                >
-                  {loading ? "批量核验中…" : "开始批量核验"}
-                </button>
-              </div>
-            </div>
-          )}
+          <p className="a-field__hint">
+            单次批量上限 {DCI_BATCH_LIMIT} 条 · 每日上限 {DCI_DAILY_LIMIT} 条 · 演示码：
+            DCI-{demoHint}DEMO0001
+          </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
 
           {latest.length ? (
             <div className="a-stack">
-              <div style={{ fontWeight: 600, fontSize: "var(--ad-fs-h2)" }}>
+              <div className="c-verify-section-title">
                 核验结果{latest.length > 1 ? `（${latest.length}）` : ""}
               </div>
               {latest.map((r) => (
@@ -401,7 +362,7 @@ export function DciVerifyPage() {
 
       <div className="a-card">
         <div className="a-card__head">
-          核验记录 · {WORK_TYPE_LABEL[workType]}
+          核验记录
           <div className="a-card__extra">默认近 {DCI_DEFAULT_DAYS} 天</div>
         </div>
         <div className="a-toolbar">
@@ -424,7 +385,7 @@ export function DciVerifyPage() {
             </div>
           </div>
           <div className="a-field">
-            <span className="a-field__label">核验状态</span>
+            <span className="a-field__label">结果</span>
             <select
               className="a-select"
               value={draft.status}
@@ -432,18 +393,18 @@ export function DciVerifyPage() {
             >
               <option value="">全部</option>
               <option value="pass">通过</option>
-              <option value="not_found">不通过</option>
+              <option value="not_found">未通过</option>
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">核验方式</span>
+            <span className="a-field__label">方式</span>
             <select
               className="a-select"
               value={draft.channel}
               onChange={(e) => setDraft((p) => ({ ...p, channel: e.target.value }))}
             >
               <option value="">全部</option>
-              <option value="manual">手动</option>
+              <option value="manual">WebUI</option>
               <option value="api">API</option>
             </select>
           </div>
@@ -498,17 +459,16 @@ export function DciVerifyPage() {
                 <tr>
                   <th>核验时间</th>
                   <th>DCI码</th>
-                  <th>状态</th>
+                  <th>类型</th>
                   <th>方式</th>
-                  <th>名称</th>
-                  <th>著作权人</th>
+                  <th>结果</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={6}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -519,16 +479,15 @@ export function DciVerifyPage() {
                       <td>
                         <code>{r.dciCode}</code>
                       </td>
+                      <td>{WORK_TYPE_LABEL[r.workType]}</td>
+                      <td>{CHANNEL_LABEL[r.channel as DciChannel]}</td>
                       <td>
                         <span
                           className={`a-tag ${r.status === "pass" ? "a-tag--ok" : "a-tag--er"}`}
                         >
-                          {STATUS_LABEL[r.status as DciVerifyStatus]}
+                          {r.status === "pass" ? "通过" : "未通过"}
                         </span>
                       </td>
-                      <td>{CHANNEL_LABEL[r.channel as DciChannel]}</td>
-                      <td>{r.snapshot?.name ?? "—"}</td>
-                      <td>{r.snapshot?.owner ?? "—"}</td>
                       <td>
                         <button
                           type="button"
@@ -538,7 +497,7 @@ export function DciVerifyPage() {
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                         >
-                          查看
+                          详情
                         </button>
                         {r.status === "pass" ? (
                           <button
@@ -616,6 +575,16 @@ export function DciVerifyPage() {
           </div>
         </div>
       </div>
+
+      <BatchDciModal
+        open={batchOpen}
+        loading={loading}
+        text={batchText}
+        onTextChange={setBatchText}
+        onClose={() => setBatchOpen(false)}
+        onSubmit={() => void runBatch()}
+        onFile={(f) => void onBatchFile(f)}
+      />
     </div>
   );
 }
