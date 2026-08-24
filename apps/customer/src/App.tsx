@@ -4,8 +4,8 @@ import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { HelpCenterPage } from "@/pages/help/HelpCenterPage";
 import { KeysPage } from "@/pages/keys/KeysPage";
-import { PlaceholderPage } from "@/pages/PlaceholderPage";
 import { DuplicateReviewPage } from "@/pages/review/DuplicateReviewPage";
 import { InfringementReviewPage } from "@/pages/review/InfringementReviewPage";
 import { SafetyReviewPage } from "@/pages/review/SafetyReviewPage";
@@ -28,7 +28,7 @@ export function App() {
         <Route path="/account" element={<AccountCenterPage />} />
         <Route path="/api-docs" element={<ApiDocsOverviewPage />} />
         <Route path="/api-docs/:productId" element={<ApiDocProductPage />} />
-        <Route path="/help" element={<PlaceholderPage title="帮助中心" note="阶段 6 接入帮助文档。" />} />
+        <Route path="/help" element={<HelpCenterPage />} />
         {/* 旧路由重定向 */}
         <Route path="/audit" element={<Navigate to="/review/safety" replace />} />
         <Route path="/account/*" element={<Navigate to="/account" replace />} />

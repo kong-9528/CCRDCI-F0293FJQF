@@ -217,8 +217,15 @@ export const API_DOC_PRODUCTS: ApiDocProduct[] = [
 
 export const API_DOC_TOTAL_COUNT = API_DOC_PRODUCTS.reduce((n, prod) => n + prod.apis.length, 0);
 
+const PRODUCT_ALIASES: Record<string, string> = {
+  certificate: "cert",
+  duplicate: "dedup",
+  infringement: "infringe",
+};
+
 export function getApiDocProduct(id: string): ApiDocProduct | undefined {
-  return API_DOC_PRODUCTS.find((prod) => prod.id === id);
+  const resolved = PRODUCT_ALIASES[id] ?? id;
+  return API_DOC_PRODUCTS.find((prod) => prod.id === resolved);
 }
 
 export function getApiEndpoint(productId: string, apiId: string): ApiEndpoint | undefined {

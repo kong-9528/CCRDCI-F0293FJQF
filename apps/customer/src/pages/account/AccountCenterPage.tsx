@@ -33,7 +33,7 @@ const PERIOD_LABEL: Record<TenantContract["periodStatus"], string> = {
 const API_DOC_ID: Partial<Record<ProductCode, string>> = {
   dci: "dci",
   info: "info",
-  certificate: "certificate",
+  certificate: "cert",
   safety: "safety",
   duplicate: "dedup",
   infringement: "infringe",

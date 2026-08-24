@@ -57,7 +57,7 @@ const NAV_LABELS: Record<string, string> = {
 
 export function findNavLabel(pathname: string): string {
   if (pathname === "/") return NAV_LABELS["/"];
-  if (pathname.startsWith("/api-docs/")) return "API文档";
+  if (pathname.startsWith("/api-docs")) return "API文档";
   for (const [path, label] of Object.entries(NAV_LABELS)) {
     if (path === "/") continue;
     if (pathname === path || pathname.startsWith(`${path}/`)) return label;
