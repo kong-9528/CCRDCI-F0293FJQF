@@ -17,27 +17,17 @@ export function CustomerSidebar({ collapsed }: Props) {
       {CUSTOMER_NAV.map((group) => (
         <div key={group.title}>
           <div className="a-menu__group">{group.title}</div>
-          {group.items.map((item) =>
-            item.ready ? (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === "/"}
-                className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
-                title={item.label}
-              >
-                <span>{collapsed ? item.label.slice(0, 1) : item.label}</span>
-              </NavLink>
-            ) : (
-              <span
-                key={item.to}
-                className="a-menu__item is-disabled"
-                title={`${item.label}（即将接入）`}
-              >
-                <span>{collapsed ? item.label.slice(0, 1) : item.label}</span>
-              </span>
-            ),
-          )}
+          {group.items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
+              title={item.label}
+            >
+              <span>{collapsed ? item.label.slice(0, 1) : item.label}</span>
+            </NavLink>
+          ))}
         </div>
       ))}
     </aside>

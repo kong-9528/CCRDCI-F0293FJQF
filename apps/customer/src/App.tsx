@@ -1,8 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
+import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
+import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
+import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
-import { DciVerifyPage } from "@/pages/verify/DciVerifyPage";
 import { PlaceholderPage } from "@/pages/PlaceholderPage";
+import { DciVerifyPage } from "@/pages/verify/DciVerifyPage";
 
 export function App() {
   return (
@@ -12,34 +15,34 @@ export function App() {
         <Route path="/verify/dci" element={<DciVerifyPage />} />
         <Route
           path="/verify/info"
-          element={<PlaceholderPage title="版权信息核验" />}
+          element={<PlaceholderPage title="版权信息核验" note="阶段 2 接入完整核验能力。" />}
         />
         <Route
           path="/verify/certificate"
-          element={<PlaceholderPage title="版权证书核验" />}
-        />
-        <Route path="/audit" element={<PlaceholderPage title="智能审核服务" />} />
-        <Route path="/api-docs" element={<PlaceholderPage title="API 文档" />} />
-        <Route path="/keys" element={<PlaceholderPage title="密钥管理" />} />
-        <Route path="/analytics" element={<PlaceholderPage title="数据分析" />} />
-        <Route
-          path="/reports/supervise"
-          element={<PlaceholderPage title="上级监管报表" />}
+          element={<PlaceholderPage title="版权证书核验" note="阶段 2 接入证书上传与核验。" />}
         />
         <Route
-          path="/reports/subscribe"
-          element={<PlaceholderPage title="订阅报表下载" />}
-        />
-        <Route path="/account/org" element={<PlaceholderPage title="机构信息" />} />
-        <Route
-          path="/account/services"
-          element={<PlaceholderPage title="服务列表" />}
+          path="/review/safety"
+          element={<PlaceholderPage title="内容安全审核" note="阶段 3 接入审核服务页。" />}
         />
         <Route
-          path="/account/contracts"
-          element={<PlaceholderPage title="合同信息" />}
+          path="/review/duplicate"
+          element={<PlaceholderPage title="作品登记查重" note="阶段 3 接入查重服务页。" />}
         />
-        <Route path="/help" element={<PlaceholderPage title="帮助中心" />} />
+        <Route
+          path="/review/infringement"
+          element={<PlaceholderPage title="疑似侵权审核" note="阶段 3 接入侵权审核页。" />}
+        />
+        <Route path="/keys" element={<PlaceholderPage title="密钥管理" note="阶段 4 接入密钥展示与更新。" />} />
+        <Route path="/account" element={<AccountCenterPage />} />
+        <Route path="/api-docs" element={<ApiDocsOverviewPage />} />
+        <Route path="/api-docs/:productId" element={<ApiDocProductPage />} />
+        <Route path="/help" element={<PlaceholderPage title="帮助中心" note="阶段 6 接入帮助文档。" />} />
+        {/* 旧路由重定向 */}
+        <Route path="/audit" element={<Navigate to="/review/safety" replace />} />
+        <Route path="/account/*" element={<Navigate to="/account" replace />} />
+        <Route path="/analytics" element={<Navigate to="/" replace />} />
+        <Route path="/reports/*" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

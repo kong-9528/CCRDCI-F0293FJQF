@@ -4,9 +4,9 @@ export const PRODUCTS = [
   { code: "dci", name: "DCI核验", category: "verify", path: "/verify/dci" },
   { code: "info", name: "版权信息核验", category: "verify", path: "/verify/info" },
   { code: "certificate", name: "版权证书核验", category: "verify", path: "/verify/certificate" },
-  { code: "safety", name: "内容安全审核", category: "audit", path: "/audit" },
-  { code: "duplicate", name: "作品登记查重", category: "audit", path: "/audit" },
-  { code: "infringement", name: "疑似侵权审核", category: "audit", path: "/audit" },
+  { code: "safety", name: "内容安全审核", category: "audit", path: "/review/safety" },
+  { code: "duplicate", name: "作品登记查重", category: "audit", path: "/review/duplicate" },
+  { code: "infringement", name: "疑似侵权审核", category: "audit", path: "/review/infringement" },
 ] as const;
 
 export type ProductCode = (typeof PRODUCTS)[number]["code"];
