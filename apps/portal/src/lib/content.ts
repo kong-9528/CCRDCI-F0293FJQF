@@ -95,7 +95,7 @@ export const HELP_GUIDE: HelpGuideNode[] = [
     title: "平台概览",
     html: `
       <p>${PLATFORM_NAME}面向企业客户，提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 与开放 API，按调用次数计量。</p>
-      <p>账号由线下签约后运营开通，门户不提供自助注册。</p>
+      <p>门户不提供自助注册，请联系商务完成线下签约后使用。</p>
     `,
   },
   {
@@ -108,10 +108,10 @@ export const HELP_GUIDE: HelpGuideNode[] = [
         id: "account",
         title: "账号开通说明",
         html: `
-          <p>本平台为企业客户提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>。账号需在线下完成合同签署后，由运营人员开通。</p>
+          <p>本平台为企业客户提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>。账号需在线下完成合同签署后开通。</p>
           <p>开通后您将收到登录用户名与初始密码，首次登录建议立即修改密码。门户<strong>不提供自助注册</strong>。</p>
           <ul>
-            <li>签约完成后由运营开通企业租户与登录账号</li>
+            <li>签约完成后开通企业租户与登录账号</li>
             <li>产品权限与调用额度按合同在后台配置</li>
             <li>如需加额度或续期，请联系客户经理</li>
           </ul>
@@ -184,7 +184,7 @@ export const HELP_FAQ: HelpFaqItem[] = [
   {
     id: "faq-register",
     question: "如何注册账号？",
-    answerHtml: `<p>平台不提供自助注册。请联系商务完成线下签约，由运营为您开通企业账号。</p>`,
+    answerHtml: `<p>平台不提供自助注册。请联系商务完成线下签约后开通企业账号。</p>`,
   },
   {
     id: "faq-quota",

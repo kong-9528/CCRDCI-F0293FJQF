@@ -61,7 +61,7 @@ export function LoginModal({ open, onClose }: Props) {
         <h2 id="login-title" className="p-modal__title">
           登录
         </h2>
-        <p className="p-modal__desc">使用运营开通的企业账号登录。演示密码：demo123</p>
+        <p className="p-modal__desc">请使用企业账号登录。演示密码：demo123</p>
         <form onSubmit={submit}>
           <div className="p-field">
             <label htmlFor="login-username">用户名</label>
@@ -91,7 +91,6 @@ export function LoginModal({ open, onClose }: Props) {
             <Link href="/forgot-password" onClick={onClose}>
               忘记密码？
             </Link>
-            <span style={{ color: "var(--n-400)", fontSize: 13 }}>账号由运营开通</span>
           </div>
           <button type="submit" className="p-btn p-btn--primary p-btn--block" disabled={loading}>
             {loading ? "登录中…" : "登录"}
