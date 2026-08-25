@@ -1,0 +1,273 @@
+import { useEffect, useState } from "react";
+
+export type PortalHomeStatus = "published" | "withdrawn" | "draft";
+
+export type PortalHomeModule = "home";
+
+export type PortalHomeItem = {
+  /** 固定配置 ID，不可修改，供前端引用 */
+  id: number;
+  module: PortalHomeModule;
+  moduleLabel: string;
+  columnKey: string;
+  columnLabel: string;
+  /** 最多 5 段纯文本文案 */
+  texts: string[];
+  status: PortalHomeStatus;
+  updatedAt: string;
+};
+
+export const PORTAL_HOME_STATUS_LABEL: Record<PortalHomeStatus, string> = {
+  published: "已发布",
+  withdrawn: "已撤回",
+  draft: "草稿",
+};
+
+export const PORTAL_HOME_MODULE_LABEL: Record<PortalHomeModule, string> = {
+  home: "首页",
+};
+
+const TEXT_LIMIT = 1000;
+export const PORTAL_HOME_TEXT_LIMIT = TEXT_LIMIT;
+export const PORTAL_HOME_TEXT_SLOTS = 5;
+
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
+function emit() {
+  listeners.forEach((fn) => fn());
+}
+
+function subscribe(fn: Listener) {
+  listeners.add(fn);
+  return () => {
+    listeners.delete(fn);
+  };
+}
+
+function nowStamp() {
+  return new Date().toISOString().slice(0, 19).replace("T", " ");
+}
+
+function padTexts(texts: string[]): string[] {
+  const next = texts.slice(0, PORTAL_HOME_TEXT_SLOTS).map((t) => t.slice(0, TEXT_LIMIT));
+  while (next.length < PORTAL_HOME_TEXT_SLOTS) next.push("");
+  return next;
+}
+
+/** 固定配置项（不可新增/删除） */
+const SEED: PortalHomeItem[] = [
+  {
+    id: 1,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "focus-1",
+    columnLabel: "焦点区1",
+    texts: padTexts([
+      "以可信数据能力",
+      "护航版权经营",
+      "面向内容平台与版权机构，提供版权核验、智能辅助审核与开放 API，让每一次确权与用权都可追溯、可计量。",
+    ]),
+    status: "published",
+    updatedAt: "2026-08-20 10:00:00",
+  },
+  {
+    id: 2,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "focus-2",
+    columnLabel: "焦点区2",
+    texts: padTexts([
+      "版权核验服务",
+      "权威可溯",
+      "覆盖 DCI 核验、版权信息核验与版权证书核验，支撑业务接入、交易确权与合规审查。",
+    ]),
+    status: "published",
+    updatedAt: "2026-08-20 10:05:00",
+  },
+  {
+    id: 3,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "focus-3",
+    columnLabel: "焦点区3",
+    texts: padTexts([
+      "智能辅助审核服务",
+      "提效合规",
+      "涵盖内容安全审核、作品登记查重与疑似侵权审核，辅助缩短人工审核链路。",
+    ]),
+    status: "draft",
+    updatedAt: "2026-08-21 09:12:00",
+  },
+  {
+    id: 4,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "verify-product-1",
+    columnLabel: "版权核验服务产品1",
+    texts: padTexts([
+      "DCI核验",
+      "对接 DCI 登记信息，快速核验作品登记状态与权利信息，为交易、分发与确权提供可信依据。",
+      "登记状态 · 权利主体 · 登记编号",
+    ]),
+    status: "published",
+    updatedAt: "2026-08-19 14:20:00",
+  },
+  {
+    id: 5,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "verify-product-2",
+    columnLabel: "版权核验服务产品2",
+    texts: padTexts([
+      "版权信息核验",
+      "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
+      "作品信息 · 权利核对 · 结果回传",
+    ]),
+    status: "published",
+    updatedAt: "2026-08-19 14:22:00",
+  },
+  {
+    id: 6,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "verify-product-3",
+    columnLabel: "版权核验服务产品3",
+    texts: padTexts([
+      "版权证书核验",
+      "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
+      "证书核验 · 批量处理 · 结构化结果",
+    ]),
+    status: "withdrawn",
+    updatedAt: "2026-08-18 16:40:00",
+  },
+  {
+    id: 7,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "audit-product-1",
+    columnLabel: "智能辅助审核服务产品1",
+    texts: padTexts([
+      "内容安全审核",
+      "对文本、图像等内容进行安全合规筛查，帮助运营前置识别违规与高风险素材。",
+      "内容筛查 · 风险标签 · 处置建议",
+    ]),
+    status: "published",
+    updatedAt: "2026-08-17 11:00:00",
+  },
+  {
+    id: 8,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "audit-product-2",
+    columnLabel: "智能辅助审核服务产品2",
+    texts: padTexts([
+      "作品登记查重",
+      "对照已登记作品库进行查重比对，辅助发现重复登记与高度相似内容，支撑登记前风控。",
+      "相似度 · 比对摘要 · 登记辅助",
+    ]),
+    status: "draft",
+    updatedAt: "2026-08-22 08:30:00",
+  },
+  {
+    id: 9,
+    module: "home",
+    moduleLabel: "首页",
+    columnKey: "audit-product-3",
+    columnLabel: "智能辅助审核服务产品3",
+    texts: padTexts([
+      "疑似侵权审核",
+      "围绕疑似侵权行为提供智能辅助研判与证据线索，便于人工复核与后续处置。",
+      "侵权线索 · 风险等级 · 复核工单",
+    ]),
+    status: "withdrawn",
+    updatedAt: "2026-08-16 19:05:00",
+  },
+];
+
+let items: PortalHomeItem[] = SEED.map((item) => ({
+  ...item,
+  texts: padTexts(item.texts),
+}));
+
+export function listPortalHomeItems() {
+  return items.map((item) => ({ ...item, texts: [...item.texts] }));
+}
+
+export function getPortalHomeItem(id: number) {
+  const hit = items.find((item) => item.id === id);
+  return hit ? { ...hit, texts: [...hit.texts] } : undefined;
+}
+
+export function getPortalHomeColumns() {
+  return SEED.map((item) => ({ key: item.columnKey, label: item.columnLabel }));
+}
+
+/** 编辑保存：草稿保持草稿；已撤回编辑后变为草稿；已发布不可进入编辑 */
+export function updatePortalHomeTexts(id: number, texts: string[]) {
+  const idx = items.findIndex((item) => item.id === id);
+  if (idx < 0) return { ok: false as const, message: "配置项不存在" };
+  const cur = items[idx];
+  if (cur.status === "published") {
+    return { ok: false as const, message: "已发布内容不可直接编辑，请先撤回" };
+  }
+  const cleaned = padTexts(texts.map((t) => t.trimEnd()));
+  for (let i = 0; i < cleaned.length; i += 1) {
+    if (cleaned[i].length > TEXT_LIMIT) {
+      return { ok: false as const, message: `区域${i + 1}超过 ${TEXT_LIMIT} 字符上限` };
+    }
+  }
+  items[idx] = {
+    ...cur,
+    texts: cleaned,
+    status: "draft",
+    updatedAt: nowStamp(),
+  };
+  emit();
+  return { ok: true as const };
+}
+
+export function publishPortalHomeItem(id: number) {
+  const idx = items.findIndex((item) => item.id === id);
+  if (idx < 0) return { ok: false as const, message: "配置项不存在" };
+  const cur = items[idx];
+  if (cur.status === "published") {
+    return { ok: false as const, message: "当前已是发布状态" };
+  }
+  items[idx] = {
+    ...cur,
+    status: "published",
+    updatedAt: nowStamp(),
+  };
+  emit();
+  return { ok: true as const };
+}
+
+export function withdrawPortalHomeItem(id: number) {
+  const idx = items.findIndex((item) => item.id === id);
+  if (idx < 0) return { ok: false as const, message: "配置项不存在" };
+  const cur = items[idx];
+  if (cur.status !== "published") {
+    return { ok: false as const, message: "仅已发布内容可撤回" };
+  }
+  items[idx] = {
+    ...cur,
+    status: "withdrawn",
+    updatedAt: nowStamp(),
+  };
+  emit();
+  return { ok: true as const };
+}
+
+export function usePortalHomeStore() {
+  const [, setTick] = useState(0);
+  useEffect(() => subscribe(() => setTick((n) => n + 1)), []);
+  return {
+    items: listPortalHomeItems(),
+    getItem: getPortalHomeItem,
+    columns: getPortalHomeColumns(),
+    updateTexts: updatePortalHomeTexts,
+    publish: publishPortalHomeItem,
+    withdraw: withdrawPortalHomeItem,
+  };
+}
