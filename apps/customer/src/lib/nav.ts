@@ -1,6 +1,9 @@
+import type { NavIconId } from "@/components/icons/NavIcons";
+
 export type NavItem = {
   to: string;
   label: string;
+  icon: NavIconId;
 };
 
 export type NavGroup = {
@@ -12,37 +15,37 @@ export type NavGroup = {
 export const CUSTOMER_NAV: NavGroup[] = [
   {
     title: "概览",
-    items: [{ to: "/", label: "控制台首页" }],
+    items: [{ to: "/", label: "工作台", icon: "dashboard" }],
   },
   {
     title: "版权核验服务",
     items: [
-      { to: "/verify/dci", label: "DCI核验" },
-      { to: "/verify/info", label: "版权信息核验" },
-      { to: "/verify/certificate", label: "版权证书核验" },
+      { to: "/verify/dci", label: "DCI核验", icon: "dci" },
+      { to: "/verify/info", label: "版权信息核验", icon: "info" },
+      { to: "/verify/certificate", label: "版权证书核验", icon: "cert" },
     ],
   },
   {
     title: "智能辅助审核服务",
     items: [
-      { to: "/review/safety", label: "内容安全审核" },
-      { to: "/review/duplicate", label: "作品登记查重" },
-      { to: "/review/infringement", label: "疑似侵权审核" },
+      { to: "/review/safety", label: "内容安全审核", icon: "safety" },
+      { to: "/review/duplicate", label: "作品登记查重", icon: "duplicate" },
+      { to: "/review/infringement", label: "疑似侵权审核", icon: "infringement" },
     ],
   },
   {
     title: "设置",
     items: [
-      { to: "/keys", label: "密钥管理" },
-      { to: "/account", label: "账号中心" },
-      { to: "/api-docs", label: "API文档" },
-      { to: "/help", label: "帮助中心" },
+      { to: "/keys", label: "密钥管理", icon: "keys" },
+      { to: "/account", label: "账号中心", icon: "account" },
+      { to: "/api-docs", label: "API文档", icon: "api-docs" },
+      { to: "/help", label: "帮助中心", icon: "help" },
     ],
   },
 ];
 
 const NAV_LABELS: Record<string, string> = {
-  "/": "控制台首页",
+  "/": "工作台",
   "/verify/dci": "DCI核验",
   "/verify/info": "版权信息核验",
   "/verify/certificate": "版权证书核验",
@@ -62,5 +65,5 @@ export function findNavLabel(pathname: string): string {
     if (path === "/") continue;
     if (pathname === path || pathname.startsWith(`${path}/`)) return label;
   }
-  return "控制台首页";
+  return "工作台";
 }

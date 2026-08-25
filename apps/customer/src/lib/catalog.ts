@@ -1,4 +1,4 @@
-export const PLATFORM_NAME = "版权技术服务平台";
+export const PLATFORM_NAME = "DCI®技术服务中心";
 
 export const PRODUCTS = [
   { code: "dci", name: "DCI核验", category: "verify", path: "/verify/dci" },

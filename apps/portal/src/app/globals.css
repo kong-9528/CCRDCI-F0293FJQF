@@ -460,7 +460,7 @@ a {
   }
 }
 
-/* 主内容齐线：产品介绍 / 合作流程等板块共用 */
+/* 主内容齐线：产品介绍等板块共用 */
 .p-rail {
   width: 100%;
   max-width: none;
@@ -512,7 +512,7 @@ a {
   font-weight: 700;
 }
 
-/* 登录后：进入版权技术服务平台 */
+/* 登录后：进入 DCI®技术服务中心 */
 .p-nav__console {
   display: inline-flex;
   align-items: center;
@@ -710,228 +710,6 @@ a {
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-/* 合作流程 — 旅程式节点 */
-#process,
-.p-process {
-  scroll-margin-top: var(--pt-nav-h);
-}
-
-.p-process {
-  position: relative;
-  overflow: hidden;
-  padding: var(--pt-space-section) 0;
-  background:
-    radial-gradient(ellipse 70% 55% at 12% 20%, rgba(11, 98, 184, 0.08), transparent 60%),
-    radial-gradient(ellipse 55% 45% at 88% 80%, rgba(0, 184, 198, 0.1), transparent 55%),
-    linear-gradient(180deg, var(--n-50) 0%, #fff 48%, var(--n-50) 100%);
-  scroll-margin-top: var(--pt-nav-h);
-}
-
-.p-process__glow {
-  position: absolute;
-  inset: 18% -10% auto;
-  height: 42%;
-  background: linear-gradient(90deg, transparent, rgba(0, 184, 198, 0.07), rgba(11, 98, 184, 0.06), transparent);
-  filter: blur(28px);
-  pointer-events: none;
-}
-
-.p-process__head {
-  position: relative;
-  z-index: 1;
-  margin-bottom: 56px;
-}
-
-.p-journey {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.p-journey__item {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 640ms cubic-bezier(0.22, 0.8, 0.32, 1),
-    transform 640ms cubic-bezier(0.22, 0.8, 0.32, 1);
-  transition-delay: calc(var(--i, 0) * 90ms);
-}
-
-.p-reveal.is-in .p-journey__item {
-  opacity: 1;
-  transform: none;
-}
-
-.p-journey__node {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 88px;
-  margin-bottom: 20px;
-}
-
-.p-journey__ring {
-  position: absolute;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: conic-gradient(from 210deg, var(--p-500), var(--a-400), var(--p-300), var(--p-500));
-  opacity: 0.22;
-  filter: blur(0.5px);
-  animation: p-journey-spin 14s linear infinite;
-}
-
-.p-journey__icon {
-  position: relative;
-  z-index: 1;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: var(--p-700);
-  background: linear-gradient(160deg, #fff 0%, var(--p-50) 55%, var(--a-50) 100%);
-  border: 1px solid rgba(11, 98, 184, 0.12);
-  box-shadow:
-    0 10px 28px rgba(0, 34, 68, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.p-journey__item:hover .p-journey__icon {
-  color: var(--a-700);
-  transform: translateY(-2px) scale(1.04);
-  transition: transform var(--pt-motion), color var(--pt-motion);
-}
-
-.p-journey__bridge {
-  position: absolute;
-  left: calc(50% + 36px);
-  right: calc(-50% + 36px);
-  top: 50%;
-  height: 2px;
-  margin-top: -1px;
-  background: linear-gradient(90deg, var(--p-300), var(--a-400), var(--p-200));
-  opacity: 0.55;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.p-journey__bridge::after {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 28%;
-  background: linear-gradient(90deg, transparent, #fff, transparent);
-  animation: p-journey-flow 2.4s ease-in-out infinite;
-}
-
-.p-journey__card {
-  position: relative;
-  flex: 1;
-  padding: 28px 24px 26px;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(226, 231, 239, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 36px rgba(0, 34, 68, 0.05);
-  overflow: hidden;
-  transition: transform var(--pt-motion), box-shadow var(--pt-motion), border-color var(--pt-motion);
-}
-
-.p-journey__card::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  height: 3px;
-  background: var(--grad-flow);
-  opacity: 0.85;
-}
-
-.p-journey__item:hover .p-journey__card {
-  transform: translateY(-6px);
-  border-color: var(--a-200);
-  box-shadow: 0 18px 44px rgba(0, 34, 68, 0.1);
-}
-
-.p-journey__index {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  background: var(--grad-flow);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin-bottom: 10px;
-}
-
-.p-journey__hint {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--a-600);
-}
-
-.p-journey__card h3 {
-  margin: 0 0 10px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--n-900);
-}
-
-.p-journey__card p {
-  margin: 0;
-  color: var(--n-500);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-@keyframes p-journey-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes p-journey-flow {
-  0% {
-    transform: translateX(-30%);
-    opacity: 0;
-  }
-  35% {
-    opacity: 0.9;
-  }
-  100% {
-    transform: translateX(340%);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .p-journey__ring,
-  .p-journey__bridge::after {
-    animation: none;
-  }
-  .p-journey__item {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
 
@@ -1541,15 +1319,6 @@ a {
     font-size: 24px;
   }
 
-  .p-journey {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 20px;
-  }
-
-  .p-journey__bridge {
-    display: none;
-  }
-
   .p-help__layout {
     grid-template-columns: 1fr;
   }
@@ -1588,61 +1357,5 @@ a {
 
   .p-showcase__arrow--next {
     right: 8px;
-  }
-
-  .p-journey {
-    grid-template-columns: 1fr;
-    gap: 18px;
-    padding-left: 8px;
-  }
-
-  .p-journey__item {
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 12px;
-    align-items: stretch;
-  }
-
-  .p-journey__node {
-    height: auto;
-    margin-bottom: 0;
-    flex-direction: column;
-  }
-
-  .p-journey__bridge {
-    display: block;
-    left: 50%;
-    right: auto;
-    top: calc(50% + 36px);
-    bottom: -30px;
-    width: 2px;
-    height: auto;
-    margin: 0 0 0 -1px;
-    background: linear-gradient(180deg, var(--p-300), var(--a-400));
-  }
-
-  .p-journey__bridge::after {
-    width: 100%;
-    height: 28%;
-    inset: 0 0 auto 0;
-    animation-name: p-journey-flow-y;
-  }
-
-  .p-journey__item:last-child .p-journey__bridge {
-    display: none;
-  }
-
-  @keyframes p-journey-flow-y {
-    0% {
-      transform: translateY(-20%);
-      opacity: 0;
-    }
-    35% {
-      opacity: 0.9;
-    }
-    100% {
-      transform: translateY(320%);
-      opacity: 0;
-    }
   }
 }

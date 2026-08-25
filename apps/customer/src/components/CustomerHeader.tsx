@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { PLATFORM_NAME } from "@/lib/catalog";
 import { findNavLabel } from "@/lib/nav";
 import { MOCK_TENANT } from "@/lib/tenant";
 
@@ -44,7 +45,7 @@ export function CustomerHeader({ pathname, collapsed, onToggleCollapse }: Props)
         {collapsed ? "»" : "«"}
       </button>
       <div className="a-header__crumb">
-        控制台 / <b>{title}</b>
+        {PLATFORM_NAME} / <b>{title}</b>
       </div>
       <div className="a-header__actions">
         <div className="a-header__user" ref={userRef}>
@@ -82,7 +83,7 @@ export function CustomerHeader({ pathname, collapsed, onToggleCollapse }: Props)
       <ConfirmDialog
         open={logoutConfirm}
         title="确认退出登录"
-        description="退出后需重新登录才能访问控制台。确定要退出吗？"
+        description="退出后需重新登录才能访问工作台。确定要退出吗？"
         confirmText="退出登录"
         danger
         onCancel={() => setLogoutConfirm(false)}

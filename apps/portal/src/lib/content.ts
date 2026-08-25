@@ -1,4 +1,4 @@
-export const PLATFORM_NAME = "版权技术服务平台";
+export const PLATFORM_NAME = "DCI®技术服务中心";
 
 export const HERO_SLIDES = [
   {
@@ -66,33 +66,6 @@ export const AUDIT_THEMES = [
   },
 ];
 
-export const PROCESS_STEPS = [
-  {
-    id: "sign",
-    title: "线下洽谈签约",
-    desc: "确认服务范围与调用额度，完成合同签署。",
-    hint: "Contract",
-  },
-  {
-    id: "open",
-    title: "运营开通账号",
-    desc: "开通企业租户、登录账号及产品权限。",
-    hint: "Provision",
-  },
-  {
-    id: "use",
-    title: "平台使用与对接",
-    desc: "登录版权技术服务平台使用 WebUI，或按文档接入 API。",
-    hint: "Connect",
-  },
-  {
-    id: "bill",
-    title: "按次计量结算",
-    desc: "调用自动记流水扣额度，续费由合同约定处理。",
-    hint: "Metering",
-  },
-] as const;
-
 /** 帮助中心：左侧树（目录可展开；文章可为根节点或挂在目录下） */
 export type HelpGuideNode =
   | {
@@ -121,7 +94,7 @@ export const HELP_GUIDE: HelpGuideNode[] = [
     id: "overview",
     title: "平台概览",
     html: `
-      <p>版权技术服务平台面向企业客户，提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 与开放 API，按调用次数计量。</p>
+      <p>${PLATFORM_NAME}面向企业客户，提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 与开放 API，按调用次数计量。</p>
       <p>账号由线下签约后运营开通，门户不提供自助注册。</p>
     `,
   },
@@ -147,9 +120,9 @@ export const HELP_GUIDE: HelpGuideNode[] = [
       {
         type: "article",
         id: "console",
-        title: "进入版权技术服务平台",
+        title: `进入${PLATFORM_NAME}`,
         html: `
-          <p>登录成功后，导航栏将出现「版权技术服务平台」入口，点击即可进入客户工作台。</p>
+          <p>登录成功后，导航栏将出现「${PLATFORM_NAME}」入口，点击即可进入客户工作台。</p>
           <figure class="p-help__figure" role="img" aria-label="登录后导航栏出现平台入口示意">登录后导航栏出现平台入口示意</figure>
           <p>在平台中可查看额度、调用流水、API 文档，并对已开通且支持 WebUI 的产品进行在线操作。</p>
         `,
@@ -172,7 +145,7 @@ export const HELP_GUIDE: HelpGuideNode[] = [
             <li><strong>版权信息核验</strong></li>
             <li><strong>版权证书核验</strong></li>
           </ul>
-          <p>在版权技术服务平台选择已开通产品，按提示提交后<strong>同步返回结果</strong>。</p>
+          <p>在${PLATFORM_NAME}选择已开通产品，按提示提交后<strong>同步返回结果</strong>。</p>
           <p>若通过 API 对接，请在文档中获取对应产品路径、鉴权方式与错误码说明。</p>
         `,
       },
@@ -195,7 +168,7 @@ export const HELP_GUIDE: HelpGuideNode[] = [
         id: "api-key",
         title: "API Key 管理",
         html: `
-          <p>在版权技术服务平台创建 API Key，<strong>完整密钥仅在创建时展示一次</strong>，请妥善保存。</p>
+          <p>在${PLATFORM_NAME}创建 API Key，<strong>完整密钥仅在创建时展示一次</strong>，请妥善保存。</p>
           <ol>
             <li>进入平台后打开密钥管理</li>
             <li>创建密钥并立即复制保存</li>

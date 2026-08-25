@@ -73,9 +73,6 @@ export function PortalNav() {
             <a href="/#audit" onClick={goSection("audit")}>
               智能辅助审核服务
             </a>
-            <a href="/#process" onClick={goSection("process")}>
-              合作流程
-            </a>
             <Link href="/help">帮助中心</Link>
           </nav>
           <div className="p-nav__actions">
@@ -84,7 +81,7 @@ export function PortalNav() {
                 <a
                   className="p-nav__console"
                   href={process.env.NEXT_PUBLIC_CUSTOMER_URL ?? "http://localhost:3002"}
-                  title="进入版权技术服务平台"
+                  title={`进入${PLATFORM_NAME}`}
                 >
                   <span className="p-nav__console-icon" aria-hidden>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -94,7 +91,7 @@ export function PortalNav() {
                       <rect x="9.5" y="8.5" width="5" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
                     </svg>
                   </span>
-                  <span className="p-nav__console-text">进入版权技术服务平台</span>
+                  <span className="p-nav__console-text">进入{PLATFORM_NAME}</span>
                 </a>
                 <div className="p-nav__user" ref={userRef}>
                   <button

@@ -46,12 +46,12 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
     blocks: [
       {
         type: "p",
-        text: "欢迎使用版权技术服务平台。本文档将帮助您快速了解平台功能并完成 API 接入。",
+        text: "欢迎使用 DCI®技术服务中心。本文档将帮助您快速了解平台功能并完成 API 接入。",
       },
       { type: "h3", text: "第一步：获取 API 密钥" },
       {
         type: "p",
-        text: "登录控制台后，进入「密钥管理」页面，即可查看您的 AccessKey 和 AppSecret。请妥善保管 AppSecret，不要泄露给第三方。",
+        text: "登录工作台后，进入「密钥管理」页面，即可查看您的 AccessKey 和 AppSecret。请妥善保管 AppSecret，不要泄露给第三方。",
       },
       { type: "link", label: "前往密钥管理", to: "/keys" },
       { type: "h3", text: "第二步：阅读 API 文档" },
@@ -63,9 +63,9 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
       { type: "h3", text: "第三步：调用接口" },
       {
         type: "p",
-        text: "使用您的密钥调用接口，每次调用将消耗对应的配额。可在控制台首页查看实时调用量和剩余配额。",
+        text: "使用您的密钥调用接口，每次调用将消耗对应的配额。可在工作台查看实时调用量和剩余配额。",
       },
-      { type: "link", label: "返回控制台首页", to: "/" },
+      { type: "link", label: "返回工作台", to: "/" },
     ],
   },
   "api-guide": {
@@ -98,7 +98,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
       { type: "h3", text: "配额与限流" },
       {
         type: "p",
-        text: "各产品配额相互独立，可在「账号中心 · 我的服务」或控制台首页查看。配额耗尽后接口将返回错误，请及时联系商务扩容。",
+        text: "各产品配额相互独立，可在「账号中心 · 我的服务」或工作台查看。配额耗尽后接口将返回错误，请及时联系商务扩容。",
       },
       { type: "link", label: "查看全部接口文档", to: "/api-docs" },
     ],
@@ -123,7 +123,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
       },
       {
         type: "p",
-        text: "控制台提供软件 / 作品 / 数据集三类 WebUI 核验入口，便于联调演示。",
+        text: "工作台提供软件 / 作品 / 数据集三类 WebUI 核验入口，便于联调演示。",
       },
       { type: "link", label: "打开 DCI 核验页", to: "/verify/dci" },
       { type: "link", label: "DCI 接口文档", to: "/api-docs/dci", hint: "含 6 个接口" },
@@ -216,7 +216,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
         type: "ul",
         items: [
           "勿将 AppSecret 写入前端公开代码或提交到版本库",
-          "密钥泄露后立即在控制台「更新密钥」，旧密钥将立即失效",
+          "密钥泄露后立即在工作台「更新密钥」，旧密钥将立即失效",
           "更新前请通知所有调用方同步更换密钥，避免业务中断",
         ],
       },
@@ -234,7 +234,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
             id: "q-quota",
             question: "配额用完了怎么办？",
             answer:
-              "配额用完后接口将返回错误码，请及时续费或联系商务扩展配额。可在控制台首页与「账号中心 · 我的服务」查看已用额度。",
+              "配额用完后接口将返回错误码，请及时续费或联系商务扩展配额。可在工作台与「账号中心 · 我的服务」查看已用额度。",
           },
           {
             id: "q-leak",

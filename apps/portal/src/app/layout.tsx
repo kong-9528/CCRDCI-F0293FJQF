@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     default: PLATFORM_NAME,
     template: `%s · ${PLATFORM_NAME}`,
   },
-  description: "版权技术服务平台：版权核验服务（DCI核验、版权信息核验、版权证书核验）与智能辅助审核服务（内容安全审核、作品登记查重、疑似侵权审核），线下签约开通，按次计量。",
+  description: `${PLATFORM_NAME}：版权核验服务（DCI核验、版权信息核验、版权证书核验）与智能辅助审核服务（内容安全审核、作品登记查重、疑似侵权审核），线下签约开通，按次计量。`,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

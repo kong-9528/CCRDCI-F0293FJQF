@@ -2,7 +2,6 @@
 
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { ProductShowcase } from "@/components/ProductShowcase";
-import { ProcessSection } from "@/components/ProcessSection";
 import { AUDIT_THEMES, VERIFY_THEMES } from "@/lib/content";
 
 export function HomePage() {
@@ -24,8 +23,6 @@ export function HomePage() {
         themes={AUDIT_THEMES}
         subtle
       />
-
-      <ProcessSection />
     </>
   );
 }

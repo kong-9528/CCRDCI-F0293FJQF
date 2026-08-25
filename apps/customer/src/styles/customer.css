@@ -1,6 +1,27 @@
 @import "@ctp/styles/tokens.css";
 @import "@ctp/styles/admin.css";
 
+/* 客户台：在 admin 紧凑字号基础上整体放大两档，便于阅读 */
+.theme-customer {
+  --ad-fs-body: 15px;
+  --ad-fs-sm: 14px;
+  --ad-fs-h1: 18px;
+  --ad-fs-h2: 16px;
+  --ad-ctrl-sm: 26px;
+  --ad-ctrl-md: 30px;
+  --ad-ctrl-lg: 34px;
+  --ad-table-row-h: 36px;
+  --ad-header-h: 52px;
+}
+
+.theme-customer .a-sidebar__logo {
+  font-size: 17px;
+}
+
+.theme-customer .a-stat__num {
+  font-size: 26px;
+}
+
 html,
 body,
 #root {
@@ -18,7 +39,7 @@ body,
   border-radius: 6px;
   background: linear-gradient(135deg, var(--p-500), var(--a-500));
   color: #fff;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   display: grid;
   place-items: center;
@@ -33,6 +54,29 @@ body,
 .a-layout.is-collapsed .a-menu__item {
   justify-content: center;
   padding: 0;
+  gap: 0;
+}
+
+.a-menu__icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  opacity: 0.88;
+}
+
+.a-menu__item.is-active .a-menu__icon {
+  opacity: 1;
+}
+
+.a-menu__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.a-sidebar__logo-text {
+  line-height: 1.25;
 }
 
 .a-menu__item.is-disabled {
@@ -72,7 +116,7 @@ body,
 }
 
 .a-header__chevron {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--n-400);
   line-height: 1;
   transition: transform var(--ad-motion);
@@ -123,7 +167,7 @@ body,
   color: var(--p-700);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -393,7 +437,7 @@ body,
   max-height: 420px;
 }
 
-/* ---------- 控制台首页 ---------- */
+/* ---------- 工作台首页 ---------- */
 .c-dashboard {
   gap: var(--ad-sp-3);
 }
@@ -508,7 +552,7 @@ body,
 
 .c-quota-card__value {
   margin-top: 4px;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--n-900);
@@ -904,7 +948,7 @@ body,
 }
 
 .c-cert-upload__icon {
-  font-size: 28px;
+  font-size: 30px;
   color: var(--n-400);
   margin-bottom: 8px;
 }
@@ -1159,7 +1203,7 @@ body,
   background: var(--n-50);
   color: var(--p-600);
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
   transition: border-color var(--ad-motion), background var(--ad-motion);
 }
@@ -1184,7 +1228,7 @@ body,
 
 .c-apidoc-overview-head__title {
   margin: 0 0 4px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--n-900);
 }
@@ -1436,7 +1480,7 @@ body,
 
 .c-help-content__title {
   margin: 0 0 16px;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--n-900);
 }

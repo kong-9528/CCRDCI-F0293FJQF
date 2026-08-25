@@ -104,7 +104,7 @@ export function DashboardTrendChart() {
                     stroke="var(--n-200)"
                     strokeWidth="1"
                   />
-                  <text x={4} y={y + 4} fontSize="10" fill="var(--n-400)">
+                  <text x={4} y={y + 4} fontSize="12" fill="var(--n-400)">
                     {val}
                   </text>
                 </g>
@@ -133,7 +133,7 @@ export function DashboardTrendChart() {
                   key={label + i}
                   x={xAt(i, n)}
                   y={height - 6}
-                  fontSize="10"
+                  fontSize="12"
                   fill="var(--n-400)"
                   textAnchor="middle"
                 >
