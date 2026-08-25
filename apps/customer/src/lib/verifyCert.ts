@@ -18,14 +18,11 @@ export type CertRecognition = {
 };
 
 export type CertOcrDraft = {
-  certNo: string;
-  workName: string;
-  owner: string;
-  registerDate: string;
   fileName: string;
   fileUrl: string;
   fileKind: CertFileKind;
-  recognition?: CertRecognition;
+  /** OCR 识别结果（用户可在确认弹窗中修改） */
+  recognition: CertRecognition;
 };
 
 export type CertVerifyResult = {
@@ -123,23 +120,6 @@ function demoCertImage(label: string, tone: "ok" | "warn" | "info"): string {
 
 export function detectCertFileKind(fileName: string): CertFileKind {
   return /\.pdf$/i.test(fileName) ? "pdf" : "image";
-}
-
-function buildRecognition(
-  certNo: string,
-  workName: string,
-  owner: string,
-  registerDate: string,
-): CertRecognition {
-  return {
-    certTitleNo: `软著登字第${certNo.replace(/\D/g, "").slice(-8) || "00000000"}号`,
-    workName,
-    owner,
-    acquireMethod: "原始取得",
-    rightScope: "全部权利",
-    registerDate,
-    registerNo: certNo,
-  };
 }
 
 const REGISTRY: Record<
@@ -247,56 +227,60 @@ export async function ocrCertFile(file: File): Promise<CertOcrDraft> {
     fileKind === "image" ? URL.createObjectURL(file) : demoCertImage(file.name, "info");
   const lower = file.name.toLowerCase();
   if (lower.includes("fail") || lower.includes("invalid")) {
-    const recognition = buildRecognition("2099SR000000", "无法识别作品", "未知", "2099-01-01");
     return {
-      certNo: recognition.registerNo,
-      workName: recognition.workName,
-      owner: recognition.owner,
-      registerDate: recognition.registerDate,
       fileName: file.name,
       fileUrl,
       fileKind,
-      recognition,
+      recognition: {
+        certTitleNo: "软著登字第00000000号",
+        workName: "无法识别作品",
+        owner: "未知",
+        acquireMethod: "原始取得",
+        rightScope: "全部权利",
+        registerDate: "2099-01-01",
+        registerNo: "2099SR000000",
+      },
     };
   }
   const hit = REGISTRY["2024SR001234"];
-  const recognition: CertRecognition = {
-    certTitleNo: hit.certTitleNo,
-    workName: hit.workName,
-    owner: hit.owner,
-    acquireMethod: "原始取得",
-    rightScope: "全部权利",
-    registerDate: hit.registerDate,
-    registerNo: "2024SR001234",
-  };
   return {
-    certNo: recognition.registerNo,
-    workName: recognition.workName,
-    owner: recognition.owner,
-    registerDate: recognition.registerDate,
     fileName: file.name,
     fileUrl,
     fileKind,
-    recognition,
+    recognition: {
+      certTitleNo: hit.certTitleNo,
+      workName: hit.workName,
+      owner: hit.owner,
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: hit.registerDate,
+      registerNo: "2024SR001234",
+    },
   };
 }
 
 export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerifyResult> {
   await new Promise((r) => setTimeout(r, 420));
-  const hit = REGISTRY[draft.certNo];
+  const recognition: CertRecognition = {
+    certTitleNo: draft.recognition.certTitleNo.trim(),
+    workName: draft.recognition.workName.trim(),
+    owner: draft.recognition.owner.trim(),
+    acquireMethod: draft.recognition.acquireMethod.trim() || "原始取得",
+    rightScope: draft.recognition.rightScope.trim() || "全部权利",
+    registerDate: draft.recognition.registerDate.trim(),
+    registerNo: draft.recognition.registerNo.trim(),
+  };
+  const hit = REGISTRY[recognition.registerNo];
   const verifyCode = nextVerifyCode();
-  const recognition =
-    draft.recognition ??
-    buildRecognition(draft.certNo, draft.workName, draft.owner, draft.registerDate);
 
   const mismatches: CertMismatchField[] = [];
   if (!hit) {
     mismatches.push("certNo");
   } else {
-    if (normCompare(draft.workName) !== normCompare(hit.workName)) {
+    if (normCompare(recognition.workName) !== normCompare(hit.workName)) {
       mismatches.push("workName");
     }
-    if (normCompare(draft.owner) !== normCompare(hit.owner)) {
+    if (normCompare(recognition.owner) !== normCompare(hit.owner)) {
       mismatches.push("owner");
     }
   }
@@ -307,10 +291,10 @@ export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerify
     id: `cert-${seq}`,
     verifyCode,
     verifier: CERT_DEFAULT_VERIFIER,
-    certNo: draft.certNo,
-    workName: draft.workName,
-    owner: draft.owner,
-    registerDate: draft.registerDate,
+    certNo: recognition.registerNo,
+    workName: recognition.workName,
+    owner: recognition.owner,
+    registerDate: recognition.registerDate,
     status: pass ? "pass" : "fail",
     verifiedAt: nowStamp(),
     channel: "WebUI",

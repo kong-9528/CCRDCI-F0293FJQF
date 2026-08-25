@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { CertConfirmModal } from "@/components/verify/CertConfirmModal";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import {
   CERT_DEFAULT_DAYS,
@@ -35,10 +36,12 @@ export function CertVerifyPage() {
   const range0 = defaultDateRange();
   const inputRef = useRef<HTMLInputElement>(null);
   const [ocrDraft, setOcrDraft] = useState<CertOcrDraft | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [latest, setLatest] = useState<CertVerifyResult | null>(null);
   const [records, setRecords] = useState<CertVerifyResult[]>(() => [...MOCK_CERT_RECORDS]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const [filterDraft, setFilterDraft] = useState<Filters>({
     from: range0.from,
     to: range0.to,
@@ -84,23 +87,30 @@ export function CertVerifyPage() {
     try {
       const ocr = await ocrCertFile(file);
       setOcrDraft(ocr);
+      setConfirmOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const confirm = async () => {
-    if (!ocrDraft) return;
-    setLoading(true);
+  const closeConfirm = () => {
+    if (confirmLoading) return;
+    setConfirmOpen(false);
+    setOcrDraft(null);
+  };
+
+  const confirm = async (draft: CertOcrDraft) => {
+    setConfirmLoading(true);
     try {
-      const result = await confirmCertVerify(ocrDraft);
+      const result = await confirmCertVerify(draft);
       setLatest(result);
+      setConfirmOpen(false);
       setOcrDraft(null);
       setRecords([...MOCK_CERT_RECORDS]);
       setPage(1);
       showToast(result.status === "pass" ? "证书核验通过" : "证书核验未通过");
     } finally {
-      setLoading(false);
+      setConfirmLoading(false);
     }
   };
 
@@ -147,86 +157,40 @@ export function CertVerifyPage() {
             <ApiDocLink productId="cert" />
           </div>
 
-          {!ocrDraft ? (
-            <div
-              className="c-cert-upload"
-              role="button"
-              tabIndex={0}
-              onClick={() => inputRef.current?.click()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
-              }}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
+          <div
+            className="c-cert-upload"
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              if (!loading && !confirmLoading) inputRef.current?.click();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (!loading && !confirmLoading) {
                 void handleFile(e.dataTransfer.files[0] ?? null);
+              }
+            }}
+          >
+            <div className="c-cert-upload__icon">↑</div>
+            <div className="c-cert-upload__title">点击或拖拽上传版权证书（PDF/图片）</div>
+            <div className="c-cert-upload__hint">支持 PDF、JPG、PNG，单文件不超过 10MB</div>
+            <input
+              ref={inputRef}
+              type="file"
+              hidden
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) => {
+                void handleFile(e.target.files?.[0] ?? null);
+                e.target.value = "";
               }}
-            >
-              <div className="c-cert-upload__icon">↑</div>
-              <div className="c-cert-upload__title">点击或拖拽上传版权证书（PDF/图片）</div>
-              <div className="c-cert-upload__hint">支持 PDF、JPG、PNG，单文件不超过 10MB</div>
-              <input
-                ref={inputRef}
-                type="file"
-                hidden
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={(e) => void handleFile(e.target.files?.[0] ?? null)}
-              />
-            </div>
-          ) : (
-            <div className="a-result" style={{ borderColor: "var(--p-300)", background: "var(--p-50)" }}>
-              <div className="a-result__head">
-                <span className="a-result__title">OCR 识别完成，请确认信息</span>
-              </div>
-              <div className="a-desc">
-                <div className="a-desc__item">
-                  <span className="a-desc__label">证书编号</span>
-                  <span className="a-desc__value">{ocrDraft.certNo}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">作品名称</span>
-                  <span className="a-desc__value">{ocrDraft.workName}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">著作权人</span>
-                  <span className="a-desc__value">{ocrDraft.owner}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">登记日期</span>
-                  <span className="a-desc__value">{ocrDraft.registerDate}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">文件名</span>
-                  <span className="a-desc__value">{ocrDraft.fileName}</span>
-                </div>
-              </div>
-              <div className="a-inline-actions" style={{ marginTop: 12 }}>
-                <button
-                  type="button"
-                  className="a-btn a-btn--primary a-btn--sm"
-                  disabled={loading}
-                  onClick={() => void confirm()}
-                >
-                  {loading ? "核验中…" : "确认并核验"}
-                </button>
-                <button
-                  type="button"
-                  className="a-btn a-btn--sm"
-                  disabled={loading}
-                  onClick={() => {
-                    setOcrDraft(null);
-                    setError(null);
-                  }}
-                >
-                  重新上传
-                </button>
-              </div>
-            </div>
-          )}
+            />
+          </div>
 
-          {loading && !ocrDraft ? (
-            <p className="a-field__hint">正在识别证书内容…</p>
-          ) : null}
+          {loading ? <p className="a-field__hint">正在识别证书内容…</p> : null}
           {error ? <div className="a-field__error">{error}</div> : null}
 
           {latest ? (
@@ -245,16 +209,20 @@ export function CertVerifyPage() {
               {latest.message ? <p className="c-verify-hint">{latest.message}</p> : null}
               <div className="a-desc">
                 <div className="a-desc__item">
-                  <span className="a-desc__label">证书编号</span>
-                  <span className="a-desc__value">{latest.certNo}</span>
+                  <span className="a-desc__label">证书号</span>
+                  <span className="a-desc__value">{latest.recognition.certTitleNo}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">作品名称</span>
+                  <span className="a-desc__label">软件名称</span>
                   <span className="a-desc__value">{latest.workName}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">著作权人</span>
                   <span className="a-desc__value">{latest.owner}</span>
+                </div>
+                <div className="a-desc__item">
+                  <span className="a-desc__label">登记号</span>
+                  <span className="a-desc__value">{latest.certNo}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">核验时间</span>
@@ -442,6 +410,14 @@ export function CertVerifyPage() {
       </div>
 
       <ServiceDisclaimer />
+
+      <CertConfirmModal
+        open={confirmOpen}
+        loading={confirmLoading}
+        draft={ocrDraft}
+        onClose={closeConfirm}
+        onConfirm={(draft) => void confirm(draft)}
+      />
 
       <CertDetailDrawer
         open={Boolean(detail)}

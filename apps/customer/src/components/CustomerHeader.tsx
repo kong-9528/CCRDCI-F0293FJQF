@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { findNavLabel } from "@/lib/nav";
@@ -48,6 +49,20 @@ export function CustomerHeader({ pathname, collapsed, onToggleCollapse }: Props)
         {PLATFORM_NAME} / <b>{title}</b>
       </div>
       <div className="a-header__actions">
+        <div className="a-header__text-links">
+          <Link
+            to="/api-docs"
+            className={`a-header__text-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
+          >
+            API文档
+          </Link>
+          <Link
+            to="/help"
+            className={`a-header__text-link${pathname.startsWith("/help") ? " is-active" : ""}`}
+          >
+            帮助中心
+          </Link>
+        </div>
         <div className="a-header__user" ref={userRef}>
           <button
             type="button"

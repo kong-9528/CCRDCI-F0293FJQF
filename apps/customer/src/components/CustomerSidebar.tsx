@@ -15,23 +15,25 @@ export function CustomerSidebar({ collapsed }: Props) {
         {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
       </NavLink>
 
-      {CUSTOMER_NAV.map((group) => (
-        <div key={group.title}>
-          <div className="a-menu__group">{group.title}</div>
-          {group.items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/desk"}
-              className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
-              title={item.label}
-            >
-              <NavIcon id={item.icon} />
-              {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
-            </NavLink>
-          ))}
-        </div>
-      ))}
+      <nav className="a-sidebar__nav">
+        {CUSTOMER_NAV.map((group) => (
+          <div key={group.title}>
+            <div className="a-menu__group">{group.title}</div>
+            {group.items.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/desk"}
+                className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
+                title={item.label}
+              >
+                <NavIcon id={item.icon} />
+                {!collapsed ? <span className="a-menu__label">{item.label}</span> : null}
+              </NavLink>
+            ))}
+          </div>
+        ))}
+      </nav>
     </aside>
   );
 }

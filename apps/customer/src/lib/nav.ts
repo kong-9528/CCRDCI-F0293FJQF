@@ -38,8 +38,6 @@ export const CUSTOMER_NAV: NavGroup[] = [
     items: [
       { to: "/account", label: "账号中心", icon: "account" },
       { to: "/keys", label: "密钥管理", icon: "keys" },
-      { to: "/api-docs", label: "API文档", icon: "api-docs" },
-      { to: "/help", label: "帮助中心", icon: "help" },
     ],
   },
 ];
