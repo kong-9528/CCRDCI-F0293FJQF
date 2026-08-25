@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-/** 版权技术服务平台（客户控制台）/ 运营后台 */
+/** DCI®技术服务中心（客户控制台）/ 运营后台 */
 export type OpLogScope = "portal" | "ops";
 
 export type OpLog = {
@@ -15,7 +15,7 @@ export type OpLog = {
 };
 
 export const OP_LOG_SCOPE_LABEL: Record<OpLogScope, string> = {
-  portal: "版权技术服务平台",
+  portal: "DCI®技术服务中心",
   ops: "运营后台",
 };
 

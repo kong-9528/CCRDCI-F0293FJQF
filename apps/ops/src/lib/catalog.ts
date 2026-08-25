@@ -1,4 +1,4 @@
-export const PLATFORM_NAME = "版权技术服务平台";
+export const PLATFORM_NAME = "DCI®技术服务中心";
 
 /** 6 个可售 API 产品（与门户一致） */
 export const PRODUCTS = [
