@@ -13,6 +13,8 @@ import { CustomerEditPage } from "@/pages/customers/CustomerEditPage";
 import { CustomerListPage } from "@/pages/customers/CustomerListPage";
 import { CustomerServicesPage } from "@/pages/customers/CustomerServicesPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { ProductCreatePage } from "@/pages/products/ProductCreatePage";
+import { ProductEditPage } from "@/pages/products/ProductEditPage";
 import { ProductManagePage } from "@/pages/products/ProductManagePage";
 import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
 import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
@@ -35,6 +37,8 @@ export function App() {
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/customer-services" element={<CustomerServicesPage />} />
         <Route path="/products" element={<ProductManagePage />} />
+        <Route path="/products/new" element={<ProductCreatePage />} />
+        <Route path="/products/:code/edit" element={<ProductEditPage />} />
         <Route path="/stats/customers" element={<CustomerStatsPage />} />
         <Route path="/stats/products" element={<ProductStatsPage />} />
         <Route path="/content/home" element={<PortalHomeManagePage />} />

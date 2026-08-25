@@ -91,7 +91,7 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
     productCode: "safety",
     apiDocId: "safety",
     title: "内容安全审核",
-    subtitle: "内容安全风险判定参考",
+    subtitle: "",
     intro: [
       {
         label: "服务说明",
@@ -106,7 +106,7 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
     productCode: "duplicate",
     apiDocId: "dedup",
     title: "作品登记查重",
-    subtitle: "登记样本相似度比对",
+    subtitle: "",
     intro: [
       {
         label: "服务说明",
@@ -120,7 +120,7 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
     productCode: "infringement",
     apiDocId: "infringe",
     title: "疑似侵权审核",
-    subtitle: "肖像/人声与疑似侵权识别",
+    subtitle: "",
     intro: [
       {
         label: "服务说明",

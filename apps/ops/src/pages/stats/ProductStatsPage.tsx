@@ -8,7 +8,6 @@ import {
 import { PRODUCTS, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  avgSuccessRate,
   exportAccountProductDailyCsv,
   exportProductDailyCsv,
   getStatsData,
@@ -20,7 +19,7 @@ import {
 } from "@/lib/statsData";
 
 type ProductStatsTab = "verify" | "audit";
-type TrendMetric = "activeAccounts" | "calls" | "successRate";
+type TrendMetric = "activeAccounts" | "calls";
 
 const TAB_ITEMS: { key: ProductStatsTab; label: string }[] = [
   { key: "verify", label: "版权核验使用统计" },
@@ -28,14 +27,8 @@ const TAB_ITEMS: { key: ProductStatsTab; label: string }[] = [
 ];
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用账号数",
+  activeAccounts: "日调用账号",
   calls: "日调用次数",
-  successRate: "日成功率",
-};
-
-const CATEGORY_TAG: Record<ProductStatsTab, string> = {
-  verify: "版权核验",
-  audit: "智能审核",
 };
 
 export function ProductStatsPage() {
@@ -83,8 +76,6 @@ export function ProductStatsPage() {
       activeAccounts,
       totalCalls: sumCalls(all),
       periodCalls: sumCalls(period),
-      overallRate: avgSuccessRate(all),
-      periodRate: avgSuccessRate(period),
     };
   });
 
@@ -94,8 +85,7 @@ export function ProductStatsPage() {
       const row = data.productDays.find((r) => r.date === date && r.product === p.code);
       if (!row) return 0;
       if (trendMetric === "calls") return row.calls;
-      if (trendMetric === "activeAccounts") return row.activeAccounts;
-      return row.successRate;
+      return row.activeAccounts;
     });
     return {
       id: p.code,
@@ -118,7 +108,6 @@ export function ProductStatsPage() {
         activeAccounts: Math.round(
           rows.reduce((s, r) => s + r.activeAccounts, 0) / Math.max(1, rows.length),
         ),
-        successRate: avgSuccessRate(rows),
       };
     })
     .sort((a, b) => b.calls - a.calls);
@@ -142,7 +131,7 @@ export function ProductStatsPage() {
 
       <section className="a-card a-dash-panel a-dash-panel--product-board">
         <div className="a-card__head a-dash-panel__head">
-          <span className="a-dash-panel__title">分产品表盘</span>
+          <span className="a-dash-panel__title">产品概览</span>
           <div className="a-card__extra">
             <StatsPeriodToggle value={boardPeriod} onChange={setBoardPeriod} />
           </div>
@@ -152,29 +141,23 @@ export function ProductStatsPage() {
             {productCards.map((card, i) => (
               <article
                 key={card.code}
-                className={`a-product-board__card a-product-board__card--${card.category}`}
+                className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
                 style={{ animationDelay: `${i * 45}ms` }}
               >
                 <header className="a-product-board__head">
-                  <span className="a-product-board__index" aria-hidden>
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="a-product-board__titles">
-                    <span className="a-product-board__tag">{CATEGORY_TAG[tab]}</span>
-                    <h3 className="a-product-board__name">{card.name}</h3>
-                  </div>
+                  <h3 className="a-product-board__name">{card.name}</h3>
                 </header>
                 <div className="a-product-board__groups">
                   <div className="a-product-board__group">
                     <div className="a-product-board__group-title">账号规模</div>
                     <div className="a-product-board__pair">
                       <div className="a-product-board__cell">
-                        <span className="a-product-board__label">开通账号数</span>
                         <span className="a-product-board__value">{card.opened}</span>
+                        <span className="a-product-board__label">开通账号数</span>
                       </div>
                       <div className="a-product-board__cell a-product-board__cell--period">
-                        <span className="a-product-board__label">{periodLabel}活跃账号</span>
                         <span className="a-product-board__value">{card.activeAccounts}</span>
+                        <span className="a-product-board__label">{periodLabel}调用账号</span>
                       </div>
                     </div>
                   </div>
@@ -182,33 +165,16 @@ export function ProductStatsPage() {
                     <div className="a-product-board__group-title">调用量</div>
                     <div className="a-product-board__pair">
                       <div className="a-product-board__cell">
-                        <span className="a-product-board__label">总调用次数</span>
                         <span className="a-product-board__value">
                           {card.totalCalls.toLocaleString()}
                         </span>
+                        <span className="a-product-board__label">总调用次数</span>
                       </div>
                       <div className="a-product-board__cell a-product-board__cell--period">
-                        <span className="a-product-board__label">{periodLabel}调用</span>
                         <span className="a-product-board__value">
                           {card.periodCalls.toLocaleString()}
                         </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="a-product-board__group">
-                    <div className="a-product-board__group-title">成功率</div>
-                    <div className="a-product-board__pair">
-                      <div className="a-product-board__cell">
-                        <span className="a-product-board__label">整体成功率</span>
-                        <span className="a-product-board__value">
-                          {card.overallRate.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="a-product-board__cell a-product-board__cell--period">
-                        <span className="a-product-board__label">{periodLabel}成功率</span>
-                        <span className="a-product-board__value">
-                          {card.periodRate.toFixed(1)}%
-                        </span>
+                        <span className="a-product-board__label">{periodLabel}调用次数</span>
                       </div>
                     </div>
                   </div>
@@ -237,7 +203,6 @@ export function ProductStatsPage() {
         <div className="a-card__body">
           <TrendChart
             labels={trendDates}
-            unit={trendMetric === "successRate" ? "%" : ""}
             series={trendSeries}
           />
         </div>
@@ -271,8 +236,7 @@ export function ProductStatsPage() {
                 <th>排名</th>
                 <th>产品</th>
                 <th>调用次数</th>
-                <th>日均活跃账号</th>
-                <th>成功率</th>
+                <th>日均调用账号数</th>
               </tr>
             </thead>
             <tbody>
@@ -282,7 +246,6 @@ export function ProductStatsPage() {
                   <td>{row.name}</td>
                   <td className="num">{row.calls.toLocaleString()}</td>
                   <td className="num">{row.activeAccounts}</td>
-                  <td className="num">{row.successRate.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>

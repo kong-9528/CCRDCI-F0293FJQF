@@ -16,7 +16,7 @@ import { getCurrentUserPermissions } from "@/lib/usersStore";
 type TrendMetric = "activeAccounts" | "calls";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用账号数",
+  activeAccounts: "日调用账号",
   calls: "日调用次数",
 };
 

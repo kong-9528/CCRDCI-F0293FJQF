@@ -220,7 +220,7 @@ export function exportAccountDailyCsv() {
       "账号",
       "公司名称",
       "联系人姓名",
-      "当日调用量",
+      "当日调用次数",
       "当日成功率",
       "当日该账号的状态",
       "当日该账号的服务期状态",
@@ -251,7 +251,7 @@ export function exportAccountProductDailyCsv(products?: ProductCode[]) {
       "公司名称",
       "联系人姓名",
       "产品",
-      "当日调用量",
+      "当日调用次数",
       "当日成功率",
       "当日该账号的状态",
       "当日该账号的服务期状态",
@@ -277,7 +277,7 @@ export function exportProductDailyCsv(products?: ProductCode[]) {
     : productDays;
   downloadCsv(
     "产品使用统计报表.csv",
-    ["日期", "产品名称", "当日调用账号数", "当日调用量", "当日成功率"],
+    ["日期", "产品名称", "当日调用账号数", "当日调用次数", "当日成功率"],
     rows.map((r) => [
       r.date,
       r.productLabel,

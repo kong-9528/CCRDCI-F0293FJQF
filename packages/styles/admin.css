@@ -136,7 +136,12 @@ body.a-admin {
   font-size: var(--ad-fs-body);
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
   transition: background var(--ad-motion), border-color var(--ad-motion), color var(--ad-motion);
+}
+.a-btn:hover,
+.a-btn:visited {
+  text-decoration: none;
 }
 .a-btn:hover { border-color: var(--p-400); color: var(--p-600); }
 .a-btn--primary { background: var(--p-600); border-color: var(--p-600); color: var(--n-0); }

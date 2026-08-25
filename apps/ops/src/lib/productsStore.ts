@@ -1,45 +1,81 @@
 import { useEffect, useState } from "react";
-import {
-  PRODUCTS,
-  productName,
-  type ProductCode,
-} from "@/lib/catalog";
+import { PRODUCTS, productName, type ProductCode } from "@/lib/catalog";
 
 /** 产品上线状态 */
 export type ShelfStatus = "online" | "offline";
 
+export type ProductCategory = "verify" | "audit";
+
+export type BusinessLine = "software" | "work" | "dataset";
+
 export type ManagedProduct = {
-  code: ProductCode;
+  code: string;
+  name: string;
+  category: ProductCategory;
+  description: string;
+  businessLines: BusinessLine[];
   shelfStatus: ShelfStatus;
-  /** 是否支持页面提交 */
   pageSubmitEnabled: boolean;
-  /** 是否支持 API 调用 */
   apiEnabled: boolean;
+  /** 内置种子产品（来自 catalog） */
+  builtin?: boolean;
+};
+
+export type ProductCreateInput = {
+  category: ProductCategory;
+  name: string;
+  description: string;
+  businessLines: BusinessLine[];
+};
+
+export type ProductUpdateInput = {
+  category: ProductCategory;
+  name: string;
+  description: string;
+  businessLines: BusinessLine[];
 };
 
 export type ProductSection = {
   id: string;
   title: string;
-  category: "verify" | "audit" | string;
+  category: ProductCategory;
 };
 
-/** 板块定义：后续可在此追加新类型板块 */
 export const PRODUCT_SECTIONS: ProductSection[] = [
   { id: "verify", title: "版权核验产品", category: "verify" },
   { id: "audit", title: "智能辅助审核产品", category: "audit" },
 ];
+
+export const CATEGORY_LABEL: Record<ProductCategory, string> = {
+  verify: "版权核验产品",
+  audit: "智能辅助审核产品",
+};
+
+export const BUSINESS_LINE_LABEL: Record<BusinessLine, string> = {
+  software: "软件",
+  work: "作品",
+  dataset: "数据集",
+};
+
+export const BUSINESS_LINE_OPTIONS: BusinessLine[] = ["software", "work", "dataset"];
 
 export const SHELF_STATUS_LABEL: Record<ShelfStatus, string> = {
   online: "上线",
   offline: "下线",
 };
 
+export const PRODUCT_DESCRIPTION_MAX = 2000;
+
 const INITIAL: ManagedProduct[] = PRODUCTS.map((p) => ({
   code: p.code,
+  name: p.name,
+  category: p.category as ProductCategory,
+  description: "",
+  businessLines: ["software", "work", "dataset"],
   shelfStatus: p.code === "infringement" ? "offline" : "online",
-  // 原 webui：核验产品 + 内容安全默认支持页面提交
   pageSubmitEnabled: p.category === "verify" || p.code === "safety",
   apiEnabled: true,
+  builtin: true,
 }));
 
 let products: ManagedProduct[] = structuredClone(INITIAL);
@@ -56,28 +92,88 @@ function subscribe(fn: () => void) {
   };
 }
 
+function newProductCode() {
+  return `custom-${Date.now()}`;
+}
+
 export function getManagedProducts(): ManagedProduct[] {
   return products;
 }
 
-export function getProductsByCategory(category: string): ManagedProduct[] {
-  return products.filter((item) => {
-    const meta = PRODUCTS.find((p) => p.code === item.code);
-    return meta?.category === category;
-  });
+export function getManagedProduct(code: string): ManagedProduct | undefined {
+  return products.find((p) => p.code === code);
 }
 
-export function setShelfStatus(code: ProductCode, shelfStatus: ShelfStatus) {
+export function getProductsByCategory(category: ProductCategory): ManagedProduct[] {
+  return products.filter((item) => item.category === category);
+}
+
+export function resolveProductName(code: string): string {
+  const row = getManagedProduct(code);
+  if (row) return row.name;
+  return productName(code as ProductCode);
+}
+
+function normalizeProductFields(input: ProductCreateInput | ProductUpdateInput) {
+  const name = input.name.trim();
+  if (!name) throw new Error("请填写产品名称");
+  if (input.description.length > PRODUCT_DESCRIPTION_MAX) {
+    throw new Error(`服务说明不能超过 ${PRODUCT_DESCRIPTION_MAX} 字`);
+  }
+  const businessLines = BUSINESS_LINE_OPTIONS.filter((line) =>
+    input.businessLines.includes(line),
+  );
+  if (businessLines.length === 0) {
+    throw new Error("请至少选择一项业务线");
+  }
+  return {
+    name,
+    category: input.category,
+    description: input.description.trim(),
+    businessLines,
+  };
+}
+
+export function createProduct(input: ProductCreateInput): ManagedProduct {
+  const fields = normalizeProductFields(input);
+  const created: ManagedProduct = {
+    code: newProductCode(),
+    ...fields,
+    shelfStatus: "offline",
+    pageSubmitEnabled: false,
+    apiEnabled: false,
+    builtin: false,
+  };
+  products = [...products, created];
+  emit();
+  return created;
+}
+
+/** 更新产品信息，不改动上下架与服务方式开关 */
+export function updateProduct(code: string, input: ProductUpdateInput): ManagedProduct {
+  const idx = products.findIndex((p) => p.code === code);
+  if (idx < 0) throw new Error("产品不存在");
+  const fields = normalizeProductFields(input);
+  const next: ManagedProduct = {
+    ...products[idx],
+    ...fields,
+  };
+  products = products.map((p, i) => (i === idx ? next : p));
+  emit();
+  return next;
+}
+
+export function setShelfStatus(code: string, shelfStatus: ShelfStatus) {
   products = products.map((p) => (p.code === code ? { ...p, shelfStatus } : p));
   emit();
 }
 
-export function setPageSubmitEnabled(code: ProductCode, pageSubmitEnabled: boolean) {
+export function setPageSubmitEnabled(code: string, pageSubmitEnabled: boolean) {
   products = products.map((p) => (p.code === code ? { ...p, pageSubmitEnabled } : p));
   emit();
 }
 
-export function setApiEnabled(code: ProductCode, apiEnabled: boolean) {
+export function setApiEnabled(code: string, apiEnabled: boolean) {
   products = products.map((p) => (p.code === code ? { ...p, apiEnabled } : p));
   emit();
 }
@@ -91,9 +187,11 @@ export function useProductsStore() {
   return {
     products: getManagedProducts(),
     getByCategory: getProductsByCategory,
+    create: createProduct,
+    update: updateProduct,
     setShelfStatus,
     setPageSubmitEnabled,
     setApiEnabled,
-    productName,
+    productName: resolveProductName,
   };
 }

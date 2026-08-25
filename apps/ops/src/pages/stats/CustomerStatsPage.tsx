@@ -7,7 +7,6 @@ import {
 } from "@/components/StatsControls";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  avgSuccessRate,
   exportAccountDailyCsv,
   exportAccountProductDailyCsv,
   getStatsData,
@@ -18,12 +17,11 @@ import {
   type TrendRange,
 } from "@/lib/statsData";
 
-type TrendMetric = "calls" | "activeAccounts" | "successRate";
+type TrendMetric = "calls" | "activeAccounts";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  calls: "日账号调用次数",
-  activeAccounts: "日活跃账号数",
-  successRate: "日成功率",
+  calls: "日调用次数",
+  activeAccounts: "日调用账号数",
 };
 
 export function CustomerStatsPage() {
@@ -50,24 +48,19 @@ export function CustomerStatsPage() {
   ).size;
   const totalCallsAll = sumCalls(data.accountDays);
   const periodCalls = sumCalls(boardRows);
-  const overallRate = avgSuccessRate(data.accountDays);
-  const periodRate = avgSuccessRate(boardRows);
 
   const trendDates = sliceDates(trendRange);
   const trendValues = trendDates.map((date) => {
     const dayRows = data.accountDays.filter((r) => r.date === date);
     if (trendMetric === "calls") return sumCalls(dayRows);
-    if (trendMetric === "activeAccounts") {
-      return new Set(dayRows.filter((r) => r.calls > 0).map((r) => r.customerId)).size;
-    }
-    return avgSuccessRate(dayRows);
+    return new Set(dayRows.filter((r) => r.calls > 0).map((r) => r.customerId)).size;
   });
 
   const rankDates = sliceDates(rankRange);
   const rankRows = useMemo(() => {
     const map = new Map<
       string,
-      { account: string; companyName: string; contactName: string; calls: number; rateRows: { calls: number; successRate: number }[] }
+      { account: string; companyName: string; contactName: string; calls: number }
     >();
     for (const r of data.accountDays) {
       if (!rankDates.includes(r.date)) continue;
@@ -76,18 +69,11 @@ export function CustomerStatsPage() {
         companyName: r.companyName,
         contactName: r.contactName,
         calls: 0,
-        rateRows: [],
       };
       cur.calls += r.calls;
-      cur.rateRows.push(r);
       map.set(r.customerId, cur);
     }
-    return [...map.values()]
-      .map((x) => ({
-        ...x,
-        successRate: avgSuccessRate(x.rateRows),
-      }))
-      .sort((a, b) => b.calls - a.calls);
+    return [...map.values()].sort((a, b) => b.calls - a.calls);
   }, [data.accountDays, rankDates]);
 
   const totalPages = Math.max(1, Math.ceil(rankRows.length / pageSize));
@@ -98,7 +84,7 @@ export function CustomerStatsPage() {
     <div className="a-stack">
       <section className="a-card a-dash-panel a-dash-panel--stats-board">
         <div className="a-card__head a-dash-panel__head">
-          <span className="a-dash-panel__title">表盘概览</span>
+          <span className="a-dash-panel__title">账号概览</span>
           <div className="a-card__extra">
             <StatsPeriodToggle
               value={boardPeriod}
@@ -109,55 +95,35 @@ export function CustomerStatsPage() {
         <div className="a-card__body a-dash-panel__body">
           <div className="a-stats-board">
             <article className="a-stats-duo a-stats-duo--accounts">
-              <div className="a-stats-duo__glow" aria-hidden />
               <header className="a-stats-duo__head">
                 <span className="a-stats-duo__eyebrow">Accounts</span>
                 <h3 className="a-stats-duo__title">账号规模</h3>
               </header>
               <div className="a-stats-duo__pair">
                 <div className="a-stats-duo__cell">
-                  <span className="a-stats-duo__label">总账号数</span>
                   <span className="a-stats-duo__value">{totalAccounts}</span>
+                  <span className="a-stats-duo__label">总账号数</span>
                 </div>
                 <div className="a-stats-duo__cell a-stats-duo__cell--period">
-                  <span className="a-stats-duo__label">{periodLabel}活跃账号数</span>
                   <span className="a-stats-duo__value">{activeAccounts}</span>
+                  <span className="a-stats-duo__label">{periodLabel}调用账号数</span>
                 </div>
               </div>
             </article>
 
             <article className="a-stats-duo a-stats-duo--calls">
-              <div className="a-stats-duo__glow" aria-hidden />
               <header className="a-stats-duo__head">
                 <span className="a-stats-duo__eyebrow">Invocations</span>
                 <h3 className="a-stats-duo__title">调用量</h3>
               </header>
               <div className="a-stats-duo__pair">
                 <div className="a-stats-duo__cell">
-                  <span className="a-stats-duo__label">总调用次数</span>
                   <span className="a-stats-duo__value">{totalCallsAll.toLocaleString()}</span>
+                  <span className="a-stats-duo__label">总调用次数</span>
                 </div>
                 <div className="a-stats-duo__cell a-stats-duo__cell--period">
-                  <span className="a-stats-duo__label">{periodLabel}调用次数</span>
                   <span className="a-stats-duo__value">{periodCalls.toLocaleString()}</span>
-                </div>
-              </div>
-            </article>
-
-            <article className="a-stats-duo a-stats-duo--rate">
-              <div className="a-stats-duo__glow" aria-hidden />
-              <header className="a-stats-duo__head">
-                <span className="a-stats-duo__eyebrow">Success</span>
-                <h3 className="a-stats-duo__title">成功率</h3>
-              </header>
-              <div className="a-stats-duo__pair">
-                <div className="a-stats-duo__cell">
-                  <span className="a-stats-duo__label">整体成功率</span>
-                  <span className="a-stats-duo__value">{overallRate.toFixed(1)}%</span>
-                </div>
-                <div className="a-stats-duo__cell a-stats-duo__cell--period">
-                  <span className="a-stats-duo__label">{periodLabel}成功率</span>
-                  <span className="a-stats-duo__value">{periodRate.toFixed(1)}%</span>
+                  <span className="a-stats-duo__label">{periodLabel}调用次数</span>
                 </div>
               </div>
             </article>
@@ -183,7 +149,6 @@ export function CustomerStatsPage() {
         <div className="a-card__body">
           <TrendChart
             labels={trendDates}
-            unit={trendMetric === "successRate" ? "%" : ""}
             series={[
               {
                 id: "metric",
@@ -228,7 +193,6 @@ export function CustomerStatsPage() {
                 <th>公司名称</th>
                 <th>联系人</th>
                 <th>调用次数</th>
-                <th>成功率</th>
               </tr>
             </thead>
             <tbody>
@@ -241,7 +205,6 @@ export function CustomerStatsPage() {
                   <td>{row.companyName}</td>
                   <td>{row.contactName}</td>
                   <td className="num">{row.calls.toLocaleString()}</td>
-                  <td className="num">{row.successRate.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
