@@ -104,7 +104,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "verify-product-1",
-    columnLabel: "版权核验服务产品1",
+    columnLabel: "版权核验产品1",
     texts: padTexts([
       "DCI核验",
       "对接 DCI 登记信息，快速核验作品登记状态与权利信息，为交易、分发与确权提供可信依据。",
@@ -118,7 +118,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "verify-product-2",
-    columnLabel: "版权核验服务产品2",
+    columnLabel: "版权核验产品2",
     texts: padTexts([
       "版权信息核验",
       "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
@@ -132,7 +132,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "verify-product-3",
-    columnLabel: "版权核验服务产品3",
+    columnLabel: "版权核验产品3",
     texts: padTexts([
       "版权证书核验",
       "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
@@ -146,7 +146,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "audit-product-1",
-    columnLabel: "智能辅助审核服务产品1",
+    columnLabel: "智能辅助审核产品1",
     texts: padTexts([
       "内容安全审核",
       "对文本、图像等内容进行安全合规筛查，帮助运营前置识别违规与高风险素材。",
@@ -160,7 +160,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "audit-product-2",
-    columnLabel: "智能辅助审核服务产品2",
+    columnLabel: "智能辅助审核产品2",
     texts: padTexts([
       "作品登记查重",
       "对照已登记作品库进行查重比对，辅助发现重复登记与高度相似内容，支撑登记前风控。",
@@ -174,7 +174,7 @@ const SEED: PortalHomeItem[] = [
     module: "home",
     moduleLabel: "首页",
     columnKey: "audit-product-3",
-    columnLabel: "智能辅助审核服务产品3",
+    columnLabel: "智能辅助审核产品3",
     texts: padTexts([
       "疑似侵权审核",
       "围绕疑似侵权行为提供智能辅助研判与证据线索，便于人工复核与后续处置。",

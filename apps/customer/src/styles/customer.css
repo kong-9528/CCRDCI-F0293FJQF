@@ -2165,6 +2165,27 @@ body,
   font-size: var(--ad-fs-sm);
 }
 
+.c-apidoc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.c-apidoc-example {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--ad-radius-sm);
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+  white-space: pre;
+  color: var(--n-800);
+}
+
 .c-apidoc-section {
   margin-bottom: 24px;
 }

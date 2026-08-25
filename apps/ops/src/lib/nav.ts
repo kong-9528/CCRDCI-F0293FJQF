@@ -61,6 +61,8 @@ export function findNavLabel(pathname: string): string {
   if (/^\/content\/hc\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";
   if (/^\/content\/home\/[^/]+\/edit$/.test(pathname)) return "门户内容编辑";
   if (pathname === "/content/portal") return "门户首页管理";
+  if (pathname === "/system/api-services/new") return "新增接口";
+  if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";
   for (const group of OPS_NAV) {
     for (const item of group.items) {
       if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {

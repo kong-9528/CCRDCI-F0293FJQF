@@ -16,6 +16,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { ProductManagePage } from "@/pages/products/ProductManagePage";
 import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
 import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
+import { ApiEndpointEditPage } from "@/pages/system/ApiEndpointEditPage";
 import { ApiServicesPage } from "@/pages/system/ApiServicesPage";
 import { OpLogsPage } from "@/pages/system/OpLogsPage";
 import { RolesPage } from "@/pages/system/RolesPage";
@@ -48,6 +49,8 @@ export function App() {
         <Route path="/system/roles" element={<RolesPage />} />
         <Route path="/system/users" element={<UsersPage />} />
         <Route path="/system/api-services" element={<ApiServicesPage />} />
+        <Route path="/system/api-services/new" element={<ApiEndpointEditPage />} />
+        <Route path="/system/api-services/:id/edit" element={<ApiEndpointEditPage />} />
         <Route path="/system/op-logs" element={<OpLogsPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

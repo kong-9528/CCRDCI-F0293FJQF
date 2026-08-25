@@ -1,18 +1,30 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { API_DOC_PRODUCTS, API_DOC_TOTAL_COUNT, API_DOC_VERSION } from "@/lib/apiDocs";
+import {
+  API_DOC_VERSION,
+  getApiDocProductsForOverview,
+  getApiDocTotalCount,
+  subscribeApiCatalog,
+} from "@/lib/apiDocs";
 
 export function ApiDocsOverviewPage() {
   const location = useLocation();
+  const [, setTick] = useState(0);
+  useEffect(() => subscribeApiCatalog(() => setTick((n) => n + 1)), []);
+
+  const products = getApiDocProductsForOverview();
+  const total = getApiDocTotalCount();
+
   return (
     <div className="a-stack c-apidoc-page">
       <div className="c-apidoc-overview-head">
         <h1 className="c-apidoc-overview-head__title">API接口文档</h1>
         <p className="c-apidoc-overview-head__sub">
-          技术服务中心 · 全部产品接口文档 · {API_DOC_VERSION} · 共 {API_DOC_TOTAL_COUNT} 个接口
+          技术服务中心 · 全部产品接口文档 · {API_DOC_VERSION} · 共 {total} 个已上线接口
         </p>
       </div>
       <div className="c-apidoc-grid">
-        {API_DOC_PRODUCTS.map((prod) => (
+        {products.map((prod) => (
           <Link
             key={prod.id}
             to={`/api-docs/${prod.id}`}

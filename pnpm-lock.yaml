@@ -10,6 +10,9 @@ importers:
 
   apps/customer:
     dependencies:
+      '@ctp/api-catalog':
+        specifier: workspace:*
+        version: link:../../packages/api-catalog
       '@ctp/styles':
         specifier: workspace:*
         version: link:../../packages/styles
@@ -41,6 +44,9 @@ importers:
 
   apps/ops:
     dependencies:
+      '@ctp/api-catalog':
+        specifier: workspace:*
+        version: link:../../packages/api-catalog
       '@ctp/styles':
         specifier: workspace:*
         version: link:../../packages/styles
@@ -103,6 +109,8 @@ importers:
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
+
+  packages/api-catalog: {}
 
   packages/styles: {}
 
