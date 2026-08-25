@@ -10,7 +10,7 @@ type Props = {
 export function CustomerSidebar({ collapsed }: Props) {
   return (
     <aside className="a-sidebar">
-      <NavLink to="/" className="a-sidebar__logo" end title={PLATFORM_NAME}>
+      <NavLink to="/desk" className="a-sidebar__logo" title={PLATFORM_NAME}>
         <span className="a-sidebar__mark">D</span>
         {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
       </NavLink>
@@ -22,7 +22,7 @@ export function CustomerSidebar({ collapsed }: Props) {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === "/"}
+              end={item.to === "/desk"}
               className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
               title={item.label}
             >

@@ -6,12 +6,16 @@ export type DciChannel = "manual" | "api";
 
 export type DciVerifyResult = {
   id: string;
+  /** 核验编码（业务流水号，可复制） */
+  verifyCode: string;
+  /** 核验人 */
+  verifier: string;
   dciCode: string;
   workType: DciWorkType;
   status: DciVerifyStatus;
   verifiedAt: string;
   channel: DciChannel;
-  /** 通过时的登记快照 */
+  /** 通过时的登记快照（报告/导出用） */
   snapshot?: {
     name: string;
     owner: string;
@@ -67,8 +71,20 @@ function daysAgo(n: number) {
   return d.toISOString().slice(0, 19).replace("T", " ");
 }
 
+/** 演示核验人 */
+export const DCI_DEFAULT_VERIFIER = "admin2";
+
+function nextVerifyCode() {
+  seq += 1;
+  // 形如 R1138840000979
+  const n = String(1138840000000 + seq).padStart(13, "0");
+  return `R${n}`;
+}
+
 const SEED: Omit<DciVerifyResult, "id">[] = [
   {
+    verifyCode: "R1138840000979",
+    verifier: DCI_DEFAULT_VERIFIER,
     dciCode: "DCI-SW20240001",
     workType: "software",
     status: "pass",
@@ -84,6 +100,8 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     },
   },
   {
+    verifyCode: "R1138840000980",
+    verifier: DCI_DEFAULT_VERIFIER,
     dciCode: "DCI-WK20241188",
     workType: "work",
     status: "pass",
@@ -101,6 +119,8 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     },
   },
   {
+    verifyCode: "R1138840000981",
+    verifier: DCI_DEFAULT_VERIFIER,
     dciCode: "DCI-DS20240901",
     workType: "dataset",
     status: "pass",
@@ -119,6 +139,8 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     },
   },
   {
+    verifyCode: "R1138840000982",
+    verifier: DCI_DEFAULT_VERIFIER,
     dciCode: "DCI-UNKNOWN001",
     workType: "software",
     status: "not_found",
@@ -127,6 +149,8 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     message: "系统中无该DCI码记录",
   },
   {
+    verifyCode: "R1138840000983",
+    verifier: DCI_DEFAULT_VERIFIER,
     dciCode: "DCI-SW20238888",
     workType: "software",
     status: "pass",
@@ -229,15 +253,18 @@ export async function verifyDciOnce(
   await new Promise((r) => setTimeout(r, 420));
   const dciCode = normalizeDciCode(rawCode);
   const hit = MOCK_REGISTRY[dciCode];
-  seq += 1;
+  const verifyCode = nextVerifyCode();
   const id = `rec-${seq}`;
   const verifiedAt = nowStamp();
+  const verifier = DCI_DEFAULT_VERIFIER;
 
   let result: DciVerifyResult;
   if (hit && hit.workType === workType) {
     const { workType: _t, ...snapshot } = hit;
     result = {
       id,
+      verifyCode,
+      verifier,
       dciCode,
       workType,
       status: "pass",
@@ -248,6 +275,8 @@ export async function verifyDciOnce(
   } else if (hit && hit.workType !== workType) {
     result = {
       id,
+      verifyCode,
+      verifier,
       dciCode,
       workType,
       status: "not_found",
@@ -258,6 +287,8 @@ export async function verifyDciOnce(
   } else {
     result = {
       id,
+      verifyCode,
+      verifier,
       dciCode,
       workType,
       status: "not_found",

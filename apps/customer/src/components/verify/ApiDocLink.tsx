@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type Props = {
   productId: string;
@@ -6,8 +6,13 @@ type Props = {
 };
 
 export function ApiDocLink({ productId, label = "查看 API 文档 →" }: Props) {
+  const location = useLocation();
   return (
-    <Link to={`/api-docs/${productId}`} className="c-verify-apidoc">
+    <Link
+      to={`/api-docs/${productId}`}
+      state={{ from: `${location.pathname}${location.search}` }}
+      className="c-verify-apidoc"
+    >
       {label}
     </Link>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import {
   HELP_NAV,
   getHelpSection,
@@ -73,6 +73,7 @@ function HelpBlockView({
   openFaq: string | null;
   onToggleFaq: (id: string) => void;
 }) {
+  const location = useLocation();
   if (block.type === "p") {
     return <p className="c-help-p">{block.text}</p>;
   }
@@ -89,9 +90,14 @@ function HelpBlockView({
     );
   }
   if (block.type === "link") {
+    const toApiDoc = block.to.startsWith("/api-docs");
     return (
       <p className="c-help-link-row">
-        <Link to={block.to} className="a-btn a-btn--text a-btn--sm">
+        <Link
+          to={block.to}
+          state={toApiDoc ? { from: `${location.pathname}${location.search}` } : undefined}
+          className="a-btn a-btn--text a-btn--sm"
+        >
           {block.label} →
         </Link>
         {block.hint ? <span className="a-field__hint">{block.hint}</span> : null}

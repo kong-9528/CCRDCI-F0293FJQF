@@ -15,7 +15,7 @@ export type NavGroup = {
 export const CUSTOMER_NAV: NavGroup[] = [
   {
     title: "概览",
-    items: [{ to: "/", label: "工作台", icon: "dashboard" }],
+    items: [{ to: "/desk", label: "工作台", icon: "dashboard" }],
   },
   {
     title: "版权核验服务",
@@ -36,8 +36,8 @@ export const CUSTOMER_NAV: NavGroup[] = [
   {
     title: "设置",
     items: [
-      { to: "/keys", label: "密钥管理", icon: "keys" },
       { to: "/account", label: "账号中心", icon: "account" },
+      { to: "/keys", label: "密钥管理", icon: "keys" },
       { to: "/api-docs", label: "API文档", icon: "api-docs" },
       { to: "/help", label: "帮助中心", icon: "help" },
     ],
@@ -45,7 +45,8 @@ export const CUSTOMER_NAV: NavGroup[] = [
 ];
 
 const NAV_LABELS: Record<string, string> = {
-  "/": "工作台",
+  "/desk": "工作台",
+  "/dashboard": "数据概览",
   "/verify/dci": "DCI核验",
   "/verify/info": "版权信息核验",
   "/verify/certificate": "版权证书核验",
@@ -59,10 +60,9 @@ const NAV_LABELS: Record<string, string> = {
 };
 
 export function findNavLabel(pathname: string): string {
-  if (pathname === "/") return NAV_LABELS["/"];
+  if (pathname === "/" || pathname === "/desk") return "工作台";
   if (pathname.startsWith("/api-docs")) return "API文档";
   for (const [path, label] of Object.entries(NAV_LABELS)) {
-    if (path === "/") continue;
     if (pathname === path || pathname.startsWith(`${path}/`)) return label;
   }
   return "工作台";

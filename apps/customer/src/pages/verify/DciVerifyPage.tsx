@@ -20,6 +20,7 @@ import {
   type DciVerifyResult,
   type DciWorkType,
 } from "@/lib/dci";
+import { copyText } from "@/lib/keys";
 
 type Filters = {
   from: string;
@@ -37,52 +38,25 @@ function defaultDateRange() {
   return { from: fmt(from), to: fmt(to) };
 }
 
-function snapshotFields(result: DciVerifyResult): { label: string; value: string }[] {
-  const s = result.snapshot;
-  if (!s) return [{ label: "说明", value: result.message ?? "—" }];
-
-  if (result.workType === "software") {
-    return [
-      { label: "DCI码", value: result.dciCode },
-      { label: "软件名称", value: s.name },
-      { label: "著作权人", value: s.owner },
-      { label: "版本号", value: s.version ?? "—" },
-      { label: "登记日期", value: s.registerDate },
-      { label: "登记机构", value: s.agency },
-      { label: "当前状态", value: s.currentStatus },
-    ];
-  }
-  if (result.workType === "work") {
-    return [
-      { label: "DCI码", value: result.dciCode },
-      { label: "作品名称", value: s.name },
-      { label: "作品类型", value: s.workCategory ?? "—" },
-      { label: "著作权人", value: s.owner },
-      { label: "创作完成日期", value: s.completeDate ?? "—" },
-      { label: "首次发表日期", value: s.publishDate ?? "—" },
-      { label: "登记日期", value: s.registerDate },
-      { label: "登记机构", value: s.agency },
-      { label: "当前状态", value: s.currentStatus },
-    ];
-  }
-  return [
-    { label: "DCI码", value: result.dciCode },
-    { label: "数据集名称", value: s.name },
-    { label: "数据来源方", value: s.source ?? "—" },
-    { label: "数据集规模", value: s.scale ?? "—" },
-    { label: "数据类型", value: s.dataType ?? "—" },
-    { label: "创作完成日期", value: s.completeDate ?? "—" },
-    { label: "登记日期", value: s.registerDate },
-    { label: "当前状态", value: s.currentStatus },
-  ];
+function CopyIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M10.5 5.5V4A1.5 1.5 0 0 0 9 2.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+    </svg>
+  );
 }
 
 function ResultCard({
   result,
-  onDownload,
+  onCopy,
 }: {
   result: DciVerifyResult;
-  onDownload: (r: DciVerifyResult) => void;
+  onCopy: (code: string) => void;
 }) {
   const ok = result.status === "pass";
   return (
@@ -93,28 +67,27 @@ function ResultCard({
         <span className={`a-tag ${ok ? "a-tag--ok" : "a-tag--er"}`}>
           {STATUS_LABEL[result.status]}
         </span>
-        <div className="a-result__actions">
-          {ok ? (
-            <button type="button" className="a-btn a-btn--sm" onClick={() => onDownload(result)}>
-              下载核验报告 PDF
-            </button>
-          ) : null}
-        </div>
       </div>
-      {!ok ? (
-        <p className="c-verify-hint">
-          {result.message ?? "系统中无该DCI码记录"}，建议检查输入或联系管理员。
-        </p>
-      ) : null}
-      <div className="a-desc">
-        {snapshotFields(result).map((f) => (
-          <div key={f.label} className="a-desc__item">
-            <span className="a-desc__label">{f.label}</span>
-            <span className="a-desc__value">{f.value}</span>
-          </div>
-        ))}
+      <div className="a-desc c-dci-result-desc">
+        <div className="a-desc__item c-dci-result-desc__code">
+          <span className="a-desc__label">核验编码：</span>
+          <span className="a-desc__value">{result.verifyCode}</span>
+          <button
+            type="button"
+            className="c-dci-copy"
+            title="复制核验编码"
+            aria-label="复制核验编码"
+            onClick={() => onCopy(result.verifyCode)}
+          >
+            <CopyIcon />
+          </button>
+        </div>
         <div className="a-desc__item">
-          <span className="a-desc__label">核验时间</span>
+          <span className="a-desc__label">核验人：</span>
+          <span className="a-desc__value">{result.verifier}</span>
+        </div>
+        <div className="a-desc__item">
+          <span className="a-desc__label">核验时间：</span>
           <span className="a-desc__value">{result.verifiedAt}</span>
         </div>
       </div>
@@ -163,7 +136,8 @@ export function DciVerifyPage() {
       if (applied.channel && r.channel !== applied.channel) return false;
       if (
         applied.keyword.trim() &&
-        !r.dciCode.includes(normalizeDciCode(applied.keyword))
+        !r.dciCode.includes(normalizeDciCode(applied.keyword)) &&
+        !r.verifyCode.toUpperCase().includes(applied.keyword.trim().toUpperCase())
       ) {
         return false;
       }
@@ -182,8 +156,9 @@ export function DciVerifyPage() {
     setPage(1);
   };
 
-  const downloadPdf = (r: DciVerifyResult) => {
-    showToast(`已生成报告草稿（演示）：${r.dciCode}`);
+  const copyVerifyCode = async (code: string) => {
+    const ok = await copyText(code);
+    showToast(ok ? "核验编码已复制" : "复制失败，请手动选择复制");
   };
 
   const runSingle = async () => {
@@ -249,18 +224,18 @@ export function DciVerifyPage() {
 
   const exportExcel = () => {
     const rows = filtered.slice(0, DCI_EXPORT_LIMIT);
-    const header = ["核验时间", "DCI码", "作品类型", "核验状态", "核验方式", "名称", "著作权人"];
+    const header = ["核验编码", "核验时间", "DCI码", "作品类型", "核验状态", "核验方式", "核验人"];
     const lines = [
       header.join(","),
       ...rows.map((r) =>
         [
+          r.verifyCode,
           r.verifiedAt,
           r.dciCode,
           WORK_TYPE_LABEL[r.workType],
           STATUS_LABEL[r.status],
           CHANNEL_LABEL[r.channel],
-          r.snapshot?.name ?? "",
-          r.snapshot?.owner ?? "",
+          r.verifier,
         ]
           .map((c) => `"${String(c).replace(/"/g, '""')}"`)
           .join(","),
@@ -286,19 +261,22 @@ export function DciVerifyPage() {
       {toast ? <div className="a-toast">{toast}</div> : null}
 
       <div className="a-card">
-        <div className="a-tabs" role="tablist">
-          {(Object.keys(WORK_TYPE_LABEL) as DciWorkType[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              className={`a-tabs__item${workType === t ? " is-active" : ""}`}
-              aria-selected={workType === t}
-              onClick={() => onWorkTypeChange(t)}
-            >
-              {WORK_TYPE_LABEL[t]}
-            </button>
-          ))}
+        <div className="c-verify-tabbar">
+          <div className="a-tabs c-verify-tabs" role="tablist">
+            {(Object.keys(WORK_TYPE_LABEL) as DciWorkType[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                className={`a-tabs__item${workType === t ? " is-active" : ""}`}
+                aria-selected={workType === t}
+                onClick={() => onWorkTypeChange(t)}
+              >
+                {WORK_TYPE_LABEL[t]}
+              </button>
+            ))}
+          </div>
+          <ApiDocLink productId="dci" />
         </div>
 
         <div className="a-card__body a-stack">
@@ -306,7 +284,6 @@ export function DciVerifyPage() {
             <h2 className="c-verify-panel-head__title">
               DCI核验 · {WORK_TYPE_LABEL[workType]}
             </h2>
-            <ApiDocLink productId="dci" />
           </div>
 
           <div className="c-verify-input-row">
@@ -353,7 +330,11 @@ export function DciVerifyPage() {
                 核验结果{latest.length > 1 ? `（${latest.length}）` : ""}
               </div>
               {latest.map((r) => (
-                <ResultCard key={r.id} result={r} onDownload={downloadPdf} />
+                <ResultCard
+                  key={r.id}
+                  result={r}
+                  onCopy={(code) => void copyVerifyCode(code)}
+                />
               ))}
             </div>
           ) : null}
@@ -457,12 +438,12 @@ export function DciVerifyPage() {
             <table className="a-table">
               <thead>
                 <tr>
+                  <th>核验编码</th>
                   <th>核验时间</th>
                   <th>DCI码</th>
                   <th>类型</th>
                   <th>方式</th>
                   <th>结果</th>
-                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -475,6 +456,9 @@ export function DciVerifyPage() {
                 ) : (
                   pageRows.map((r) => (
                     <tr key={r.id}>
+                      <td>
+                        <code>{r.verifyCode}</code>
+                      </td>
                       <td>{r.verifiedAt}</td>
                       <td>
                         <code>{r.dciCode}</code>
@@ -487,27 +471,6 @@ export function DciVerifyPage() {
                         >
                           {r.status === "pass" ? "通过" : "未通过"}
                         </span>
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => {
-                            setLatest([r]);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                        >
-                          详情
-                        </button>
-                        {r.status === "pass" ? (
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
-                            onClick={() => downloadPdf(r)}
-                          >
-                            报告
-                          </button>
-                        ) : null}
                       </td>
                     </tr>
                   ))

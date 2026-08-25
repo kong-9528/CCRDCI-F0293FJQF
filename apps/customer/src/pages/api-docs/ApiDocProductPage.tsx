@@ -1,11 +1,17 @@
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { copyText } from "@/lib/keys";
 import { getApiDocProduct, type ApiParam } from "@/lib/apiDocs";
 
+type LocationState = {
+  from?: string;
+};
+
 export function ApiDocProductPage() {
   const { productId = "" } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const doc = useMemo(() => getApiDocProduct(productId), [productId]);
   const apiIdFromQuery = searchParams.get("api");
 
@@ -28,15 +34,29 @@ export function ApiDocProductPage() {
     window.setTimeout(() => setToast(null), 2000);
   };
 
+  const goBack = () => {
+    const from = (location.state as LocationState | null)?.from;
+    if (from && from !== location.pathname) {
+      navigate(from);
+      return;
+    }
+    const idx = (window.history.state as { idx?: number } | null)?.idx;
+    if (typeof idx === "number" && idx > 0) {
+      navigate(-1);
+      return;
+    }
+    navigate("/api-docs");
+  };
+
   if (!doc) {
     return (
       <div className="a-card">
         <div className="a-card__head">API文档</div>
         <div className="a-card__body">
           <div className="a-empty">未找到该产品文档</div>
-          <Link to="/api-docs" className="a-btn" style={{ marginTop: 16 }}>
-            返回总览
-          </Link>
+          <button type="button" className="a-btn" style={{ marginTop: 16 }} onClick={goBack}>
+            返回
+          </button>
         </div>
       </div>
     );
@@ -58,9 +78,9 @@ export function ApiDocProductPage() {
     <div className="a-stack c-apidoc-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
       <div className="a-inline-actions">
-        <Link to="/api-docs" className="a-btn a-btn--sm">
+        <button type="button" className="a-btn a-btn--sm" onClick={goBack}>
           ← 返回
-        </Link>
+        </button>
         <span className="a-field__hint">{doc.name}</span>
       </div>
       <div className="a-card">

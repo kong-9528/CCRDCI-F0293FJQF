@@ -1,5 +1,5 @@
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Modal } from "@/components/Modal";
 import { Tabs } from "@/components/Tabs";
 import { productName, type ProductCode } from "@/lib/catalog";
@@ -62,6 +62,7 @@ function validateContact(form: ContactForm): string | null {
 }
 
 export function AccountCenterPage() {
+  const location = useLocation();
   const [tab, setTab] = useState<TabKey>("info");
   const [profile, setProfile] = useState<TenantProfile>(() => ({ ...MOCK_TENANT }));
   const [editOpen, setEditOpen] = useState(false);
@@ -108,10 +109,10 @@ export function AccountCenterPage() {
   };
 
   return (
-    <div className="a-card">
+    <div className="a-card c-account-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
       <div className="a-card__head">账号中心</div>
-      <Tabs items={TAB_ITEMS} active={tab} onChange={setTab} />
+      <Tabs items={TAB_ITEMS} active={tab} onChange={setTab} className="c-seg-tabs" />
       <div className="a-card__body a-stack">
         {tab === "info" ? (
           <>
@@ -198,7 +199,11 @@ export function AccountCenterPage() {
                   </div>
                   <div className="c-service-card__actions">
                     {serviceStatusTag(svc.status)}
-                    <Link to={`/api-docs/${docId}`} className="a-btn a-btn--text a-btn--sm">
+                    <Link
+                      to={`/api-docs/${docId}`}
+                      state={{ from: `${location.pathname}${location.search}` }}
+                      className="a-btn a-btn--text a-btn--sm"
+                    >
                       API文档
                     </Link>
                   </div>

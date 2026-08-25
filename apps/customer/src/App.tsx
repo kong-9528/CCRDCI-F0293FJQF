@@ -4,6 +4,7 @@ import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { DeskPage } from "@/pages/DeskPage";
 import { HelpCenterPage } from "@/pages/help/HelpCenterPage";
 import { KeysPage } from "@/pages/keys/KeysPage";
 import { DuplicateReviewPage } from "@/pages/review/DuplicateReviewPage";
@@ -17,7 +18,10 @@ export function App() {
   return (
     <Routes>
       <Route element={<CustomerLayout />}>
-        <Route index element={<DashboardPage />} />
+        <Route index element={<Navigate to="/desk" replace />} />
+        <Route path="/desk" element={<DeskPage />} />
+        {/* 原工作台保留，不在侧栏暴露 */}
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/verify/dci" element={<DciVerifyPage />} />
         <Route path="/verify/info" element={<InfoVerifyPage />} />
         <Route path="/verify/certificate" element={<CertVerifyPage />} />
@@ -32,9 +36,9 @@ export function App() {
         {/* 旧路由重定向 */}
         <Route path="/audit" element={<Navigate to="/review/safety" replace />} />
         <Route path="/account/*" element={<Navigate to="/account" replace />} />
-        <Route path="/analytics" element={<Navigate to="/" replace />} />
-        <Route path="/reports/*" element={<Navigate to="/" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/analytics" element={<Navigate to="/desk" replace />} />
+        <Route path="/reports/*" element={<Navigate to="/desk" replace />} />
+        <Route path="*" element={<Navigate to="/desk" replace />} />
       </Route>
     </Routes>
   );

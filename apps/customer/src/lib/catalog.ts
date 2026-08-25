@@ -42,5 +42,5 @@ export function productName(code: ProductCode) {
 }
 
 export function productPath(code: ProductCode) {
-  return PRODUCTS.find((p) => p.code === code)?.path ?? "/";
+  return PRODUCTS.find((p) => p.code === code)?.path ?? "/desk";
 }

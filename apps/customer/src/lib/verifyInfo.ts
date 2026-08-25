@@ -28,6 +28,7 @@ export const INFO_STATUS_LABEL: Record<InfoVerifyStatus, string> = {
 };
 
 export const INFO_DEFAULT_DAYS = 30;
+export const INFO_EXPORT_LIMIT = 5000;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 
 function daysAgo(n: number) {

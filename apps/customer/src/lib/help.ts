@@ -65,7 +65,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
         type: "p",
         text: "使用您的密钥调用接口，每次调用将消耗对应的配额。可在工作台查看实时调用量和剩余配额。",
       },
-      { type: "link", label: "返回工作台", to: "/" },
+      { type: "link", label: "返回工作台", to: "/desk" },
     ],
   },
   "api-guide": {

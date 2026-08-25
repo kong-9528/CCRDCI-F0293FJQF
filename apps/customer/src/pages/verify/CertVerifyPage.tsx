@@ -1,7 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import {
   CERT_DEFAULT_DAYS,
+  CERT_EXPORT_LIMIT,
   CERT_STATUS_LABEL,
   MOCK_CERT_RECORDS,
   PAGE_SIZES,
@@ -20,19 +22,32 @@ function defaultDateRange() {
   return { from: fmt(from), to: fmt(to) };
 }
 
+type Filters = {
+  from: string;
+  to: string;
+  status: string;
+  channel: string;
+};
+
 export function CertVerifyPage() {
   const range0 = defaultDateRange();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState<CertOcrDraft | null>(null);
+  const [ocrDraft, setOcrDraft] = useState<CertOcrDraft | null>(null);
   const [latest, setLatest] = useState<CertVerifyResult | null>(null);
   const [records, setRecords] = useState<CertVerifyResult[]>(() => [...MOCK_CERT_RECORDS]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [from, setFrom] = useState(range0.from);
-  const [to, setTo] = useState(range0.to);
+  const [filterDraft, setFilterDraft] = useState<Filters>({
+    from: range0.from,
+    to: range0.to,
+    status: "",
+    channel: "",
+  });
+  const [filterApplied, setFilterApplied] = useState<Filters>({ ...filterDraft });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [toast, setToast] = useState<string | null>(null);
+  const [detail, setDetail] = useState<CertVerifyResult | null>(null);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -42,11 +57,13 @@ export function CertVerifyPage() {
   const filtered = useMemo(() => {
     return records.filter((r) => {
       const day = r.verifiedAt.slice(0, 10);
-      if (from && day < from) return false;
-      if (to && day > to) return false;
+      if (filterApplied.from && day < filterApplied.from) return false;
+      if (filterApplied.to && day > filterApplied.to) return false;
+      if (filterApplied.status && r.status !== filterApplied.status) return false;
+      if (filterApplied.channel && r.channel !== filterApplied.channel) return false;
       return true;
     });
-  }, [records, from, to]);
+  }, [records, filterApplied]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -64,25 +81,57 @@ export function CertVerifyPage() {
     setLatest(null);
     try {
       const ocr = await ocrCertFile(file);
-      setDraft(ocr);
+      setOcrDraft(ocr);
     } finally {
       setLoading(false);
     }
   };
 
   const confirm = async () => {
-    if (!draft) return;
+    if (!ocrDraft) return;
     setLoading(true);
     try {
-      const result = await confirmCertVerify(draft);
+      const result = await confirmCertVerify(ocrDraft);
       setLatest(result);
-      setDraft(null);
+      setOcrDraft(null);
       setRecords([...MOCK_CERT_RECORDS]);
       setPage(1);
       showToast(result.status === "pass" ? "证书核验通过" : "证书核验未通过");
     } finally {
       setLoading(false);
     }
+  };
+
+  const exportExcel = () => {
+    const rows = filtered.slice(0, CERT_EXPORT_LIMIT);
+    const header = ["核验编码", "核验时间", "证书编号", "作品名称", "权利人", "结果", "文件名", "方式"];
+    const lines = [
+      header.join(","),
+      ...rows.map((r) =>
+        [
+          r.verifyCode,
+          r.verifiedAt,
+          r.certNo,
+          r.workName,
+          r.owner,
+          r.status === "pass" ? "通过" : "未通过",
+          r.fileName,
+          r.channel,
+        ]
+          .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+          .join(","),
+      ),
+    ];
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cert-records.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`已导出 ${rows.length} 条（上限 ${CERT_EXPORT_LIMIT}）`);
   };
 
   return (
@@ -96,7 +145,7 @@ export function CertVerifyPage() {
             <ApiDocLink productId="cert" />
           </div>
 
-          {!draft ? (
+          {!ocrDraft ? (
             <div
               className="c-cert-upload"
               role="button"
@@ -130,23 +179,23 @@ export function CertVerifyPage() {
               <div className="a-desc">
                 <div className="a-desc__item">
                   <span className="a-desc__label">证书编号</span>
-                  <span className="a-desc__value">{draft.certNo}</span>
+                  <span className="a-desc__value">{ocrDraft.certNo}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">作品名称</span>
-                  <span className="a-desc__value">{draft.workName}</span>
+                  <span className="a-desc__value">{ocrDraft.workName}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">著作权人</span>
-                  <span className="a-desc__value">{draft.owner}</span>
+                  <span className="a-desc__value">{ocrDraft.owner}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">登记日期</span>
-                  <span className="a-desc__value">{draft.registerDate}</span>
+                  <span className="a-desc__value">{ocrDraft.registerDate}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">文件名</span>
-                  <span className="a-desc__value">{draft.fileName}</span>
+                  <span className="a-desc__value">{ocrDraft.fileName}</span>
                 </div>
               </div>
               <div className="a-inline-actions" style={{ marginTop: 12 }}>
@@ -163,7 +212,7 @@ export function CertVerifyPage() {
                   className="a-btn a-btn--sm"
                   disabled={loading}
                   onClick={() => {
-                    setDraft(null);
+                    setOcrDraft(null);
                     setError(null);
                   }}
                 >
@@ -173,7 +222,7 @@ export function CertVerifyPage() {
             </div>
           )}
 
-          {loading && !draft ? (
+          {loading && !ocrDraft ? (
             <p className="a-field__hint">正在识别证书内容…</p>
           ) : null}
           {error ? <div className="a-field__error">{error}</div> : null}
@@ -218,10 +267,82 @@ export function CertVerifyPage() {
       <div className="a-card">
         <div className="a-card__head">
           核验记录
-          <div className="a-card__extra a-inline-actions">
-            <input type="date" className="a-input" value={from} onChange={(e) => setFrom(e.target.value)} />
-            <span className="a-field__hint">至</span>
-            <input type="date" className="a-input" value={to} onChange={(e) => setTo(e.target.value)} />
+          <div className="a-card__extra">默认近 {CERT_DEFAULT_DAYS} 天</div>
+        </div>
+        <div className="a-toolbar">
+          <div className="a-field">
+            <span className="a-field__label">时间范围</span>
+            <div className="a-date-range">
+              <input
+                type="date"
+                className="a-input"
+                value={filterDraft.from}
+                onChange={(e) => setFilterDraft((p) => ({ ...p, from: e.target.value }))}
+              />
+              <span>至</span>
+              <input
+                type="date"
+                className="a-input"
+                value={filterDraft.to}
+                onChange={(e) => setFilterDraft((p) => ({ ...p, to: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">核验状态</span>
+            <select
+              className="a-select"
+              value={filterDraft.status}
+              onChange={(e) => setFilterDraft((p) => ({ ...p, status: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="pass">通过</option>
+              <option value="fail">未通过</option>
+            </select>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">方式</span>
+            <select
+              className="a-select"
+              value={filterDraft.channel}
+              onChange={(e) => setFilterDraft((p) => ({ ...p, channel: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="WebUI">WebUI</option>
+              <option value="API">API</option>
+            </select>
+          </div>
+          <div className="a-toolbar__right">
+            <button
+              type="button"
+              className="a-btn a-btn--primary a-btn--sm"
+              onClick={() => {
+                setFilterApplied({ ...filterDraft });
+                setPage(1);
+              }}
+            >
+              查询
+            </button>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => {
+                const next = {
+                  from: range0.from,
+                  to: range0.to,
+                  status: "",
+                  channel: "",
+                };
+                setFilterDraft(next);
+                setFilterApplied(next);
+                setPage(1);
+              }}
+            >
+              重置
+            </button>
+            <button type="button" className="a-btn a-btn--sm" onClick={exportExcel}>
+              导出 Excel
+            </button>
           </div>
         </div>
         <div className="a-card__body a-card__body--flush">
@@ -230,9 +351,8 @@ export function CertVerifyPage() {
               <thead>
                 <tr>
                   <th>核验时间</th>
-                  <th>证书编号</th>
-                  <th>作品名称</th>
-                  <th>权利人</th>
+                  <th>证书</th>
+                  <th>方式</th>
                   <th>结果</th>
                   <th>操作</th>
                 </tr>
@@ -240,7 +360,7 @@ export function CertVerifyPage() {
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={5}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -248,9 +368,21 @@ export function CertVerifyPage() {
                   pageRows.map((r) => (
                     <tr key={r.id}>
                       <td>{r.verifiedAt}</td>
-                      <td>{r.certNo}</td>
-                      <td>{r.workName}</td>
-                      <td>{r.owner}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="c-cert-thumb"
+                          title="查看证书"
+                          aria-label={`查看证书 ${r.fileName}`}
+                          onClick={() => setDetail(r)}
+                        >
+                          <img src={r.fileUrl} alt={r.fileName} />
+                          {r.fileKind === "pdf" ? (
+                            <span className="c-cert-thumb__badge">PDF</span>
+                          ) : null}
+                        </button>
+                      </td>
+                      <td>{r.channel}</td>
                       <td>
                         <span
                           className={`a-tag ${r.status === "pass" ? "a-tag--ok" : "a-tag--er"}`}
@@ -262,10 +394,7 @@ export function CertVerifyPage() {
                         <button
                           type="button"
                           className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => {
-                            setLatest(r);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
+                          onClick={() => setDetail(r)}
                         >
                           查看
                         </button>
@@ -307,6 +436,13 @@ export function CertVerifyPage() {
           </div>
         </div>
       </div>
+
+      <CertDetailDrawer
+        open={Boolean(detail)}
+        result={detail}
+        onClose={() => setDetail(null)}
+        onToast={showToast}
+      />
     </div>
   );
 }

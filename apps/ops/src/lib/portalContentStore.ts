@@ -9,7 +9,7 @@ export type PortalContentTab = "hero" | "verify" | "audit";
 
 export const PORTAL_TAB_LABEL: Record<PortalContentTab, string> = {
   hero: "焦点区",
-  verify: "版权信息核验服务",
+  verify: "版权核验服务",
   audit: "智能辅助审核服务",
 };
 

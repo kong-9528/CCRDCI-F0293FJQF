@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import {
   INFO_DEFAULT_DAYS,
+  INFO_EXPORT_LIMIT,
   INFO_STATUS_LABEL,
   INFO_WORK_TYPE_LABEL,
   MOCK_INFO_RECORDS,
@@ -22,6 +23,13 @@ function defaultDateRange() {
   return { from: fmt(from), to: fmt(to) };
 }
 
+type Filters = {
+  from: string;
+  to: string;
+  keyword: string;
+  channel: string;
+};
+
 const WORK_CATEGORIES = ["音乐", "美术", "文字", "视频"];
 
 export function InfoVerifyPage() {
@@ -32,10 +40,21 @@ export function InfoVerifyPage() {
   const [loading, setLoading] = useState(false);
   const [latest, setLatest] = useState<InfoVerifyResult | null>(null);
   const [records, setRecords] = useState<InfoVerifyResult[]>(() => [...MOCK_INFO_RECORDS]);
-  const [from, setFrom] = useState(range0.from);
-  const [to, setTo] = useState(range0.to);
+  const [toast, setToast] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Filters>({
+    from: range0.from,
+    to: range0.to,
+    keyword: "",
+    channel: "",
+  });
+  const [applied, setApplied] = useState<Filters>({ ...draft });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(null), 2200);
+  };
 
   const onTabChange = (t: InfoWorkType) => {
     setWorkType(t);
@@ -50,14 +69,24 @@ export function InfoVerifyPage() {
   };
 
   const filtered = useMemo(() => {
+    const kw = applied.keyword.trim().toLowerCase();
     return records.filter((r) => {
       if (r.workType !== workType) return false;
       const day = r.verifiedAt.slice(0, 10);
-      if (from && day < from) return false;
-      if (to && day > to) return false;
+      if (applied.from && day < applied.from) return false;
+      if (applied.to && day > applied.to) return false;
+      if (applied.channel && r.channel !== applied.channel) return false;
+      if (
+        kw &&
+        !r.regNo.toLowerCase().includes(kw) &&
+        !r.name.toLowerCase().includes(kw) &&
+        !r.owner.toLowerCase().includes(kw)
+      ) {
+        return false;
+      }
       return true;
     });
-  }, [records, workType, from, to]);
+  }, [records, workType, applied]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -81,24 +110,52 @@ export function InfoVerifyPage() {
     }
   };
 
+  const exportExcel = () => {
+    const rows = filtered.slice(0, INFO_EXPORT_LIMIT);
+    const header = ["核验时间", "登记号", "名称", "著作权人", "结果", "方式"];
+    const lines = [
+      header.join(","),
+      ...rows.map((r) =>
+        [r.verifiedAt, r.regNo, r.name, r.owner, INFO_STATUS_LABEL[r.status], r.channel]
+          .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+          .join(","),
+      ),
+    ];
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `info-records-${workType}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast(`已导出 ${rows.length} 条（上限 ${INFO_EXPORT_LIMIT}）`);
+  };
+
   const nameLabel =
     workType === "software" ? "软件名称" : workType === "work" ? "作品名称" : "数据集名称";
 
   return (
     <div className="a-stack c-verify-page">
+      {toast ? <div className="a-toast">{toast}</div> : null}
+
       <div className="a-card">
-        <div className="a-tabs" role="tablist">
-          {(Object.keys(INFO_WORK_TYPE_LABEL) as InfoWorkType[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              className={`a-tabs__item${workType === t ? " is-active" : ""}`}
-              onClick={() => onTabChange(t)}
-            >
-              {INFO_WORK_TYPE_LABEL[t]}
-            </button>
-          ))}
+        <div className="c-verify-tabbar">
+          <div className="a-tabs c-verify-tabs" role="tablist">
+            {(Object.keys(INFO_WORK_TYPE_LABEL) as InfoWorkType[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                className={`a-tabs__item${workType === t ? " is-active" : ""}`}
+                onClick={() => onTabChange(t)}
+              >
+                {INFO_WORK_TYPE_LABEL[t]}
+              </button>
+            ))}
+          </div>
+          <ApiDocLink productId="info" />
         </div>
 
         <div className="a-card__body a-stack">
@@ -106,7 +163,6 @@ export function InfoVerifyPage() {
             <h2 className="c-verify-panel-head__title">
               版权信息核验 · {INFO_WORK_TYPE_LABEL[workType]}
             </h2>
-            <ApiDocLink productId="info" />
           </div>
 
           <div className="c-verify-form-row">
@@ -222,10 +278,74 @@ export function InfoVerifyPage() {
       <div className="a-card">
         <div className="a-card__head">
           核验记录
-          <div className="a-card__extra a-inline-actions">
-            <input type="date" className="a-input" value={from} onChange={(e) => setFrom(e.target.value)} />
-            <span className="a-field__hint">至</span>
-            <input type="date" className="a-input" value={to} onChange={(e) => setTo(e.target.value)} />
+          <div className="a-card__extra">默认近 {INFO_DEFAULT_DAYS} 天</div>
+        </div>
+        <div className="a-toolbar">
+          <div className="a-field">
+            <span className="a-field__label">时间范围</span>
+            <div className="a-date-range">
+              <input
+                type="date"
+                className="a-input"
+                value={draft.from}
+                onChange={(e) => setDraft((p) => ({ ...p, from: e.target.value }))}
+              />
+              <span>至</span>
+              <input
+                type="date"
+                className="a-input"
+                value={draft.to}
+                onChange={(e) => setDraft((p) => ({ ...p, to: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">方式</span>
+            <select
+              className="a-select"
+              value={draft.channel}
+              onChange={(e) => setDraft((p) => ({ ...p, channel: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="WebUI">WebUI</option>
+              <option value="API">API</option>
+            </select>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">关键词</span>
+            <input
+              className="a-input"
+              placeholder="登记号 / 名称 / 著作权人"
+              value={draft.keyword}
+              onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
+            />
+          </div>
+          <div className="a-toolbar__right">
+            <button
+              type="button"
+              className="a-btn a-btn--primary a-btn--sm"
+              onClick={() => {
+                setApplied({ ...draft });
+                setPage(1);
+              }}
+            >
+              查询
+            </button>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => {
+                const next = { from: range0.from, to: range0.to, keyword: "", channel: "" };
+                setDraft(next);
+                setApplied(next);
+                setPage(1);
+              }}
+            >
+              重置
+            </button>
+            <button type="button" className="a-btn a-btn--sm" onClick={exportExcel}>
+              导出 Excel
+            </button>
           </div>
         </div>
         <div className="a-card__body a-card__body--flush">
@@ -237,8 +357,8 @@ export function InfoVerifyPage() {
                   <th>登记号</th>
                   <th>名称</th>
                   <th>著作权人</th>
+                  <th>方式</th>
                   <th>结果</th>
-                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -255,24 +375,13 @@ export function InfoVerifyPage() {
                       <td>{r.regNo}</td>
                       <td>{r.name}</td>
                       <td>{r.owner}</td>
+                      <td>{r.channel}</td>
                       <td>
                         <span
                           className={`a-tag ${r.status === "match" ? "a-tag--ok" : "a-tag--er"}`}
                         >
                           {INFO_STATUS_LABEL[r.status]}
                         </span>
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => {
-                            setLatest(r);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                        >
-                          详情
-                        </button>
                       </td>
                     </tr>
                   ))
