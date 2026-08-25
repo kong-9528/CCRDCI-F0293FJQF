@@ -196,7 +196,6 @@ export function ContentManagePage() {
                 <th>类型</th>
                 <th>排序权重</th>
                 <th>状态</th>
-                <th>浏览量</th>
                 <th>更新时间</th>
                 <th>维护人</th>
                 <th>操作</th>
@@ -205,7 +204,7 @@ export function ContentManagePage() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={7}>
                     <div className="a-empty">暂无内容</div>
                   </td>
                 </tr>
@@ -232,7 +231,6 @@ export function ContentManagePage() {
                             {visLabel(c.status)}
                           </span>
                         </td>
-                        <td className="num">—</td>
                         <td>—</td>
                         <td>—</td>
                         <td>
@@ -298,7 +296,6 @@ export function ContentManagePage() {
                           {visLabel(a.status)}
                         </span>
                       </td>
-                      <td className="num">{a.views.toLocaleString()}</td>
                       <td>{a.updatedAt}</td>
                       <td>{a.maintainer}</td>
                       <td>
