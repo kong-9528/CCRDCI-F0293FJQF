@@ -1,13 +1,19 @@
 import { useMemo, useState } from "react";
+import { ProductUsagePanel } from "@/components/ProductUsagePanel";
+import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
 import {
   INFO_DEFAULT_DAYS,
   INFO_EXPORT_LIMIT,
   INFO_STATUS_LABEL,
+  INFO_WORK_CATEGORIES,
   INFO_WORK_TYPE_LABEL,
   MOCK_INFO_RECORDS,
   PAGE_SIZES,
   emptyInfoForm,
+  formatInfoMismatchTags,
+  infoNameLabel,
   validateInfoForm,
   verifyInfoOnce,
   type InfoVerifyInput,
@@ -30,8 +36,6 @@ type Filters = {
   channel: string;
 };
 
-const WORK_CATEGORIES = ["音乐", "美术", "文字", "视频"];
-
 export function InfoVerifyPage() {
   const range0 = defaultDateRange();
   const [workType, setWorkType] = useState<InfoWorkType>("software");
@@ -40,6 +44,7 @@ export function InfoVerifyPage() {
   const [loading, setLoading] = useState(false);
   const [latest, setLatest] = useState<InfoVerifyResult | null>(null);
   const [records, setRecords] = useState<InfoVerifyResult[]>(() => [...MOCK_INFO_RECORDS]);
+  const [detail, setDetail] = useState<InfoVerifyResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [draft, setDraft] = useState<Filters>({
     from: range0.from,
@@ -50,6 +55,8 @@ export function InfoVerifyPage() {
   const [applied, setApplied] = useState<Filters>({ ...draft });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
+
+  const nameLabel = infoNameLabel(workType);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -80,7 +87,8 @@ export function InfoVerifyPage() {
         kw &&
         !r.regNo.toLowerCase().includes(kw) &&
         !r.name.toLowerCase().includes(kw) &&
-        !r.owner.toLowerCase().includes(kw)
+        !r.owner.toLowerCase().includes(kw) &&
+        !(r.verifyCode ?? "").toLowerCase().includes(kw)
       ) {
         return false;
       }
@@ -112,11 +120,31 @@ export function InfoVerifyPage() {
 
   const exportExcel = () => {
     const rows = filtered.slice(0, INFO_EXPORT_LIMIT);
-    const header = ["核验时间", "登记号", "名称", "著作权人", "结果", "方式"];
+    const header = [
+      "核验编码",
+      "核验时间",
+      "登记号",
+      "名称",
+      "著作权人",
+      "作品类型",
+      "结果",
+      "不一致字段",
+      "方式",
+    ];
     const lines = [
       header.join(","),
       ...rows.map((r) =>
-        [r.verifiedAt, r.regNo, r.name, r.owner, INFO_STATUS_LABEL[r.status], r.channel]
+        [
+          r.verifyCode,
+          r.verifiedAt,
+          r.regNo,
+          r.name,
+          r.owner,
+          r.workCategory ?? "",
+          INFO_STATUS_LABEL[r.status],
+          formatInfoMismatchTags(r),
+          r.channel,
+        ]
           .map((c) => `"${String(c).replace(/"/g, '""')}"`)
           .join(","),
       ),
@@ -132,9 +160,6 @@ export function InfoVerifyPage() {
     URL.revokeObjectURL(url);
     showToast(`已导出 ${rows.length} 条（上限 ${INFO_EXPORT_LIMIT}）`);
   };
-
-  const nameLabel =
-    workType === "software" ? "软件名称" : workType === "work" ? "作品名称" : "数据集名称";
 
   return (
     <div className="a-stack c-verify-page">
@@ -199,7 +224,7 @@ export function InfoVerifyPage() {
                 onChange={(e) => setField("workCategory", e.target.value)}
               >
                 <option value="">作品类型（选填）</option>
-                {WORK_CATEGORIES.map((c) => (
+                {INFO_WORK_CATEGORIES.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -217,7 +242,8 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            演示匹配：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致
+            演示匹配：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致；
+            作品页签可试 2024ZP009999（星河旅人）故意填错类型/著作权人查看不一致
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
@@ -231,7 +257,11 @@ export function InfoVerifyPage() {
                   className={`a-dot ${latest.status === "match" ? "a-dot--ok" : "a-dot--er"}`}
                 />
                 <span className="a-result__title">
-                  {latest.status === "match" ? "信息匹配" : "未匹配"}
+                  {latest.status === "match"
+                    ? "信息匹配"
+                    : latest.status === "not_found"
+                      ? "未找到登记信息"
+                      : "未匹配"}
                 </span>
                 <span
                   className={`a-tag ${latest.status === "match" ? "a-tag--ok" : "a-tag--er"}`}
@@ -240,18 +270,44 @@ export function InfoVerifyPage() {
                 </span>
               </div>
               {latest.message ? <p className="c-verify-hint">{latest.message}</p> : null}
+              {formatInfoMismatchTags(latest) ? (
+                <p className="c-verify-hint">
+                  不一致字段：
+                  <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                    {formatInfoMismatchTags(latest)}
+                  </span>
+                </p>
+              ) : null}
               <div className="a-desc">
+                <div className="a-desc__item">
+                  <span className="a-desc__label">核验编码</span>
+                  <span className="a-desc__value">{latest.verifyCode}</span>
+                </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">登记号</span>
                   <span className="a-desc__value">{latest.regNo}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">{nameLabel}</span>
-                  <span className="a-desc__value">{latest.name}</span>
+                  <span className="a-desc__value">
+                    {latest.name}
+                    {latest.mismatches?.includes("name") ? (
+                      <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
+                        不一致
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">著作权人</span>
-                  <span className="a-desc__value">{latest.owner}</span>
+                  <span className="a-desc__value">
+                    {latest.owner}
+                    {latest.mismatches?.includes("owner") ? (
+                      <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
+                        不一致
+                      </span>
+                    ) : null}
+                  </span>
                 </div>
                 {latest.version ? (
                   <div className="a-desc__item">
@@ -259,10 +315,17 @@ export function InfoVerifyPage() {
                     <span className="a-desc__value">{latest.version}</span>
                   </div>
                 ) : null}
-                {latest.workCategory ? (
+                {latest.workType === "work" ? (
                   <div className="a-desc__item">
                     <span className="a-desc__label">作品类型</span>
-                    <span className="a-desc__value">{latest.workCategory}</span>
+                    <span className="a-desc__value">
+                      {latest.workCategory || "—"}
+                      {latest.mismatches?.includes("workCategory") ? (
+                        <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
+                          不一致
+                        </span>
+                      ) : null}
+                    </span>
                   </div>
                 ) : null}
                 <div className="a-desc__item">
@@ -274,6 +337,8 @@ export function InfoVerifyPage() {
           ) : null}
         </div>
       </div>
+
+      <ProductUsagePanel product="info" />
 
       <div className="a-card">
         <div className="a-card__head">
@@ -355,16 +420,18 @@ export function InfoVerifyPage() {
                 <tr>
                   <th>核验时间</th>
                   <th>登记号</th>
-                  <th>名称</th>
+                  <th>{nameLabel}</th>
                   <th>著作权人</th>
+                  {workType === "work" ? <th>作品类型</th> : null}
                   <th>方式</th>
                   <th>结果</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={workType === "work" ? 8 : 7}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -373,8 +440,36 @@ export function InfoVerifyPage() {
                     <tr key={r.id}>
                       <td>{r.verifiedAt}</td>
                       <td>{r.regNo}</td>
-                      <td>{r.name}</td>
-                      <td>{r.owner}</td>
+                      <td>
+                        <div className="a-cell-clamp" title={r.name}>
+                          {r.name}
+                          {r.mismatches?.includes("name") ? (
+                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                              不一致
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="a-cell-clamp" title={r.owner}>
+                          {r.owner}
+                          {r.mismatches?.includes("owner") ? (
+                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                              不一致
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                      {workType === "work" ? (
+                        <td>
+                          {r.workCategory || "—"}
+                          {r.mismatches?.includes("workCategory") ? (
+                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                              不一致
+                            </span>
+                          ) : null}
+                        </td>
+                      ) : null}
                       <td>{r.channel}</td>
                       <td>
                         <span
@@ -382,6 +477,15 @@ export function InfoVerifyPage() {
                         >
                           {INFO_STATUS_LABEL[r.status]}
                         </span>
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <button
+                          type="button"
+                          className="a-btn a-btn--text a-btn--sm"
+                          onClick={() => setDetail(r)}
+                        >
+                          详情
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -420,6 +524,15 @@ export function InfoVerifyPage() {
           </div>
         </div>
       </div>
+
+      <ServiceDisclaimer />
+
+      <InfoDetailDrawer
+        open={Boolean(detail)}
+        result={detail}
+        onClose={() => setDetail(null)}
+        onToast={showToast}
+      />
     </div>
   );
 }

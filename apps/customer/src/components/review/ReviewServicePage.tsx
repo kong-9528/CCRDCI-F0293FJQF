@@ -1,4 +1,5 @@
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
   REVIEW_RECORD_STATUS_LABEL,
   REVIEW_SERVICES,
@@ -39,10 +40,7 @@ export function ReviewServicePage({ product }: Props) {
           </div>
           <div className="c-review-intro__body">
             {cfg.intro.map((item) => (
-              <p key={item.label}>
-                <strong>{item.label}：</strong>
-                {item.text}
-              </p>
+              <p key={item.label}>{item.text}</p>
             ))}
           </div>
         </div>
@@ -139,6 +137,8 @@ export function ReviewServicePage({ product }: Props) {
           )}
         </div>
       </div>
+
+      <ServiceDisclaimer />
     </div>
   );
 }

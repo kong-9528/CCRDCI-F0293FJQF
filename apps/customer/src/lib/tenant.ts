@@ -30,7 +30,7 @@ export type TenantContract = {
 };
 
 export const MOCK_TENANT: TenantProfile = {
-  companyName: "北京华信科技有限公司",
+  companyName: "太极计算机股份有限公司",
   creditCode: "91110000MA01XXXX3K",
   legalPerson: "张三",
   contactName: "李四",

@@ -5,7 +5,7 @@ import {
   StatsPeriodToggle,
   TrendRangeToggle,
 } from "@/components/StatsControls";
-import { PRODUCTS } from "@/lib/catalog";
+import { PRODUCTS, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   avgSuccessRate,
@@ -19,12 +19,23 @@ import {
   type TrendRange,
 } from "@/lib/statsData";
 
+type ProductStatsTab = "verify" | "audit";
 type TrendMetric = "activeAccounts" | "calls" | "successRate";
+
+const TAB_ITEMS: { key: ProductStatsTab; label: string }[] = [
+  { key: "verify", label: "版权核验使用统计" },
+  { key: "audit", label: "智能辅助审核使用统计" },
+];
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   activeAccounts: "日调用账号数",
   calls: "日调用次数",
   successRate: "日成功率",
+};
+
+const CATEGORY_TAG: Record<ProductStatsTab, string> = {
+  verify: "版权核验",
+  audit: "智能审核",
 };
 
 export function ProductStatsPage() {
@@ -34,17 +45,26 @@ export function ProductStatsPage() {
     return getStatsData();
   }, []);
 
+  const [tab, setTab] = useState<ProductStatsTab>("verify");
   const [boardPeriod, setBoardPeriod] = useState<StatsPeriod>("7d");
   const [trendRange, setTrendRange] = useState<TrendRange>("30d");
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
-  const [productsExpanded, setProductsExpanded] = useState(false);
+
+  const categoryProducts = useMemo(
+    () => PRODUCTS.filter((p) => p.category === tab),
+    [tab],
+  );
+  const productCodes = useMemo(
+    () => categoryProducts.map((p) => p.code) as ProductCode[],
+    [categoryProducts],
+  );
 
   const boardDates = sliceDates(boardPeriod);
   const periodLabel =
     boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日";
 
-  const productCards = PRODUCTS.map((p) => {
+  const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);
     const period = all.filter((r) => boardDates.includes(r.date));
     const opened = data.customers.filter((c) =>
@@ -68,12 +88,8 @@ export function ProductStatsPage() {
     };
   });
 
-  const visibleProductCards = productsExpanded
-    ? productCards
-    : productCards.slice(0, 2);
-
   const trendDates = sliceDates(trendRange);
-  const trendSeries = PRODUCTS.map((p, idx) => {
+  const trendSeries = categoryProducts.map((p, idx) => {
     const values = trendDates.map((date) => {
       const row = data.productDays.find((r) => r.date === date && r.product === p.code);
       if (!row) return 0;
@@ -90,23 +106,40 @@ export function ProductStatsPage() {
   });
 
   const rankDates = sliceDates(rankRange);
-  const rankRows = PRODUCTS.map((p) => {
-    const rows = data.productDays.filter(
-      (r) => r.product === p.code && rankDates.includes(r.date),
-    );
-    return {
-      code: p.code,
-      name: p.name,
-      calls: sumCalls(rows),
-      activeAccounts: Math.round(
-        rows.reduce((s, r) => s + r.activeAccounts, 0) / Math.max(1, rows.length),
-      ),
-      successRate: avgSuccessRate(rows),
-    };
-  }).sort((a, b) => b.calls - a.calls);
+  const rankRows = categoryProducts
+    .map((p) => {
+      const rows = data.productDays.filter(
+        (r) => r.product === p.code && rankDates.includes(r.date),
+      );
+      return {
+        code: p.code,
+        name: p.name,
+        calls: sumCalls(rows),
+        activeAccounts: Math.round(
+          rows.reduce((s, r) => s + r.activeAccounts, 0) / Math.max(1, rows.length),
+        ),
+        successRate: avgSuccessRate(rows),
+      };
+    })
+    .sort((a, b) => b.calls - a.calls);
 
   return (
     <div className="a-stack">
+      <div className="a-tabs a-tabs--segment" role="tablist">
+        {TAB_ITEMS.map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={tab === key}
+            className={`a-tabs__item${tab === key ? " is-active" : ""}`}
+            onClick={() => setTab(key)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <section className="a-card a-dash-panel a-dash-panel--product-board">
         <div className="a-card__head a-dash-panel__head">
           <span className="a-dash-panel__title">分产品表盘</span>
@@ -116,7 +149,7 @@ export function ProductStatsPage() {
         </div>
         <div className="a-card__body a-dash-panel__body">
           <div className="a-product-board">
-            {visibleProductCards.map((card, i) => (
+            {productCards.map((card, i) => (
               <article
                 key={card.code}
                 className={`a-product-board__card a-product-board__card--${card.category}`}
@@ -127,9 +160,7 @@ export function ProductStatsPage() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="a-product-board__titles">
-                    <span className="a-product-board__tag">
-                      {card.category === "verify" ? "版权核验" : "智能审核"}
-                    </span>
+                    <span className="a-product-board__tag">{CATEGORY_TAG[tab]}</span>
                     <h3 className="a-product-board__name">{card.name}</h3>
                   </div>
                 </header>
@@ -184,17 +215,6 @@ export function ProductStatsPage() {
                 </div>
               </article>
             ))}
-            {productCards.length > 2 ? (
-              <button
-                type="button"
-                className="a-product-board__toggle"
-                onClick={() => setProductsExpanded((v) => !v)}
-              >
-                {productsExpanded
-                  ? "收起全部产品"
-                  : `展开全部产品（还有 ${productCards.length - 2} 个）`}
-              </button>
-            ) : null}
           </div>
         </div>
       </section>
@@ -225,16 +245,20 @@ export function ProductStatsPage() {
 
       <div className="a-card">
         <div className="a-card__head">
-          产品调用榜单
+          产品调用汇总数据
           <div className="a-card__extra a-inline-actions">
             <TrendRangeToggle value={rankRange} onChange={setRankRange} />
-            <button type="button" className="a-btn a-btn--sm" onClick={exportProductDailyCsv}>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => exportProductDailyCsv(productCodes)}
+            >
               下载统计报表
             </button>
             <button
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
-              onClick={exportAccountProductDailyCsv}
+              onClick={() => exportAccountProductDailyCsv(productCodes)}
             >
               下载明细报表
             </button>

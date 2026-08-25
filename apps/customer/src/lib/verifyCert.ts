@@ -2,6 +2,9 @@ export type CertVerifyStatus = "pass" | "fail";
 
 export type CertFileKind = "image" | "pdf";
 
+/** 失败时标记不一致的字段 */
+export type CertMismatchField = "certNo" | "workName" | "owner";
+
 export type CertRecognition = {
   /** 证书号，如 软著登字第…号 */
   certTitleNo: string;
@@ -40,6 +43,7 @@ export type CertVerifyResult = {
   fileUrl: string;
   fileKind: CertFileKind;
   recognition: CertRecognition;
+  mismatches?: CertMismatchField[];
   message?: string;
 };
 
@@ -48,11 +52,25 @@ export const CERT_STATUS_LABEL: Record<CertVerifyStatus, string> = {
   fail: "核验失败",
 };
 
+export const CERT_MISMATCH_LABEL: Record<CertMismatchField, string> = {
+  certNo: "证书编号不一致",
+  workName: "软件名称不一致",
+  owner: "著作权人不一致",
+};
+
 export const CERT_DEFAULT_VERIFIER = "admin2";
 export const CERT_DEFAULT_DAYS = 30;
 export const CERT_EXPORT_LIMIT = 5000;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 export const CERT_MAX_BYTES = 10 * 1024 * 1024;
+
+export function formatCertFailReasons(result: CertVerifyResult): string[] {
+  if (result.status === "pass") return [];
+  if (result.mismatches?.length) {
+    return result.mismatches.map((f) => CERT_MISMATCH_LABEL[f]);
+  }
+  return result.message ? [result.message] : ["证书信息与登记库不一致"];
+}
 
 function daysAgo(n: number) {
   const d = new Date();
@@ -62,6 +80,10 @@ function daysAgo(n: number) {
 
 function nowStamp() {
   return new Date().toISOString().slice(0, 19).replace("T", " ");
+}
+
+function normCompare(a: string) {
+  return a.trim().toLowerCase().replace(/\s+/g, "");
 }
 
 let seq = 100;
@@ -165,26 +187,27 @@ const SEED: Omit<CertVerifyResult, "id">[] = [
   {
     verifyCode: "R1187530000886",
     verifier: CERT_DEFAULT_VERIFIER,
-    certNo: "2023SR009876",
-    workName: "数字区块平台V3",
+    certNo: "2099SR000001",
+    workName: "错误软件名称",
     owner: "深圳创新科技",
     registerDate: "2023-08-20",
     status: "fail",
     verifiedAt: daysAgo(3),
     channel: "WebUI",
-    fileName: "cert-scan.png",
+    fileName: "R11.png",
     fileKind: "image",
-    fileUrl: demoCertImage("2023SR009876", "warn"),
+    fileUrl: demoCertImage("R11.png", "warn"),
     recognition: {
       certTitleNo: "软著登字第16328001号",
-      workName: "数字区块平台V3",
-      owner: "深圳创新科技",
+      workName: "基于深度学习的流量特征智能分析与异常检测系统V1.0",
+      owner: "国家电网有限公司客户服务中心",
       acquireMethod: "原始取得",
       rightScope: "全部权利",
-      registerDate: "2023-08-20",
-      registerNo: "2023SR009876",
+      registerDate: "2026-02-09",
+      registerNo: "2026SR0253687",
     },
-    message: "证书信息与登记库不一致",
+    mismatches: ["certNo", "workName"],
+    message: "证书编号不一致、软件名称不一致",
   },
   {
     verifyCode: "R1187530000887",
@@ -261,11 +284,24 @@ export async function ocrCertFile(file: File): Promise<CertOcrDraft> {
 export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerifyResult> {
   await new Promise((r) => setTimeout(r, 420));
   const hit = REGISTRY[draft.certNo];
-  const pass = Boolean(hit && hit.workName === draft.workName && hit.owner === draft.owner);
   const verifyCode = nextVerifyCode();
   const recognition =
     draft.recognition ??
     buildRecognition(draft.certNo, draft.workName, draft.owner, draft.registerDate);
+
+  const mismatches: CertMismatchField[] = [];
+  if (!hit) {
+    mismatches.push("certNo");
+  } else {
+    if (normCompare(draft.workName) !== normCompare(hit.workName)) {
+      mismatches.push("workName");
+    }
+    if (normCompare(draft.owner) !== normCompare(hit.owner)) {
+      mismatches.push("owner");
+    }
+  }
+
+  const pass = Boolean(hit && mismatches.length === 0);
 
   const result: CertVerifyResult = {
     id: `cert-${seq}`,
@@ -282,7 +318,8 @@ export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerify
     fileUrl: draft.fileUrl,
     fileKind: draft.fileKind,
     recognition,
-    message: pass ? undefined : "证书信息与登记库不一致",
+    mismatches: pass ? undefined : mismatches,
+    message: pass ? undefined : mismatches.map((f) => CERT_MISMATCH_LABEL[f]).join("、"),
   };
 
   MOCK_CERT_RECORDS = [result, ...MOCK_CERT_RECORDS];

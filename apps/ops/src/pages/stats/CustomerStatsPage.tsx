@@ -213,7 +213,7 @@ export function CustomerStatsPage() {
             <button
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
-              onClick={exportAccountProductDailyCsv}
+              onClick={() => exportAccountProductDailyCsv()}
             >
               下载明细报表
             </button>

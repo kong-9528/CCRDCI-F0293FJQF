@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
+import { ProductUsagePanel } from "@/components/ProductUsagePanel";
+import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchDciModal } from "@/components/verify/BatchDciModal";
+import { DciDetailDrawer } from "@/components/verify/DciDetailDrawer";
 import {
   CHANNEL_LABEL,
   DCI_BATCH_LIMIT,
@@ -11,12 +14,17 @@ import {
   PAGE_SIZES,
   STATUS_LABEL,
   WORK_TYPE_LABEL,
+  dciNameLabel,
+  emptyDciForm,
+  formatMismatchTags,
   isValidDciCode,
   normalizeDciCode,
   parseDciInputList,
+  validateDciForm,
   verifyDciBatch,
   verifyDciOnce,
   type DciChannel,
+  type DciVerifyInput,
   type DciVerifyResult,
   type DciWorkType,
 } from "@/lib/dci";
@@ -59,11 +67,20 @@ function ResultCard({
   onCopy: (code: string) => void;
 }) {
   const ok = result.status === "pass";
+  const nameLabel = dciNameLabel(result.workType);
+  const mismatchText = formatMismatchTags(result);
+  const title =
+    result.status === "pass"
+      ? "核验通过"
+      : result.status === "not_found"
+        ? "DCI不存在"
+        : "核验未通过";
+
   return (
     <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
       <div className="a-result__head">
         <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <span className="a-result__title">{ok ? "核验通过" : "DCI不存在"}</span>
+        <span className="a-result__title">{title}</span>
         <span className={`a-tag ${ok ? "a-tag--ok" : "a-tag--er"}`}>
           {STATUS_LABEL[result.status]}
         </span>
@@ -90,6 +107,48 @@ function ResultCard({
           <span className="a-desc__label">核验时间：</span>
           <span className="a-desc__value">{result.verifiedAt}</span>
         </div>
+        <div className="a-desc__item">
+          <span className="a-desc__label">DCI 核验码：</span>
+          <span className="a-desc__value">
+            <code>{result.dciCode}</code>
+          </span>
+        </div>
+        <div className="a-desc__item">
+          <span className="a-desc__label">著作权人：</span>
+          <span className="a-desc__value">
+            {result.queryOwner || "—"}
+            {result.mismatches?.includes("owner") ? (
+              <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
+                不一致
+              </span>
+            ) : null}
+          </span>
+        </div>
+        <div className="a-desc__item">
+          <span className="a-desc__label">{nameLabel}：</span>
+          <span className="a-desc__value">
+            {result.queryName || "—"}
+            {result.mismatches?.includes("name") ? (
+              <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
+                不一致
+              </span>
+            ) : null}
+          </span>
+        </div>
+        {result.message ? (
+          <div className="a-desc__item a-desc__item--wide">
+            <span className="a-desc__label">说明：</span>
+            <span className="a-desc__value">{result.message}</span>
+          </div>
+        ) : null}
+        {mismatchText ? (
+          <div className="a-desc__item a-desc__item--wide">
+            <span className="a-desc__label">不一致字段：</span>
+            <span className="a-desc__value">
+              <span className="a-tag a-tag--er">{mismatchText}</span>
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -98,13 +157,14 @@ function ResultCard({
 export function DciVerifyPage() {
   const range0 = defaultDateRange();
   const [workType, setWorkType] = useState<DciWorkType>("software");
-  const [singleCode, setSingleCode] = useState("");
+  const [form, setForm] = useState<DciVerifyInput>(() => emptyDciForm());
   const [batchText, setBatchText] = useState("");
   const [batchOpen, setBatchOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [latest, setLatest] = useState<DciVerifyResult[]>([]);
   const [records, setRecords] = useState<DciVerifyResult[]>(() => [...MOCK_DCI_RECORDS]);
+  const [detail, setDetail] = useState<DciVerifyResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const [draft, setDraft] = useState<Filters>({
@@ -119,6 +179,8 @@ export function DciVerifyPage() {
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
 
+  const nameLabel = dciNameLabel(workType);
+
   const showToast = (msg: string) => {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2200);
@@ -126,7 +188,12 @@ export function DciVerifyPage() {
 
   const syncRecords = () => setRecords([...MOCK_DCI_RECORDS]);
 
+  const setField = <K extends keyof DciVerifyInput>(key: K, value: DciVerifyInput[K]) => {
+    setForm((p) => ({ ...p, [key]: value }));
+  };
+
   const filtered = useMemo(() => {
+    const kw = applied.keyword.trim().toLowerCase();
     return records.filter((r) => {
       if (r.workType !== workType) return false;
       const day = r.verifiedAt.slice(0, 10);
@@ -135,9 +202,11 @@ export function DciVerifyPage() {
       if (applied.status && r.status !== applied.status) return false;
       if (applied.channel && r.channel !== applied.channel) return false;
       if (
-        applied.keyword.trim() &&
-        !r.dciCode.includes(normalizeDciCode(applied.keyword)) &&
-        !r.verifyCode.toUpperCase().includes(applied.keyword.trim().toUpperCase())
+        kw &&
+        !r.dciCode.toLowerCase().includes(normalizeDciCode(applied.keyword).toLowerCase()) &&
+        !r.verifyCode.toLowerCase().includes(kw) &&
+        !r.queryOwner.toLowerCase().includes(kw) &&
+        !r.queryName.toLowerCase().includes(kw)
       ) {
         return false;
       }
@@ -151,6 +220,7 @@ export function DciVerifyPage() {
 
   const onWorkTypeChange = (t: DciWorkType) => {
     setWorkType(t);
+    setForm(emptyDciForm());
     setLatest([]);
     setError(null);
     setPage(1);
@@ -162,19 +232,15 @@ export function DciVerifyPage() {
   };
 
   const runSingle = async () => {
+    const err = validateDciForm(form);
+    if (err) {
+      setError(err);
+      return;
+    }
     setError(null);
-    const code = normalizeDciCode(singleCode);
-    if (!code) {
-      setError("请输入 DCI 码");
-      return;
-    }
-    if (!isValidDciCode(code)) {
-      setError("DCI 码格式不正确，示例：DCI-SWDEMO0001");
-      return;
-    }
     setLoading(true);
     try {
-      const result = await verifyDciOnce(code, workType);
+      const result = await verifyDciOnce(form, workType);
       setLatest([result]);
       syncRecords();
       setPage(1);
@@ -185,6 +251,10 @@ export function DciVerifyPage() {
 
   const runBatch = async () => {
     setError(null);
+    if (!form.owner.trim() && !form.name.trim()) {
+      setError("批量核验前请先填写著作权人或名称（至少一项）");
+      return;
+    }
     const list = parseDciInputList(batchText);
     if (!list.length) {
       setError("请输入或上传至少一个 DCI 码");
@@ -204,7 +274,10 @@ export function DciVerifyPage() {
     }
     setLoading(true);
     try {
-      const results = await verifyDciBatch(unique, workType);
+      const results = await verifyDciBatch(unique, workType, {
+        owner: form.owner,
+        name: form.name,
+      });
       setLatest(results);
       syncRecords();
       setPage(1);
@@ -224,7 +297,18 @@ export function DciVerifyPage() {
 
   const exportExcel = () => {
     const rows = filtered.slice(0, DCI_EXPORT_LIMIT);
-    const header = ["核验编码", "核验时间", "DCI码", "作品类型", "核验状态", "核验方式", "核验人"];
+    const header = [
+      "核验编码",
+      "核验时间",
+      "DCI码",
+      "著作权人",
+      nameLabel,
+      "作品类型",
+      "核验状态",
+      "不一致字段",
+      "核验方式",
+      "核验人",
+    ];
     const lines = [
       header.join(","),
       ...rows.map((r) =>
@@ -232,8 +316,11 @@ export function DciVerifyPage() {
           r.verifyCode,
           r.verifiedAt,
           r.dciCode,
+          r.queryOwner,
+          r.queryName,
           WORK_TYPE_LABEL[r.workType],
           STATUS_LABEL[r.status],
+          formatMismatchTags(r),
           CHANNEL_LABEL[r.channel],
           r.verifier,
         ]
@@ -286,12 +373,30 @@ export function DciVerifyPage() {
             </h2>
           </div>
 
-          <div className="c-verify-input-row">
+          <div className="c-verify-form-row">
             <input
               className="a-input"
-              placeholder="请输入 DCI 码，支持手动输入或粘贴"
-              value={singleCode}
-              onChange={(e) => setSingleCode(e.target.value)}
+              placeholder="DCI 核验码（必填）"
+              value={form.dciCode}
+              onChange={(e) => setField("dciCode", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void runSingle();
+              }}
+            />
+            <input
+              className="a-input"
+              placeholder="著作权人"
+              value={form.owner}
+              onChange={(e) => setField("owner", e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void runSingle();
+              }}
+            />
+            <input
+              className="a-input"
+              placeholder={nameLabel}
+              value={form.name}
+              onChange={(e) => setField("name", e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void runSingle();
               }}
@@ -318,8 +423,8 @@ export function DciVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            单次批量上限 {DCI_BATCH_LIMIT} 条 · 每日上限 {DCI_DAILY_LIMIT} 条 · 演示码：
-            DCI-{demoHint}DEMO0001
+            DCI 核验码必填；著作权人与{nameLabel}至少填一项 · 单次批量上限 {DCI_BATCH_LIMIT} 条 ·
+            每日上限 {DCI_DAILY_LIMIT} 条 · 演示码：DCI-{demoHint}DEMO0001
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
@@ -340,6 +445,8 @@ export function DciVerifyPage() {
           ) : null}
         </div>
       </div>
+
+      <ProductUsagePanel product="dci" />
 
       <div className="a-card">
         <div className="a-card__head">
@@ -374,7 +481,8 @@ export function DciVerifyPage() {
             >
               <option value="">全部</option>
               <option value="pass">通过</option>
-              <option value="not_found">未通过</option>
+              <option value="fail">未通过</option>
+              <option value="not_found">DCI不存在</option>
             </select>
           </div>
           <div className="a-field">
@@ -390,10 +498,10 @@ export function DciVerifyPage() {
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">DCI码</span>
+            <span className="a-field__label">关键词</span>
             <input
               className="a-input"
-              placeholder="关键词"
+              placeholder="DCI码 / 著作权人 / 名称"
               value={draft.keyword}
               onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
             />
@@ -441,15 +549,17 @@ export function DciVerifyPage() {
                   <th>核验编码</th>
                   <th>核验时间</th>
                   <th>DCI码</th>
-                  <th>类型</th>
+                  <th>著作权人</th>
+                  <th>{nameLabel}</th>
                   <th>方式</th>
                   <th>结果</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={8}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -463,14 +573,42 @@ export function DciVerifyPage() {
                       <td>
                         <code>{r.dciCode}</code>
                       </td>
-                      <td>{WORK_TYPE_LABEL[r.workType]}</td>
+                      <td>
+                        <div className="a-cell-clamp" title={r.queryOwner || undefined}>
+                          {r.queryOwner || "—"}
+                          {r.mismatches?.includes("owner") ? (
+                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                              不一致
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="a-cell-clamp" title={r.queryName || undefined}>
+                          {r.queryName || "—"}
+                          {r.mismatches?.includes("name") ? (
+                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
+                              不一致
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
                       <td>{CHANNEL_LABEL[r.channel as DciChannel]}</td>
                       <td>
                         <span
                           className={`a-tag ${r.status === "pass" ? "a-tag--ok" : "a-tag--er"}`}
                         >
-                          {r.status === "pass" ? "通过" : "未通过"}
+                          {STATUS_LABEL[r.status]}
                         </span>
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <button
+                          type="button"
+                          className="a-btn a-btn--text a-btn--sm"
+                          onClick={() => setDetail(r)}
+                        >
+                          详情
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -539,6 +677,8 @@ export function DciVerifyPage() {
         </div>
       </div>
 
+      <ServiceDisclaimer />
+
       <BatchDciModal
         open={batchOpen}
         loading={loading}
@@ -547,6 +687,13 @@ export function DciVerifyPage() {
         onClose={() => setBatchOpen(false)}
         onSubmit={() => void runBatch()}
         onFile={(f) => void onBatchFile(f)}
+      />
+
+      <DciDetailDrawer
+        open={Boolean(detail)}
+        result={detail}
+        onClose={() => setDetail(null)}
+        onToast={showToast}
       />
     </div>
   );

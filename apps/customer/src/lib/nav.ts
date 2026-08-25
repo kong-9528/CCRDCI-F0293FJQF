@@ -34,7 +34,7 @@ export const CUSTOMER_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "设置",
+    title: "账户管理",
     items: [
       { to: "/account", label: "账号中心", icon: "account" },
       { to: "/keys", label: "密钥管理", icon: "keys" },

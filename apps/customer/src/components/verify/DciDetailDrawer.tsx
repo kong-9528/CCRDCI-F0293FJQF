@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
 import { Drawer } from "@/components/Drawer";
 import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
 import { copyText } from "@/lib/keys";
-import { formatCertFailReasons, type CertVerifyResult } from "@/lib/verifyCert";
+import {
+  CHANNEL_LABEL,
+  WORK_TYPE_LABEL,
+  dciNameLabel,
+  formatDciFailReasons,
+  type DciVerifyResult,
+} from "@/lib/dci";
 
 type Props = {
   open: boolean;
-  result: CertVerifyResult | null;
+  result: DciVerifyResult | null;
   onClose: () => void;
   onToast?: (msg: string) => void;
 };
@@ -24,34 +29,12 @@ function CopyIcon() {
   );
 }
 
-function DownloadIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M8 2.5v7.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path
-        d="M5.2 7.5 8 10.3l2.8-2.8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function ShieldOkIcon() {
   return (
     <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden>
       <path
         d="M28 6 44 12.5v14.2c0 11.3-7.1 21.4-16 24.3-8.9-2.9-16-13-16-24.3V12.5L28 6Z"
-        fill="url(#shieldGrad)"
-      />
-      <path
-        d="M28 6 44 12.5v14.2c0 11.3-7.1 21.4-16 24.3-8.9-2.9-16-13-16-24.3V12.5L28 6Z"
-        stroke="#0b62b8"
-        strokeWidth="1.2"
-        opacity="0.35"
+        fill="url(#dciShieldOk)"
       />
       <path
         d="M20.5 28.2 25.8 33.5 36 22.5"
@@ -61,7 +44,7 @@ function ShieldOkIcon() {
         strokeLinejoin="round"
       />
       <defs>
-        <linearGradient id="shieldGrad" x1="12" y1="8" x2="42" y2="48" gradientUnits="userSpaceOnUse">
+        <linearGradient id="dciShieldOk" x1="12" y1="8" x2="42" y2="48" gradientUnits="userSpaceOnUse">
           <stop stopColor="#3aa0ef" />
           <stop offset="1" stopColor="#0b62b8" />
         </linearGradient>
@@ -75,7 +58,7 @@ function ShieldFailIcon() {
     <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden>
       <path
         d="M28 6 44 12.5v14.2c0 11.3-7.1 21.4-16 24.3-8.9-2.9-16-13-16-24.3V12.5L28 6Z"
-        fill="url(#shieldFail)"
+        fill="url(#dciShieldFail)"
       />
       <path
         d="M22 22.5 34 34.5M34 22.5 22 34.5"
@@ -84,7 +67,7 @@ function ShieldFailIcon() {
         strokeLinecap="round"
       />
       <defs>
-        <linearGradient id="shieldFail" x1="12" y1="8" x2="42" y2="48" gradientUnits="userSpaceOnUse">
+        <linearGradient id="dciShieldFail" x1="12" y1="8" x2="42" y2="48" gradientUnits="userSpaceOnUse">
           <stop stopColor="#f07171" />
           <stop offset="1" stopColor="#c62828" />
         </linearGradient>
@@ -93,63 +76,31 @@ function ShieldFailIcon() {
   );
 }
 
-export function CertDetailDrawer({ open, result, onClose, onToast }: Props) {
-  const [recogOpen, setRecogOpen] = useState(true);
-
-  useEffect(() => {
-    if (open) setRecogOpen(true);
-  }, [open, result?.id]);
-
-  if (!result) {
-    return null;
-  }
+export function DciDetailDrawer({ open, result, onClose, onToast }: Props) {
+  if (!result) return null;
 
   const ok = result.status === "pass";
-  const rec = result.recognition;
-  const failReasons = formatCertFailReasons(result);
+  const nameLabel = dciNameLabel(result.workType);
+  const failReasons = formatDciFailReasons(result);
 
   const copyCode = async () => {
     const done = await copyText(result.verifyCode);
     onToast?.(done ? "核验编码已复制" : "复制失败，请手动选择复制");
   };
 
-  const downloadFile = () => {
-    const a = document.createElement("a");
-    a.href = result.fileUrl;
-    a.download = result.fileName;
-    a.click();
-    onToast?.("已开始下载证书文件（演示）");
-  };
-
   return (
     <Drawer open={open} title="核验详情" onClose={onClose} width={520}>
       <div className="c-cert-detail">
-        <div className="c-cert-detail__preview">
-          <div className="c-cert-detail__frame">
-            <img src={result.fileUrl} alt={result.fileName} />
-          </div>
-          <div className="c-cert-detail__file">
-            <span className="c-cert-detail__file-name" title={result.fileName}>
-              {result.fileName}
-            </span>
-            <button
-              type="button"
-              className="c-cert-detail__icon-btn"
-              title="下载证书"
-              aria-label="下载证书"
-              onClick={downloadFile}
-            >
-              <DownloadIcon />
-            </button>
-          </div>
-        </div>
-
         <div className="c-cert-detail__section-bar">核验结果</div>
         <div className={`c-cert-detail__status${ok ? "" : " is-fail"}`}>
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
             <div className="c-cert-detail__status-title">
-              {ok ? "证书信息核验通过" : "证书信息核验未通过"}
+              {ok
+                ? "DCI 核验通过"
+                : result.status === "not_found"
+                  ? "DCI 不存在"
+                  : "DCI 核验未通过"}
             </div>
             {ok ? (
               <span className="c-cert-detail__badge is-ok">核验通过</span>
@@ -183,53 +134,72 @@ export function CertDetailDrawer({ open, result, onClose, onToast }: Props) {
             <dt>核验时间</dt>
             <dd>{result.verifiedAt}</dd>
           </div>
+          <div className="c-cert-detail__row">
+            <dt>核验方式</dt>
+            <dd>{CHANNEL_LABEL[result.channel]}</dd>
+          </div>
+          <div className="c-cert-detail__row">
+            <dt>类型</dt>
+            <dd>{WORK_TYPE_LABEL[result.workType]}</dd>
+          </div>
         </dl>
 
-        <div className="c-cert-detail__section-bar c-cert-detail__section-bar--toggle">
-          <span>识别结果</span>
-          <button
-            type="button"
-            className="c-cert-detail__toggle"
-            onClick={() => setRecogOpen((v) => !v)}
-          >
-            {recogOpen ? "收起" : "展开"}
-            <span className={`c-cert-detail__chevron${recogOpen ? " is-open" : ""}`} aria-hidden>
-              ▾
-            </span>
-          </button>
-        </div>
+        <div className="c-cert-detail__section-bar">提交信息</div>
+        <dl className="c-cert-detail__meta">
+          <div className="c-cert-detail__row">
+            <dt>DCI 核验码</dt>
+            <dd>
+              <code>{result.dciCode}</code>
+            </dd>
+          </div>
+          <div className="c-cert-detail__row">
+            <dt>著作权人</dt>
+            <dd>{result.queryOwner || "—"}</dd>
+          </div>
+          <div className="c-cert-detail__row">
+            <dt>{nameLabel}</dt>
+            <dd>{result.queryName || "—"}</dd>
+          </div>
+        </dl>
 
-        {recogOpen ? (
-          <dl className="c-cert-detail__meta">
-            <div className="c-cert-detail__row">
-              <dt>证书号</dt>
-              <dd>{rec.certTitleNo}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>软件名称</dt>
-              <dd>{rec.workName}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>著作权人</dt>
-              <dd>{rec.owner}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>权利取得方式</dt>
-              <dd>{rec.acquireMethod}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>权利范围</dt>
-              <dd>{rec.rightScope}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>登记日期</dt>
-              <dd>{rec.registerDate}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>登记号</dt>
-              <dd>{rec.registerNo}</dd>
-            </div>
-          </dl>
+        {result.snapshot ? (
+          <>
+            <div className="c-cert-detail__section-bar">登记信息</div>
+            <dl className="c-cert-detail__meta">
+              <div className="c-cert-detail__row">
+                <dt>{nameLabel}</dt>
+                <dd>{result.snapshot.name}</dd>
+              </div>
+              <div className="c-cert-detail__row">
+                <dt>著作权人</dt>
+                <dd>{result.snapshot.owner}</dd>
+              </div>
+              {result.snapshot.version ? (
+                <div className="c-cert-detail__row">
+                  <dt>版本号</dt>
+                  <dd>{result.snapshot.version}</dd>
+                </div>
+              ) : null}
+              {result.snapshot.workCategory ? (
+                <div className="c-cert-detail__row">
+                  <dt>作品类型</dt>
+                  <dd>{result.snapshot.workCategory}</dd>
+                </div>
+              ) : null}
+              <div className="c-cert-detail__row">
+                <dt>登记日期</dt>
+                <dd>{result.snapshot.registerDate}</dd>
+              </div>
+              <div className="c-cert-detail__row">
+                <dt>登记机构</dt>
+                <dd>{result.snapshot.agency}</dd>
+              </div>
+              <div className="c-cert-detail__row">
+                <dt>当前状态</dt>
+                <dd>{result.snapshot.currentStatus}</dd>
+              </div>
+            </dl>
+          </>
         ) : null}
 
         <p className="c-cert-detail__disclaimer">

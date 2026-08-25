@@ -238,8 +238,11 @@ export function exportAccountDailyCsv() {
   );
 }
 
-export function exportAccountProductDailyCsv() {
+export function exportAccountProductDailyCsv(products?: ProductCode[]) {
   const { accountProductDays } = getStatsData();
+  const rows = products?.length
+    ? accountProductDays.filter((r) => products.includes(r.product))
+    : accountProductDays;
   downloadCsv(
     "账号产品调用明细报表.csv",
     [
@@ -253,7 +256,7 @@ export function exportAccountProductDailyCsv() {
       "当日该账号的状态",
       "当日该账号的服务期状态",
     ],
-    accountProductDays.map((r) => [
+    rows.map((r) => [
       r.date,
       r.account,
       r.companyName,
@@ -267,12 +270,15 @@ export function exportAccountProductDailyCsv() {
   );
 }
 
-export function exportProductDailyCsv() {
+export function exportProductDailyCsv(products?: ProductCode[]) {
   const { productDays } = getStatsData();
+  const rows = products?.length
+    ? productDays.filter((r) => products.includes(r.product))
+    : productDays;
   downloadCsv(
     "产品使用统计报表.csv",
     ["日期", "产品名称", "当日调用账号数", "当日调用量", "当日成功率"],
-    productDays.map((r) => [
+    rows.map((r) => [
       r.date,
       r.productLabel,
       String(r.activeAccounts),

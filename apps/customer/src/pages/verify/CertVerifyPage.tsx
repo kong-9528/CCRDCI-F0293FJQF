@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from "react";
+import { ProductUsagePanel } from "@/components/ProductUsagePanel";
+import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import {
@@ -264,6 +266,8 @@ export function CertVerifyPage() {
         </div>
       </div>
 
+      <ProductUsagePanel product="certificate" />
+
       <div className="a-card">
         <div className="a-card__head">
           核验记录
@@ -436,6 +440,8 @@ export function CertVerifyPage() {
           </div>
         </div>
       </div>
+
+      <ServiceDisclaimer />
 
       <CertDetailDrawer
         open={Boolean(detail)}
