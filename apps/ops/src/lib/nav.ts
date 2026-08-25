@@ -19,7 +19,7 @@ export const OPS_NAV: NavGroup[] = [
     title: "客户管理",
     items: [
       { to: "/customers", label: "客户账号列表", ready: true },
-      { to: "/customer-services", label: "客户产品服务", ready: true },
+      { to: "/customer-services", label: "服务产品管理", ready: true },
     ],
   },
   {

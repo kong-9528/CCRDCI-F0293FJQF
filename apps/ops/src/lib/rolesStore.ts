@@ -52,7 +52,7 @@ export const PERMISSION_TREE: PermNode[] = [
       },
       {
         id: "customers.services",
-        label: "客户产品服务页",
+        label: "服务产品管理页",
         children: [
           { id: "customers.services.edit", label: "编辑按钮" },
           { id: "customers.services.create", label: "新增服务按钮" },

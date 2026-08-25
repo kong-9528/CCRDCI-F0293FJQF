@@ -32,7 +32,7 @@ const QUICK_ENTRIES: QuickEntry[] = [
   { id: "customers", label: "客户管理", to: "/customers", perms: ["customers.list"] },
   {
     id: "services",
-    label: "客户产品服务",
+    label: "服务产品管理",
     to: "/customer-services",
     perms: ["customers.services"],
   },

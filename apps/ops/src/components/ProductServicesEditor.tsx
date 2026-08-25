@@ -17,7 +17,7 @@ type Props = {
   showUsed?: boolean;
   /** 编辑态展示服务状态列 */
   showStatus?: boolean;
-  /** 是否允许新增产品行（编辑客户账号时关闭，改由客户产品服务页处理） */
+  /** 是否允许新增产品行（编辑客户账号时关闭，改由服务产品管理页处理） */
   allowAdd?: boolean;
   /** 是否允许移除产品行（开通后不可移除） */
   allowRemove?: boolean;
@@ -57,7 +57,7 @@ export function ProductServicesEditor({
         规则：产品额度仅在「产品有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
         调用均不可再消耗。同一产品仅可配置一条。合同服务期仅用于提醒展示，不控制登录与调用。
         {!allowRemove
-          ? " 产品开通后不可移除；启停与调整请到「客户产品服务」处理。"
+          ? " 产品开通后不可移除；启停与调整请到「服务产品管理」处理。"
           : ""}
       </div>
       <div className="a-table-wrap">
@@ -215,7 +215,7 @@ export function ProductServicesEditor({
             .filter((r) => r.product)
             .map((r) => productName(r.product as ProductCode))
             .join("、")}
-          。新增 / 调整 / 启停请前往「客户产品服务」。
+          。新增 / 调整 / 启停请前往「服务产品管理」。
         </div>
       ) : null}
     </div>
