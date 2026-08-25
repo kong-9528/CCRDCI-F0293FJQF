@@ -127,6 +127,12 @@
         linear-gradient(180deg, rgba(10, 80, 150, 0.15), rgba(7, 60, 120, 0.35));
     }
 
+    .brand__content {
+      position: relative;
+      z-index: 2;
+      max-width: 340px;
+    }
+
     .brand__mark {
       display: inline-flex;
       align-items: center;
@@ -163,7 +169,6 @@
       font-size: clamp(28px, 3.2vw, 36px);
       line-height: 1.25;
       font-weight: 700;
-      max-width: 12em;
       text-shadow: 0 2px 24px rgba(0, 40, 90, 0.25);
     }
 
@@ -172,31 +177,35 @@
       font-size: 15px;
       line-height: 1.7;
       color: rgba(255, 255, 255, 0.82);
-      max-width: 28em;
     }
 
+    /* 配图：右侧中部氛围装饰，柔边融入背景，避免贴底硬裁切 */
     .brand__art {
       position: absolute;
-      right: -40px;
-      bottom: -30px;
-      width: min(340px, 70%);
-      opacity: 0.92;
+      z-index: 1;
+      top: 50%;
+      right: -8%;
+      width: min(420px, 88%);
+      aspect-ratio: 1;
+      transform: translateY(-42%);
       pointer-events: none;
-      filter: drop-shadow(0 16px 40px rgba(0, 40, 90, 0.35));
+      opacity: 0.78;
+      -webkit-mask-image: radial-gradient(ellipse 58% 58% at 52% 48%, #000 18%, transparent 72%);
+      mask-image: radial-gradient(ellipse 58% 58% at 52% 48%, #000 18%, transparent 72%);
     }
 
     .brand__art img {
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: cover;
       display: block;
-      border-radius: 16px;
       mix-blend-mode: screen;
-      opacity: 0.85;
+      filter: saturate(1.05) brightness(1.08);
     }
 
     .brand__footer {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       margin-top: 40px;
       font-size: 12px;
       color: rgba(255, 255, 255, 0.55);
@@ -413,12 +422,22 @@
       }
 
       .brand {
-        min-height: 220px;
+        min-height: 240px;
         padding: 32px 28px 28px;
       }
 
-      .brand h1 { font-size: 26px; max-width: none; }
-      .brand__art { width: 180px; opacity: 0.55; }
+      .brand__content { max-width: none; }
+      .brand h1 { font-size: 26px; }
+
+      .brand__art {
+        top: auto;
+        bottom: -12%;
+        right: -18%;
+        width: min(260px, 58%);
+        transform: none;
+        opacity: 0.45;
+      }
+
       .panel { padding: 32px 24px 28px; }
     }
 
@@ -452,7 +471,10 @@
 
   <main class="shell">
     <section class="brand">
-      <div>
+      <div class="brand__art" aria-hidden="true">
+        <img src="login-decor.png" alt="" width="420" height="420" onerror="this.parentElement.style.display='none'" />
+      </div>
+      <div class="brand__content">
         <div class="brand__mark">
           <span class="brand__logo">D</span>
           <span>DCI®技术服务中心</span>
@@ -462,9 +484,6 @@
         <p class="brand__lead">
           版权核验与智能辅助审核，支持 WebUI 与开放 API。请使用企业账号登录后进入工作台。
         </p>
-      </div>
-      <div class="brand__art">
-        <img src="login-decor.png" alt="" width="340" height="340" onerror="this.style.display='none'" />
       </div>
       <p class="brand__footer">演示环境 · 密码 demo123 · 找回验证码 1111</p>
     </section>
