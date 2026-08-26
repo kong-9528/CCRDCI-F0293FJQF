@@ -4,7 +4,9 @@ import { copyText } from "@/lib/keys";
 import {
   INFO_WORK_TYPE_LABEL,
   formatInfoFailReasons,
-  infoNameLabel,
+  infoSubmittedFieldRows,
+  infoVerifyPassed,
+  infoVerifyTitle,
   type InfoVerifyResult,
 } from "@/lib/verifyInfo";
 
@@ -78,9 +80,9 @@ function ShieldFailIcon() {
 export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
   if (!result) return null;
 
-  const ok = result.status === "match";
-  const nameLabel = infoNameLabel(result.workType);
+  const ok = infoVerifyPassed(result.status);
   const failReasons = formatInfoFailReasons(result);
+  const submittedRows = infoSubmittedFieldRows(result);
 
   const copyCode = async () => {
     const done = await copyText(result.verifyCode);
@@ -94,15 +96,9 @@ export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
         <div className={`c-cert-detail__status${ok ? "" : " is-fail"}`}>
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
-            <div className="c-cert-detail__status-title">
-              {ok
-                ? "版权信息核验匹配"
-                : result.status === "not_found"
-                  ? "未找到登记信息"
-                  : "版权信息核验未匹配"}
-            </div>
+            <div className="c-cert-detail__status-title">{infoVerifyTitle(result.status)}</div>
             {ok ? (
-              <span className="c-cert-detail__badge is-ok">核验通过</span>
+              <span className="c-cert-detail__badge is-ok">核验成功</span>
             ) : (
               <VerifyFailReasons reasons={failReasons} />
             )}
@@ -141,61 +137,15 @@ export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
 
         <div className="c-cert-detail__section-bar">提交信息</div>
         <dl className="c-cert-detail__meta">
-          <div className="c-cert-detail__row">
-            <dt>登记号</dt>
-            <dd>
-              <code>{result.regNo}</code>
-            </dd>
-          </div>
-          <div className="c-cert-detail__row">
-            <dt>{nameLabel}</dt>
-            <dd>{result.name || "—"}</dd>
-          </div>
-          <div className="c-cert-detail__row">
-            <dt>著作权人</dt>
-            <dd>{result.owner || "—"}</dd>
-          </div>
-          {result.workType === "work" ? (
-            <div className="c-cert-detail__row">
-              <dt>作品类型</dt>
-              <dd>{result.workCategory || "—"}</dd>
+          {submittedRows.map((row) => (
+            <div key={row.label} className="c-cert-detail__row">
+              <dt>{row.label}</dt>
+              <dd>
+                {row.label === "登记号" ? <code>{row.value}</code> : row.value}
+              </dd>
             </div>
-          ) : null}
-          {result.version ? (
-            <div className="c-cert-detail__row">
-              <dt>版本号</dt>
-              <dd>{result.version}</dd>
-            </div>
-          ) : null}
+          ))}
         </dl>
-
-        {result.snapshot ? (
-          <>
-            <div className="c-cert-detail__section-bar">系统登记信息</div>
-            <dl className="c-cert-detail__meta">
-              <div className="c-cert-detail__row">
-                <dt>{nameLabel}</dt>
-                <dd>{result.snapshot.name}</dd>
-              </div>
-              <div className="c-cert-detail__row">
-                <dt>著作权人</dt>
-                <dd>{result.snapshot.owner}</dd>
-              </div>
-              {result.workType === "work" && result.snapshot.workCategory ? (
-                <div className="c-cert-detail__row">
-                  <dt>作品类型</dt>
-                  <dd>{result.snapshot.workCategory}</dd>
-                </div>
-              ) : null}
-              {result.snapshot.version ? (
-                <div className="c-cert-detail__row">
-                  <dt>版本号</dt>
-                  <dd>{result.snapshot.version}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </>
-        ) : null}
 
         <p className="c-cert-detail__disclaimer">
           ※

@@ -12,8 +12,12 @@ import {
   MOCK_INFO_RECORDS,
   PAGE_SIZES,
   emptyInfoForm,
+  formatInfoFailReasons,
   formatInfoMismatchTags,
   infoNameLabel,
+  infoSubmittedFieldRows,
+  infoVerifyPassed,
+  infoVerifyTitle,
   validateInfoForm,
   verifyInfoOnce,
   type InfoVerifyInput,
@@ -242,96 +246,44 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            演示匹配：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致；
-            作品页签可试 2024ZP009999（星河旅人）故意填错类型/著作权人查看不一致
+            演示数据：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致可核验成功；
+            作品页签可试 2024ZP009999（星河旅人）故意填错类型/著作权人查看失败原因
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
 
           {latest ? (
             <div
-              className={`a-result${latest.status === "match" ? " a-result--ok" : " a-result--er"}`}
+              className={`a-result${infoVerifyPassed(latest.status) ? " a-result--ok" : " a-result--er"}`}
             >
               <div className="a-result__head">
                 <span
-                  className={`a-dot ${latest.status === "match" ? "a-dot--ok" : "a-dot--er"}`}
+                  className={`a-dot ${infoVerifyPassed(latest.status) ? "a-dot--ok" : "a-dot--er"}`}
                 />
-                <span className="a-result__title">
-                  {latest.status === "match"
-                    ? "信息匹配"
-                    : latest.status === "not_found"
-                      ? "未找到登记信息"
-                      : "未匹配"}
-                </span>
-                <span
-                  className={`a-tag ${latest.status === "match" ? "a-tag--ok" : "a-tag--er"}`}
-                >
-                  {INFO_STATUS_LABEL[latest.status]}
-                </span>
+                <span className="a-result__title">{infoVerifyTitle(latest.status)}</span>
               </div>
-              {latest.message ? <p className="c-verify-hint">{latest.message}</p> : null}
-              {formatInfoMismatchTags(latest) ? (
-                <p className="c-verify-hint">
-                  不一致字段：
-                  <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                    {formatInfoMismatchTags(latest)}
-                  </span>
-                </p>
-              ) : null}
-              <div className="a-desc">
-                <div className="a-desc__item">
-                  <span className="a-desc__label">核验编码</span>
+              <div className="a-desc c-dci-result-desc">
+                <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
+                  <span className="a-desc__label">核验编码：</span>
                   <span className="a-desc__value">{latest.verifyCode}</span>
+                  <span className="c-dci-result-desc__meta">{latest.verifiedAt}</span>
                 </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">登记号</span>
-                  <span className="a-desc__value">{latest.regNo}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">{nameLabel}</span>
-                  <span className="a-desc__value">
-                    {latest.name}
-                    {latest.mismatches?.includes("name") ? (
-                      <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
-                        不一致
-                      </span>
-                    ) : null}
-                  </span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">著作权人</span>
-                  <span className="a-desc__value">
-                    {latest.owner}
-                    {latest.mismatches?.includes("owner") ? (
-                      <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
-                        不一致
-                      </span>
-                    ) : null}
-                  </span>
-                </div>
-                {latest.version ? (
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">版本号</span>
-                    <span className="a-desc__value">{latest.version}</span>
-                  </div>
-                ) : null}
-                {latest.workType === "work" ? (
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">作品类型</span>
+                {infoSubmittedFieldRows(latest).map((row) => (
+                  <div key={row.label} className="a-desc__item">
+                    <span className="a-desc__label">{row.label}：</span>
                     <span className="a-desc__value">
-                      {latest.workCategory || "—"}
-                      {latest.mismatches?.includes("workCategory") ? (
-                        <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
-                          不一致
-                        </span>
-                      ) : null}
+                      {row.label === "登记号" ? <code>{row.value}</code> : row.value}
+                    </span>
+                  </div>
+                ))}
+                {!infoVerifyPassed(latest.status) && formatInfoFailReasons(latest).length > 0 ? (
+                  <div className="a-desc__item a-desc__item--wide">
+                    <span className="a-desc__label">原因：</span>
+                    <span className="a-desc__value">
+                      {formatInfoFailReasons(latest).join("；")}
                     </span>
                   </div>
                 ) : null}
-                <div className="a-desc__item">
-                  <span className="a-desc__label">核验时间</span>
-                  <span className="a-desc__value">{latest.verifiedAt}</span>
-                </div>
               </div>
             </div>
           ) : null}
@@ -443,37 +395,18 @@ export function InfoVerifyPage() {
                       <td>
                         <div className="a-cell-clamp" title={r.name}>
                           {r.name}
-                          {r.mismatches?.includes("name") ? (
-                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                              不一致
-                            </span>
-                          ) : null}
                         </div>
                       </td>
                       <td>
                         <div className="a-cell-clamp" title={r.owner}>
                           {r.owner}
-                          {r.mismatches?.includes("owner") ? (
-                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                              不一致
-                            </span>
-                          ) : null}
                         </div>
                       </td>
-                      {workType === "work" ? (
-                        <td>
-                          {r.workCategory || "—"}
-                          {r.mismatches?.includes("workCategory") ? (
-                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                              不一致
-                            </span>
-                          ) : null}
-                        </td>
-                      ) : null}
+                      {workType === "work" ? <td>{r.workCategory || "—"}</td> : null}
                       <td>{r.channel}</td>
                       <td>
                         <span
-                          className={`a-tag ${r.status === "match" ? "a-tag--ok" : "a-tag--er"}`}
+                          className={`a-tag ${infoVerifyPassed(r.status) ? "a-tag--ok" : "a-tag--er"}`}
                         >
                           {INFO_STATUS_LABEL[r.status]}
                         </span>

@@ -36,10 +36,20 @@ export const INFO_WORK_TYPE_LABEL: Record<InfoWorkType, string> = {
 };
 
 export const INFO_STATUS_LABEL: Record<InfoVerifyStatus, string> = {
-  match: "匹配",
-  mismatch: "未匹配",
-  not_found: "未找到",
+  match: "成功",
+  mismatch: "失败",
+  not_found: "失败",
 };
+
+export function infoVerifyPassed(status: InfoVerifyStatus): boolean {
+  return status === "match";
+}
+
+export function infoVerifyTitle(status: InfoVerifyStatus): string {
+  if (status === "match") return "核验成功";
+  if (status === "not_found") return "核验失败";
+  return "核验失败";
+}
 
 export const INFO_MISMATCH_LABEL: Record<InfoMismatchField, string> = {
   name: "名称",
@@ -283,6 +293,18 @@ export function formatInfoFailReasons(result: InfoVerifyResult): string[] {
   return result.message ? [result.message] : ["登记信息与系统记录不一致"];
 }
 
+/** 结果区仅展示用户提交过的字段 */
+export function infoSubmittedFieldRows(result: InfoVerifyResult) {
+  const rows: { label: string; value: string }[] = [
+    { label: "登记号", value: result.regNo },
+    { label: infoNameLabel(result.workType), value: result.name },
+    { label: "著作权人", value: result.owner },
+  ];
+  if (result.version) rows.push({ label: "版本号", value: result.version });
+  if (result.workCategory) rows.push({ label: "作品类型", value: result.workCategory });
+  return rows;
+}
+
 export async function verifyInfoOnce(
   workType: InfoWorkType,
   input: InfoVerifyInput,
@@ -307,8 +329,8 @@ export async function verifyInfoOnce(
       regNo,
       name,
       owner,
-      version,
-      workCategory,
+      ...(version ? { version } : {}),
+      ...(workCategory ? { workCategory } : {}),
       status: "not_found",
       verifiedAt: nowStamp(),
       channel: "WebUI",
@@ -318,12 +340,6 @@ export async function verifyInfoOnce(
           : "未找到该登记号",
     };
   } else {
-    const snapshot = {
-      name: hit.name,
-      owner: hit.owner,
-      workCategory: hit.workCategory,
-      version: hit.version,
-    };
     const mismatches: InfoMismatchField[] = [];
     if (normCompare(name) !== normCompare(hit.name)) mismatches.push("name");
     if (normCompare(owner) !== normCompare(hit.owner)) mismatches.push("owner");
@@ -344,13 +360,12 @@ export async function verifyInfoOnce(
         regNo,
         name,
         owner,
-        version: version || hit.version,
-        workCategory: workCategory || hit.workCategory,
+        ...(version ? { version } : {}),
+        ...(workCategory ? { workCategory } : {}),
         status: "mismatch",
         verifiedAt: nowStamp(),
         channel: "WebUI",
         mismatches,
-        snapshot,
         message: mismatchMessage(mismatches, workType),
       };
     } else {
@@ -361,12 +376,11 @@ export async function verifyInfoOnce(
         regNo,
         name,
         owner,
-        version: version || hit.version,
-        workCategory: workCategory || hit.workCategory,
+        ...(version ? { version } : {}),
+        ...(workCategory ? { workCategory } : {}),
         status: "match",
         verifiedAt: nowStamp(),
         channel: "WebUI",
-        snapshot,
       };
     }
   }

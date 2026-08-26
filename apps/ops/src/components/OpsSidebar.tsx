@@ -16,8 +16,10 @@ export function OpsSidebar({ collapsed }: Props) {
 
       <nav className="a-sidebar__nav">
         {OPS_NAV.map((group) => (
-          <div key={group.title}>
-            {!collapsed ? <div className="a-menu__group">{group.title}</div> : null}
+          <div key={group.title || group.items[0]?.to || "group"}>
+            {!collapsed && group.title ? (
+              <div className="a-menu__group">{group.title}</div>
+            ) : null}
             {group.items
               .filter((item) => !item.hidden)
               .map((item) =>

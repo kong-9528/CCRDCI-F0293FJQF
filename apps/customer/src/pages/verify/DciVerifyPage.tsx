@@ -16,6 +16,7 @@ import {
   WORK_TYPE_LABEL,
   dciNameLabel,
   emptyDciForm,
+  formatDciFailReasons,
   formatMismatchTags,
   isValidDciCode,
   normalizeDciCode,
@@ -68,25 +69,22 @@ function ResultCard({
 }) {
   const ok = result.status === "pass";
   const nameLabel = dciNameLabel(result.workType);
-  const mismatchText = formatMismatchTags(result);
   const title =
     result.status === "pass"
       ? "核验通过"
       : result.status === "not_found"
         ? "DCI不存在"
         : "核验未通过";
+  const reasons = formatDciFailReasons(result);
 
   return (
     <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
       <div className="a-result__head">
         <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
         <span className="a-result__title">{title}</span>
-        <span className={`a-tag ${ok ? "a-tag--ok" : "a-tag--er"}`}>
-          {STATUS_LABEL[result.status]}
-        </span>
       </div>
       <div className="a-desc c-dci-result-desc">
-        <div className="a-desc__item c-dci-result-desc__code">
+        <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
           <span className="a-desc__label">核验编码：</span>
           <span className="a-desc__value">{result.verifyCode}</span>
           <button
@@ -98,14 +96,7 @@ function ResultCard({
           >
             <CopyIcon />
           </button>
-        </div>
-        <div className="a-desc__item">
-          <span className="a-desc__label">核验人：</span>
-          <span className="a-desc__value">{result.verifier}</span>
-        </div>
-        <div className="a-desc__item">
-          <span className="a-desc__label">核验时间：</span>
-          <span className="a-desc__value">{result.verifiedAt}</span>
+          <span className="c-dci-result-desc__meta">{result.verifiedAt}</span>
         </div>
         <div className="a-desc__item">
           <span className="a-desc__label">DCI 核验码：</span>
@@ -115,38 +106,16 @@ function ResultCard({
         </div>
         <div className="a-desc__item">
           <span className="a-desc__label">著作权人：</span>
-          <span className="a-desc__value">
-            {result.queryOwner || "—"}
-            {result.mismatches?.includes("owner") ? (
-              <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
-                不一致
-              </span>
-            ) : null}
-          </span>
+          <span className="a-desc__value">{result.queryOwner || "—"}</span>
         </div>
         <div className="a-desc__item">
           <span className="a-desc__label">{nameLabel}：</span>
-          <span className="a-desc__value">
-            {result.queryName || "—"}
-            {result.mismatches?.includes("name") ? (
-              <span className="a-tag a-tag--er" style={{ marginLeft: 8 }}>
-                不一致
-              </span>
-            ) : null}
-          </span>
+          <span className="a-desc__value">{result.queryName || "—"}</span>
         </div>
-        {result.message ? (
+        {!ok && reasons.length > 0 ? (
           <div className="a-desc__item a-desc__item--wide">
-            <span className="a-desc__label">说明：</span>
-            <span className="a-desc__value">{result.message}</span>
-          </div>
-        ) : null}
-        {mismatchText ? (
-          <div className="a-desc__item a-desc__item--wide">
-            <span className="a-desc__label">不一致字段：</span>
-            <span className="a-desc__value">
-              <span className="a-tag a-tag--er">{mismatchText}</span>
-            </span>
+            <span className="a-desc__label">原因：</span>
+            <span className="a-desc__value">{reasons.join("；")}</span>
           </div>
         ) : null}
       </div>

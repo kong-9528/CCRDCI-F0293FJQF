@@ -10,14 +10,17 @@ type Props = {
   onConfirm: (draft: CertOcrDraft) => void;
 };
 
-const FIELDS: { key: keyof CertRecognition; label: string }[] = [
+const PRIMARY_FIELDS: { key: keyof CertRecognition; label: string }[] = [
   { key: "certTitleNo", label: "证书号" },
   { key: "workName", label: "软件名称" },
   { key: "owner", label: "著作权人" },
+  { key: "registerNo", label: "登记号" },
+];
+
+const SECONDARY_FIELDS: { key: keyof CertRecognition; label: string }[] = [
   { key: "acquireMethod", label: "权利取得方式" },
   { key: "rightScope", label: "权利范围" },
   { key: "registerDate", label: "登记日期" },
-  { key: "registerNo", label: "登记号" },
 ];
 
 export function CertConfirmModal({ open, loading, draft, onClose, onConfirm }: Props) {
@@ -70,6 +73,18 @@ export function CertConfirmModal({ open, loading, draft, onClose, onConfirm }: P
     });
   };
 
+  const renderField = ({ key, label }: { key: keyof CertRecognition; label: string }) => (
+    <div key={key} className="c-cert-confirm__row">
+      <span className="c-cert-confirm__label">{label}</span>
+      <input
+        className="c-cert-confirm__input"
+        value={form[key]}
+        onChange={(e) => setField(key, e.target.value)}
+        disabled={loading}
+      />
+    </div>
+  );
+
   return (
     <Modal
       open={open}
@@ -93,25 +108,18 @@ export function CertConfirmModal({ open, loading, draft, onClose, onConfirm }: P
       }
     >
       <div className="c-cert-confirm">
-        <div className="c-cert-confirm__tip" role="status">
-          <span className="c-cert-confirm__tip-icon" aria-hidden>
-            i
-          </span>
-          <span>请确认证书识别结果，核验将根据确认后的信息进行比对。</span>
-        </div>
+        <p className="c-cert-confirm__desc">
+          请核对识别结果，如有误可直接修改；确认后将据此进行核验。
+        </p>
 
-        <div className="c-cert-confirm__form">
-          {FIELDS.map(({ key, label }) => (
-            <label key={key} className="c-cert-confirm__row">
-              <span className="c-cert-confirm__label">{label}：</span>
-              <input
-                className="a-input"
-                value={form[key]}
-                onChange={(e) => setField(key, e.target.value)}
-                disabled={loading}
-              />
-            </label>
-          ))}
+        <div className="c-cert-confirm__panel">
+          <div className="c-cert-confirm__section">
+            {PRIMARY_FIELDS.map(renderField)}
+          </div>
+          <div className="c-cert-confirm__divider" />
+          <div className="c-cert-confirm__section c-cert-confirm__section--secondary">
+            {SECONDARY_FIELDS.map(renderField)}
+          </div>
         </div>
 
         {error ? <div className="a-field__error">{error}</div> : null}

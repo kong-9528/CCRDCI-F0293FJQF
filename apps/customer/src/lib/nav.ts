@@ -14,7 +14,7 @@ export type NavGroup = {
 /** 与 console-prototype.html 侧边栏一致 */
 export const CUSTOMER_NAV: NavGroup[] = [
   {
-    title: "概览",
+    title: "",
     items: [{ to: "/desk", label: "工作台", icon: "dashboard" }],
   },
   {

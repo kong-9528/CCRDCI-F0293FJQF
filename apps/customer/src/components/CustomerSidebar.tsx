@@ -17,8 +17,8 @@ export function CustomerSidebar({ collapsed }: Props) {
 
       <nav className="a-sidebar__nav">
         {CUSTOMER_NAV.map((group) => (
-          <div key={group.title}>
-            <div className="a-menu__group">{group.title}</div>
+          <div key={group.title || group.items[0]?.to || "group"}>
+            {group.title ? <div className="a-menu__group">{group.title}</div> : null}
             {group.items.map((item) => (
               <NavLink
                 key={item.to}

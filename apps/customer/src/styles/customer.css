@@ -1297,6 +1297,13 @@ body,
   font-weight: 600;
 }
 
+.c-dci-result-desc__meta {
+  margin-left: 12px;
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
+  font-weight: 400;
+}
+
 .c-dci-copy {
   display: inline-flex;
   align-items: center;
@@ -1694,58 +1701,82 @@ body,
   background: var(--p-50);
 }
 
-.c-cert-confirm__tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: #fff7e8;
-  color: #8a5a12;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.c-cert-confirm__tip-icon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
-  border-radius: 50%;
-  background: #f0a020;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  font-style: italic;
-  display: grid;
-  place-items: center;
-  line-height: 1;
-}
-
-.c-cert-confirm__form {
+.c-cert-confirm {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+.c-cert-confirm__desc {
+  margin: 0;
+  font-size: var(--ad-fs-sm);
+  color: var(--n-500);
+  line-height: 1.6;
+}
+
+.c-cert-confirm__panel {
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  background: var(--n-50);
+  overflow: hidden;
+}
+
+.c-cert-confirm__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.c-cert-confirm__section--secondary {
+  background: color-mix(in srgb, var(--n-0) 72%, var(--n-50));
+}
+
+.c-cert-confirm__divider {
+  height: 1px;
+  background: var(--n-200);
+}
+
 .c-cert-confirm__row {
   display: grid;
-  grid-template-columns: 112px 1fr;
+  grid-template-columns: 96px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
+  padding: 10px 14px;
+}
+
+.c-cert-confirm__row + .c-cert-confirm__row {
+  border-top: 1px solid var(--n-200);
 }
 
 .c-cert-confirm__label {
-  color: var(--n-600);
-  font-size: var(--ad-fs-body);
-  text-align: right;
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
   white-space: nowrap;
 }
 
-.c-cert-confirm__row .a-input {
+.c-cert-confirm__input {
   width: 100%;
   min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--n-800);
+  font: inherit;
+  line-height: 1.5;
+}
+
+.c-cert-confirm__input:focus {
+  outline: none;
+  box-shadow: inset 0 -1px 0 var(--p-500);
+}
+
+.c-cert-confirm__input:disabled {
+  color: var(--n-400);
+}
+
+.c-cert-confirm__section--secondary .c-cert-confirm__label,
+.c-cert-confirm__section--secondary .c-cert-confirm__input {
+  color: var(--n-600);
 }
 
 .c-cert-upload__icon {

@@ -14,7 +14,7 @@ export type NavGroup = {
 
 export const OPS_NAV: NavGroup[] = [
   {
-    title: "总览",
+    title: "",
     items: [{ to: "/dashboard", label: "首页", ready: true }],
   },
   {
