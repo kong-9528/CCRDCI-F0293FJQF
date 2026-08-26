@@ -196,7 +196,7 @@ export function KeysPage() {
 
       <div className="a-card">
         <div className="a-card__head">使用说明</div>
-        <div className="a-card__body a-stack" style={{ fontSize: "var(--ad-fs-sm)", color: "var(--n-600)" }}>
+        <div className="a-card__body c-keys-notes">
           <p>SecretKey 仅在创建或重置成功时展示一次，关闭弹窗后将无法再次查看。</p>
           <p>若忘记 SecretKey，请重置密钥对或删除后重新创建；重置后旧密钥立即失效。</p>
           <p>禁用密钥可临时阻断 API 调用，不会删除密钥，可随时重新启用。</p>

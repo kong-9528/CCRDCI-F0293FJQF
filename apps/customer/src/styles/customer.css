@@ -1867,6 +1867,20 @@ body,
   color: var(--er-700);
 }
 
+.c-keys-notes {
+  font-size: var(--ad-fs-sm);
+  color: var(--n-600);
+  line-height: 1.45;
+}
+
+.c-keys-notes p {
+  margin: 0;
+}
+
+.c-keys-notes p + p {
+  margin-top: 4px;
+}
+
 .c-keys-field__label {
   margin-bottom: 8px;
   font-size: var(--ad-fs-body);
