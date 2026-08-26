@@ -3,6 +3,8 @@ export type NavItem = {
   label: string;
   /** 未实现页仅占位 */
   ready?: boolean;
+  /** 侧栏不展示，但路由仍可直接访问 */
+  hidden?: boolean;
 };
 
 export type NavGroup = {
@@ -19,7 +21,7 @@ export const OPS_NAV: NavGroup[] = [
     title: "客户管理",
     items: [
       { to: "/customers", label: "客户账号列表", ready: true },
-      { to: "/customer-services", label: "服务产品管理", ready: true },
+      { to: "/customer-services", label: "服务产品管理", ready: true, hidden: true },
     ],
   },
   {

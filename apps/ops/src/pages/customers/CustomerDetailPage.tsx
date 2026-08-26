@@ -1,30 +1,42 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   ACCOUNT_STATUS_LABEL,
   CUSTOMER_TYPE_LABEL,
   SERVICE_STATUS_LABEL,
-  canConsumeQuota,
   deriveServiceStatus,
   formatQuota,
   productName,
+  type ProductServiceConfig,
 } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
+import { actionTypeLabel, getCustomerPortalLogs } from "@/lib/opLogsStore";
 
 type TabKey = "detail" | "usage" | "logs";
+
+function serviceStatusTagClass(
+  status: keyof typeof SERVICE_STATUS_LABEL,
+) {
+  if (status === "active") return "a-tag--ok";
+  if (status === "pending") return "a-tag--wn";
+  if (status === "stopped") return "a-tag--muted";
+  return "a-tag--er";
+}
 
 export function CustomerDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { getById, getLogs, getUsage } = useCustomerStore();
+  const { getById, getUsage, setProductStopped } = useCustomerStore();
   const customer = getById(id);
   const [tab, setTab] = useState<TabKey>("detail");
   const [logPage, setLogPage] = useState(1);
   const logPageSize = 10;
+  const [confirmSvc, setConfirmSvc] = useState<ProductServiceConfig | null>(null);
 
   const logs = useMemo(
-    () => (customer ? getLogs(customer.id) : []),
-    [customer, getLogs],
+    () => (customer ? getCustomerPortalLogs(customer.id) : []),
+    [customer],
   );
   const usage = useMemo(
     () => (customer ? getUsage(customer) : []),
@@ -170,42 +182,46 @@ export function CustomerDetailPage() {
                       <th>额度</th>
                       <th>有效期</th>
                       <th>服务状态</th>
-                      <th>当前可否调用</th>
+                      <th>操作</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {customer.productServices.map((svc) => {
-                      const status = deriveServiceStatus(svc);
-                      return (
-                        <tr key={svc.product}>
-                          <td>{productName(svc.product)}</td>
-                          <td>{formatQuota(svc)}</td>
-                          <td>
-                            {svc.startDate} ~ {svc.endDate}
-                          </td>
-                          <td>
-                            <span
-                              className={`a-tag ${
-                                status === "active"
-                                  ? "a-tag--ok"
-                                  : status === "pending"
-                                    ? "a-tag--wn"
-                                    : "a-tag--er"
-                              }`}
-                            >
-                              {SERVICE_STATUS_LABEL[status]}
-                            </span>
-                          </td>
-                          <td>
-                            {canConsumeQuota(svc) ? (
-                              <span className="a-tag a-tag--ok">可调用</span>
-                            ) : (
-                              <span className="a-tag a-tag--er">不可调用</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {customer.productServices.length === 0 ? (
+                      <tr>
+                        <td colSpan={5}>
+                          <div className="a-empty">暂无产品服务配置</div>
+                        </td>
+                      </tr>
+                    ) : (
+                      customer.productServices.map((svc) => {
+                        const status = deriveServiceStatus(svc);
+                        return (
+                          <tr key={svc.product}>
+                            <td>{productName(svc.product)}</td>
+                            <td>{formatQuota(svc)}</td>
+                            <td>
+                              {svc.startDate} ~ {svc.endDate}
+                            </td>
+                            <td>
+                              <span className={`a-tag ${serviceStatusTagClass(status)}`}>
+                                {SERVICE_STATUS_LABEL[status]}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="a-actions">
+                                <button
+                                  type="button"
+                                  className="a-btn a-btn--text a-btn--sm"
+                                  onClick={() => setConfirmSvc(svc)}
+                                >
+                                  {svc.stopped ? "恢复" : "停止"}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -222,13 +238,12 @@ export function CustomerDetailPage() {
                   <th>产品</th>
                   <th>产品服务状态</th>
                   <th>历史累积调用次数</th>
-                  <th>历史累积成功率</th>
                 </tr>
               </thead>
               <tbody>
                 {usage.length === 0 ? (
                   <tr>
-                    <td colSpan={5}>
+                    <td colSpan={4}>
                       <div className="a-empty">暂无产品使用数据</div>
                     </td>
                   </tr>
@@ -253,7 +268,6 @@ export function CustomerDetailPage() {
                         </span>
                       </td>
                       <td className="num">{row.totalCalls.toLocaleString()}</td>
-                      <td className="num">{row.successRate.toFixed(1)}%</td>
                     </tr>
                   ))
                 )}
@@ -267,10 +281,10 @@ export function CustomerDetailPage() {
             <table className="a-table">
               <thead>
                 <tr>
-                  <th>操作时间</th>
-                  <th>摘要</th>
-                  <th>变更明细</th>
+                  <th>操作类型</th>
+                  <th>操作内容</th>
                   <th>操作人</th>
+                  <th>操作时间</th>
                 </tr>
               </thead>
               <tbody>
@@ -283,18 +297,12 @@ export function CustomerDetailPage() {
                 ) : (
                   logRows.map((log) => (
                     <tr key={log.id}>
-                      <td>{log.at}</td>
-                      <td>{log.summary}</td>
+                      <td>{actionTypeLabel("portal", log.actionType)}</td>
+                      <td>{log.content}</td>
                       <td>
-                        <div className="a-log-changes">
-                          {log.changes.map((c, i) => (
-                            <div key={`${log.id}-${i}`}>
-                              <b>{c.field}</b>：{c.before} → {c.after}
-                            </div>
-                          ))}
-                        </div>
+                        <code>{log.operator}</code>
                       </td>
-                      <td>{log.operator}</td>
+                      <td>{log.operatedAt}</td>
                     </tr>
                   ))
                 )}
@@ -322,6 +330,24 @@ export function CustomerDetailPage() {
           </div>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmSvc)}
+        title={confirmSvc?.stopped ? "确认恢复服务" : "确认停止服务"}
+        description={
+          confirmSvc
+            ? `确定要${confirmSvc.stopped ? "恢复" : "停止"}账号「${customer.account}」的产品「${productName(confirmSvc.product)}」吗？`
+            : ""
+        }
+        confirmText={confirmSvc?.stopped ? "恢复" : "停止"}
+        danger={!confirmSvc?.stopped}
+        onCancel={() => setConfirmSvc(null)}
+        onConfirm={() => {
+          if (!confirmSvc) return;
+          setProductStopped(customer.id, confirmSvc.product, !confirmSvc.stopped);
+          setConfirmSvc(null);
+        }}
+      />
     </div>
   );
 }

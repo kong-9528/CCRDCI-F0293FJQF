@@ -8,7 +8,9 @@ import {
   getStatsData,
   refreshStatsData,
   sliceDates,
+  sumApiCalls,
   sumCalls,
+  sumPageSubmitCalls,
   type TrendRange,
 } from "@/lib/statsData";
 import { getCurrentUserPermissions } from "@/lib/usersStore";
@@ -93,15 +95,30 @@ export function DashboardPage() {
 
   const totalAccounts = data.customers.length;
   const totalCalls = sumCalls(data.accountDays);
+  const pageSubmitCalls = sumPageSubmitCalls(data.accountDays);
+  const apiCalls = sumApiCalls(data.accountDays);
+
+  const overviewMetrics = [
+    { label: "总账号数", value: totalAccounts },
+    { label: "总调用次数", value: totalCalls.toLocaleString() },
+    { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
+    { label: "API调用次数", value: apiCalls.toLocaleString() },
+  ];
 
   const productBoard = PRODUCTS.map((p) => {
+    const all = data.productDays.filter((r) => r.product === p.code);
     const accounts = data.customers.filter((c) =>
       c.productServices.some((s) => s.product === p.code),
     ).length;
-    const calls = sumCalls(
-      data.accountProductDays.filter((r) => r.product === p.code),
-    );
-    return { code: p.code, name: p.name, category: p.category, accounts, calls };
+    return {
+      code: p.code,
+      name: p.name,
+      category: p.category,
+      accounts,
+      totalCalls: sumCalls(all),
+      pageSubmitCalls: sumPageSubmitCalls(all),
+      apiCalls: sumApiCalls(all),
+    };
   });
 
   const [trendRange, setTrendRange] = useState<TrendRange>("7d");
@@ -145,75 +162,64 @@ export function DashboardPage() {
     <div className="a-stack">
       {showBoard ? (
         <>
-          <section className="a-card a-dash-panel a-dash-panel--overview">
-            <div className="a-card__head a-dash-panel__head">
-              <span className="a-dash-panel__title">总览</span>
-              <span className="a-dash-panel__hint">全平台累计</span>
-            </div>
-            <div className="a-card__body a-dash-panel__body">
-              <div className="a-dash-kpis">
-                <article className="a-dash-kpi a-dash-kpi--accounts">
-                  <div className="a-dash-kpi__glow" aria-hidden />
-                  <div className="a-dash-kpi__meta">
-                    <span className="a-dash-kpi__eyebrow">Accounts</span>
-                    <span className="a-dash-kpi__label">总账号数</span>
-                  </div>
-                  <div className="a-dash-kpi__value">{totalAccounts}</div>
-                  <div className="a-dash-kpi__foot">已开通客户账号</div>
-                </article>
-                <article className="a-dash-kpi a-dash-kpi--calls">
-                  <div className="a-dash-kpi__glow" aria-hidden />
-                  <div className="a-dash-kpi__meta">
-                    <span className="a-dash-kpi__eyebrow">Invocations</span>
-                    <span className="a-dash-kpi__label">总调用次数</span>
-                  </div>
-                  <div className="a-dash-kpi__value">
-                    {totalCalls.toLocaleString()}
-                  </div>
-                  <div className="a-dash-kpi__foot">全产品历史累计</div>
-                </article>
-              </div>
+          <section className="a-card a-dash-panel a-dash-panel--stats-board">
+            <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
+              <article className="a-stats-strip a-stats-strip--customer">
+                <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+                  {overviewMetrics.map((item) => (
+                    <div key={item.label} className="a-stats-strip__cell">
+                      <span className="a-stats-strip__value">{item.value}</span>
+                      <span className="a-stats-strip__label">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
             </div>
           </section>
 
-          <section className="a-card a-dash-panel a-dash-panel--products">
-            <div className="a-card__head a-dash-panel__head">
-              <span className="a-dash-panel__title">分产品概况</span>
-              <span className="a-dash-panel__hint">按产品拆分账号与调用</span>
-            </div>
-            <div className="a-card__body a-dash-panel__body">
-              <div className="a-dash-products">
-                {productBoard.map((p, i) => (
-                  <article
-                    key={p.code}
-                    className={`a-dash-product a-dash-product--${p.category}`}
-                    style={{ animationDelay: `${i * 40}ms` }}
-                  >
-                    <header className="a-dash-product__head">
-                      <span className="a-dash-product__index" aria-hidden>
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <div className="a-dash-product__titles">
-                        <span className="a-dash-product__tag">
-                          {p.category === "verify" ? "版权核验" : "智能审核"}
-                        </span>
-                        <h3 className="a-dash-product__name">{p.name}</h3>
+          <section className="a-card a-dash-panel a-dash-panel--product-board">
+            <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
+              <div className="a-product-board a-product-board--compact">
+                {productBoard.map((p, i) => {
+                  const showChannelMetrics = p.category === "verify";
+                  const metrics = showChannelMetrics
+                    ? [
+                        { label: "总账号数", value: String(p.accounts) },
+                        { label: "总调用次数", value: p.totalCalls.toLocaleString() },
+                        { label: "页面提交次数", value: p.pageSubmitCalls.toLocaleString() },
+                        { label: "API调用次数", value: p.apiCalls.toLocaleString() },
+                      ]
+                    : [
+                        { label: "总账号数", value: String(p.accounts) },
+                        { label: "总调用次数", value: p.totalCalls.toLocaleString() },
+                      ];
+
+                  return (
+                    <article
+                      key={p.code}
+                      className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
+                      style={{ animationDelay: `${i * 45}ms` }}
+                    >
+                      <header className="a-product-board__head">
+                        <h3 className="a-product-board__name">{p.name}</h3>
+                      </header>
+                      <div
+                        className={`a-stats-strip__metrics a-product-board__metrics${
+                          showChannelMetrics
+                            ? " a-stats-strip__metrics--4"
+                            : " a-stats-strip__metrics--2"
+                        }`}
+                      >
+                        {metrics.map((item) => (
+                          <div key={item.label} className="a-stats-strip__cell">
+                            <span className="a-stats-strip__value">{item.value}</span>
+                            <span className="a-stats-strip__label">{item.label}</span>
+                          </div>
+                        ))}
                       </div>
-                    </header>
-                    <div className="a-dash-product__metrics">
-                      <div className="a-dash-product__metric">
-                        <span className="a-dash-product__metric-label">总账号数</span>
-                        <span className="a-dash-product__metric-value">{p.accounts}</span>
-                      </div>
-                      <div className="a-dash-product__metric a-dash-product__metric--accent">
-                        <span className="a-dash-product__metric-label">总调用次数</span>
-                        <span className="a-dash-product__metric-value">
-                          {p.calls.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>

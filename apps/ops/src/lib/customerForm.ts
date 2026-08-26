@@ -23,6 +23,8 @@ export type ProductFormRow = {
   endDate: string;
   stopped: boolean;
   usedCount: number;
+  /** 本次编辑过程中新增的配置行（可移除、可改选产品） */
+  isNew?: boolean;
 };
 
 export type CustomerFormState = {
@@ -57,6 +59,7 @@ export function emptyProductRow(defaults?: {
     endDate: defaults?.endDate ?? "",
     stopped: false,
     usedCount: 0,
+    isNew: true,
   };
 }
 
@@ -110,47 +113,71 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
             endDate: s.endDate,
             stopped: s.stopped,
             usedCount: s.usedCount,
+            isNew: false,
           }))
         : [emptyProductRow({ startDate: c.contractStart, endDate: c.contractEnd })],
   };
 }
 
+function productRowLabel(row: ProductFormRow, index: number) {
+  if (row.product) {
+    return `「${PRODUCTS.find((p) => p.code === row.product)?.name ?? row.product}」`;
+  }
+  return `第 ${index + 1} 行配置`;
+}
+
 export function parseProductServices(
   rows: ProductFormRow[],
 ): { ok: true; value: ProductServiceConfig[] } | { ok: false; error: string } {
-  const cleaned = rows.filter((r) => r.product);
-  if (cleaned.length === 0) {
+  if (rows.length === 0) {
     return { ok: false, error: "请至少配置一项产品服务" };
   }
   const seen = new Set<string>();
   const value: ProductServiceConfig[] = [];
-  for (const r of cleaned) {
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const label = productRowLabel(r, i);
+    if (!r.product) {
+      return { ok: false, error: `${label}：请选择产品` };
+    }
     if (seen.has(r.product)) {
       return {
         ok: false,
-        error: `产品「${PRODUCTS.find((p) => p.code === r.product)?.name}」只能配置一条`,
+        error: `产品${label}只能配置一条`,
       };
     }
     seen.add(r.product);
-    if (!r.startDate || !r.endDate) {
-      return { ok: false, error: "每项产品需填写有效期起止日期" };
-    }
-    if (r.startDate > r.endDate) {
-      return { ok: false, error: "产品有效期开始日期不能晚于结束日期" };
+    if (!r.quotaType) {
+      return { ok: false, error: `${label}：请选择额度类型` };
     }
     let quotaTotal: number | null = null;
     if (r.quotaType === "total") {
+      if (!r.quotaTotal.trim()) {
+        return { ok: false, error: `${label}：请填写总量额度` };
+      }
       const n = Number(r.quotaTotal);
       if (!Number.isInteger(n) || n <= 0) {
-        return { ok: false, error: "按总量配置时，额度须为正整数" };
+        return { ok: false, error: `${label}：总量额度须为正整数` };
       }
       if (n < r.usedCount) {
         return {
           ok: false,
-          error: `「${PRODUCTS.find((p) => p.code === r.product)?.name}」新额度不能小于已用次数 ${r.usedCount}`,
+          error: `${label}：新额度不能小于已用次数 ${r.usedCount}`,
         };
       }
       quotaTotal = n;
+    }
+    if (!r.startDate && !r.endDate) {
+      return { ok: false, error: `${label}：请填写有效期起止日期` };
+    }
+    if (!r.startDate) {
+      return { ok: false, error: `${label}：请填写有效期开始日期` };
+    }
+    if (!r.endDate) {
+      return { ok: false, error: `${label}：请填写有效期结束日期` };
+    }
+    if (r.startDate > r.endDate) {
+      return { ok: false, error: `${label}：有效期开始日期不能晚于结束日期` };
     }
     value.push({
       product: r.product as ProductCode,

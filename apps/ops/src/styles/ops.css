@@ -805,6 +805,98 @@ body,
   line-height: 1.35;
 }
 
+/* 统计概览：单行指标条（无分组标题） */
+.a-stats-strip {
+  border-radius: 12px;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(9, 109, 217, 0.16);
+}
+
+.a-stats-strip--customer {
+  background: linear-gradient(90deg, #40a9ff 0%, #096dd9 100%);
+}
+
+.a-stats-strip__metrics {
+  display: grid;
+  gap: 0;
+}
+
+.a-stats-strip__metrics--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.a-stats-strip__metrics--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.a-stats-strip__cell {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.a-stats-strip__cell + .a-stats-strip__cell {
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.a-stats-strip__value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.a-stats-strip__label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.35;
+}
+
+.a-product-board__metrics {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.a-product-board--compact .a-product-board__card {
+  min-height: unset;
+}
+
+.a-product-board--compact .a-product-board__head {
+  padding: 10px 14px 8px;
+}
+
+.a-product-board--compact .a-product-board__metrics {
+  margin-top: 0;
+}
+
+.a-product-board--compact .a-product-board__metrics .a-stats-strip__cell {
+  padding: 10px 12px 12px;
+}
+
+.a-product-board--compact .a-product-board__metrics .a-stats-strip__value {
+  font-size: 16px;
+}
+
+.a-product-board--compact .a-product-board__metrics .a-stats-strip__label {
+  font-size: 10px;
+}
+
+.a-dash-panel__body--compact {
+  padding: var(--ad-sp-3);
+}
+
+.a-dash-panel--stats-board .a-card__body,
+.a-dash-panel--product-board .a-card__body {
+  padding-top: var(--ad-sp-3);
+}
+
 /* ---------- 产品使用统计：分产品表盘 ---------- */
 .a-product-board {
   display: grid;
@@ -929,6 +1021,10 @@ body,
 
   .a-product-board {
     grid-template-columns: 1fr;
+  }
+
+  .a-stats-strip__metrics--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .a-product-board__groups {
@@ -1374,6 +1470,10 @@ body,
 
 .a-table-wrap {
   overflow: auto;
+}
+
+.a-product-services-editor .a-table-wrap {
+  overflow: visible;
 }
 
 .a-log-changes {

@@ -222,8 +222,7 @@ export function CustomerEditPage() {
                 endDate: original.contractEnd,
               }}
               showStatus
-              allowAdd={false}
-              allowRemove={false}
+              mode="edit"
             />
           </section>
 

@@ -436,7 +436,6 @@ export function getCustomerUsage(customer: CustomerAccount): ProductUsageStat[] 
     product: svc.product,
     serviceStatus: deriveServiceStatus(svc),
     totalCalls: svc.usedCount,
-    successRate: svc.usedCount === 0 ? 100 : Math.min(99.8, 92 + (svc.usedCount % 7)),
   }));
 }
 

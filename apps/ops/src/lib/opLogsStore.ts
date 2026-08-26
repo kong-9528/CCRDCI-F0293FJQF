@@ -6,6 +6,8 @@ export type OpLogScope = "portal" | "ops";
 export type OpLog = {
   id: string;
   scope: OpLogScope;
+  /** 客户控制台日志：所属客户账号 ID */
+  customerId?: string;
   /** 操作类型编码 */
   actionType: string;
   content: string;
@@ -53,14 +55,16 @@ const LOGS: OpLog[] = [
   {
     id: "p1",
     scope: "portal",
+    customerId: "1",
     actionType: "login",
-    content: "账号 acme_admin 登录成功",
+    content: "登录客户控制台",
     operator: "acme_admin",
     operatedAt: "2026-08-20 09:12:03",
   },
   {
     id: "p2",
     scope: "portal",
+    customerId: "1",
     actionType: "verify_single",
     content: "提交 DCI 核验（软件），任务号 T20260820001",
     operator: "acme_admin",
@@ -69,6 +73,7 @@ const LOGS: OpLog[] = [
   {
     id: "p3",
     scope: "portal",
+    customerId: "1",
     actionType: "verify_batch",
     content: "批量核验上传 120 条，产品：版权信息核验",
     operator: "acme_ops",
@@ -77,6 +82,7 @@ const LOGS: OpLog[] = [
   {
     id: "p4",
     scope: "portal",
+    customerId: "1",
     actionType: "view_result",
     content: "查看核验结果详情，任务号 T20260819088",
     operator: "acme_ops",
@@ -85,26 +91,92 @@ const LOGS: OpLog[] = [
   {
     id: "p5",
     scope: "portal",
+    customerId: "3",
     actionType: "audit_submit",
     content: "提交内容安全审核，资源 ID R-88921",
-    operator: "beta_user",
+    operator: "pixel_admin",
     operatedAt: "2026-08-18 11:20:08",
   },
   {
     id: "p6",
     scope: "portal",
+    customerId: "3",
     actionType: "change_password",
     content: "修改登录密码",
-    operator: "beta_user",
+    operator: "pixel_admin",
     operatedAt: "2026-08-17 14:33:55",
   },
   {
     id: "p7",
     scope: "portal",
+    customerId: "1",
     actionType: "logout",
     content: "主动退出登录",
     operator: "acme_admin",
     operatedAt: "2026-08-20 12:01:00",
+  },
+  {
+    id: "p8",
+    scope: "portal",
+    customerId: "1",
+    actionType: "verify_single",
+    content: "提交版权证书核验，证书编号 CR-20260818012",
+    operator: "acme_admin",
+    operatedAt: "2026-08-18 10:22:15",
+  },
+  {
+    id: "p9",
+    scope: "portal",
+    customerId: "2",
+    actionType: "login",
+    content: "登录客户控制台",
+    operator: "north_admin",
+    operatedAt: "2026-08-20 08:40:18",
+  },
+  {
+    id: "p10",
+    scope: "portal",
+    customerId: "2",
+    actionType: "verify_batch",
+    content: "批量核验上传 56 条，产品：DCI核验",
+    operator: "north_admin",
+    operatedAt: "2026-08-20 09:05:33",
+  },
+  {
+    id: "p11",
+    scope: "portal",
+    customerId: "2",
+    actionType: "audit_submit",
+    content: "提交作品登记查重，作品 ID W-77201",
+    operator: "north_editor",
+    operatedAt: "2026-08-19 14:18:09",
+  },
+  {
+    id: "p12",
+    scope: "portal",
+    customerId: "2",
+    actionType: "view_result",
+    content: "查看查重结果详情，作品 ID W-77201",
+    operator: "north_editor",
+    operatedAt: "2026-08-19 15:02:44",
+  },
+  {
+    id: "p13",
+    scope: "portal",
+    customerId: "3",
+    actionType: "login",
+    content: "登录客户控制台",
+    operator: "pixel_admin",
+    operatedAt: "2026-08-16 09:30:00",
+  },
+  {
+    id: "p14",
+    scope: "portal",
+    customerId: "3",
+    actionType: "view_result",
+    content: "查看内容安全审核结果，资源 ID R-88921",
+    operator: "pixel_admin",
+    operatedAt: "2026-08-18 15:40:22",
   },
   {
     id: "o1",
@@ -201,6 +273,13 @@ export function filterOpLogs(scope: OpLogScope, filters: OpLogFilters): OpLog[] 
     if (filters.to && day > filters.to) return false;
     return true;
   }).sort((a, b) => b.operatedAt.localeCompare(a.operatedAt));
+}
+
+/** 客户详情页：该客户在控制台的使用操作日志 */
+export function getCustomerPortalLogs(customerId: string): OpLog[] {
+  return LOGS.filter((log) => log.scope === "portal" && log.customerId === customerId).sort(
+    (a, b) => b.operatedAt.localeCompare(a.operatedAt),
+  );
 }
 
 export function useOpLogOptions(scope: OpLogScope) {

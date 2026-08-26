@@ -60,6 +60,8 @@ export type AccountDayStat = {
   companyName: string;
   contactName: string;
   calls: number;
+  pageSubmitCalls: number;
+  apiCalls: number;
   successRate: number;
   accountStatus: string;
   periodStatus: string;
@@ -74,6 +76,8 @@ export type AccountProductDayStat = {
   product: ProductCode;
   productLabel: string;
   calls: number;
+  pageSubmitCalls: number;
+  apiCalls: number;
   successRate: number;
   accountStatus: string;
   periodStatus: string;
@@ -85,6 +89,8 @@ export type ProductDayStat = {
   productLabel: string;
   activeAccounts: number;
   calls: number;
+  pageSubmitCalls: number;
+  apiCalls: number;
   successRate: number;
 };
 
@@ -101,6 +107,8 @@ function buildMock() {
       const base = hash(`${c.id}:${date}`);
       const active = seeded(base, 0, 10) > 2;
       const calls = active ? seeded(base + 1, 20, 480) : 0;
+      const pageSubmitCalls = active ? seeded(base + 4, 0, calls) : 0;
+      const apiCalls = calls - pageSubmitCalls;
       const successRate =
         calls === 0 ? 0 : Number((90 + seeded(base + 2, 0, 99) / 10).toFixed(1));
       accountDays.push({
@@ -110,6 +118,8 @@ function buildMock() {
         companyName: c.companyName,
         contactName: c.contactName,
         calls,
+        pageSubmitCalls,
+        apiCalls,
         successRate,
         accountStatus: ACCOUNT_STATUS_LABEL[c.status],
         periodStatus: PERIOD_STATUS_LABEL[listPeriodStatus(c)],
@@ -119,6 +129,9 @@ function buildMock() {
         const pb = hash(`${c.id}:${svc.product}:${date}`);
         const pActive = active && seeded(pb, 0, 10) > 3;
         const pCalls = pActive ? seeded(pb + 1, 5, 160) : 0;
+        const isAudit = PRODUCTS.find((item) => item.code === svc.product)?.category === "audit";
+        const pageSubmitCalls = isAudit || !pActive ? 0 : seeded(pb + 4, 0, pCalls);
+        const apiCalls = pCalls - pageSubmitCalls;
         const pRate =
           pCalls === 0 ? 0 : Number((88 + seeded(pb + 2, 0, 110) / 10).toFixed(1));
         accountProductDays.push({
@@ -130,6 +143,8 @@ function buildMock() {
           product: svc.product,
           productLabel: productName(svc.product),
           calls: pCalls,
+          pageSubmitCalls,
+          apiCalls,
           successRate: pRate,
           accountStatus: ACCOUNT_STATUS_LABEL[c.status],
           periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(svc.startDate, svc.endDate)],
@@ -142,6 +157,8 @@ function buildMock() {
         (r) => r.date === date && r.product === p.code,
       );
       const calls = rows.reduce((s, r) => s + r.calls, 0);
+      const pageSubmitCalls = rows.reduce((s, r) => s + r.pageSubmitCalls, 0);
+      const apiCalls = rows.reduce((s, r) => s + r.apiCalls, 0);
       const activeAccounts = rows.filter((r) => r.calls > 0).length;
       const weighted = rows.reduce((s, r) => s + r.calls * r.successRate, 0);
       productDays.push({
@@ -150,6 +167,8 @@ function buildMock() {
         productLabel: p.name,
         activeAccounts,
         calls,
+        pageSubmitCalls,
+        apiCalls,
         successRate: calls === 0 ? 0 : Number((weighted / calls).toFixed(1)),
       });
     }
@@ -183,6 +202,14 @@ export function sliceDates(period: StatsPeriod | TrendRange): string[] {
 
 export function sumCalls(rows: { calls: number }[]) {
   return rows.reduce((s, r) => s + r.calls, 0);
+}
+
+export function sumPageSubmitCalls(rows: { pageSubmitCalls: number }[]) {
+  return rows.reduce((s, r) => s + r.pageSubmitCalls, 0);
+}
+
+export function sumApiCalls(rows: { apiCalls: number }[]) {
+  return rows.reduce((s, r) => s + r.apiCalls, 0);
 }
 
 export function avgSuccessRate(rows: { calls: number; successRate: number }[]) {

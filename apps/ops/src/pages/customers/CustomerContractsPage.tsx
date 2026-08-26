@@ -171,7 +171,7 @@ export function CustomerContractsPage() {
               </div>
             </div>
             <div className="a-field__hint" style={{ margin: 0 }}>
-              合同按开始日期倒序排列。每次签约 / 续约请新增一条合同记录；开通后不可删除。
+              合同按开始日期倒序排列。每次签约 / 续约请新增一条合同记录。
             </div>
           </div>
         </div>

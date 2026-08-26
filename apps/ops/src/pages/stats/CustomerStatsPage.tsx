@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
-  StatsPeriodToggle,
   TrendRangeToggle,
   SegmentedControl,
 } from "@/components/StatsControls";
@@ -12,8 +11,9 @@ import {
   getStatsData,
   refreshStatsData,
   sliceDates,
+  sumApiCalls,
   sumCalls,
-  type StatsPeriod,
+  sumPageSubmitCalls,
   type TrendRange,
 } from "@/lib/statsData";
 
@@ -24,6 +24,8 @@ const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   activeAccounts: "日调用账号数",
 };
 
+const TREND_METRIC_OPTIONS: TrendMetric[] = ["activeAccounts", "calls"];
+
 export function CustomerStatsPage() {
   useCustomerStore();
   const data = useMemo(() => {
@@ -31,23 +33,16 @@ export function CustomerStatsPage() {
     return getStatsData();
   }, []);
 
-  const [boardPeriod, setBoardPeriod] = useState<StatsPeriod>("7d");
   const [trendRange, setTrendRange] = useState<TrendRange>("30d");
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  const boardDates = sliceDates(boardPeriod);
-  const periodLabel =
-    boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日";
-  const boardRows = data.accountDays.filter((r) => boardDates.includes(r.date));
   const totalAccounts = data.customers.length;
-  const activeAccounts = new Set(
-    boardRows.filter((r) => r.calls > 0).map((r) => r.customerId),
-  ).size;
   const totalCallsAll = sumCalls(data.accountDays);
-  const periodCalls = sumCalls(boardRows);
+  const pageSubmitCalls = sumPageSubmitCalls(data.accountDays);
+  const apiCalls = sumApiCalls(data.accountDays);
 
   const trendDates = sliceDates(trendRange);
   const trendValues = trendDates.map((date) => {
@@ -80,54 +75,27 @@ export function CustomerStatsPage() {
   const safePage = Math.min(page, totalPages);
   const pageRows = rankRows.slice((safePage - 1) * pageSize, safePage * pageSize);
 
+  const overviewMetrics = [
+    { label: "总账号数", value: totalAccounts },
+    { label: "总调用次数", value: totalCallsAll.toLocaleString() },
+    { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
+    { label: "API调用次数", value: apiCalls.toLocaleString() },
+  ];
+
   return (
     <div className="a-stack">
       <section className="a-card a-dash-panel a-dash-panel--stats-board">
-        <div className="a-card__head a-dash-panel__head">
-          <span className="a-dash-panel__title">账号概览</span>
-          <div className="a-card__extra">
-            <StatsPeriodToggle
-              value={boardPeriod}
-              onChange={(v) => setBoardPeriod(v)}
-            />
-          </div>
-        </div>
-        <div className="a-card__body a-dash-panel__body">
-          <div className="a-stats-board">
-            <article className="a-stats-duo a-stats-duo--accounts">
-              <header className="a-stats-duo__head">
-                <span className="a-stats-duo__eyebrow">Accounts</span>
-                <h3 className="a-stats-duo__title">账号规模</h3>
-              </header>
-              <div className="a-stats-duo__pair">
-                <div className="a-stats-duo__cell">
-                  <span className="a-stats-duo__value">{totalAccounts}</span>
-                  <span className="a-stats-duo__label">总账号数</span>
+        <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
+          <article className="a-stats-strip a-stats-strip--customer">
+            <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+              {overviewMetrics.map((item) => (
+                <div key={item.label} className="a-stats-strip__cell">
+                  <span className="a-stats-strip__value">{item.value}</span>
+                  <span className="a-stats-strip__label">{item.label}</span>
                 </div>
-                <div className="a-stats-duo__cell a-stats-duo__cell--period">
-                  <span className="a-stats-duo__value">{activeAccounts}</span>
-                  <span className="a-stats-duo__label">{periodLabel}调用账号数</span>
-                </div>
-              </div>
-            </article>
-
-            <article className="a-stats-duo a-stats-duo--calls">
-              <header className="a-stats-duo__head">
-                <span className="a-stats-duo__eyebrow">Invocations</span>
-                <h3 className="a-stats-duo__title">调用量</h3>
-              </header>
-              <div className="a-stats-duo__pair">
-                <div className="a-stats-duo__cell">
-                  <span className="a-stats-duo__value">{totalCallsAll.toLocaleString()}</span>
-                  <span className="a-stats-duo__label">总调用次数</span>
-                </div>
-                <div className="a-stats-duo__cell a-stats-duo__cell--period">
-                  <span className="a-stats-duo__value">{periodCalls.toLocaleString()}</span>
-                  <span className="a-stats-duo__label">{periodLabel}调用次数</span>
-                </div>
-              </div>
-            </article>
-          </div>
+              ))}
+            </div>
+          </article>
         </div>
       </section>
 
@@ -138,7 +106,7 @@ export function CustomerStatsPage() {
             <SegmentedControl
               value={trendMetric}
               onChange={setTrendMetric}
-              options={(Object.keys(TREND_METRIC_LABEL) as TrendMetric[]).map((k) => ({
+              options={TREND_METRIC_OPTIONS.map((k) => ({
                 value: k,
                 label: TREND_METRIC_LABEL[k],
               }))}

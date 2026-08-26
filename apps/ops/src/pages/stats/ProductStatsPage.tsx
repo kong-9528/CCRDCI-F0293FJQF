@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
   SegmentedControl,
-  StatsPeriodToggle,
   TrendRangeToggle,
 } from "@/components/StatsControls";
 import { PRODUCTS, type ProductCode } from "@/lib/catalog";
@@ -13,8 +12,9 @@ import {
   getStatsData,
   refreshStatsData,
   sliceDates,
+  sumApiCalls,
   sumCalls,
-  type StatsPeriod,
+  sumPageSubmitCalls,
   type TrendRange,
 } from "@/lib/statsData";
 
@@ -39,7 +39,6 @@ export function ProductStatsPage() {
   }, []);
 
   const [tab, setTab] = useState<ProductStatsTab>("verify");
-  const [boardPeriod, setBoardPeriod] = useState<StatsPeriod>("7d");
   const [trendRange, setTrendRange] = useState<TrendRange>("30d");
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
@@ -53,29 +52,21 @@ export function ProductStatsPage() {
     [categoryProducts],
   );
 
-  const boardDates = sliceDates(boardPeriod);
-  const periodLabel =
-    boardPeriod === "1d" ? "昨日" : boardPeriod === "7d" ? "近7日" : "近30日";
+  const showChannelMetrics = tab === "verify";
 
   const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);
-    const period = all.filter((r) => boardDates.includes(r.date));
-    const opened = data.customers.filter((c) =>
+    const totalAccounts = data.customers.filter((c) =>
       c.productServices.some((s) => s.product === p.code),
     ).length;
-    const activeAccounts = new Set(
-      data.accountProductDays
-        .filter((r) => r.product === p.code && boardDates.includes(r.date) && r.calls > 0)
-        .map((r) => r.customerId),
-    ).size;
     return {
       code: p.code,
       name: p.name,
       category: p.category,
-      opened,
-      activeAccounts,
+      totalAccounts,
       totalCalls: sumCalls(all),
-      periodCalls: sumCalls(period),
+      pageSubmitCalls: sumPageSubmitCalls(all),
+      apiCalls: sumApiCalls(all),
     };
   });
 
@@ -130,57 +121,47 @@ export function ProductStatsPage() {
       </div>
 
       <section className="a-card a-dash-panel a-dash-panel--product-board">
-        <div className="a-card__head a-dash-panel__head">
-          <span className="a-dash-panel__title">产品概览</span>
-          <div className="a-card__extra">
-            <StatsPeriodToggle value={boardPeriod} onChange={setBoardPeriod} />
-          </div>
-        </div>
-        <div className="a-card__body a-dash-panel__body">
-          <div className="a-product-board">
-            {productCards.map((card, i) => (
-              <article
-                key={card.code}
-                className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
-                style={{ animationDelay: `${i * 45}ms` }}
-              >
-                <header className="a-product-board__head">
-                  <h3 className="a-product-board__name">{card.name}</h3>
-                </header>
-                <div className="a-product-board__groups">
-                  <div className="a-product-board__group">
-                    <div className="a-product-board__group-title">账号规模</div>
-                    <div className="a-product-board__pair">
-                      <div className="a-product-board__cell">
-                        <span className="a-product-board__value">{card.opened}</span>
-                        <span className="a-product-board__label">开通账号数</span>
+        <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
+          <div className="a-product-board a-product-board--compact">
+            {productCards.map((card, i) => {
+              const metrics = showChannelMetrics
+                ? [
+                    { label: "总账号数", value: String(card.totalAccounts) },
+                    { label: "总调用次数", value: card.totalCalls.toLocaleString() },
+                    { label: "页面提交次数", value: card.pageSubmitCalls.toLocaleString() },
+                    { label: "API调用次数", value: card.apiCalls.toLocaleString() },
+                  ]
+                : [
+                    { label: "总账号数", value: String(card.totalAccounts) },
+                    { label: "总调用次数", value: card.totalCalls.toLocaleString() },
+                  ];
+
+              return (
+                <article
+                  key={card.code}
+                  className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
+                  style={{ animationDelay: `${i * 45}ms` }}
+                >
+                  <header className="a-product-board__head">
+                    <h3 className="a-product-board__name">{card.name}</h3>
+                  </header>
+                  <div
+                    className={`a-stats-strip__metrics a-product-board__metrics${
+                      showChannelMetrics
+                        ? " a-stats-strip__metrics--4"
+                        : " a-stats-strip__metrics--2"
+                    }`}
+                  >
+                    {metrics.map((item) => (
+                      <div key={item.label} className="a-stats-strip__cell">
+                        <span className="a-stats-strip__value">{item.value}</span>
+                        <span className="a-stats-strip__label">{item.label}</span>
                       </div>
-                      <div className="a-product-board__cell a-product-board__cell--period">
-                        <span className="a-product-board__value">{card.activeAccounts}</span>
-                        <span className="a-product-board__label">{periodLabel}调用账号数</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                  <div className="a-product-board__group">
-                    <div className="a-product-board__group-title">调用量</div>
-                    <div className="a-product-board__pair">
-                      <div className="a-product-board__cell">
-                        <span className="a-product-board__value">
-                          {card.totalCalls.toLocaleString()}
-                        </span>
-                        <span className="a-product-board__label">总调用次数</span>
-                      </div>
-                      <div className="a-product-board__cell a-product-board__cell--period">
-                        <span className="a-product-board__value">
-                          {card.periodCalls.toLocaleString()}
-                        </span>
-                        <span className="a-product-board__label">{periodLabel}调用次数</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -201,10 +182,7 @@ export function ProductStatsPage() {
           </div>
         </div>
         <div className="a-card__body">
-          <TrendChart
-            labels={trendDates}
-            series={trendSeries}
-          />
+          <TrendChart labels={trendDates} series={trendSeries} />
         </div>
       </div>
 

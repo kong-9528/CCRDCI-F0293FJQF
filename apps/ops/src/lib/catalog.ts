@@ -89,7 +89,6 @@ export type ProductUsageStat = {
   product: ProductCode;
   serviceStatus: "pending" | "active" | "expired" | "stopped";
   totalCalls: number;
-  successRate: number;
 };
 
 export type CustomerOpLog = {
