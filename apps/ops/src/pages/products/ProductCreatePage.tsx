@@ -6,6 +6,7 @@ import {
 } from "@/components/ProductFormFields";
 import {
   PRODUCT_DESCRIPTION_MAX,
+  productListPath,
   useProductsStore,
   type BusinessLine,
   type ProductCategory,
@@ -62,7 +63,7 @@ export function ProductCreatePage() {
     }
     try {
       store.create(form);
-      navigate("/products");
+      navigate(productListPath(form.category));
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存失败");
     }
@@ -74,7 +75,11 @@ export function ProductCreatePage() {
         <div className="a-card__head">
           新增产品
           <div className="a-card__extra">
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate("/products")}>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => navigate(productListPath(form.category))}
+            >
               返回
             </button>
           </div>
@@ -99,7 +104,7 @@ export function ProductCreatePage() {
             <button type="button" className="a-btn a-btn--primary" onClick={submit}>
               保存
             </button>
-            <Link className="a-btn" to="/products">
+            <Link className="a-btn" to={productListPath(form.category)}>
               取消
             </Link>
           </div>

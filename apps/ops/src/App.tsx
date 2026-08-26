@@ -36,7 +36,9 @@ export function App() {
         <Route path="/customers/:id/contracts" element={<CustomerContractsPage />} />
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/customer-services" element={<CustomerServicesPage />} />
-        <Route path="/products" element={<ProductManagePage />} />
+        <Route path="/products" element={<Navigate to="/products/verify" replace />} />
+        <Route path="/products/verify" element={<ProductManagePage category="verify" />} />
+        <Route path="/products/audit" element={<ProductManagePage category="audit" />} />
         <Route path="/products/new" element={<ProductCreatePage />} />
         <Route path="/products/:code/edit" element={<ProductEditPage />} />
         <Route path="/stats/customers" element={<CustomerStatsPage />} />

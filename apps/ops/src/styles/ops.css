@@ -1442,6 +1442,24 @@ body,
     0 0 0 1px color-mix(in srgb, var(--p-200) 55%, transparent);
 }
 
+/* 产品使用统计：紧凑左对齐页签 */
+.a-stats-products__tabs {
+  margin: 0;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 8px;
+}
+
+.a-tabs--compact.a-tabs--segment .a-tabs__item {
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--ad-fs-sm);
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
 /* ---------- 接口服务设置：产品>接口折叠列表 ---------- */
 .a-api-list {
   display: flex;

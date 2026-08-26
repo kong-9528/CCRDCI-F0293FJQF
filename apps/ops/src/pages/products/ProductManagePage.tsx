@@ -6,6 +6,7 @@ import {
   PRODUCT_SECTIONS,
   useProductsStore,
   type ManagedProduct,
+  type ProductCategory,
   type ProductSection,
 } from "@/lib/productsStore";
 
@@ -13,6 +14,10 @@ type PendingSwitch =
   | { kind: "shelf"; row: ManagedProduct; next: boolean }
   | { kind: "page"; row: ManagedProduct; next: boolean }
   | { kind: "api"; row: ManagedProduct; next: boolean };
+
+type Props = {
+  category: ProductCategory;
+};
 
 function StatusSwitchCell({
   labelOn,
@@ -38,12 +43,16 @@ function StatusSwitchCell({
 function ProductSectionTable({
   section,
   rows,
+  showPageSubmit,
   onRequestSwitch,
 }: {
   section: ProductSection;
   rows: ManagedProduct[];
+  showPageSubmit: boolean;
   onRequestSwitch: (pending: PendingSwitch) => void;
 }) {
+  const colCount = showPageSubmit ? 5 : 4;
+
   return (
     <div className="a-card">
       <div className="a-card__head">
@@ -63,7 +72,7 @@ function ProductSectionTable({
             <tr>
               <th>产品名称</th>
               <th>上线状态</th>
-              <th>页面提交</th>
+              {showPageSubmit ? <th>页面提交</th> : null}
               <th>API调用</th>
               <th style={{ width: 88 }}>操作</th>
             </tr>
@@ -71,7 +80,7 @@ function ProductSectionTable({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5}>
+                <td colSpan={colCount}>
                   <div className="a-empty">暂无产品，可点击「新增产品」添加</div>
                 </td>
               </tr>
@@ -92,17 +101,19 @@ function ProductSectionTable({
                         }
                       />
                     </td>
-                    <td>
-                      <StatusSwitchCell
-                        labelOn="支持"
-                        labelOff="不支持"
-                        checked={row.pageSubmitEnabled}
-                        ariaLabel={`${row.name} 页面提交`}
-                        onChange={(next) =>
-                          onRequestSwitch({ kind: "page", row, next })
-                        }
-                      />
-                    </td>
+                    {showPageSubmit ? (
+                      <td>
+                        <StatusSwitchCell
+                          labelOn="支持"
+                          labelOff="不支持"
+                          checked={row.pageSubmitEnabled}
+                          ariaLabel={`${row.name} 页面提交`}
+                          onChange={(next) =>
+                            onRequestSwitch({ kind: "page", row, next })
+                          }
+                        />
+                      </td>
+                    ) : null}
                     <td>
                       <StatusSwitchCell
                         labelOn="支持"
@@ -185,10 +196,14 @@ function switchConfirmCopy(pending: PendingSwitch): {
       };
 }
 
-export function ProductManagePage() {
+export function ProductManagePage({ category }: Props) {
   const { getByCategory, setShelfStatus, setPageSubmitEnabled, setApiEnabled } =
     useProductsStore();
   const [pending, setPending] = useState<PendingSwitch | null>(null);
+
+  const section =
+    PRODUCT_SECTIONS.find((item) => item.category === category) ??
+    PRODUCT_SECTIONS[0];
 
   const confirmSwitch = () => {
     if (!pending) return;
@@ -203,14 +218,12 @@ export function ProductManagePage() {
 
   return (
     <div className="a-stack">
-      {PRODUCT_SECTIONS.map((section) => (
-        <ProductSectionTable
-          key={section.id}
-          section={section}
-          rows={getByCategory(section.category)}
-          onRequestSwitch={setPending}
-        />
-      ))}
+      <ProductSectionTable
+        section={section}
+        rows={getByCategory(category)}
+        showPageSubmit={category !== "audit"}
+        onRequestSwitch={setPending}
+      />
 
       <ConfirmDialog
         open={Boolean(pending)}

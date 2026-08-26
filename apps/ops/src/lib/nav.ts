@@ -24,7 +24,10 @@ export const OPS_NAV: NavGroup[] = [
   },
   {
     title: "产品管理",
-    items: [{ to: "/products", label: "产品管理", ready: true }],
+    items: [
+      { to: "/products/verify", label: "版权核验产品", ready: true },
+      { to: "/products/audit", label: "智能辅助审核产品", ready: true },
+    ],
   },
   {
     title: "运营统计",
@@ -65,6 +68,8 @@ export function findNavLabel(pathname: string): string {
   if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";
   if (pathname === "/products/new") return "新增产品";
   if (/^\/products\/[^/]+\/edit$/.test(pathname)) return "编辑产品";
+  if (pathname === "/products/verify") return "版权核验产品";
+  if (pathname === "/products/audit") return "智能辅助审核产品";
   for (const group of OPS_NAV) {
     for (const item of group.items) {
       if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {

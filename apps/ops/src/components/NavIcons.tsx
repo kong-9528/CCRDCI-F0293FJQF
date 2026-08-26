@@ -155,6 +155,8 @@ const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/customers": IconCustomers,
   "/customer-services": IconServices,
   "/products": IconProducts,
+  "/products/verify": IconProducts,
+  "/products/audit": IconProducts,
   "/stats/customers": IconStatsCustomers,
   "/stats/products": IconStatsProducts,
   "/content/home": IconPortal,

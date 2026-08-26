@@ -113,8 +113,8 @@ export function ProductStatsPage() {
     .sort((a, b) => b.calls - a.calls);
 
   return (
-    <div className="a-stack">
-      <div className="a-tabs a-tabs--segment" role="tablist">
+    <div className="a-stack a-stats-products">
+      <div className="a-tabs a-tabs--segment a-tabs--compact a-stats-products__tabs" role="tablist">
         {TAB_ITEMS.map(({ key, label }) => (
           <button
             key={key}

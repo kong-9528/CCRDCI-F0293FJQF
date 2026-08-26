@@ -51,6 +51,10 @@ export const CATEGORY_LABEL: Record<ProductCategory, string> = {
   audit: "智能辅助审核产品",
 };
 
+export function productListPath(category: ProductCategory): string {
+  return category === "audit" ? "/products/audit" : "/products/verify";
+}
+
 export const BUSINESS_LINE_LABEL: Record<BusinessLine, string> = {
   software: "软件",
   work: "作品",

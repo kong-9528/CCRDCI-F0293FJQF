@@ -6,6 +6,7 @@ import {
 } from "@/components/ProductFormFields";
 import {
   PRODUCT_DESCRIPTION_MAX,
+  productListPath,
   useProductsStore,
   type BusinessLine,
 } from "@/lib/productsStore";
@@ -80,7 +81,7 @@ export function ProductEditPage() {
     }
     try {
       store.update(product.code, form);
-      navigate("/products");
+      navigate(productListPath(product.category));
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存失败");
     }
@@ -104,7 +105,7 @@ export function ProductEditPage() {
         <div className="a-card__body">
           <div className="a-empty">产品不存在</div>
           <div className="a-form-actions" style={{ marginTop: 16 }}>
-            <button type="button" className="a-btn" onClick={() => navigate("/products")}>
+            <button type="button" className="a-btn" onClick={() => navigate("/products/verify")}>
               返回列表
             </button>
           </div>
@@ -119,7 +120,11 @@ export function ProductEditPage() {
         <div className="a-card__head">
           编辑产品
           <div className="a-card__extra">
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate("/products")}>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => navigate(productListPath(product.category))}
+            >
               返回
             </button>
           </div>
@@ -144,7 +149,7 @@ export function ProductEditPage() {
             <button type="button" className="a-btn a-btn--primary" onClick={submit}>
               保存
             </button>
-            <Link className="a-btn" to="/products">
+            <Link className="a-btn" to={productListPath(product.category)}>
               取消
             </Link>
           </div>
