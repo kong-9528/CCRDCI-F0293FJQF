@@ -2018,6 +2018,137 @@ body,
   flex-wrap: wrap;
 }
 
+.c-password-page__intro {
+  margin: 0;
+  color: var(--n-600);
+  font-size: var(--ad-fs-sm);
+  line-height: 1.7;
+}
+
+.c-password-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.c-password-steps__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  background: var(--n-50);
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
+}
+
+.c-password-steps__item.is-active {
+  border-color: var(--p-300);
+  background: var(--p-50);
+  color: var(--p-700);
+}
+
+.c-password-steps__item.is-done {
+  border-color: var(--ok-200, #b7eb8f);
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+.c-password-steps__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--n-200);
+  color: var(--n-700);
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.c-password-steps__item.is-active .c-password-steps__index {
+  background: var(--p-500);
+  color: #fff;
+}
+
+.c-password-steps__item.is-done .c-password-steps__index {
+  background: #52c41a;
+  color: #fff;
+}
+
+.c-password-panel {
+  padding: 16px;
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  background: var(--n-0);
+}
+
+.c-password-panel__desc {
+  margin: 0 0 12px;
+  color: var(--n-600);
+  font-size: var(--ad-fs-sm);
+  line-height: 1.6;
+}
+
+.c-password-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.c-password-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.c-password-code-row .a-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.c-password-info {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--p-50);
+  color: var(--p-700);
+}
+
+.c-password-panel--success {
+  border-color: #b7eb8f;
+  background: #f6ffed;
+}
+
+.c-password-success__title {
+  font-size: var(--ad-fs-h3, 18px);
+  font-weight: 600;
+  color: #389e0d;
+}
+
+.c-password-success__desc {
+  margin: 8px 0 0;
+  color: var(--n-600);
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .c-password-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .c-password-code-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .c-required {
   color: var(--er-600);
 }

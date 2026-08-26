@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
+import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -29,6 +30,7 @@ export function App() {
         <Route path="/review/duplicate" element={<DuplicateReviewPage />} />
         <Route path="/review/infringement" element={<InfringementReviewPage />} />
         <Route path="/keys" element={<KeysPage />} />
+        <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route path="/account" element={<AccountCenterPage />} />
         <Route path="/api-docs" element={<ApiDocsOverviewPage />} />
         <Route path="/api-docs/:productId" element={<ApiDocProductPage />} />

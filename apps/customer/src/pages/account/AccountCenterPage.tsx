@@ -164,6 +164,19 @@ export function AccountCenterPage() {
                 </div>
               </div>
             </section>
+            <section className="a-form-section">
+              <div className="c-account-section-head">
+                <h3 className="a-form-section__title" style={{ margin: 0 }}>
+                  账号安全
+                </h3>
+                <Link to="/account/password" className="a-btn a-btn--primary a-btn--sm">
+                  修改密码
+                </Link>
+              </div>
+              <p className="a-field__hint" style={{ marginTop: 8 }}>
+                修改密码需验证当前密码与绑定邮箱验证码，成功后其他设备会话将自动下线。
+              </p>
+            </section>
           </>
         ) : null}
 

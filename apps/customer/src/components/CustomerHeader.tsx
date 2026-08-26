@@ -60,6 +60,9 @@ export function CustomerHeader({ pathname, collapsed, onToggleCollapse }: Props)
               <Link to="/account" role="menuitem" className="a-header__user-menu-link">
                 账号中心
               </Link>
+              <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
+                修改密码
+              </Link>
               <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
                 API Keys
               </Link>

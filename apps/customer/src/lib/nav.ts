@@ -46,6 +46,7 @@ const NAV_LABELS: Record<string, string> = {
   "/review/infringement": "疑似侵权审核",
   "/keys": "API Keys",
   "/account": "账号中心",
+  "/account/password": "修改密码",
   "/api-docs": "API文档",
   "/help": "帮助中心",
 };
