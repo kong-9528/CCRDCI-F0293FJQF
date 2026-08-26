@@ -1,0 +1,102 @@
+edition: 3.0.0
+name: copyright-tech-platform
+access: default # 对应 s config add 时设置的别名
+
+vars:
+  region: cn-hangzhou
+
+resources:
+  # 1. 客户平台 (Vite + React SPA)
+  customer-app:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: pnpm install --filter @ctp/customer...
+          path: .
+        - run: pnpm run build:customer
+          path: .
+        - plugin: website-fc-serve
+          args:
+            fallbackToIndex: true # SPA 路由回退到 index.html
+    props:
+      region: ${vars.region}
+      functionName: ctp-customer-app
+      description: Customer Platform (Vite SPA)
+      timeout: 60
+      memorySize: 512
+      code: ./apps/customer/dist
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - HEAD
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+
+  customer-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ctp-customer-app
+
+  # 2. 运营后台 (Vite + React SPA)
+  ops-app:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: pnpm install --filter @ctp/ops...
+          path: .
+        - run: pnpm run build:ops
+          path: .
+        - plugin: website-fc-serve
+          args:
+            fallbackToIndex: true
+    props:
+      region: ${vars.region}
+      functionName: ctp-ops-app
+      description: Ops Platform (Vite SPA)
+      timeout: 60
+      memorySize: 512
+      code: ./apps/ops/dist
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - HEAD
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+
+  ops-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ctp-ops-app
+
+  # 3. 门户 (Next.js App Router) — 暂未配置
+  # Next.js 需 output: 'standalone' + 自定义运行时/容器，无法像 Vite 一样静态托管。
+  # 演示阶段建议本地运行 pnpm dev:portal，或使用 portal-prototype.html。
+  # 后续可单独添加 portal 部署资源。

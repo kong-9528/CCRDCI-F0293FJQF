@@ -3,6 +3,8 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@ctp/styles"],
+  output: "export",
+  trailingSlash: true,
   outputFileTracingRoot: path.join(__dirname, "../.."),
 };
 

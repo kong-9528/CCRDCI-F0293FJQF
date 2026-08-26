@@ -1,0 +1,144 @@
+edition: 3.0.0
+name: copyright-tech-platform
+access: default # 对应 s config add 时设置的别名
+
+vars:
+  region: cn-hangzhou
+  # Portal 导航「客户平台」链接；部署 customer 后改为 devsapp 域名（勿用 fcapp.run）
+  customerUrl: http://ctp-customer-app.fcv3.30500000.cn-hangzhou.fc.devsapp.net
+
+resources:
+  # 1. 客户平台 (Vite + React SPA)
+  customer-app:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: pnpm install --filter @ctp/customer...
+          path: .
+        - run: pnpm run build:customer
+          path: .
+        - plugin: website-fc-serve
+          args:
+            fallbackToIndex: true # SPA 路由回退到 index.html
+    props:
+      region: ${vars.region}
+      functionName: ctp-customer-app
+      description: Customer Platform (Vite SPA)
+      timeout: 60
+      memorySize: 512
+      code: ./apps/customer/dist
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - HEAD
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+
+  customer-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ctp-customer-app
+
+  # 2. 运营后台 (Vite + React SPA)
+  ops-app:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: pnpm install --filter @ctp/ops...
+          path: .
+        - run: pnpm run build:ops
+          path: .
+        - plugin: website-fc-serve
+          args:
+            fallbackToIndex: true
+    props:
+      region: ${vars.region}
+      functionName: ctp-ops-app
+      description: Ops Platform (Vite SPA)
+      timeout: 60
+      memorySize: 512
+      code: ./apps/ops/dist
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - HEAD
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+
+  ops-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ctp-ops-app
+
+  # 3. 门户 (Next.js App Router → 静态导出)
+  portal-app:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: pnpm install --filter @ctp/portal...
+          path: .
+        - run: npx --yes cross-env NEXT_PUBLIC_CUSTOMER_URL=${vars.customerUrl} pnpm run build:portal
+          path: .
+        - plugin: website-fc-serve
+          args:
+            fallbackToIndex: true
+    props:
+      region: ${vars.region}
+      functionName: ctp-portal-app
+      description: Portal (Next.js Static Export)
+      timeout: 60
+      memorySize: 512
+      code: ./apps/portal/out
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          qualifier: LATEST
+          triggerConfig:
+            authType: anonymous
+            disableURLInternet: false
+            methods:
+              - GET
+              - HEAD
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+
+  portal-domain:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ctp-portal-app
