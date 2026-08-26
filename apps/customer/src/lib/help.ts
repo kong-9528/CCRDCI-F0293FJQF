@@ -35,7 +35,7 @@ export const HELP_NAV: { id: HelpSectionId; title: string }[] = [
   { id: "info", title: "版权信息核验接口" },
   { id: "cert", title: "版权证书核验接口" },
   { id: "review", title: "智能审核接口" },
-  { id: "keys", title: "密钥管理" },
+  { id: "keys", title: "API Keys" },
   { id: "faq", title: "常见问题" },
 ];
 
@@ -51,9 +51,9 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
       { type: "h3", text: "第一步：获取 API 密钥" },
       {
         type: "p",
-        text: "登录工作台后，进入「密钥管理」页面，即可查看您的 AccessKey 和 AppSecret。请妥善保管 AppSecret，不要泄露给第三方。",
+        text: "登录工作台后，点击右上角头像，进入「API Keys」页面创建密钥。SecretKey 仅在创建成功时展示一次，请立即保存。",
       },
-      { type: "link", label: "前往密钥管理", to: "/keys" },
+      { type: "link", label: "前往 API Keys", to: "/keys" },
       { type: "h3", text: "第二步：阅读 API 文档" },
       {
         type: "p",
@@ -80,9 +80,9 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
       {
         type: "ul",
         items: [
-          "accessKey：接入方标识，在密钥管理中获取",
+          "accessKey：接入方标识，在 API Keys 页面获取",
           "timestamp：请求时间戳，格式 yyyy-MM-dd HH:mm:ss",
-          "sign：请求签名，按签名说明使用 AppSecret 计算",
+          "sign：请求签名，按签名说明使用 SecretKey 计算",
         ],
       },
       { type: "h3", text: "请求约定" },
@@ -205,22 +205,22 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
   },
   keys: {
     id: "keys",
-    title: "密钥管理",
+    title: "API Keys",
     blocks: [
       {
         type: "p",
-        text: "AccessKey / AppSecret 用于 API 身份认证。AppSecret 默认脱敏展示，可按需查看与复制。",
+        text: "AccessKey ID 与 SecretKey 用于 API 身份认证。每个用户最多创建 1 个 API Key；SecretKey 仅在创建或重置成功时展示一次。",
       },
       { type: "h3", text: "安全建议" },
       {
         type: "ul",
         items: [
-          "勿将 AppSecret 写入前端公开代码或提交到版本库",
-          "密钥泄露后立即在工作台「更新密钥」，旧密钥将立即失效",
-          "更新前请通知所有调用方同步更换密钥，避免业务中断",
+          "勿将 SecretKey 写入前端公开代码或提交到版本库",
+          "密钥泄露后请立即禁用或重置，旧密钥将立即失效",
+          "重置或更换前请通知所有调用方同步更新，避免业务中断",
         ],
       },
-      { type: "link", label: "前往密钥管理", to: "/keys" },
+      { type: "link", label: "前往 API Keys", to: "/keys" },
     ],
   },
   faq: {
@@ -240,7 +240,7 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
             id: "q-leak",
             question: "密钥泄露了如何处理？",
             answer:
-              "请立即在「密钥管理」页面点击「更新密钥」，旧密钥将立即失效。更新后请同步修改所有调用方配置。",
+              "请立即在「API Keys」页面禁用或重置密钥，旧密钥将立即失效。重置后请同步修改所有调用方配置。",
           },
           {
             id: "q-types",

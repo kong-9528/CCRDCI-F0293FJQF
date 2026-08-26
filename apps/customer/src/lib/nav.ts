@@ -33,13 +33,6 @@ export const CUSTOMER_NAV: NavGroup[] = [
       { to: "/review/infringement", label: "疑似侵权审核", icon: "infringement" },
     ],
   },
-  {
-    title: "账户管理",
-    items: [
-      { to: "/account", label: "账号中心", icon: "account" },
-      { to: "/keys", label: "密钥管理", icon: "keys" },
-    ],
-  },
 ];
 
 const NAV_LABELS: Record<string, string> = {
@@ -51,7 +44,7 @@ const NAV_LABELS: Record<string, string> = {
   "/review/safety": "内容安全审核",
   "/review/duplicate": "作品登记查重",
   "/review/infringement": "疑似侵权审核",
-  "/keys": "密钥管理",
+  "/keys": "API Keys",
   "/account": "账号中心",
   "/api-docs": "API文档",
   "/help": "帮助中心",

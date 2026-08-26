@@ -1,20 +1,29 @@
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Modal } from "@/components/Modal";
 import {
-  INITIAL_API_KEYS,
-  KEY_UPDATE_CONFIRM_TEXT,
-  SECRET_MASK,
+  MAX_API_KEYS,
+  createApiKey,
   copyText,
-  rotateApiKeys,
-  type ApiKeys,
+  resetApiKey,
+  setApiKeyStatus,
+  type ApiKeyRecord,
 } from "@/lib/keys";
 
+type RevealPayload = {
+  accessKeyId: string;
+  secretKey: string;
+  mode: "create" | "reset";
+};
+
 export function KeysPage() {
-  const [keys, setKeys] = useState<ApiKeys>(() => ({ ...INITIAL_API_KEYS }));
-  const [secretVisible, setSecretVisible] = useState(false);
-  const [updateOpen, setUpdateOpen] = useState(false);
-  const [confirmText, setConfirmText] = useState("");
-  const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [description, setDescription] = useState("");
+  const [reveal, setReveal] = useState<RevealPayload | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ApiKeyRecord | null>(null);
+  const [resetTarget, setResetTarget] = useState<ApiKeyRecord | null>(null);
+  const [toggleTarget, setToggleTarget] = useState<ApiKeyRecord | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<"ak" | "sk" | null>(null);
 
@@ -33,29 +42,61 @@ export function KeysPage() {
     window.setTimeout(() => setCopiedField(null), 1000);
   };
 
-  const openUpdate = () => {
-    setConfirmText("");
-    setConfirmError(null);
-    setUpdateOpen(true);
+  const openCreate = () => {
+    setDescription("");
+    setCreateOpen(true);
   };
 
-  const closeUpdate = () => {
-    setUpdateOpen(false);
-    setConfirmText("");
-    setConfirmError(null);
+  const closeCreate = () => {
+    setCreateOpen(false);
+    setDescription("");
   };
 
-  const doUpdate = () => {
-    if (confirmText.trim() !== KEY_UPDATE_CONFIRM_TEXT) {
-      setConfirmError(`请输入「${KEY_UPDATE_CONFIRM_TEXT}」`);
+  const doCreate = () => {
+    if (keys.length >= MAX_API_KEYS) {
+      showToast(`每个用户最多创建 ${MAX_API_KEYS} 个 API Key`);
       return;
     }
-    const next = rotateApiKeys();
-    setKeys(next);
-    setSecretVisible(false);
-    closeUpdate();
-    showToast("密钥已更新，旧密钥已失效");
+    const created = createApiKey(description);
+    const { secretKey, ...record } = created;
+    setKeys([record]);
+    closeCreate();
+    setReveal({ accessKeyId: created.accessKeyId, secretKey, mode: "create" });
   };
+
+  const doReset = () => {
+    if (!resetTarget) return;
+    const next = resetApiKey(resetTarget);
+    const { secretKey, ...record } = next;
+    setKeys((prev) => prev.map((k) => (k.id === record.id ? record : k)));
+    setResetTarget(null);
+    setReveal({ accessKeyId: next.accessKeyId, secretKey, mode: "reset" });
+    showToast("密钥已重置，旧密钥已失效");
+  };
+
+  const doDelete = () => {
+    if (!deleteTarget) return;
+    setKeys((prev) => prev.filter((k) => k.id !== deleteTarget.id));
+    setDeleteTarget(null);
+    showToast("API Key 已删除");
+  };
+
+  const doToggleStatus = () => {
+    if (!toggleTarget) return;
+    const nextStatus = toggleTarget.status === "enabled" ? "disabled" : "enabled";
+    setKeys((prev) =>
+      prev.map((k) => (k.id === toggleTarget.id ? setApiKeyStatus(k, nextStatus) : k)),
+    );
+    setToggleTarget(null);
+    showToast(nextStatus === "enabled" ? "已启用" : "已禁用");
+  };
+
+  const closeReveal = () => {
+    setReveal(null);
+    setCopiedField(null);
+  };
+
+  const canCreate = keys.length < MAX_API_KEYS;
 
   return (
     <div className="a-stack c-keys-page">
@@ -63,100 +104,220 @@ export function KeysPage() {
 
       <div className="a-card">
         <div className="a-card__head">
-          API密钥管理
+          API Keys
           <span className="a-card__extra">用于调用 API 接口时的身份认证</span>
-        </div>
-        <div className="a-card__body a-stack">
-          <div className="c-keys-field">
-            <div className="c-keys-field__label">AccessKey</div>
-            <div className="c-keys-display">
-              <code className="c-keys-value">{keys.accessKey}</code>
-              <button
-                type="button"
-                className="a-btn a-btn--text a-btn--sm"
-                onClick={() => onCopy("ak", keys.accessKey)}
-              >
-                {copiedField === "ak" ? "已复制" : "复制"}
-              </button>
-            </div>
-          </div>
-
-          <div className="c-keys-field">
-            <div className="c-keys-field__label">
-              AppSecret <span className="c-keys-field__hint">（点击查看）</span>
-            </div>
-            <div className="c-keys-display">
-              <code className={`c-keys-value${secretVisible ? "" : " is-masked"}`}>
-                {secretVisible ? keys.appSecret : SECRET_MASK}
-              </code>
-              <button
-                type="button"
-                className="a-btn a-btn--text a-btn--sm"
-                onClick={() => setSecretVisible((v) => !v)}
-              >
-                {secretVisible ? "隐藏" : "查看"}
-              </button>
-              {secretVisible ? (
-                <button
-                  type="button"
-                  className="a-btn a-btn--text a-btn--sm"
-                  onClick={() => onCopy("sk", keys.appSecret)}
-                >
-                  {copiedField === "sk" ? "已复制" : "复制"}
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="c-keys-foot">
-            <button type="button" className="a-btn a-btn--danger a-btn--sm" onClick={openUpdate}>
-              更新密钥
+          {canCreate ? (
+            <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={openCreate}>
+              创建 API Key
             </button>
-            <span className="a-field__hint">更新后旧密钥将立即失效</span>
-            <span className="a-field__hint c-keys-updated">最近更新：{keys.updatedAt}</span>
-          </div>
+          ) : null}
+        </div>
+
+        <div className="a-card__body a-card__body--flush">
+          {keys.length === 0 ? (
+            <div className="c-keys-empty">
+              <p className="c-keys-empty__title">尚未创建 API Key</p>
+              <p className="c-keys-empty__desc">
+                创建后可获取 AccessKey ID 与 SecretKey，用于 API 身份认证。每个用户最多创建{" "}
+                {MAX_API_KEYS} 个。
+              </p>
+              <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
+                创建 API Key
+              </button>
+            </div>
+          ) : (
+            <div className="a-table-wrap c-keys-table-wrap">
+              <table className="a-table">
+                <thead>
+                  <tr>
+                    <th>AccessKey ID</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>最后使用时间</th>
+                    <th>最后使用的服务</th>
+                    <th>描述/备注</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {keys.map((key) => (
+                    <tr key={key.id}>
+                      <td>
+                        <code>{key.accessKeyId}</code>
+                      </td>
+                      <td>
+                        {key.status === "enabled" ? (
+                          <span className="a-tag a-tag--ok">启用</span>
+                        ) : (
+                          <span className="a-tag a-tag--wn">禁用</span>
+                        )}
+                      </td>
+                      <td>{key.createdAt}</td>
+                      <td>{key.lastUsedAt ?? "—"}</td>
+                      <td>{key.lastUsedService ?? "—"}</td>
+                      <td>
+                        <div className="a-cell-clamp" title={key.description || undefined}>
+                          {key.description || "—"}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="c-keys-actions">
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => setToggleTarget(key)}
+                          >
+                            {key.status === "enabled" ? "禁用" : "启用"}
+                          </button>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => setResetTarget(key)}
+                          >
+                            重置
+                          </button>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm a-btn--danger-link"
+                            onClick={() => setDeleteTarget(key)}
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="a-card">
+        <div className="a-card__head">使用说明</div>
+        <div className="a-card__body a-stack" style={{ fontSize: "var(--ad-fs-sm)", color: "var(--n-600)" }}>
+          <p>SecretKey 仅在创建或重置成功时展示一次，关闭弹窗后将无法再次查看。</p>
+          <p>若忘记 SecretKey，请重置密钥对或删除后重新创建；重置后旧密钥立即失效。</p>
+          <p>禁用密钥可临时阻断 API 调用，不会删除密钥，可随时重新启用。</p>
         </div>
       </div>
 
       <Modal
-        open={updateOpen}
-        title="确认更新密钥"
-        onClose={closeUpdate}
+        open={createOpen}
+        title="创建 API Key"
+        onClose={closeCreate}
         footer={
           <>
-            <button type="button" className="a-btn" onClick={closeUpdate}>
+            <button type="button" className="a-btn" onClick={closeCreate}>
               取消
             </button>
-            <button type="button" className="a-btn a-btn--danger" onClick={doUpdate}>
-              确认更新
+            <button type="button" className="a-btn a-btn--primary" onClick={doCreate}>
+              创建
             </button>
           </>
         }
       >
-        <div className="c-keys-warn">
-          <div className="c-keys-warn__title">危险操作</div>
-          <p className="c-keys-warn__desc">
-            更新后旧密钥将立即失效，已发出的请求将中断。请确保已通知所有调用方更新密钥。
-          </p>
-        </div>
-        <div className="a-field a-field--stack" style={{ marginTop: 16 }}>
-          <label className="a-field__label" htmlFor="confirm-key-input">
-            请输入「{KEY_UPDATE_CONFIRM_TEXT}」以继续
+        <div className="a-field a-field--stack">
+          <label className="a-field__label" htmlFor="key-description">
+            描述/备注
           </label>
           <input
-            id="confirm-key-input"
+            id="key-description"
             className="a-input"
-            value={confirmText}
-            placeholder={KEY_UPDATE_CONFIRM_TEXT}
-            onChange={(e) => {
-              setConfirmText(e.target.value);
-              setConfirmError(null);
-            }}
+            value={description}
+            placeholder="例如：生产环境主密钥、测试应用"
+            onChange={(e) => setDescription(e.target.value)}
             autoComplete="off"
           />
-          {confirmError ? <span className="a-field__error">{confirmError}</span> : null}
+          <span className="a-field__hint">选填，用于标识密钥用途</span>
         </div>
       </Modal>
+
+      <Modal
+        open={reveal !== null}
+        title={reveal?.mode === "reset" ? "密钥已重置" : "API Key 创建成功"}
+        onClose={closeReveal}
+        size="md"
+        footer={
+          <button type="button" className="a-btn a-btn--primary" onClick={closeReveal}>
+            我已保存
+          </button>
+        }
+      >
+        {reveal ? (
+          <div className="a-stack">
+            <div className="c-keys-reveal-warn">
+              <div className="c-keys-reveal-warn__title">请立即保存</div>
+              <p className="c-keys-reveal-warn__desc">
+                SecretKey 仅展示一次。关闭弹窗后将无法再次查看；若遗忘只能删除后重新创建或重置密钥对。
+              </p>
+            </div>
+
+            <div className="c-keys-field">
+              <div className="c-keys-field__label">AccessKey ID</div>
+              <div className="c-keys-display">
+                <code className="c-keys-value">{reveal.accessKeyId}</code>
+                <button
+                  type="button"
+                  className="a-btn a-btn--text a-btn--sm"
+                  onClick={() => onCopy("ak", reveal.accessKeyId)}
+                >
+                  {copiedField === "ak" ? "已复制" : "复制"}
+                </button>
+              </div>
+            </div>
+
+            <div className="c-keys-field">
+              <div className="c-keys-field__label">SecretKey</div>
+              <div className="c-keys-display">
+                <code className="c-keys-value">{reveal.secretKey}</code>
+                <button
+                  type="button"
+                  className="a-btn a-btn--text a-btn--sm"
+                  onClick={() => onCopy("sk", reveal.secretKey)}
+                >
+                  {copiedField === "sk" ? "已复制" : "复制"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
+
+      <ConfirmDialog
+        open={toggleTarget !== null}
+        title={toggleTarget?.status === "enabled" ? "确认禁用 API Key" : "确认启用 API Key"}
+        description={
+          toggleTarget?.status === "enabled"
+            ? "禁用后使用该密钥的 API 调用将立即失败，但密钥不会被删除，后续可重新启用。"
+            : "启用后该密钥将恢复正常使用，相关 API 调用将重新生效。"
+        }
+        confirmText={toggleTarget?.status === "enabled" ? "确认禁用" : "确认启用"}
+        danger={toggleTarget?.status === "enabled"}
+        onCancel={() => setToggleTarget(null)}
+        onConfirm={doToggleStatus}
+      />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="确认删除 API Key"
+        description="删除后该密钥将无法恢复，使用该密钥的服务将立即中断。"
+        confirmText="确认删除"
+        danger
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={doDelete}
+      />
+
+      <ConfirmDialog
+        open={resetTarget !== null}
+        title="确认重置密钥"
+        description="重置将生成新的密钥对（AccessKey ID 与 SecretKey 均会更新），旧密钥立即失效。请确保已通知所有调用方同步更换。"
+        confirmText="确认重置"
+        danger
+        onCancel={() => setResetTarget(null)}
+        onConfirm={doReset}
+      />
     </div>
   );
 }
