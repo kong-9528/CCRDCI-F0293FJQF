@@ -27,7 +27,7 @@ const TAB_ITEMS: { key: ProductStatsTab; label: string }[] = [
 ];
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用账号",
+  activeAccounts: "日调用账号数",
   calls: "日调用次数",
 };
 
@@ -157,7 +157,7 @@ export function ProductStatsPage() {
                       </div>
                       <div className="a-product-board__cell a-product-board__cell--period">
                         <span className="a-product-board__value">{card.activeAccounts}</span>
-                        <span className="a-product-board__label">{periodLabel}调用账号</span>
+                        <span className="a-product-board__label">{periodLabel}调用账号数</span>
                       </div>
                     </div>
                   </div>

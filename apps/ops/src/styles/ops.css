@@ -8,12 +8,34 @@
   box-sizing: border-box;
 }
 
-/* 运营后台字号整体上调 1px（不影响客户后台 / 门户） */
+/*
+ * 运营后台：宽松密度（覆盖 admin 紧凑规范，不影响客户后台 / 门户）
+ * 字号略大、8px 级留白、控件与表格行更高，阅读与操作更透气。
+ */
 .theme-ops {
   --ad-fs-body: 14px;
   --ad-fs-sm: 13px;
-  --ad-fs-h1: 17px;
-  --ad-fs-h2: 15px;
+  --ad-fs-h1: 18px;
+  --ad-fs-h2: 16px;
+  --ad-lh: 1.6;
+
+  --ad-sp-1: 4px;
+  --ad-sp-2: 10px;
+  --ad-sp-3: 16px;
+  --ad-sp-4: 24px;
+  --ad-sp-6: 32px;
+
+  --ad-sidebar-w: 232px;
+  --ad-sidebar-w-min: 64px;
+  --ad-header-h: 56px;
+  --ad-table-row-h: 44px;
+  --ad-ctrl-sm: 28px;
+  --ad-ctrl-md: 36px;
+  --ad-ctrl-lg: 40px;
+
+  --ad-radius: 8px;
+  --ad-radius-sm: 6px;
+  --ad-shadow-1: 0 2px 8px rgba(22, 28, 36, 0.06);
 }
 
 .theme-ops .a-sidebar__logo {
@@ -21,7 +43,63 @@
 }
 
 .theme-ops .a-stat__num {
-  font-size: 23px;
+  font-size: 26px;
+}
+
+/* 侧栏菜单：高于 admin 默认 36px */
+.theme-ops .a-menu__item {
+  height: 42px;
+  margin: 2px var(--ad-sp-2);
+}
+
+.theme-ops .a-menu__group {
+  padding: var(--ad-sp-3) var(--ad-sp-3) var(--ad-sp-2);
+}
+
+/* 内容区与卡片留白加大 */
+.theme-ops .a-content {
+  padding: var(--ad-sp-4);
+  gap: var(--ad-sp-4);
+}
+
+.theme-ops .a-card__head {
+  min-height: 48px;
+  padding: var(--ad-sp-3) var(--ad-sp-4);
+}
+
+.theme-ops .a-card__body {
+  padding: var(--ad-sp-4);
+}
+
+.theme-ops .a-card__body--flush {
+  padding: 0;
+}
+
+.theme-ops .a-toolbar {
+  padding: var(--ad-sp-3) var(--ad-sp-4);
+  gap: var(--ad-sp-3);
+}
+
+.theme-ops .a-table th,
+.theme-ops .a-table td {
+  padding: 0 var(--ad-sp-4);
+}
+
+.theme-ops .a-tag {
+  height: 22px;
+  padding: 0 8px;
+}
+
+.theme-ops .a-tabs__item {
+  height: 42px;
+}
+
+.theme-ops .a-pagination {
+  padding: var(--ad-sp-3) var(--ad-sp-4);
+}
+
+.theme-ops .a-empty {
+  padding: var(--ad-sp-6) var(--ad-sp-4);
 }
 
 html,
@@ -203,8 +281,8 @@ body,
   display: inline-flex;
   align-items: center;
   gap: var(--ad-sp-2);
-  height: 32px;
-  padding: 0 8px 0 4px;
+  height: 36px;
+  padding: 0 10px 0 6px;
   margin: 0;
   border: 1px solid transparent;
   border-radius: var(--ad-radius-sm);
@@ -630,7 +708,7 @@ body,
 .a-stats-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ad-sp-3);
+  gap: var(--ad-sp-4);
 }
 
 .a-stats-duo {
@@ -638,7 +716,7 @@ body,
   border: none;
   border-radius: 12px;
   overflow: hidden;
-  min-height: 148px;
+  min-height: 168px;
   display: flex;
   flex-direction: column;
   color: #fff;
@@ -731,7 +809,7 @@ body,
 .a-product-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ad-sp-3);
+  gap: var(--ad-sp-4);
 }
 
 .a-product-board__card {
@@ -1090,11 +1168,66 @@ body,
   padding-top: var(--ad-sp-1);
 }
 
+.a-form-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-sp-3);
+  margin-bottom: var(--ad-sp-2);
+}
+
+.a-form-section__head .a-form-section__title {
+  margin-bottom: 0;
+}
+
 .a-form-section__title {
   margin: 0 0 var(--ad-sp-2);
   font-size: var(--ad-fs-h2);
   font-weight: 600;
   color: var(--n-800);
+}
+
+.a-portal-region {
+  padding: var(--ad-sp-3);
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius);
+  background: var(--n-50);
+}
+
+.a-portal-region__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ad-sp-2);
+  margin-bottom: var(--ad-sp-2);
+}
+
+.a-portal-region__head .a-field__label {
+  margin: 0;
+}
+
+.a-portal-region-list {
+  gap: var(--ad-sp-3);
+}
+
+.a-portal-region-add {
+  display: flex;
+  align-items: center;
+  gap: var(--ad-sp-3);
+  padding-top: var(--ad-sp-1);
+}
+
+.a-btn--danger-link {
+  color: var(--er-600);
+}
+
+.a-btn--danger-link:hover:not(:disabled) {
+  color: var(--er-700);
+}
+
+.a-btn--danger-link:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .a-form--grid {
@@ -1545,13 +1678,13 @@ body,
 }
 
 .a-dash-panel__body {
-  padding-top: var(--ad-sp-2);
+  padding-top: var(--ad-sp-3);
 }
 
 .a-dash-kpis {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ad-sp-3);
+  gap: var(--ad-sp-4);
 }
 
 .a-dash-kpi {

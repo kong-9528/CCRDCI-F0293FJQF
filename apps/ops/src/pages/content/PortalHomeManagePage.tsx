@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   PORTAL_HOME_STATUS_LABEL,
+  activeRegionTexts,
   usePortalHomeStore,
   type PortalHomeItem,
   type PortalHomeStatus,
@@ -81,6 +82,7 @@ export function PortalHomeManagePage() {
             >
               <option value="">全部</option>
               <option value="home">首页</option>
+              <option value="faq">FAQ</option>
             </select>
           </div>
           <div className="a-field">
@@ -179,17 +181,20 @@ export function PortalHomeManagePage() {
                         {row.columnLabel}
                       </div>
                     </td>
-                    {[0, 1, 2, 3, 4].map((i) => (
-                      <td key={i}>
-                        <div
-                          className="a-cell-clamp"
-                          style={{ maxWidth: "100%" }}
-                          title={row.texts[i] || undefined}
-                        >
-                          {previewText(row.texts[i] ?? "")}
-                        </div>
-                      </td>
-                    ))}
+                    {[0, 1, 2, 3, 4].map((i) => {
+                      const texts = activeRegionTexts(row);
+                      return (
+                        <td key={i}>
+                          <div
+                            className="a-cell-clamp"
+                            style={{ maxWidth: "100%" }}
+                            title={texts[i] || undefined}
+                          >
+                            {previewText(texts[i] ?? "")}
+                          </div>
+                        </td>
+                      );
+                    })}
                     <td>
                       <span className={`a-tag ${statusTagClass(row.status)}`}>
                         {PORTAL_HOME_STATUS_LABEL[row.status]}

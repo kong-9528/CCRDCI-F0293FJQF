@@ -546,7 +546,6 @@ export function DciVerifyPage() {
             <table className="a-table">
               <thead>
                 <tr>
-                  <th>核验编码</th>
                   <th>核验时间</th>
                   <th>DCI码</th>
                   <th>著作权人</th>
@@ -559,16 +558,13 @@ export function DciVerifyPage() {
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={7}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
                 ) : (
                   pageRows.map((r) => (
                     <tr key={r.id}>
-                      <td>
-                        <code>{r.verifyCode}</code>
-                      </td>
                       <td>{r.verifiedAt}</td>
                       <td>
                         <code>{r.dciCode}</code>
