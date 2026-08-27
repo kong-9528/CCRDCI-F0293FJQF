@@ -9,8 +9,8 @@ export type PortalContentTab = "hero" | "verify" | "audit";
 
 export const PORTAL_TAB_LABEL: Record<PortalContentTab, string> = {
   hero: "焦点区",
-  verify: "版权核验服务",
-  audit: "智能辅助审核服务",
+  verify: "版权核验",
+  audit: "智能辅助审核",
 };
 
 /** 门户首屏焦点主题：对齐 HeroCarousel 文案槽位 + 焦点图 */

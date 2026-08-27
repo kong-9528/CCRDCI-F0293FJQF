@@ -500,18 +500,6 @@ a {
   justify-self: end;
 }
 
-.p-nav__mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--grad-flow);
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-}
-
 /* 登录后：进入 DCI®技术服务中心 */
 .p-nav__console {
   display: inline-flex;

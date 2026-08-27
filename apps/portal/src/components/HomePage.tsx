@@ -12,14 +12,14 @@ export function HomePage() {
       <ProductShowcase
         id="verify"
         eyebrow="Copyright Verification"
-        heading="版权核验服务"
+        heading="版权核验"
         themes={VERIFY_THEMES}
       />
 
       <ProductShowcase
         id="audit"
         eyebrow="Intelligent Audit"
-        heading="智能辅助审核服务"
+        heading="智能辅助审核"
         themes={AUDIT_THEMES}
         subtle
       />

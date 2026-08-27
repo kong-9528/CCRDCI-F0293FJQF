@@ -62,16 +62,15 @@ export function PortalNav() {
       <header className={`p-nav${scrolled ? " is-scrolled" : ""}`}>
         <div className="p-nav__inner">
           <Link href="/" className="p-nav__logo">
-            <span className="p-nav__mark">版</span>
-            <span>{PLATFORM_NAME}</span>
+            {PLATFORM_NAME}
           </Link>
           <nav className="p-nav__links" aria-label="主导航">
             <Link href="/">首页</Link>
             <a href="/#verify" onClick={goSection("verify")}>
-              版权核验服务
+              版权核验
             </a>
             <a href="/#audit" onClick={goSection("audit")}>
-              智能辅助审核服务
+              智能辅助审核
             </a>
             <Link href="/help">帮助中心</Link>
           </nav>

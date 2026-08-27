@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { PLATFORM_NAME } from "@/lib/content";
 
 export function PortalFooter() {
-  const year = new Date().getFullYear();
-
   return (
     <footer className="p-footer">
       <div className="p-rail p-footer__inner">
@@ -14,7 +11,11 @@ export function PortalFooter() {
             <Link href="/legal/privacy">隐私保护</Link>
           </nav>
           <p className="p-footer__copy">
-            © {year} {PLATFORM_NAME}
+            中国版权保护中心 ©{" "}
+            <a href="https://www.ccopyright.com" target="_blank" rel="noopener noreferrer">
+              www.ccopyright.com
+            </a>{" "}
+            京ICP备09080213号
           </p>
         </div>
       </div>

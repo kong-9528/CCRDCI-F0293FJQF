@@ -11,14 +11,14 @@ export const HERO_SLIDES = [
   {
     id: "verify",
     eyebrow: "Copyright Verification",
-    title: "版权核验服务",
+    title: "版权核验",
     highlight: "权威可溯",
     lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
   },
   {
     id: "audit",
     eyebrow: "Intelligent Review",
-    title: "智能辅助审核服务",
+    title: "智能辅助审核",
     highlight: "提效合规",
     lead: "涵盖内容安全审核、作品登记查重与疑似侵权审核，辅助缩短人工审核链路。",
   },
