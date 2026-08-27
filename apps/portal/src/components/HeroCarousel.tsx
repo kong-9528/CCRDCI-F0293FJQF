@@ -20,8 +20,7 @@ export function HeroCarousel() {
       <div className="p-container p-hero__inner">
         <div className="p-hero__slides">
           <div key={slide.id} className="p-hero__slide is-active">
-            <div className="p-eyebrow">{slide.eyebrow}</div>
-            <h1 className="p-display" style={{ margin: "16px 0 0", maxWidth: 900 }}>
+            <h1 className="p-display" style={{ margin: 0, maxWidth: 900 }}>
               {slide.title}
               <br />
               <span className="p-text-gradient">{slide.highlight}</span>

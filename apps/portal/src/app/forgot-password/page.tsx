@@ -57,8 +57,7 @@ export default function ForgotPasswordPage() {
     <div className="p-page">
       <div className="p-container">
         <div className="p-auth-card">
-          <div className="p-eyebrow">Account</div>
-          <h1 className="p-h3" style={{ margin: "8px 0 8px" }}>
+          <h1 className="p-h3" style={{ margin: "0 0 8px" }}>
             忘记密码
           </h1>
           <p style={{ margin: "0 0 8px", color: "var(--n-500)", fontSize: 14 }}>

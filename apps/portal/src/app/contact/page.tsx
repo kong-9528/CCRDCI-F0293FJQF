@@ -10,7 +10,6 @@ export default function ContactPage() {
   return (
     <div className="p-page">
       <div className="p-container p-page__prose">
-        <div className="p-eyebrow">Contact</div>
         <h1 className="p-h1">联系我们</h1>
         <p>如需了解产品能力、商务合作或账号开通，请通过以下方式联系。</p>
         <div className="p-contact-list" style={{ marginTop: 32, maxWidth: 520 }}>

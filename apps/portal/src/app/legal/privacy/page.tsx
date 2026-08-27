@@ -9,7 +9,6 @@ export default function PrivacyPage() {
   return (
     <div className="p-page">
       <div className="p-container p-page__prose">
-        <div className="p-eyebrow">Privacy</div>
         <h1 className="p-h1">隐私保护</h1>
         <p>
           {PLATFORM_NAME}重视企业客户与用户的信息安全。我们仅在提供服务、履行合同与合规要求所必需的范围内处理相关信息。

@@ -11,7 +11,6 @@ export type ShowcaseTheme = {
 
 type Props = {
   id: string;
-  eyebrow: string;
   heading: string;
   themes: ShowcaseTheme[];
   subtle?: boolean;
@@ -19,7 +18,7 @@ type Props = {
 
 const AUTO_MS = 3000;
 
-export function ProductShowcase({ id, eyebrow, heading, themes, subtle }: Props) {
+export function ProductShowcase({ id, heading, themes, subtle }: Props) {
   const n = themes.length;
   const [index, setIndex] = useState(0);
   const [trackPos, setTrackPos] = useState(1);
@@ -130,8 +129,7 @@ export function ProductShowcase({ id, eyebrow, heading, themes, subtle }: Props)
 
       <div className="p-rail p-showcase__frame">
         <div className="p-section__head p-showcase__head">
-          <div className="p-eyebrow">{eyebrow}</div>
-          <h2 className="p-h2" style={{ margin: "12px 0 0" }}>
+          <h2 className="p-h2" style={{ margin: 0 }}>
             {heading}
           </h2>
         </div>

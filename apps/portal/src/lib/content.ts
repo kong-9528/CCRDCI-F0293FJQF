@@ -3,21 +3,18 @@ export const PLATFORM_NAME = "DCI®技术服务中心";
 export const HERO_SLIDES = [
   {
     id: "trust",
-    eyebrow: "Copyright Infrastructure",
     title: "以可信数据能力",
     highlight: "护航版权经营",
     lead: "面向内容平台与版权机构，提供版权核验、智能辅助审核与开放 API，让每一次确权与用权都可追溯、可计量。",
   },
   {
     id: "verify",
-    eyebrow: "Copyright Verification",
     title: "版权核验",
     highlight: "权威可溯",
     lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
   },
   {
     id: "audit",
-    eyebrow: "Intelligent Review",
     title: "智能辅助审核",
     highlight: "提效合规",
     lead: "涵盖内容安全审核、作品登记查重与疑似侵权审核，辅助缩短人工审核链路。",
