@@ -44,16 +44,16 @@ export function JoinDialog({ open, onClose }: Props) {
         </p>
         <div className="p-contact-list">
           <div className="p-contact-item">
-            <strong>商务电话</strong>
+            <strong>地址</strong>
+            <span>{CONTACT_INFO.address}</span>
+          </div>
+          <div className="p-contact-item">
+            <strong>电话</strong>
             <span>{CONTACT_INFO.phone}</span>
           </div>
           <div className="p-contact-item">
-            <strong>商务邮箱（留资）</strong>
+            <strong>商务邮箱</strong>
             <span>{CONTACT_INFO.email}</span>
-          </div>
-          <div className="p-contact-item">
-            <strong>说明</strong>
-            <span>{CONTACT_INFO.address}</span>
           </div>
         </div>
         <div style={{ marginTop: 24 }}>

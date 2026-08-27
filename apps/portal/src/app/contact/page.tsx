@@ -14,16 +14,16 @@ export default function ContactPage() {
         <p>如需了解产品能力、商务合作或账号开通，请通过以下方式联系。</p>
         <div className="p-contact-list" style={{ marginTop: 32, maxWidth: 520 }}>
           <div className="p-contact-item">
-            <strong>商务电话</strong>
+            <strong>地址</strong>
+            <span>{CONTACT_INFO.address}</span>
+          </div>
+          <div className="p-contact-item">
+            <strong>电话</strong>
             <span>{CONTACT_INFO.phone}</span>
           </div>
           <div className="p-contact-item">
             <strong>商务邮箱</strong>
             <span>{CONTACT_INFO.email}</span>
-          </div>
-          <div className="p-contact-item">
-            <strong>响应说明</strong>
-            <span>{CONTACT_INFO.address}</span>
           </div>
         </div>
         <p style={{ marginTop: 32 }}>

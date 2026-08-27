@@ -229,7 +229,7 @@ export function firstHelpArticleId(nodes: HelpGuideNode[]): string | null {
 }
 
 export const CONTACT_INFO = {
-  phone: "400-000-0000",
+  address: "北京市丰台区汽车博物馆西路9号院6号楼",
+  phone: "010-83771600（总机）",
   email: "business@copyright-tech.example",
-  address: "请通过电话或邮件留资，商务将在 1 个工作日内联系您",
 };
