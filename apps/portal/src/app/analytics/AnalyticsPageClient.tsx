@@ -45,6 +45,45 @@ function ReportIcon({ reportId }: { reportId: string }) {
   );
 }
 
+function HighlightIcon({ variant }: { variant: "chain" | "cycle" | "subscribe" }) {
+  return (
+    <div className="p-analytics-highlight-icon" data-variant={variant} aria-hidden>
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {variant === "chain" && (
+          <>
+            <circle cx="12" cy="24" r="6" fill="rgba(11,98,184,0.15)" stroke="#0B62B8" strokeWidth="1.5" />
+            <circle cx="24" cy="14" r="6" fill="rgba(0,184,198,0.15)" stroke="#00B8C6" strokeWidth="1.5" />
+            <circle cx="36" cy="24" r="6" fill="rgba(11,98,184,0.15)" stroke="#0B62B8" strokeWidth="1.5" />
+            <circle cx="24" cy="34" r="6" fill="rgba(0,184,198,0.12)" stroke="#00B8C6" strokeWidth="1.5" />
+            <path d="M16 22l5-6M28 18l5 4M28 30l5-4M18 28l4 4" stroke="#0B62B8" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+            <circle cx="24" cy="24" r="3" fill="#0B62B8" />
+          </>
+        )}
+        {variant === "cycle" && (
+          <>
+            <rect x="10" y="12" width="28" height="26" rx="5" fill="#fff" stroke="rgba(11,98,184,0.25)" />
+            <rect x="10" y="12" width="28" height="8" rx="5" fill="rgba(11,98,184,0.12)" />
+            <rect x="14" y="26" width="5" height="8" rx="1.5" fill="rgba(11,98,184,0.35)" />
+            <rect x="21" y="22" width="5" height="12" rx="1.5" fill="rgba(0,184,198,0.5)" />
+            <rect x="28" y="28" width="5" height="6" rx="1.5" fill="rgba(11,98,184,0.25)" />
+            <path d="M32 8v6M29 11h6" stroke="#00B8C6" strokeWidth="1.5" strokeLinecap="round" />
+          </>
+        )}
+        {variant === "subscribe" && (
+          <>
+            <rect x="12" y="16" width="24" height="20" rx="4" fill="#fff" stroke="rgba(11,98,184,0.25)" />
+            <path d="M12 20l12 8 12-8" stroke="#0B62B8" strokeWidth="1.5" strokeLinejoin="round" />
+            <circle cx="34" cy="14" r="7" fill="rgba(0,184,198,0.2)" stroke="#00B8C6" strokeWidth="1.5" />
+            <path d="M31 14h6M34 11v6" stroke="#0B62B8" strokeWidth="1.5" strokeLinecap="round" />
+          </>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+const HIGHLIGHT_VARIANTS = ["chain", "cycle", "subscribe"] as const;
+
 function DimensionIcon({ dimensionId }: { dimensionId: string }) {
   const icons: Record<string, React.ReactNode> = {
     registration: (
@@ -124,8 +163,11 @@ export function AnalyticsPageClient() {
           <div className="p-analytics-highlights">
             {overview.highlights.map((item, i) => (
               <Reveal key={item.title} className={`p-analytics-highlights__item p-analytics-highlights__item--${i + 1}`}>
-                <div className="p-analytics-highlight">
-                  <span className="p-analytics-highlight__index">{String(i + 1).padStart(2, "0")}</span>
+                <div className={`p-analytics-highlight p-analytics-highlight--${i + 1}`}>
+                  <span className="p-analytics-highlight__accent" aria-hidden />
+                  <div className="p-analytics-highlight__head">
+                    <HighlightIcon variant={HIGHLIGHT_VARIANTS[i]} />
+                  </div>
                   <h3 className="p-analytics-highlight__title">{item.title}</h3>
                   <p className="p-analytics-highlight__desc">{item.desc}</p>
                 </div>
