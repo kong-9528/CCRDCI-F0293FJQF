@@ -1,6 +1,7 @@
 @import "../styles/home.css";
 @import "../styles/verify.css";
 @import "../styles/audit.css";
+@import "../styles/analytics.css";
 
 /* 门户页面组合样式：在 portal.css 之上补充需求所需布局，不改规范源文件色板 */
 /* tokens.css / portal.css 由 layout.tsx 引入 */

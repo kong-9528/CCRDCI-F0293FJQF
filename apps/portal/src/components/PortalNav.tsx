@@ -68,6 +68,7 @@ export function PortalNav() {
             <Link href="/">首页</Link>
             <Link href="/verify">版权核验</Link>
             <Link href="/audit">智能辅助审核</Link>
+            <Link href="/analytics">数据统计分析</Link>
             <Link href="/guide">接入指南</Link>
             <Link href="/faq">常见问题</Link>
           </nav>

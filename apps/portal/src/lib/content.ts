@@ -309,6 +309,238 @@ export const AUDIT_PAGE: VerifyPageContent = {
   },
 };
 
+export type AnalyticsReportItem = {
+  id: string;
+  title: string;
+  cadence: string;
+  desc: string;
+  topics: string[];
+};
+
+export type AnalyticsDimensionItem = {
+  id: string;
+  title: string;
+  summary: string;
+  intro: string;
+  metrics: string[];
+  capabilities: string[];
+  relatedHref?: string;
+  relatedLabel?: string;
+};
+
+export type AnalyticsSubscriptionContact = {
+  role: string;
+  desc: string;
+  phone: string;
+  email: string;
+  hours: string;
+};
+
+export type AnalyticsPageContent = {
+  hero: {
+    title: string;
+    highlight: string;
+    lead: string;
+  };
+  overview: {
+    title: string;
+    paragraphs: string[];
+    highlights: VerifyHighlight[];
+  };
+  reports: {
+    title: string;
+    lead: string;
+    items: AnalyticsReportItem[];
+  };
+  dimensions: {
+    title: string;
+    lead: string;
+    items: AnalyticsDimensionItem[];
+  };
+  useCases: VerifyHighlight[];
+  subscription: {
+    title: string;
+    desc: string;
+    note: string;
+    contacts: AnalyticsSubscriptionContact[];
+  };
+};
+
+export const ANALYTICS_PAGE: AnalyticsPageContent = {
+  hero: {
+    title: "数据统计分析",
+    highlight: "洞察行业 · 驱动决策",
+    lead: "汇聚版权登记、查询、核验与智能审核全链路数据，输出行业专题、年度与月度报告——让趋势可见、风险可预警、决策有依据。",
+  },
+  overview: {
+    title: "为什么需要数据统计分析",
+    paragraphs: [
+      "版权行业的日常运转涉及大量登记、查询、核验与审核行为：个人与机构提交软件或作品登记申请，权利人查询登记状态，业务方调用核验接口确认权利真伪，登记机构借助智能辅助审核提升审查效率。这些行为沉淀为海量结构化数据，却长期缺乏面向行业视角的系统化梳理与发布。",
+      "数据统计分析服务正是为此而设：围绕平台服务能力与版权领域关键指标，定期输出行业专题报告、年度报告与月度报告，从登记趋势、查询热点到核验与审核风险分布，帮助版权机构、内容平台与研究机构把握行业脉搏，支撑战略规划、产品优化与合规风控。",
+    ],
+    highlights: [
+      {
+        title: "全链路数据视角",
+        desc: "覆盖登记、查询、核验与智能审核四大业务维度，形成贯通版权生态的数据分析框架。",
+      },
+      {
+        title: "多周期报告体系",
+        desc: "行业专题、年度回顾与月度追踪相结合，满足不同决策节奏下的信息需求。",
+      },
+      {
+        title: "可订阅定制服务",
+        desc: "支持按机构需求订阅标准报告或洽谈定制分析，线下对接专属业务咨询。",
+      },
+    ],
+  },
+  reports: {
+    title: "报告体系",
+    lead: "三类报告覆盖不同时间粒度与专题深度，持续更新版权领域关键洞察。",
+    items: [
+      {
+        id: "topic",
+        title: "行业专题报告",
+        cadence: "不定期发布",
+        desc: "聚焦版权领域特定议题或细分赛道，进行深度专题研究。例如软件著作权登记结构变化、视听作品登记热点、文字作品类型分布、区域登记活跃度对比等——帮助读者在某一垂直方向上获得系统性认知。",
+        topics: [
+          "软件著作权登记结构与趋势",
+          "作品著作权类型分布与热点",
+          "区域登记活跃度对比",
+          "新兴内容形态登记观察",
+        ],
+      },
+      {
+        id: "annual",
+        title: "年度报告",
+        cadence: "每年发布",
+        desc: "对全年版权登记、查询、核验与智能审核数据进行全景回顾与综合解读。总结年度总量与增速、结构变化、风险特征与行业亮点，为机构年度规划、政策研究与市场研判提供权威参考。",
+        topics: [
+          "全年登记总量与类型结构",
+          "查询与核验服务调用概览",
+          "智能审核风险分布年度回顾",
+          "行业趋势研判与展望",
+        ],
+      },
+      {
+        id: "monthly",
+        title: "月度报告",
+        cadence: "每月发布",
+        desc: "以月为周期追踪版权领域核心指标波动，及时反映登记量变化、查询热点迁移、核验调用趋势及审核风险信号。适合需要快速掌握近期动态、及时调整业务策略的机构与用户。",
+        topics: [
+          "月度登记量与环比变化",
+          "登记查询热点追踪",
+          "核验服务调用趋势",
+          "审核风险信号月度速览",
+        ],
+      },
+    ],
+  },
+  dimensions: {
+    title: "四大分析维度",
+    lead: "从用户与机构在版权全生命周期中的核心诉求出发，构建可分析、可对比、可追踪的数据指标体系。",
+    items: [
+      {
+        id: "registration",
+        title: "版权登记分析",
+        summary: "围绕个人与机构提交软件、作品等著作权登记的行为数据，洞察登记趋势与结构特征。",
+        intro:
+          "著作权登记是权利确认的起点。无论是软件著作权还是作品著作权，登记申请的时间分布、类型构成、主体特征与区域分布，都折射出版权市场的活跃方向。本维度对登记全量数据进行统计与挖掘，帮助登记机构优化受理资源配置，也为行业研究提供一手素材。",
+        metrics: [
+          "登记申请量趋势（日 / 月 / 年）",
+          "软件 vs 作品登记占比",
+          "作品类型分布（文字、美术、视听等）",
+          "登记主体类型与区域分布",
+        ],
+        capabilities: [
+          "软件著作权登记趋势分析",
+          "作品著作权登记结构分析",
+          "登记高峰时段与季节性特征",
+          "重点类型作品登记增速追踪",
+        ],
+      },
+      {
+        id: "query",
+        title: "登记查询分析",
+        summary: "分析用户查询版权登记情况的行为数据，识别查询热点与权利关注方向。",
+        intro:
+          "登记信息的公开查询是权利人、合作方与研究机构了解作品权利状态的重要通道。查询频次、查询类型、热点登记号与关注作品类型，能够反映市场对哪些权利领域最为敏感。本维度对查询行为进行聚合分析，为登记信息公开策略与行业关注热点研判提供参考。",
+        metrics: [
+          "登记查询总量与趋势",
+          "查询类型分布（按登记号 / 作品名等）",
+          "高频查询作品类型",
+          "机构 vs 个人查询行为对比",
+        ],
+        capabilities: [
+          "登记状态查询热度排行",
+          "查询高峰与业务周期关联",
+          "重点作品类型查询追踪",
+          "查询失败 / 未命中原因分布",
+        ],
+      },
+      {
+        id: "verify",
+        title: "版权核验分析",
+        summary: "基于 DCI 核验、登记信息核验与证书核验三类服务的调用数据，分析核验需求与验真特征。",
+        intro:
+          "在业务接入、交易确权与合规审查环节，机构与用户日益依赖核验服务确认权利真伪。本维度对三项核验产品的调用量、命中率、不一致类型与行业分布进行统计，揭示「谁在验、验什么、验出了什么」——为产品优化与风控策略提供数据支撑。",
+        metrics: [
+          "三项核验产品调用量对比",
+          "核验命中率与不一致类型分布",
+          "DCI / 登记号 / 证书核验趋势",
+          "行业 / 机构调用排行（脱敏）",
+        ],
+        capabilities: ["DCI 核验调用与命中分析", "版权登记信息核验趋势", "版权登记证书验真分析"],
+        relatedHref: "/verify",
+        relatedLabel: "了解版权核验能力",
+      },
+      {
+        id: "audit",
+        title: "智能辅助审核分析",
+        summary: "基于内容安全审核、作品登记查重与疑似侵权审核三类能力的数据，刻画审核风险全景。",
+        intro:
+          "登记审核环节产生的风险信号——内容安全命中、高度雷同样本、疑似侵权要素——是行业合规态势的重要晴雨表。本维度对三项智能辅助审核产品的处理量、风险等级分布、命中类型与处置趋势进行汇总分析，帮助登记机构把握审核压力与风险结构，也为内容平台了解行业侵权与合规热点提供参考。",
+        metrics: [
+          "三项审核产品处理量与趋势",
+          "内容安全风险等级分布",
+          "查重高度雷同比例变化",
+          "疑似侵权命中类型统计",
+        ],
+        capabilities: ["内容安全审核风险分布", "作品登记查重雷同分析", "疑似侵权要素命中追踪"],
+        relatedHref: "/audit",
+        relatedLabel: "了解智能辅助审核能力",
+      },
+    ],
+  },
+  useCases: [
+    {
+      title: "版权机构决策支持",
+      desc: "为登记中心、版权保护机构提供登记趋势、审核风险与行业热点数据，支撑资源配置与政策研究。",
+    },
+    {
+      title: "内容平台战略规划",
+      desc: "通过月度与专题报告了解权利登记与核验需求变化，指导产品接入、风控规则与创作者运营策略。",
+    },
+    {
+      title: "研究与咨询引用",
+      desc: "为高校、智库与咨询机构提供可引用的行业数据与趋势分析，降低独立采集与清洗成本。",
+    },
+  ],
+  subscription: {
+    title: "订阅报告与数据服务",
+    desc: "平台目前提供线下订阅与商务接洽方式。如需获取行业专题报告、年度报告、月度报告，或洽谈定制数据分析方案，请通过以下业务咨询渠道与我们取得联系。",
+    note: "订阅范围、交付周期与定制需求将在接洽过程中由专属业务人员为您说明并确认。",
+    contacts: [
+      {
+        role: "业务咨询",
+        desc: "负责报告订阅、数据服务合作与定制分析需求的接洽与方案沟通。",
+        phone: "010-83771600（总机）",
+        email: "business@copyright-tech.example",
+        hours: "工作日 9:00 – 17:30",
+      },
+    ],
+  },
+};
+
 /** @deprecated 保留旧结构别名，供运营内容管理等场景对齐字段 */
 export const VERIFY_THEMES = VERIFY_SECTION.products.map((p) => ({
   id: p.id,
