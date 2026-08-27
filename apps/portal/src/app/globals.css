@@ -1,3 +1,5 @@
+@import "../styles/home.css";
+
 /* 门户页面组合样式：在 portal.css 之上补充需求所需布局，不改规范源文件色板 */
 /* tokens.css / portal.css 由 layout.tsx 引入 */
 
@@ -23,140 +25,7 @@ a {
   padding: 0 clamp(24px, 4vw, 64px);
 }
 
-/* 产品介绍：平铺展示各产品能力 */
-.p-products {
-  position: relative;
-  overflow: hidden;
-  padding: calc(var(--pt-nav-h) + 48px) 0 72px;
-  scroll-margin-top: var(--pt-nav-h);
-  background:
-    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(0, 184, 198, 0.07), transparent 60%),
-    radial-gradient(ellipse 45% 40% at 8% 80%, rgba(11, 98, 184, 0.06), transparent 55%),
-    #fff;
-}
-
-.p-products--audit {
-  background:
-    radial-gradient(ellipse 55% 45% at 15% 25%, rgba(11, 98, 184, 0.07), transparent 58%),
-    radial-gradient(ellipse 50% 40% at 92% 75%, rgba(0, 184, 198, 0.09), transparent 55%),
-    var(--n-50);
-}
-
-.p-products__inner {
-  position: relative;
-  z-index: 1;
-}
-
-.p-products__head {
-  margin-bottom: 40px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid rgba(11, 98, 184, 0.1);
-}
-
-.p-products--audit .p-products__head {
-  border-bottom-color: rgba(0, 184, 198, 0.14);
-}
-
-.p-products__title {
-  margin: 0;
-  font-size: clamp(32px, 3.2vw, 44px);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--n-900);
-}
-
-.p-products__title::after {
-  content: "";
-  display: block;
-  width: 48px;
-  height: 4px;
-  margin-top: 16px;
-  border-radius: 999px;
-  background: var(--grad-flow);
-}
-
-.p-products--audit .p-products__title::after {
-  background: linear-gradient(90deg, var(--a-500), var(--a-300));
-}
-
-.p-products__lead {
-  margin: 20px 0 0;
-  max-width: 720px;
-  font-size: 16px;
-  line-height: 1.75;
-  color: var(--n-500);
-}
-
-.p-products__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-.p-product-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  padding: 28px 24px 24px;
-  border-radius: 20px;
-  background: #fff;
-  border: 1px solid rgba(11, 98, 184, 0.1);
-  box-shadow: 0 8px 28px rgba(0, 34, 68, 0.06);
-  transition: border-color var(--pt-motion), box-shadow var(--pt-motion), transform var(--pt-motion);
-}
-
-.p-products--audit .p-product-card {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(0, 184, 198, 0.12);
-}
-
-.p-product-card:hover {
-  border-color: rgba(11, 98, 184, 0.22);
-  box-shadow: 0 14px 36px rgba(0, 34, 68, 0.1);
-  transform: translateY(-2px);
-}
-
-.p-products--audit .p-product-card:hover {
-  border-color: rgba(0, 184, 198, 0.28);
-}
-
-.p-product-card__title {
-  margin: 0 0 16px;
-  font-size: 20px;
-  line-height: 1.35;
-  font-weight: 600;
-  color: var(--n-900);
-}
-
-.p-product-card__desc {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--n-500);
-}
-
-@media (max-width: 1100px) {
-  .p-products__grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .p-product-card {
-    padding: 24px 22px 22px;
-  }
-}
-
-@media (max-width: 640px) {
-  .p-products {
-    padding: calc(var(--pt-nav-h) + 32px) 0 56px;
-  }
-
-  .p-products__head {
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-  }
-}
+/* 产品介绍样式见 styles/home.css */
 
 /* 主内容齐线：产品介绍等板块共用 */
 .p-rail {
@@ -353,51 +222,7 @@ a {
   color: var(--er-700);
 }
 
-.p-hero__slides {
-  position: relative;
-  min-height: 280px;
-}
-
-.p-hero__slide {
-  display: none;
-  animation: p-fade-in 480ms ease;
-}
-
-.p-hero__slide.is-active {
-  display: block;
-}
-
-.p-hero__dots {
-  display: flex;
-  gap: 10px;
-  margin-top: 40px;
-}
-
-.p-hero__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.35);
-  cursor: pointer;
-  padding: 0;
-}
-
-.p-hero__dot.is-active {
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(0, 184, 198, 0.35);
-}
-
-@keyframes p-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* Hero 样式见 styles/home.css */
 
 /* Footer — 联系信息居左、版权同排居右 */
 .p-footer {
@@ -782,6 +607,21 @@ a {
   font-weight: 600;
 }
 
+.p-help__richtext pre {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+  overflow-x: auto;
+}
+
+.p-help__richtext code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--p-700);
+}
+
 .p-help__figure {
   margin: 24px 0;
   border-radius: 16px;
@@ -908,6 +748,15 @@ a {
 .p-help__acc-item.is-open .p-help__acc-a {
   border-top-color: var(--n-100);
   transform: translateY(0);
+}
+
+.p-faq__main {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.p-faq__main .p-help__accordion {
+  gap: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {

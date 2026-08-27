@@ -79,27 +79,8 @@ body.p-portal {
 .p-nav__links a:hover { color: var(--p-500); }
 .p-nav__actions { margin-left: auto; display: flex; gap: 16px; align-items: center; }
 
-/* ---------- Hero 首屏 ---------- */
-.p-hero {
-  min-height: 88vh;
-  display: flex;
-  align-items: center;
-  background: var(--grad-hero);
-  color: var(--n-0);
-  position: relative;
-  overflow: hidden;
-}
-.p-hero::after {                   /* 新锐装饰：右下极光青光斑 */
-  content: "";
-  position: absolute;
-  right: -160px; bottom: -160px;
-  width: 520px; height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0,184,198,.35), transparent 70%);
-  pointer-events: none;
-}
-.p-hero__inner { padding: calc(var(--pt-nav-h) + 48px) 0 96px; position: relative; z-index: 1; }
-.p-hero .p-lead { color: rgba(255,255,255,.82); margin: 24px 0 48px; }
+/* ---------- Hero 首屏（基础变量；完整布局见 home.css） ---------- */
+.p-hero .p-lead { color: rgba(255,255,255,.82); }
 
 /* ---------- 按钮（胶囊 + 渐变/阴影） ---------- */
 .p-btn {

@@ -118,79 +118,88 @@ export type HelpFaqItem = {
   answerHtml: string;
 };
 
-export const HELP_GUIDE: HelpGuideNode[] = [
+export const INTEGRATION_GUIDE: HelpGuideNode[] = [
   {
     type: "article",
-    id: "overview",
-    title: "平台概览",
+    id: "integration-overview",
+    title: "接入概览",
     html: `
-      <p>${PLATFORM_NAME}面向企业客户，提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 与开放 API，按调用次数计量。</p>
-      <p>门户不提供自助注册，请联系商务完成线下签约后使用。</p>
+      <p>${PLATFORM_NAME}面向企业客户提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>，支持 WebUI 在线调用与开放 API 接入，按调用次数计量。</p>
+      <p>典型接入路径如下：</p>
+      <ol>
+        <li>线下完成商务签约与账号开通</li>
+        <li>登录客户工作台，确认已开通产品与调用额度</li>
+        <li>获取 API 文档与密钥（如需 API 对接）</li>
+        <li>按产品说明完成联调，上线生产调用</li>
+      </ol>
+      <p>门户不提供自助注册；如需开通或追加产品，请联系商务。</p>
     `,
   },
   {
     type: "folder",
-    id: "folder-account",
-    title: "账号与登录",
+    id: "folder-onboarding",
+    title: "开通与准备",
     children: [
       {
         type: "article",
-        id: "account",
-        title: "账号开通说明",
+        id: "contract",
+        title: "签约开通流程",
         html: `
-          <p>本平台为企业客户提供<strong>版权核验服务</strong>与<strong>智能辅助审核服务</strong>。账号需在线下完成合同签署后开通。</p>
-          <p>开通后您将收到登录用户名与初始密码，首次登录建议立即修改密码。门户<strong>不提供自助注册</strong>。</p>
+          <p>企业客户需先完成线下合同签署，运营侧将为您开通租户账号并配置产品权限。</p>
           <ul>
-            <li>签约完成后开通企业租户与登录账号</li>
-            <li>产品权限与调用额度按合同在后台配置</li>
-            <li>如需加额度或续期，请联系客户经理</li>
+            <li>提交企业资质与联系人信息</li>
+            <li>确认接入产品与预估调用量</li>
+            <li>签约完成后 1–3 个工作日内开通账号</li>
+            <li>收到用户名、初始密码及已开通产品清单</li>
           </ul>
+          <p>首次登录后建议立即修改密码，并在工作台核对产品与额度配置是否与合同一致。</p>
         `,
       },
       {
         type: "article",
-        id: "console",
-        title: `进入${PLATFORM_NAME}`,
+        id: "environment",
+        title: "环境与网络要求",
         html: `
-          <p>登录成功后，导航栏将出现「${PLATFORM_NAME}」入口，点击即可进入客户工作台。</p>
-          <figure class="p-help__figure" role="img" aria-label="登录后导航栏出现平台入口示意">登录后导航栏出现平台入口示意</figure>
-          <p>在平台中可查看额度、调用流水、API 文档，并对已开通且支持 WebUI 的产品进行在线操作。</p>
+          <p>API 接入需满足以下基本要求：</p>
+          <ul>
+            <li>服务端可访问 HTTPS 公网接口（TLS 1.2 及以上）</li>
+            <li>请求超时建议不低于 30 秒（证书核验等场景可能耗时较长）</li>
+            <li>上传类接口需支持 multipart/form-data</li>
+            <li>建议业务侧实现幂等与重试，并记录请求流水便于排查</li>
+          </ul>
+          <p>如需 IP 白名单或专线接入，请在签约阶段与商务确认。</p>
         `,
       },
     ],
   },
   {
     type: "folder",
-    id: "folder-products",
-    title: "产品使用",
+    id: "folder-api",
+    title: "API 接入",
     children: [
       {
         type: "article",
-        id: "verify-guide",
-        title: "版权核验服务指南",
+        id: "auth",
+        title: "鉴权方式",
         html: `
-          <p>版权核验服务包含以下产品：</p>
-          <ul>
-            <li><strong>DCI核验</strong></li>
-            <li><strong>版权登记信息核验</strong></li>
-            <li><strong>版权登记证书核验</strong></li>
-          </ul>
-          <p>在${PLATFORM_NAME}选择已开通产品，按提示提交后<strong>同步返回结果</strong>。</p>
-          <p>若通过 API 对接，请在文档中获取对应产品路径、鉴权方式与错误码说明。</p>
+          <p>开放 API 采用 <strong>API Key</strong> 鉴权。每次请求需在 Header 中携带：</p>
+          <pre><code>Authorization: Bearer &lt;您的 API Key&gt;</code></pre>
+          <p>密钥与客户租户绑定，仅可调用该租户已开通且状态有效的产品。密钥泄露请立即在工作台吊销并重新创建。</p>
         `,
       },
       {
         type: "article",
-        id: "audit-guide",
-        title: "智能辅助审核服务指南",
+        id: "request-spec",
+        title: "请求规范",
         html: `
-          <p>智能辅助审核服务包含以下产品：</p>
+          <p>通用约定：</p>
           <ul>
-            <li><strong>内容安全审核</strong></li>
-            <li><strong>作品登记查重</strong></li>
-            <li><strong>疑似侵权审核</strong></li>
+            <li>Base URL 与接口路径以工作台「API 文档」为准</li>
+            <li>请求与响应均为 JSON（文件上传接口除外）</li>
+            <li>统一返回 <code>code</code>、<code>message</code>、<code>data</code> 结构</li>
+            <li><code>code = 0</code> 表示成功，非 0 为业务或系统错误</li>
           </ul>
-          <p>支持 WebUI 提交或开放 API 接入。返回结果包含风险提示与结构化字段，便于业务侧落库与人工复核。</p>
+          <p>调用前请确认当前产品额度充足；额度不足时将返回明确错误码，不会部分扣费。</p>
         `,
       },
       {
@@ -198,17 +207,123 @@ export const HELP_GUIDE: HelpGuideNode[] = [
         id: "api-key",
         title: "API Key 管理",
         html: `
-          <p>在${PLATFORM_NAME}创建 API Key，<strong>完整密钥仅在创建时展示一次</strong>，请妥善保存。</p>
+          <p>在${PLATFORM_NAME}工作台进入「密钥管理」：</p>
           <ol>
-            <li>进入平台后打开密钥管理</li>
-            <li>创建密钥并立即复制保存</li>
-            <li>可随时吊销；吊销后立即失效，请同步更新业务系统配置</li>
+            <li>点击创建密钥，<strong>完整 Key 仅展示一次</strong>，请立即复制保存</li>
+            <li>为不同环境（测试/生产）建议使用独立密钥</li>
+            <li>人员变动或疑似泄露时，先创建新密钥并完成切换，再吊销旧密钥</li>
           </ol>
+          <p>吊销后旧密钥即时失效，请同步更新业务系统配置，避免生产中断。</p>
+        `,
+      },
+    ],
+  },
+  {
+    type: "folder",
+    id: "folder-verify",
+    title: "版权核验服务接入",
+    children: [
+      {
+        type: "article",
+        id: "dci-api",
+        title: "DCI核验",
+        html: `
+          <p>提交 DCI 编码、作品名称与著作权人信息，核验 DCI 码是否存在及与作品、著作权人是否一致。</p>
+          <p><strong>主要参数：</strong>DCI 编码、作品名称、著作权人（名称或证件信息，以文档为准）</p>
+          <p><strong>返回要点：</strong>是否存在、是否一致、登记摘要信息等。适用于交易确权、内容分发前校验等场景。</p>
+        `,
+      },
+      {
+        type: "article",
+        id: "info-api",
+        title: "版权登记信息核验",
+        html: `
+          <p>提交版权登记号、作品名称与著作权人信息，核验登记是否存在、类型（软件/作品）及字段是否一致。</p>
+          <p><strong>主要参数：</strong>登记号、作品/软件名称、著作权人信息</p>
+          <p><strong>返回要点：</strong>登记状态、作品类型、名称与著作权人匹配结果。适用于合规审查与权属核对。</p>
+        `,
+      },
+      {
+        type: "article",
+        id: "cert-api",
+        title: "版权登记证书核验",
+        html: `
+          <p>上传版权证书 PDF 或图片，核验证书真伪及记载内容是否准确。</p>
+          <p><strong>主要参数：</strong>证书文件（支持常见图片格式与 PDF）</p>
+          <p><strong>返回要点：</strong>验真结果、证书关键字段解析。建议单文件大小不超过文档限制，批量场景可分批调用。</p>
+        `,
+      },
+    ],
+  },
+  {
+    type: "folder",
+    id: "folder-audit",
+    title: "智能辅助审核服务接入",
+    children: [
+      {
+        type: "article",
+        id: "safety-api",
+        title: "内容安全审核",
+        html: `
+          <p>提交文本、图片或视频等内容，获取违规与高风险标签及处置建议。</p>
+          <p>按媒体类型调用对应子接口；返回结构化风险等级与命中规则摘要，便于运营复核与自动拦截策略配置。</p>
+        `,
+      },
+      {
+        type: "article",
+        id: "duplicate-api",
+        title: "作品登记查重",
+        html: `
+          <p>提交待登记作品内容，与已登记库比对相似度，辅助登记前风控。</p>
+          <p>返回相似度分值、命中作品摘要与建议结论，可与人工审核流程结合使用。</p>
+        `,
+      },
+      {
+        type: "article",
+        id: "infringe-api",
+        title: "疑似侵权审核",
+        html: `
+          <p>提交疑似侵权线索与对比材料，获取相似度分析与风险研判结果。</p>
+          <p>适用于平台侵权投诉、版权监测等场景的辅助研判，最终结果建议结合人工复核。</p>
+        `,
+      },
+    ],
+  },
+  {
+    type: "folder",
+    id: "folder-ops",
+    title: "运维与排查",
+    children: [
+      {
+        type: "article",
+        id: "error-codes",
+        title: "错误码与排查",
+        html: `
+          <p>常见错误类型：</p>
+          <ul>
+            <li><strong>鉴权失败</strong>：检查 Key 是否正确、是否已吊销、Header 格式</li>
+            <li><strong>产品未开通</strong>：确认合同产品已在后台配置并生效</li>
+            <li><strong>额度不足</strong>：联系客户经理追加额度</li>
+            <li><strong>参数错误</strong>：对照 API 文档核对必填项与格式</li>
+          </ul>
+          <p>排查时请记录请求 ID、时间与完整错误码，便于客服与技术支持定位。</p>
+        `,
+      },
+      {
+        type: "article",
+        id: "billing",
+        title: "额度与计费",
+        html: `
+          <p>各产品按<strong>成功调用次数</strong>计量，具体单价与套餐以合同约定为准。</p>
+          <p>工作台可查看剩余额度与调用流水。额度即将用尽时建议提前联系商务续期或加购，避免业务中断。</p>
         `,
       },
     ],
   },
 ];
+
+/** @deprecated 使用 INTEGRATION_GUIDE */
+export const HELP_GUIDE = INTEGRATION_GUIDE;
 
 export const HELP_FAQ: HelpFaqItem[] = [
   {

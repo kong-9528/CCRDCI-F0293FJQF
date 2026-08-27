@@ -72,7 +72,8 @@ export function PortalNav() {
             <a href="/#audit" onClick={goSection("audit")}>
               智能辅助审核
             </a>
-            <Link href="/help">帮助中心</Link>
+            <Link href="/guide">接入指南</Link>
+            <Link href="/faq">常见问题</Link>
           </nav>
           <div className="p-nav__actions">
             {ready && user ? (

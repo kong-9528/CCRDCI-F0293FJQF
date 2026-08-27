@@ -1,10 +1,5 @@
-import type { Metadata } from "next";
-import { HelpCenter } from "./HelpCenterClient";
-
-export const metadata: Metadata = {
-  title: "帮助中心",
-};
+import { redirect } from "next/navigation";
 
 export default function HelpPage() {
-  return <HelpCenter />;
+  redirect("/guide");
 }
