@@ -190,7 +190,7 @@ export function InfoVerifyPage() {
         <div className="a-card__body a-stack">
           <div className="c-verify-panel-head">
             <h2 className="c-verify-panel-head__title">
-              版权信息核验 · {INFO_WORK_TYPE_LABEL[workType]}
+              版权登记信息核验 · {INFO_WORK_TYPE_LABEL[workType]}
             </h2>
           </div>
 

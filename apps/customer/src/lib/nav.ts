@@ -21,8 +21,8 @@ export const CUSTOMER_NAV: NavGroup[] = [
     title: "版权核验服务",
     items: [
       { to: "/verify/dci", label: "DCI核验", icon: "dci" },
-      { to: "/verify/info", label: "版权信息核验", icon: "info" },
-      { to: "/verify/certificate", label: "版权证书核验", icon: "cert" },
+      { to: "/verify/info", label: "版权登记信息核验", icon: "info" },
+      { to: "/verify/certificate", label: "版权登记证书核验", icon: "cert" },
     ],
   },
   {
@@ -39,8 +39,8 @@ const NAV_LABELS: Record<string, string> = {
   "/desk": "工作台",
   "/dashboard": "数据概览",
   "/verify/dci": "DCI核验",
-  "/verify/info": "版权信息核验",
-  "/verify/certificate": "版权证书核验",
+  "/verify/info": "版权登记信息核验",
+  "/verify/certificate": "版权登记证书核验",
   "/review/safety": "内容安全审核",
   "/review/duplicate": "作品登记查重",
   "/review/infringement": "疑似侵权审核",

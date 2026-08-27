@@ -3,8 +3,8 @@ export const PLATFORM_NAME = "DCI®技术服务中心";
 /** 6 个可售 API 产品（与门户一致） */
 export const PRODUCTS = [
   { code: "dci", name: "DCI核验", category: "verify" },
-  { code: "info", name: "版权信息核验", category: "verify" },
-  { code: "certificate", name: "版权证书核验", category: "verify" },
+  { code: "info", name: "版权登记信息核验", category: "verify" },
+  { code: "certificate", name: "版权登记证书核验", category: "verify" },
   { code: "safety", name: "内容安全审核", category: "audit" },
   { code: "duplicate", name: "作品登记查重", category: "audit" },
   { code: "infringement", name: "疑似侵权审核", category: "audit" },

@@ -13,7 +13,7 @@ export const HERO_SLIDES = [
     eyebrow: "Copyright Verification",
     title: "版权核验服务",
     highlight: "权威可溯",
-    lead: "覆盖 DCI 核验、版权信息核验与版权证书核验，支撑业务接入、交易确权与合规审查。",
+    lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
   },
   {
     id: "audit",
@@ -33,13 +33,13 @@ export const VERIFY_THEMES = [
   },
   {
     id: "info",
-    title: "版权信息核验",
+    title: "版权登记信息核验",
     desc: "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
     visual: "作品信息 · 权利核对 · 结果回传",
   },
   {
     id: "certificate",
-    title: "版权证书核验",
+    title: "版权登记证书核验",
     desc: "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
     visual: "证书核验 · 批量处理 · 结构化结果",
   },
@@ -142,8 +142,8 @@ export const HELP_GUIDE: HelpGuideNode[] = [
           <p>版权核验服务包含以下产品：</p>
           <ul>
             <li><strong>DCI核验</strong></li>
-            <li><strong>版权信息核验</strong></li>
-            <li><strong>版权证书核验</strong></li>
+            <li><strong>版权登记信息核验</strong></li>
+            <li><strong>版权登记证书核验</strong></li>
           </ul>
           <p>在${PLATFORM_NAME}选择已开通产品，按提示提交后<strong>同步返回结果</strong>。</p>
           <p>若通过 API 对接，请在文档中获取对应产品路径、鉴权方式与错误码说明。</p>
@@ -200,7 +200,7 @@ export const HELP_FAQ: HelpFaqItem[] = [
     id: "faq-products",
     question: "两类服务分别包含哪些产品？",
     answerHtml: `
-      <p><strong>版权核验服务：</strong>DCI核验、版权信息核验、版权证书核验。</p>
+      <p><strong>版权核验服务：</strong>DCI核验、版权登记信息核验、版权登记证书核验。</p>
       <p><strong>智能辅助审核服务：</strong>内容安全审核、作品登记查重、疑似侵权审核。</p>
     `,
   },

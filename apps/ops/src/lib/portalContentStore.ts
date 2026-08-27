@@ -84,7 +84,7 @@ let heroThemes: HeroTheme[] = [
     eyebrow: "Copyright Verification",
     title: "版权核验服务",
     highlight: "权威可溯",
-    lead: "覆盖 DCI 核验、版权信息核验与版权证书核验，支撑业务接入、交易确权与合规审查。",
+    lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
     maintainer: "运营管理员",
     updatedAt: "2026-03-01 10:05:00",
   },
@@ -124,7 +124,7 @@ let verifyThemes: ShowcaseTheme[] = [
   },
   {
     id: "verify-2",
-    title: "版权信息核验",
+    title: "版权登记信息核验",
     desc: "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
     visual: "作品信息 · 权利核对 · 结果回传",
     imageUrl: "",
@@ -136,7 +136,7 @@ let verifyThemes: ShowcaseTheme[] = [
   },
   {
     id: "verify-3",
-    title: "版权证书核验",
+    title: "版权登记证书核验",
     desc: "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
     visual: "证书核验 · 批量处理 · 结构化结果",
     imageUrl: "",

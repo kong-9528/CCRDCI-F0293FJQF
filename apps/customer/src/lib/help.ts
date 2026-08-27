@@ -32,8 +32,8 @@ export const HELP_NAV: { id: HelpSectionId; title: string }[] = [
   { id: "quickstart", title: "快速开始" },
   { id: "api-guide", title: "API接入指南" },
   { id: "dci", title: "DCI核验接口" },
-  { id: "info", title: "版权信息核验接口" },
-  { id: "cert", title: "版权证书核验接口" },
+  { id: "info", title: "版权登记信息核验接口" },
+  { id: "cert", title: "版权登记证书核验接口" },
   { id: "review", title: "智能审核接口" },
   { id: "keys", title: "API Keys" },
   { id: "faq", title: "常见问题" },
@@ -131,11 +131,11 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
   },
   info: {
     id: "info",
-    title: "版权信息核验接口",
+    title: "版权登记信息核验接口",
     blocks: [
       {
         type: "p",
-        text: "版权信息核验接口提供作品信息检索、权属链查询、登记状态与权利人信息查询等能力。",
+        text: "版权登记信息核验接口提供作品信息检索、权属链查询、登记状态与权利人信息查询等能力。",
       },
       { type: "h3", text: "主要能力" },
       {
@@ -147,17 +147,17 @@ export const HELP_SECTIONS: Record<HelpSectionId, HelpSection> = {
           "作品分类查询",
         ],
       },
-      { type: "link", label: "打开版权信息核验页", to: "/verify/info" },
+      { type: "link", label: "打开版权登记信息核验页", to: "/verify/info" },
       { type: "link", label: "信息核验接口文档", to: "/api-docs/info", hint: "含 5 个接口" },
     ],
   },
   cert: {
     id: "cert",
-    title: "版权证书核验接口",
+    title: "版权登记证书核验接口",
     blocks: [
       {
         type: "p",
-        text: "版权证书核验接口用于证书真伪验证、详情查询、下载与批量核验。",
+        text: "版权登记证书核验接口用于证书真伪验证、详情查询、下载与批量核验。",
       },
       { type: "h3", text: "主要能力" },
       {

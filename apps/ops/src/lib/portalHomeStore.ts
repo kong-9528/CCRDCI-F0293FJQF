@@ -115,7 +115,7 @@ const SEED: PortalHomeItem[] = [
     regions: createRegions([
       "版权核验服务",
       "权威可溯",
-      "覆盖 DCI 核验、版权信息核验与版权证书核验，支撑业务接入、交易确权与合规审查。",
+      "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
     ]),
     status: "published",
     updatedAt: "2026-08-20 10:05:00",
@@ -155,7 +155,7 @@ const SEED: PortalHomeItem[] = [
     columnKey: "verify-product-2",
     columnLabel: "版权核验产品2",
     regions: createRegions([
-      "版权信息核验",
+      "版权登记信息核验",
       "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
       "作品信息 · 权利核对 · 结果回传",
     ]),
@@ -169,7 +169,7 @@ const SEED: PortalHomeItem[] = [
     columnKey: "verify-product-3",
     columnLabel: "版权核验产品3",
     regions: createRegions([
-      "版权证书核验",
+      "版权登记证书核验",
       "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
       "证书核验 · 批量处理 · 结构化结果",
     ]),

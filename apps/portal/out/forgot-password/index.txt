@@ -18,5 +18,5 @@ f:I[2183,[],"ViewportBoundary"]
 a:"$0:f:0:1:2:children:2:children:1:props:children:0:props:params"
 10:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
 c:null
-e:{"metadata":[["$","title","0",{"children":"DCI®技术服务中心"}],["$","meta","1",{"name":"description","content":"DCI®技术服务中心：版权核验服务（DCI核验、版权信息核验、版权证书核验）与智能辅助审核服务（内容安全审核、作品登记查重、疑似侵权审核），线下签约开通，按次计量。"}]],"error":null,"digest":"$undefined"}
+e:{"metadata":[["$","title","0",{"children":"DCI®技术服务中心"}],["$","meta","1",{"name":"description","content":"DCI®技术服务中心：版权核验服务（DCI核验、版权登记信息核验、版权登记证书核验）与智能辅助审核服务（内容安全审核、作品登记查重、疑似侵权审核），线下签约开通，按次计量。"}]],"error":null,"digest":"$undefined"}
 13:"$e:metadata"

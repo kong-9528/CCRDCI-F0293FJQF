@@ -153,7 +153,7 @@ export function CertVerifyPage() {
       <div className="a-card">
         <div className="a-card__body a-stack">
           <div className="c-verify-panel-head">
-            <h2 className="c-verify-panel-head__title">版权证书核验</h2>
+            <h2 className="c-verify-panel-head__title">版权登记证书核验</h2>
             <ApiDocLink productId="cert" />
           </div>
 

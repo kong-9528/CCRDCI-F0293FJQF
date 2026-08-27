@@ -11,14 +11,14 @@ export const API_DOC_PRODUCTS_META: ApiDocProductMeta[] = [
   {
     id: "info",
     productCode: "info",
-    name: "版权信息核验接口",
+    name: "版权登记信息核验接口",
     summary: "作品信息检索 · 权属链查询 · 登记状态查询",
     category: "verify",
   },
   {
     id: "cert",
     productCode: "certificate",
-    name: "版权证书核验接口",
+    name: "版权登记证书核验接口",
     summary: "证书真伪验证 · 证书下载 · 批量核验",
     category: "verify",
   },
@@ -47,8 +47,8 @@ export const API_DOC_PRODUCTS_META: ApiDocProductMeta[] = [
 
 export const PRODUCT_NAME: Record<ProductCode, string> = {
   dci: "DCI核验",
-  info: "版权信息核验",
-  certificate: "版权证书核验",
+  info: "版权登记信息核验",
+  certificate: "版权登记证书核验",
   safety: "内容安全审核",
   duplicate: "作品登记查重",
   infringement: "疑似侵权审核",
