@@ -66,9 +66,7 @@ export function PortalNav() {
           </Link>
           <nav className="p-nav__links" aria-label="主导航">
             <Link href="/">首页</Link>
-            <a href="/#verify" onClick={goSection("verify")}>
-              版权核验
-            </a>
+            <Link href="/verify">版权核验</Link>
             <a href="/#audit" onClick={goSection("audit")}>
               智能辅助审核
             </a>
