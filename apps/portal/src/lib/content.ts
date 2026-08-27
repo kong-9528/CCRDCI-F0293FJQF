@@ -21,47 +21,80 @@ export const HERO_SLIDES = [
   },
 ];
 
-export const VERIFY_THEMES = [
-  {
-    id: "dci",
-    title: "DCI核验",
-    desc: "对接 DCI 登记信息，快速核验作品登记状态与权利信息，为交易、分发与确权提供可信依据。",
-    visual: "登记状态 · 权利主体 · 登记编号",
-  },
-  {
-    id: "info",
-    title: "版权登记信息核验",
-    desc: "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
-    visual: "作品信息 · 权利核对 · 结果回传",
-  },
-  {
-    id: "certificate",
-    title: "版权登记证书核验",
-    desc: "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
-    visual: "证书核验 · 批量处理 · 结构化结果",
-  },
-];
+export type HomeProduct = {
+  id: string;
+  title: string;
+  desc: string;
+};
 
-export const AUDIT_THEMES = [
-  {
-    id: "safety",
-    title: "内容安全审核",
-    desc: "对文本、图像等内容进行安全合规筛查，帮助运营前置识别违规与高风险素材。",
-    visual: "内容筛查 · 风险标签 · 处置建议",
-  },
-  {
-    id: "duplicate",
-    title: "作品登记查重",
-    desc: "对照已登记作品库进行查重比对，辅助发现重复登记与高度相似内容，支撑登记前风控。",
-    visual: "相似度 · 比对摘要 · 登记辅助",
-  },
-  {
-    id: "infringement",
-    title: "疑似侵权审核",
-    desc: "围绕疑似侵权行为提供智能辅助研判与证据线索，便于人工复核与后续处置。",
-    visual: "侵权线索 · 风险等级 · 复核工单",
-  },
-];
+export type HomeProductSection = {
+  id: string;
+  heading: string;
+  lead: string;
+  products: HomeProduct[];
+};
+
+export const VERIFY_SECTION: HomeProductSection = {
+  id: "verify",
+  heading: "版权核验",
+  lead: "连接权威登记数据，以下三项产品可独立或组合调用，帮助您在业务接入、交易确权与合规审查中快速确认权利信息。",
+  products: [
+    {
+      id: "dci",
+      title: "DCI核验",
+      desc: "通过 DCI 编码，结合作品名称与著作权人信息，核验 DCI 码是否存在，以及与作品、著作权人是否一致。",
+    },
+    {
+      id: "info",
+      title: "版权登记信息核验",
+      desc: "通过版权登记号、作品名称与著作权人信息，核验登记号是否存在、登记类型（软件或作品），以及与软件名称/作品名称、著作权人是否一致。",
+    },
+    {
+      id: "certificate",
+      title: "版权登记证书核验",
+      desc: "上传版权证书文件或图片，核验该证书是否真实准确，支持业务侧快速验真与留档。",
+    },
+  ],
+};
+
+export const AUDIT_SECTION: HomeProductSection = {
+  id: "audit",
+  heading: "智能辅助审核",
+  lead: "面向内容运营与登记审核场景，以下三项产品提供智能辅助研判能力，帮助缩短人工审核链路、提升处置效率。",
+  products: [
+    {
+      id: "safety",
+      title: "内容安全审核",
+      desc: "提交文本、图片或视频等内容，系统对违规、敏感与高风险要素进行筛查，返回风险标签与处置建议，辅助运营前置审核。",
+    },
+    {
+      id: "duplicate",
+      title: "作品登记查重",
+      desc: "提交待登记作品内容，对照已登记作品库进行相似度比对，辅助发现重复登记与高度相似情形，支撑登记前风控。",
+    },
+    {
+      id: "infringement",
+      title: "疑似侵权审核",
+      desc: "提交疑似侵权线索与对比材料，系统提供相似度分析与风险研判结果，便于人工复核与后续处置。",
+    },
+  ],
+};
+
+/** @deprecated 保留旧结构别名，供运营内容管理等场景对齐字段 */
+export const VERIFY_THEMES = VERIFY_SECTION.products.map((p) => ({
+  id: p.id,
+  title: p.title,
+  desc: p.desc,
+  visual: "",
+}));
+
+/** @deprecated 保留旧结构别名，供运营内容管理等场景对齐字段 */
+export const AUDIT_THEMES = AUDIT_SECTION.products.map((p) => ({
+  id: p.id,
+  title: p.title,
+  desc: p.desc,
+  visual: "",
+}));
 
 /** 帮助中心：左侧树（目录可展开；文章可为根节点或挂在目录下） */
 export type HelpGuideNode =

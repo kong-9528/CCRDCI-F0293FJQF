@@ -2,25 +2,16 @@
 
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { ProductShowcase } from "@/components/ProductShowcase";
-import { AUDIT_THEMES, VERIFY_THEMES } from "@/lib/content";
+import { AUDIT_SECTION, VERIFY_SECTION } from "@/lib/content";
 
 export function HomePage() {
   return (
     <>
       <HeroCarousel />
 
-      <ProductShowcase
-        id="verify"
-        heading="版权核验"
-        themes={VERIFY_THEMES}
-      />
+      <ProductShowcase section={VERIFY_SECTION} tone="verify" />
 
-      <ProductShowcase
-        id="audit"
-        heading="智能辅助审核"
-        themes={AUDIT_THEMES}
-        subtle
-      />
+      <ProductShowcase section={AUDIT_SECTION} tone="audit" />
     </>
   );
 }
