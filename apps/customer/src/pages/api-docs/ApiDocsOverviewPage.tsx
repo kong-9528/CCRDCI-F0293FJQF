@@ -35,7 +35,6 @@ export function ApiDocsOverviewPage() {
             <div className="c-apidoc-card__summary">{prod.summary}</div>
             <div className="c-apidoc-card__tags">
               <span className="a-tag a-tag--ok">{prod.apis.length} 个接口</span>
-              <span className="a-tag a-tag--cyan">RESTful</span>
             </div>
           </Link>
         ))}

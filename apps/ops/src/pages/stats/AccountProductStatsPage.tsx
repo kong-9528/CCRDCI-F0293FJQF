@@ -374,7 +374,7 @@ export function AccountProductStatsPage() {
           <div className="a-stats-ap-panel__head">
             <h3 className="a-stats-ap-panel__title">用量热力矩阵</h3>
             <span className="a-field__hint a-stats-ap-panel__hint">
-              先取调用量 Top {MATRIX_TOP_COMBO_LIMIT} 组合圈定账号，再展示这些账号在时段内日报出现过的全部产品用量（含 0）。「—」表示时段内日报未出现该组合（未开通/已到期/已停用）。点击单元格查看趋势。
+              「—」表示时段内该账号下该产品处于“未开通/已到期/已停用”的状态。点击单元格可查看调用趋势图。
               {visibleMatrix.truncated
                 ? ` 当前共 ${visibleMatrix.totalCombos} 个有日报的组合，矩阵账号来自其中 Top ${visibleMatrix.topComboCount}（${visibleMatrix.accounts.length} 个账号）；全部组合见下方明细。`
                 : ""}
@@ -507,8 +507,7 @@ export function AccountProductStatsPage() {
           <div className="a-stats-ap-detail-head__main">
             <span>账号产品使用明细</span>
             <span className="a-field__hint a-stats-ap-detail-head__hint">
-              下列为当前搜索条件与统计周期下、日报中出现过的全部「账号×产品」组合；上方矩阵账号来自其中调用量 Top{" "}
-              {MATRIX_TOP_COMBO_LIMIT} 组合
+              下列为当前搜索条件与统计周期下的全部「账号×产品」组合
             </span>
           </div>
           <div className="a-card__extra a-inline-actions">
