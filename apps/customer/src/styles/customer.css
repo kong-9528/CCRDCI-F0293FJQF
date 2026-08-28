@@ -1346,6 +1346,15 @@ body,
   box-shadow: 0 0 0 3px rgba(11, 98, 184, 0.12);
 }
 
+.c-cert-thumb--static {
+  cursor: default;
+}
+
+.c-cert-thumb--static:hover {
+  border-color: var(--n-200);
+  box-shadow: none;
+}
+
 .c-cert-thumb img {
   width: 100%;
   height: 100%;
@@ -1386,6 +1395,14 @@ body,
   font-size: var(--ad-fs-sm);
   color: var(--n-500);
   word-break: break-all;
+}
+
+.c-cert-preview__pdf {
+  width: 100%;
+  min-height: min(70vh, 640px);
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  background: var(--n-50);
 }
 
 /* ---------- 右侧抽屉 ---------- */

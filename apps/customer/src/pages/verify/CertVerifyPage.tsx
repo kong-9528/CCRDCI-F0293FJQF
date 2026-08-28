@@ -4,6 +4,7 @@ import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { CertConfirmModal } from "@/components/verify/CertConfirmModal";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
+import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import {
   CERT_DEFAULT_DAYS,
   CERT_EXPORT_LIMIT,
@@ -16,6 +17,7 @@ import {
   type CertOcrDraft,
   type CertVerifyResult,
 } from "@/lib/verifyCert";
+import { VERIFY_DETAIL_DRAWER_ENABLED } from "@/lib/verifyFeatureFlags";
 
 function defaultDateRange() {
   const to = new Date();
@@ -53,6 +55,7 @@ export function CertVerifyPage() {
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [toast, setToast] = useState<string | null>(null);
   const [detail, setDetail] = useState<CertVerifyResult | null>(null);
+  const [preview, setPreview] = useState<CertVerifyResult | null>(null);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -326,13 +329,13 @@ export function CertVerifyPage() {
                   <th>证书</th>
                   <th>方式</th>
                   <th>结果</th>
-                  <th>操作</th>
+                  {VERIFY_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
                 </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={5}>
+                    <td colSpan={VERIFY_DETAIL_DRAWER_ENABLED ? 5 : 4}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -344,9 +347,9 @@ export function CertVerifyPage() {
                         <button
                           type="button"
                           className="c-cert-thumb"
-                          title="查看证书"
-                          aria-label={`查看证书 ${r.fileName}`}
-                          onClick={() => setDetail(r)}
+                          title="查看证书大图"
+                          aria-label={`查看证书大图 ${r.fileName}`}
+                          onClick={() => setPreview(r)}
                         >
                           <img src={r.fileUrl} alt={r.fileName} />
                           {r.fileKind === "pdf" ? (
@@ -362,15 +365,17 @@ export function CertVerifyPage() {
                           {r.status === "pass" ? "通过" : "未通过"}
                         </span>
                       </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => setDetail(r)}
-                        >
-                          查看
-                        </button>
-                      </td>
+                      {VERIFY_DETAIL_DRAWER_ENABLED ? (
+                        <td>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => setDetail(r)}
+                          >
+                            查看
+                          </button>
+                        </td>
+                      ) : null}
                     </tr>
                   ))
                 )}
@@ -419,12 +424,22 @@ export function CertVerifyPage() {
         onConfirm={(draft) => void confirm(draft)}
       />
 
-      <CertDetailDrawer
-        open={Boolean(detail)}
-        result={detail}
-        onClose={() => setDetail(null)}
-        onToast={showToast}
+      <CertFilePreviewModal
+        open={Boolean(preview)}
+        fileName={preview?.fileName ?? ""}
+        fileUrl={preview?.fileUrl ?? ""}
+        fileKind={preview?.fileKind ?? "image"}
+        onClose={() => setPreview(null)}
       />
+
+      {VERIFY_DETAIL_DRAWER_ENABLED ? (
+        <CertDetailDrawer
+          open={Boolean(detail)}
+          result={detail}
+          onClose={() => setDetail(null)}
+          onToast={showToast}
+        />
+      ) : null}
     </div>
   );
 }

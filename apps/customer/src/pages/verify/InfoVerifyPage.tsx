@@ -22,6 +22,7 @@ import {
   type InfoVerifyResult,
   type InfoWorkType,
 } from "@/lib/verifyInfo";
+import { VERIFY_DETAIL_DRAWER_ENABLED } from "@/lib/verifyFeatureFlags";
 
 function defaultDateRange() {
   const to = new Date();
@@ -342,13 +343,13 @@ export function InfoVerifyPage() {
                   <th>著作权人</th>
                   <th>方式</th>
                   <th>结果</th>
-                  <th>操作</th>
+                  {VERIFY_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
                 </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={7}>
+                    <td colSpan={VERIFY_DETAIL_DRAWER_ENABLED ? 7 : 6}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -375,15 +376,17 @@ export function InfoVerifyPage() {
                           {INFO_STATUS_LABEL[r.status]}
                         </span>
                       </td>
-                      <td style={{ whiteSpace: "nowrap" }}>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => setDetail(r)}
-                        >
-                          详情
-                        </button>
-                      </td>
+                      {VERIFY_DETAIL_DRAWER_ENABLED ? (
+                        <td style={{ whiteSpace: "nowrap" }}>
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => setDetail(r)}
+                          >
+                            详情
+                          </button>
+                        </td>
+                      ) : null}
                     </tr>
                   ))
                 )}
@@ -424,12 +427,14 @@ export function InfoVerifyPage() {
 
       <ServiceDisclaimer />
 
-      <InfoDetailDrawer
-        open={Boolean(detail)}
-        result={detail}
-        onClose={() => setDetail(null)}
-        onToast={showToast}
-      />
+      {VERIFY_DETAIL_DRAWER_ENABLED ? (
+        <InfoDetailDrawer
+          open={Boolean(detail)}
+          result={detail}
+          onClose={() => setDetail(null)}
+          onToast={showToast}
+        />
+      ) : null}
     </div>
   );
 }
