@@ -1,10 +1,32 @@
 import { useEffect, useState } from "react";
-import { PRODUCTS, productName, type ProductCode } from "@/lib/catalog";
+import {
+  PRODUCTS,
+  productName,
+  type LegacyAuditProductCode,
+  type ProductCode,
+} from "@/lib/catalog";
 
 /** 产品上线状态 */
 export type ShelfStatus = "online" | "offline";
 
 export type ProductCategory = "verify" | "audit";
+
+/** 作品智能辅助审核下的子能力（API 能力级上下架） */
+export type AuditCapabilityCode = LegacyAuditProductCode;
+
+export type AuditCapability = {
+  code: AuditCapabilityCode;
+  name: string;
+  shelfStatus: ShelfStatus;
+};
+
+export const WORK_REVIEW_SHELF_PRODUCT_NAME = "作品智能辅助审核产品";
+
+export const AUDIT_CAPABILITY_DEFS: { code: AuditCapabilityCode; name: string }[] = [
+  { code: "safety", name: "内容安全审核" },
+  { code: "duplicate", name: "作品登记查重" },
+  { code: "infringement", name: "疑似侵权审核" },
+];
 
 export type BusinessLine = "software" | "work" | "dataset";
 
@@ -83,6 +105,11 @@ const INITIAL: ManagedProduct[] = PRODUCTS.map((p) => ({
 }));
 
 let products: ManagedProduct[] = structuredClone(INITIAL);
+const INITIAL_AUDIT_CAPABILITIES: AuditCapability[] = AUDIT_CAPABILITY_DEFS.map((item) => ({
+  ...item,
+  shelfStatus: item.code === "infringement" ? "offline" : "online",
+}));
+let auditCapabilities: AuditCapability[] = structuredClone(INITIAL_AUDIT_CAPABILITIES);
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -110,6 +137,18 @@ export function getManagedProduct(code: string): ManagedProduct | undefined {
 
 export function getProductsByCategory(category: ProductCategory): ManagedProduct[] {
   return products.filter((item) => item.category === category);
+}
+
+export function getWorkReviewProduct(): ManagedProduct | undefined {
+  return products.find((p) => p.code === "workReview");
+}
+
+export function getAuditCapabilities(): AuditCapability[] {
+  return auditCapabilities;
+}
+
+export function getAuditCapability(code: AuditCapabilityCode): AuditCapability | undefined {
+  return auditCapabilities.find((item) => item.code === code);
 }
 
 export function resolveProductName(code: string): string {
@@ -172,6 +211,16 @@ export function setShelfStatus(code: string, shelfStatus: ShelfStatus) {
   emit();
 }
 
+export function setAuditCapabilityShelfStatus(
+  code: AuditCapabilityCode,
+  shelfStatus: ShelfStatus,
+) {
+  auditCapabilities = auditCapabilities.map((item) =>
+    item.code === code ? { ...item, shelfStatus } : item,
+  );
+  emit();
+}
+
 export function setPageSubmitEnabled(code: string, pageSubmitEnabled: boolean) {
   products = products.map((p) => (p.code === code ? { ...p, pageSubmitEnabled } : p));
   emit();
@@ -191,9 +240,12 @@ export function useProductsStore() {
   return {
     products: getManagedProducts(),
     getByCategory: getProductsByCategory,
+    getWorkReviewProduct,
+    getAuditCapabilities,
     create: createProduct,
     update: updateProduct,
     setShelfStatus,
+    setAuditCapabilityShelfStatus,
     setPageSubmitEnabled,
     setApiEnabled,
     productName: resolveProductName,

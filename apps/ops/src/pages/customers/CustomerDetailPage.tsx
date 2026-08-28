@@ -2,13 +2,15 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
+  ProductSubparamsRow,
+  ProductVerifyOptions,
+} from "@/components/ProductVerifyOptions";
+import {
   ACCOUNT_STATUS_LABEL,
   CUSTOMER_TYPE_LABEL,
   SERVICE_STATUS_LABEL,
   deriveServiceStatus,
-  formatBusinessTypes,
   formatQuota,
-  formatUsageChannels,
   isVerifyProduct,
   productName,
   type ProductServiceConfig,
@@ -198,8 +200,12 @@ export function CustomerDetailPage() {
                     ) : (
                       customer.productServices.flatMap((svc) => {
                         const status = deriveServiceStatus(svc);
+                        const hasSubparams = isVerifyProduct(svc.product);
                         const rows = [
-                          <tr key={svc.product}>
+                          <tr
+                            key={svc.product}
+                            className={hasSubparams ? "a-product-row--has-subparams" : undefined}
+                          >
                             <td>{productName(svc.product)}</td>
                             <td>{formatQuota(svc)}</td>
                             <td>
@@ -223,22 +229,15 @@ export function CustomerDetailPage() {
                             </td>
                           </tr>,
                         ];
-                        if (isVerifyProduct(svc.product)) {
+                        if (hasSubparams) {
                           rows.push(
-                            <tr key={`${svc.product}-opts`} className="a-product-row-detail">
-                              <td colSpan={5}>
-                                <div className="a-product-verify-options a-product-verify-options--readonly">
-                                  <div className="a-product-verify-options__group">
-                                    <span className="a-product-verify-options__label">开通业务类型</span>
-                                    <span>{formatBusinessTypes(svc.businessTypes ?? [])}</span>
-                                  </div>
-                                  <div className="a-product-verify-options__group">
-                                    <span className="a-product-verify-options__label">产品使用方式</span>
-                                    <span>{formatUsageChannels(svc.usageChannels ?? [])}</span>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>,
+                            <ProductSubparamsRow key={`${svc.product}-opts`} colSpan={4}>
+                              <ProductVerifyOptions
+                                readonly
+                                businessTypes={svc.businessTypes ?? []}
+                                usageChannels={svc.usageChannels ?? []}
+                              />
+                            </ProductSubparamsRow>,
                           );
                         }
                         return rows;

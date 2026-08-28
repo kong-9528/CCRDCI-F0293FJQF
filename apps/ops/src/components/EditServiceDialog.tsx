@@ -4,12 +4,10 @@ import {
   productName,
   type CustomerAccount,
   type ProductServiceConfig,
-  type QuotaType,
 } from "@/lib/catalog";
 
 export type ServiceEditPatch = {
-  quotaType: QuotaType;
-  quotaTotal: number | null;
+  quotaTotal: number;
   startDate: string;
   endDate: string;
 };
@@ -29,7 +27,6 @@ export function EditServiceDialog({
   onCancel,
   onSave,
 }: Props) {
-  const [quotaType, setQuotaType] = useState<QuotaType>("total");
   const [quotaTotal, setQuotaTotal] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -37,7 +34,6 @@ export function EditServiceDialog({
 
   useEffect(() => {
     if (!open || !service) return;
-    setQuotaType(service.quotaType);
     setQuotaTotal(service.quotaTotal == null ? "" : String(service.quotaTotal));
     setStartDate(service.startDate);
     setEndDate(service.endDate);
@@ -56,23 +52,18 @@ export function EditServiceDialog({
       return;
     }
 
-    let total: number | null = null;
-    if (quotaType === "total") {
-      const n = Number(quotaTotal);
-      if (!Number.isInteger(n) || n <= 0) {
-        setError("按总量时，额度须为正整数");
-        return;
-      }
-      if (n < service.usedCount) {
-        setError(`新额度不能小于已用次数 ${service.usedCount}`);
-        return;
-      }
-      total = n;
+    const n = Number(quotaTotal);
+    if (!Number.isInteger(n) || n <= 0) {
+      setError("授权总量须为正整数");
+      return;
+    }
+    if (n < service.usedCount) {
+      setError(`授权总量不能小于已用次数 ${service.usedCount}`);
+      return;
     }
 
     const err = onSave({
-      quotaType,
-      quotaTotal: total,
+      quotaTotal: n,
       startDate,
       endDate,
     });
@@ -131,37 +122,17 @@ export function EditServiceDialog({
 
         <div className="a-form a-form--modal a-form--stack">
           <div className="a-field a-field--stack">
-            <span className="a-field__label">额度</span>
-            <div className="a-inline-actions" style={{ flexWrap: "wrap" }}>
-              <label className="a-radio">
-                <input
-                  type="radio"
-                  name="quotaType"
-                  checked={quotaType === "unlimited"}
-                  onChange={() => setQuotaType("unlimited")}
-                />
-                不限量
-              </label>
-              <label className="a-radio">
-                <input
-                  type="radio"
-                  name="quotaType"
-                  checked={quotaType === "total"}
-                  onChange={() => setQuotaType("total")}
-                />
-                合作期内总量
-              </label>
-              {quotaType === "total" ? (
-                <input
-                  className="a-input a-input--sm"
-                  style={{ minWidth: 120 }}
-                  inputMode="numeric"
-                  placeholder="次数"
-                  value={quotaTotal}
-                  onChange={(e) => setQuotaTotal(e.target.value.replace(/\D/g, ""))}
-                />
-              ) : null}
-            </div>
+            <span className="a-field__label">
+              授权总量 <span className="a-req">*</span>
+            </span>
+            <input
+              className="a-input a-input--sm"
+              style={{ maxWidth: 200 }}
+              inputMode="numeric"
+              placeholder="次数"
+              value={quotaTotal}
+              onChange={(e) => setQuotaTotal(e.target.value.replace(/\D/g, ""))}
+            />
           </div>
 
           <div className="a-field a-field--stack">
@@ -186,7 +157,7 @@ export function EditServiceDialog({
           </div>
 
           <div className="a-field__hint">
-            额度仅在产品有效期内可消耗；过期后次数不清零，但不可再调用。
+            授权总量仅在产品有效期内可消耗；过期后次数不清零，但不可再调用。
           </div>
         </div>
 

@@ -29,10 +29,6 @@ type Filters = {
 
 const EMPTY: Filters = { account: "", product: "", status: "" };
 
-function billingLabel(svc: ProductServiceConfig) {
-  return svc.quotaType === "unlimited" ? "不限" : "按总量";
-}
-
 function quotaCell(svc: ProductServiceConfig) {
   if (svc.quotaType === "unlimited") return "—";
   return `${(svc.quotaTotal ?? 0).toLocaleString()} 次`;
@@ -184,8 +180,7 @@ export function CustomerServicesPage() {
                   <th>公司名称</th>
                   <th>联系人姓名</th>
                   <th>产品</th>
-                  <th>计费方式</th>
-                  <th>额度</th>
+                  <th>授权总量</th>
                   <th>服务状态</th>
                   <th>到期日期</th>
                   <th>操作</th>
@@ -194,7 +189,7 @@ export function CustomerServicesPage() {
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={9}>
+                    <td colSpan={8}>
                       <div className="a-empty">暂无产品服务记录</div>
                     </td>
                   </tr>
@@ -217,7 +212,6 @@ export function CustomerServicesPage() {
                           {productName(row.service.product)}
                         </span>
                       </td>
-                      <td>{billingLabel(row.service)}</td>
                       <td className="num">{quotaCell(row.service)}</td>
                       <td>
                         <span className={`a-tag ${statusTagClass(row.status)}`}>
@@ -334,7 +328,6 @@ export function CustomerServicesPage() {
         onSave={(input) => {
           const err = addProductService(input.customerId, {
             product: input.product,
-            quotaType: input.quotaType,
             quotaTotal: input.quotaTotal,
             startDate: input.startDate,
             endDate: input.endDate,

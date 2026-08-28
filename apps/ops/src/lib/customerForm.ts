@@ -116,7 +116,7 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
         ? c.productServices.map((s) => ({
             key: `p-${s.product}`,
             product: s.product,
-            quotaType: s.quotaType,
+            quotaType: "total",
             quotaTotal: s.quotaTotal == null ? "" : String(s.quotaTotal),
             startDate: s.startDate,
             endDate: s.endDate,
@@ -158,26 +158,20 @@ export function parseProductServices(
       };
     }
     seen.add(r.product);
-    if (!r.quotaType) {
-      return { ok: false, error: `${label}：请选择额度类型` };
+    if (!r.quotaTotal.trim()) {
+      return { ok: false, error: `${label}：请填写授权总量` };
     }
-    let quotaTotal: number | null = null;
-    if (r.quotaType === "total") {
-      if (!r.quotaTotal.trim()) {
-        return { ok: false, error: `${label}：请填写总量额度` };
-      }
-      const n = Number(r.quotaTotal);
-      if (!Number.isInteger(n) || n <= 0) {
-        return { ok: false, error: `${label}：总量额度须为正整数` };
-      }
-      if (n < r.usedCount) {
-        return {
-          ok: false,
-          error: `${label}：新额度不能小于已用次数 ${r.usedCount}`,
-        };
-      }
-      quotaTotal = n;
+    const n = Number(r.quotaTotal);
+    if (!Number.isInteger(n) || n <= 0) {
+      return { ok: false, error: `${label}：授权总量须为正整数` };
     }
+    if (n < r.usedCount) {
+      return {
+        ok: false,
+        error: `${label}：授权总量不能小于已用次数 ${r.usedCount}`,
+      };
+    }
+    const quotaTotal = n;
     if (!r.startDate && !r.endDate) {
       return { ok: false, error: `${label}：请填写有效期起止日期` };
     }
@@ -200,7 +194,7 @@ export function parseProductServices(
     }
     const item: ProductServiceConfig = {
       product: r.product as ProductCode,
-      quotaType: r.quotaType,
+      quotaType: "total",
       quotaTotal,
       usedCount: r.usedCount,
       startDate: r.startDate,
@@ -371,13 +365,13 @@ export function diffCustomer(
       push(
         `产品·${name}`,
         "未开通",
-        `${a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
+        `${a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
       );
     } else if (b && !a) {
       push(`产品·${name}`, "已配置", "已移除");
     } else if (b && a) {
-      const bq = b.quotaType === "unlimited" ? "不限量" : `总量${b.quotaTotal}`;
-      const aq = a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`;
+      const bq = b.quotaType === "unlimited" ? "不限量" : `授权总量${b.quotaTotal}`;
+      const aq = a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`;
       const bizDiff =
         isVerifyProduct(code) && a.businessTypes && a.usageChannels
           ? {

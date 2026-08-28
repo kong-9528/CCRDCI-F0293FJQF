@@ -1,8 +1,10 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
-  BUSINESS_TYPE_OPTIONS,
+  ProductSubparamsRow,
+  ProductVerifyOptions,
+} from "@/components/ProductVerifyOptions";
+import {
   CONFIGURABLE_PRODUCTS,
-  USAGE_CHANNEL_OPTIONS,
   isVerifyProduct,
   productName,
   type ProductCode,
@@ -11,11 +13,6 @@ import {
   emptyProductRow,
   type ProductFormRow,
 } from "@/lib/customerForm";
-import {
-  toggleBusinessType,
-  toggleUsageChannel,
-} from "@/lib/productConfig";
-
 type Props = {
   rows: ProductFormRow[];
   onChange: (rows: ProductFormRow[]) => void;
@@ -107,61 +104,6 @@ function ProductCombobox({
   );
 }
 
-function VerifyProductOptions({
-  row,
-  onChange,
-}: {
-  row: ProductFormRow;
-  onChange: (patch: Partial<ProductFormRow>) => void;
-}) {
-  return (
-    <div className="a-product-verify-options">
-      <div className="a-product-verify-options__group">
-        <span className="a-product-verify-options__label">
-          开通业务类型 <span className="a-req">*</span>
-        </span>
-        <div className="a-inline-actions" style={{ flexWrap: "wrap", gap: 12 }}>
-          {BUSINESS_TYPE_OPTIONS.map((option) => (
-            <label key={option.code} className="a-radio">
-              <input
-                type="checkbox"
-                checked={row.businessTypes.includes(option.code)}
-                onChange={() =>
-                  onChange({
-                    businessTypes: toggleBusinessType(row.businessTypes, option.code),
-                  })
-                }
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </div>
-      <div className="a-product-verify-options__group">
-        <span className="a-product-verify-options__label">
-          产品使用方式 <span className="a-req">*</span>
-        </span>
-        <div className="a-inline-actions" style={{ flexWrap: "wrap", gap: 12 }}>
-          {USAGE_CHANNEL_OPTIONS.map((option) => (
-            <label key={option.code} className="a-radio">
-              <input
-                type="checkbox"
-                checked={row.usageChannels.includes(option.code)}
-                onChange={() =>
-                  onChange({
-                    usageChannels: toggleUsageChannel(row.usageChannels, option.code),
-                  })
-                }
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function patchProductSelection(row: ProductFormRow, product: ProductCode): Partial<ProductFormRow> {
   if (isVerifyProduct(product)) {
     return {
@@ -189,7 +131,6 @@ export function ProductServicesEditor({
   const used = new Set(rows.map((r) => r.product).filter(Boolean) as string[]);
   const showActions = true;
   const colCount =
-    1 +
     1 +
     1 +
     (showUsed ? 1 : 0) +
@@ -228,8 +169,7 @@ export function ProductServicesEditor({
           <thead>
             <tr>
               <th>产品</th>
-              <th>额度类型</th>
-              <th>总量</th>
+              <th>授权总量</th>
               {showUsed ? <th>已用</th> : null}
               <th>有效期</th>
               {showStatus ? <th>服务状态</th> : null}
@@ -243,9 +183,11 @@ export function ProductServicesEditor({
               const options = CONFIGURABLE_PRODUCTS.filter(
                 (p) => p.code === row.product || !used.has(p.code),
               );
+              const hasSubparams = Boolean(row.product && isVerifyProduct(row.product));
+
               return (
                 <Fragment key={row.key}>
-                  <tr>
+                  <tr className={hasSubparams ? "a-product-row--has-subparams" : undefined}>
                     <td>
                       {locked && row.product ? (
                         <span>{productName(row.product)}</span>
@@ -281,25 +223,7 @@ export function ProductServicesEditor({
                         </select>
                       )}
                     </td>
-                  <td>
-                    <select
-                      className="a-select"
-                      style={{ minWidth: 110 }}
-                      value={row.quotaType}
-                      onChange={(e) =>
-                        update(row.key, {
-                          quotaType: e.target.value as ProductFormRow["quotaType"],
-                          quotaTotal:
-                            e.target.value === "unlimited" ? "" : row.quotaTotal,
-                        })
-                      }
-                    >
-                      <option value="unlimited">不限量</option>
-                      <option value="total">合作期内总量</option>
-                    </select>
-                  </td>
-                  <td>
-                    {row.quotaType === "total" ? (
+                    <td>
                       <input
                         className="a-input a-input--sm"
                         style={{ minWidth: 96 }}
@@ -308,14 +232,12 @@ export function ProductServicesEditor({
                         value={row.quotaTotal}
                         onChange={(e) =>
                           update(row.key, {
+                            quotaType: "total",
                             quotaTotal: e.target.value.replace(/\D/g, ""),
                           })
                         }
                       />
-                    ) : (
-                      <span style={{ color: "var(--n-400)" }}>—</span>
-                    )}
-                  </td>
+                    </td>
                   {showUsed ? (
                     <td className="num">{row.usedCount.toLocaleString()}</td>
                   ) : null}
@@ -375,15 +297,14 @@ export function ProductServicesEditor({
                     </td>
                   ) : null}
                   </tr>
-                  {row.product && isVerifyProduct(row.product) ? (
-                    <tr className="a-product-row-detail">
-                      <td colSpan={colCount}>
-                        <VerifyProductOptions
-                          row={row}
-                          onChange={(patch) => update(row.key, patch)}
-                        />
-                      </td>
-                    </tr>
+                  {hasSubparams ? (
+                    <ProductSubparamsRow colSpan={colCount - 1}>
+                      <ProductVerifyOptions
+                        businessTypes={row.businessTypes}
+                        usageChannels={row.usageChannels}
+                        onChange={(patch) => update(row.key, patch)}
+                      />
+                    </ProductSubparamsRow>
                   ) : null}
                 </Fragment>
               );

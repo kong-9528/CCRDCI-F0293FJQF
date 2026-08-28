@@ -41,7 +41,7 @@ export function customerToProductConfig(customer: CustomerAccount): ProductConfi
         ? customer.productServices.map((s) => ({
             key: `p-${s.product}`,
             product: s.product,
-            quotaType: s.quotaType,
+            quotaType: "total",
             quotaTotal: s.quotaTotal == null ? "" : String(s.quotaTotal),
             startDate: s.startDate,
             endDate: s.endDate,
@@ -99,11 +99,11 @@ export function diffProductConfig(
       push(
         `产品·${name}`,
         "未开通",
-        `${a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
+        `${a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
       );
     } else if (b && a) {
-      const bq = b.quotaType === "unlimited" ? "不限量" : `总量${b.quotaTotal}`;
-      const aq = a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`;
+      const bq = b.quotaType === "unlimited" ? "不限量" : `授权总量${b.quotaTotal}`;
+      const aq = a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`;
       push(
         `产品·${name}`,
         `${bq}｜${b.startDate}~${b.endDate}${b.stopped ? "｜已停止" : ""}`,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AccountProductConfigPanel } from "@/components/AccountProductConfigPanel";
+import { ContractFileList } from "@/components/ContractFileList";
 import {
   APPLICATION_STATUS_LABEL,
   useAccountsStore,
@@ -11,8 +12,13 @@ import {
   emptyProductConfig,
   type ProductConfigState,
 } from "@/lib/productConfig";
+import { getCurrentUserPermissions } from "@/lib/usersStore";
 
 type ReviewDecision = "approve" | "reject";
+
+function hasAccountsPerm(userPerms: string[], permId: string) {
+  return userPerms.includes(permId) || userPerms.includes("accounts");
+}
 
 type Props = {
   mode: "review" | "view";
@@ -64,6 +70,10 @@ export function AccountApplicationPage({ mode }: Props) {
 
   const readOnly = mode === "view";
   const pageTitle = mode === "review" ? "审核开通申请" : "申请详情";
+  const userPerms = getCurrentUserPermissions();
+  const contractDownloadPerm =
+    mode === "review" ? "accounts.review.contractDownload" : "accounts.detail.contractDownload";
+  const canDownloadContract = hasAccountsPerm(userPerms, contractDownloadPerm);
 
   const submit = () => {
     setError(null);
@@ -204,9 +214,10 @@ export function AccountApplicationPage({ mode }: Props) {
               <div className="a-desc__item a-desc__item--wide">
                 <span className="a-desc__label">合同附件</span>
                 <span className="a-desc__value">
-                  {application.contractFiles.length === 0
-                    ? "—"
-                    : application.contractFiles.map((f) => f.name).join("、")}
+                  <ContractFileList
+                    files={application.contractFiles}
+                    canDownload={canDownloadContract}
+                  />
                 </span>
               </div>
             </div>

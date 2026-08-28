@@ -14,7 +14,6 @@ import {
   type CustomerOpLog,
   type ProductServiceConfig,
   type ProductUsageStat,
-  type QuotaType,
 } from "@/lib/catalog";
 import {
   diffProductConfig,
@@ -257,8 +256,7 @@ export function updateCustomerProductService(
   customerId: string,
   product: ProductServiceConfig["product"],
   patch: {
-    quotaType: QuotaType;
-    quotaTotal: number | null;
+    quotaTotal: number;
     startDate: string;
     endDate: string;
   },
@@ -271,18 +269,16 @@ export function updateCustomerProductService(
   if (!patch.startDate || !patch.endDate) return "请填写产品有效期";
   if (patch.startDate > patch.endDate) return "有效期开始不能晚于结束";
 
-  if (patch.quotaType === "total") {
-    const total = patch.quotaTotal ?? 0;
-    if (!Number.isInteger(total) || total <= 0) return "按总量时，额度须为正整数";
-    if (total < before.usedCount) {
-      return `新额度不能小于已用次数 ${before.usedCount}`;
-    }
+  const total = patch.quotaTotal;
+  if (!Number.isInteger(total) || total <= 0) return "授权总量须为正整数";
+  if (total < before.usedCount) {
+    return `授权总量不能小于已用次数 ${before.usedCount}`;
   }
 
   const nextSvc: ProductServiceConfig = {
     ...before,
-    quotaType: patch.quotaType,
-    quotaTotal: patch.quotaType === "unlimited" ? null : patch.quotaTotal,
+    quotaType: "total",
+    quotaTotal: total,
     startDate: patch.startDate,
     endDate: patch.endDate,
   };
@@ -295,9 +291,9 @@ export function updateCustomerProductService(
   };
 
   const changes: { field: string; before: string; after: string }[] = [];
-  const bq = before.quotaType === "unlimited" ? "不限量" : `总量 ${before.quotaTotal}`;
-  const aq =
-    nextSvc.quotaType === "unlimited" ? "不限量" : `总量 ${nextSvc.quotaTotal}`;
+  const bq =
+    before.quotaType === "unlimited" ? "不限量" : `授权总量 ${before.quotaTotal}`;
+  const aq = `授权总量 ${nextSvc.quotaTotal}`;
   if (bq !== aq) {
     changes.push({
       field: `${productName(product)}·额度`,
@@ -329,8 +325,7 @@ export function addCustomerProductService(
   customerId: string,
   input: {
     product: ProductServiceConfig["product"];
-    quotaType: QuotaType;
-    quotaTotal: number | null;
+    quotaTotal: number;
     startDate: string;
     endDate: string;
   },
@@ -343,16 +338,14 @@ export function addCustomerProductService(
   if (!input.startDate || !input.endDate) return "请填写产品有效期";
   if (input.startDate > input.endDate) return "有效期开始不能晚于结束";
 
-  let quotaTotal: number | null = null;
-  if (input.quotaType === "total") {
-    const total = input.quotaTotal ?? 0;
-    if (!Number.isInteger(total) || total <= 0) return "按总量时，额度须为正整数";
-    quotaTotal = total;
+  const quotaTotal = input.quotaTotal;
+  if (!Number.isInteger(quotaTotal) || quotaTotal <= 0) {
+    return "授权总量须为正整数";
   }
 
   const nextSvc: ProductServiceConfig = {
     product: input.product,
-    quotaType: input.quotaType,
+    quotaType: "total",
     quotaTotal,
     usedCount: 0,
     startDate: input.startDate,
@@ -365,8 +358,7 @@ export function addCustomerProductService(
     productServices: [...cur.productServices, nextSvc],
   };
 
-  const quotaLabel =
-    nextSvc.quotaType === "unlimited" ? "不限量" : `总量 ${nextSvc.quotaTotal}`;
+  const quotaLabel = `授权总量 ${nextSvc.quotaTotal}`;
   updateCustomer(
     customerId,
     next,

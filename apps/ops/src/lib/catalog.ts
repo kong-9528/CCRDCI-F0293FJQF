@@ -371,7 +371,7 @@ export function formatQuota(svc: ProductServiceConfig): string {
   if (svc.quotaType === "unlimited") return "不限量";
   const total = svc.quotaTotal ?? 0;
   const left = Math.max(0, total - svc.usedCount);
-  return `总量 ${total.toLocaleString()}（已用 ${svc.usedCount.toLocaleString()} / 剩余 ${left.toLocaleString()}）`;
+  return `授权总量 ${total.toLocaleString()}（已用 ${svc.usedCount.toLocaleString()} / 剩余 ${left.toLocaleString()}）`;
 }
 
 export function canConsumeQuota(svc: ProductServiceConfig): boolean {
@@ -469,7 +469,7 @@ export const MOCK_CUSTOMERS = [
     productServices: [
       svc("dci", "total", 50000, 12840, "2026-01-01", "2026-12-31"),
       svc("certificate", "total", 10000, 3188, "2026-01-01", "2026-12-31"),
-      svc("workReview", "unlimited", null, 9021, "2026-01-01", "2026-12-31"),
+      svc("workReview", "total", 50000, 9021, "2026-01-01", "2026-12-31"),
     ],
     createdAt: "2026-01-02 10:00:00",
     updatedAt: "2026-08-01 14:20:00",
@@ -494,7 +494,7 @@ export const MOCK_CUSTOMERS = [
     productServices: [
       svc("dci", "total", 80000, 22100, "2025-06-01", "2026-05-31"),
       svc("info", "total", 30000, 6420, "2025-06-01", "2026-05-31"),
-      svc("workReview", "unlimited", null, 2984, "2025-06-01", "2026-05-31"),
+      svc("workReview", "total", 50000, 2984, "2025-06-01", "2026-05-31"),
     ],
     createdAt: "2025-05-28 09:30:00",
     updatedAt: "2026-07-12 11:05:00",
@@ -564,7 +564,7 @@ export const MOCK_CUSTOMERS = [
     productServices: [
       svc("dci", "total", 40000, 39980, "2024-01-01", "2025-12-31"),
       svc("info", "total", 20000, 18800, "2024-01-01", "2025-12-31"),
-      svc("certificate", "unlimited", null, 5400, "2024-01-01", "2025-12-31"),
+      svc("certificate", "total", 20000, 5400, "2024-01-01", "2025-12-31"),
       svc("workReview", "total", 5000, 4990, "2024-01-01", "2025-12-31"),
     ],
     createdAt: "2023-12-20 11:00:00",
@@ -633,7 +633,7 @@ export const MOCK_CUSTOMERS = [
     status: "enabled",
     productServices: [
       svc("certificate", "total", 20000, 1200, "2026-04-01", "2027-03-31"),
-      svc("workReview", "unlimited", null, 5600, "2026-04-01", "2027-03-31"),
+      svc("workReview", "total", 30000, 5600, "2026-04-01", "2027-03-31"),
     ],
     createdAt: "2026-03-28 13:20:00",
     updatedAt: "2026-08-05 10:10:00",
@@ -680,7 +680,7 @@ export const MOCK_CUSTOMERS = [
     passwordHint: "Metro_Media4!",
     status: "enabled",
     productServices: [
-      svc("dci", "unlimited", null, 42000, "2026-01-15", "2026-12-15"),
+      svc("dci", "total", 100000, 42000, "2026-01-15", "2026-12-15"),
       svc("info", "total", 50000, 18000, "2026-01-15", "2026-12-15"),
       svc("certificate", "total", 30000, 9000, "2026-01-15", "2026-12-15"),
       svc("workReview", "total", 40000, 21000, "2026-01-15", "2026-12-15"),

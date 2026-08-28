@@ -4,14 +4,12 @@ import {
   normalizeProductCode,
   type CustomerAccount,
   type ProductCode,
-  type QuotaType,
 } from "@/lib/catalog";
 
 export type ServiceCreateInput = {
   customerId: string;
   product: ProductCode;
-  quotaType: QuotaType;
-  quotaTotal: number | null;
+  quotaTotal: number;
   startDate: string;
   endDate: string;
 };
@@ -26,7 +24,6 @@ type Props = {
 const EMPTY = {
   customerId: "",
   product: "" as ProductCode | "",
-  quotaType: "total" as QuotaType,
   quotaTotal: "",
   startDate: "",
   endDate: "",
@@ -164,21 +161,16 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
       return;
     }
 
-    let quotaTotal: number | null = null;
-    if (form.quotaType === "total") {
-      const n = Number(form.quotaTotal);
-      if (!Number.isInteger(n) || n <= 0) {
-        setError("按总量时，额度须为正整数");
-        return;
-      }
-      quotaTotal = n;
+    const n = Number(form.quotaTotal);
+    if (!Number.isInteger(n) || n <= 0) {
+      setError("授权总量须为正整数");
+      return;
     }
 
     const err = onSave({
       customerId: form.customerId,
       product: form.product,
-      quotaType: form.quotaType,
-      quotaTotal,
+      quotaTotal: n,
       startDate: form.startDate,
       endDate: form.endDate,
     });
@@ -328,42 +320,22 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
           </div>
 
           <div className="a-field a-field--stack">
-            <span className="a-field__label">额度</span>
-            <div className="a-inline-actions" style={{ flexWrap: "wrap" }}>
-              <label className="a-radio">
-                <input
-                  type="radio"
-                  name="addQuotaType"
-                  checked={form.quotaType === "unlimited"}
-                  onChange={() => setForm((p) => ({ ...p, quotaType: "unlimited" }))}
-                />
-                不限量
-              </label>
-              <label className="a-radio">
-                <input
-                  type="radio"
-                  name="addQuotaType"
-                  checked={form.quotaType === "total"}
-                  onChange={() => setForm((p) => ({ ...p, quotaType: "total" }))}
-                />
-                合作期内总量
-              </label>
-              {form.quotaType === "total" ? (
-                <input
-                  className="a-input a-input--sm"
-                  style={{ minWidth: 120 }}
-                  inputMode="numeric"
-                  placeholder="次数"
-                  value={form.quotaTotal}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      quotaTotal: e.target.value.replace(/\D/g, ""),
-                    }))
-                  }
-                />
-              ) : null}
-            </div>
+            <span className="a-field__label">
+              授权总量 <span className="a-req">*</span>
+            </span>
+            <input
+              className="a-input a-input--sm"
+              style={{ maxWidth: 200 }}
+              inputMode="numeric"
+              placeholder="次数"
+              value={form.quotaTotal}
+              onChange={(e) =>
+                setForm((p) => ({
+                  ...p,
+                  quotaTotal: e.target.value.replace(/\D/g, ""),
+                }))
+              }
+            />
           </div>
 
           <div className="a-field a-field--stack">
