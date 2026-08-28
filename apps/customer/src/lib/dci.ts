@@ -11,7 +11,7 @@ export type DciVerifyInput = {
   dciCode: string;
   /** 著作权人（与名称至少填一项） */
   owner: string;
-  /** 作品名称 / 软件名称 / 数据集名称 */
+  /** 作品名称 / 软件名称 / 数据集名称（统一展示为软件/作品/数据集名称） */
   name: string;
 };
 
@@ -57,19 +57,25 @@ export const WORK_TYPE_LABEL: Record<DciWorkType, string> = {
 };
 
 export const STATUS_LABEL: Record<DciVerifyStatus, string> = {
-  pass: "通过",
-  not_found: "DCI不存在",
-  fail: "未通过",
+  pass: "核验通过",
+  not_found: "核验不通过",
+  fail: "核验不通过",
 };
+
+export function isDciVerifyPass(status: DciVerifyStatus): boolean {
+  return status === "pass";
+}
 
 export const CHANNEL_LABEL: Record<DciChannel, string> = {
   manual: "WebUI",
   api: "API",
 };
 
+export const DCI_NAME_LABEL = "软件/作品/数据集名称";
+
 export const MISMATCH_FIELD_LABEL: Record<DciMismatchField, string> = {
   owner: "著作权人",
-  name: "名称",
+  name: DCI_NAME_LABEL,
 };
 
 /** 单次批量上限 / 每日上限（演示常量） */
@@ -79,10 +85,8 @@ export const DCI_EXPORT_LIMIT = 5000;
 export const DCI_DEFAULT_DAYS = 30;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 
-export function dciNameLabel(workType: DciWorkType): string {
-  if (workType === "software") return "软件名称";
-  if (workType === "work") return "作品名称";
-  return "数据集名称";
+export function dciNameLabel(_workType?: DciWorkType): string {
+  return DCI_NAME_LABEL;
 }
 
 /** 前端初步合法性：DCI- 前缀 + 8~24 位字母数字 */
@@ -104,7 +108,7 @@ export function validateDciForm(input: DciVerifyInput): string | null {
   if (!dciCode) return "请输入 DCI 核验码";
   if (!isValidDciCode(dciCode)) return "DCI 核验码格式不正确，示例：DCI-SWDEMO0001";
   if (!input.owner.trim() && !input.name.trim()) {
-    return "著作权人与名称至少填写一项";
+    return `著作权人与${DCI_NAME_LABEL}至少填写一项`;
   }
   return null;
 }
@@ -324,16 +328,19 @@ function nowStamp() {
   return new Date().toISOString().slice(0, 19).replace("T", " ");
 }
 
-function mismatchMessage(mismatches: DciMismatchField[], workType: DciWorkType): string {
-  const parts = mismatches.map((f) =>
-    f === "owner" ? "著作权人" : dciNameLabel(workType),
-  );
+function inferWorkTypeFromCode(dciCode: string): DciWorkType {
+  if (/^DCI-WK/i.test(dciCode)) return "work";
+  if (/^DCI-DS/i.test(dciCode)) return "dataset";
+  return "software";
+}
+
+function mismatchMessage(mismatches: DciMismatchField[]): string {
+  const parts = mismatches.map((f) => (f === "owner" ? "著作权人" : DCI_NAME_LABEL));
   return `${parts.join("、")}不一致`;
 }
 
 export async function verifyDciOnce(
   input: DciVerifyInput,
-  workType: DciWorkType,
   channel: DciChannel = "manual",
 ): Promise<DciVerifyResult> {
   await new Promise((r) => setTimeout(r, 420));
@@ -347,25 +354,23 @@ export async function verifyDciOnce(
   const verifier = DCI_DEFAULT_VERIFIER;
 
   let result: DciVerifyResult;
-  if (!hit || hit.workType !== workType) {
+  if (!hit) {
+    const inferredType = inferWorkTypeFromCode(dciCode);
     result = {
       id,
       verifyCode,
       verifier,
       dciCode,
-      workType,
+      workType: inferredType,
       status: "not_found",
       verifiedAt,
       channel,
       queryOwner,
       queryName,
-      message:
-        hit && hit.workType !== workType
-          ? "系统中无该DCI码记录（作品类型不匹配）"
-          : "系统中无该DCI码记录",
+      message: "系统中无该DCI码记录",
     };
   } else {
-    const { workType: _t, ...snapshot } = hit;
+    const { workType, ...snapshot } = hit;
     const mismatches: DciMismatchField[] = [];
     if (queryOwner && normCompare(queryOwner) !== normCompare(hit.owner)) {
       mismatches.push("owner");
@@ -387,7 +392,7 @@ export async function verifyDciOnce(
         queryName,
         mismatches,
         snapshot,
-        message: mismatchMessage(mismatches, workType),
+        message: mismatchMessage(mismatches),
       };
     } else {
       result = {
@@ -410,26 +415,140 @@ export async function verifyDciOnce(
   return result;
 }
 
-export async function verifyDciBatch(
-  codes: string[],
-  workType: DciWorkType,
-  query: Pick<DciVerifyInput, "owner" | "name">,
-): Promise<DciVerifyResult[]> {
-  const unique: string[] = [];
+export async function verifyDciBatch(rows: DciBatchRow[]): Promise<DciVerifyResult[]> {
+  const unique: DciBatchRow[] = [];
   const seen = new Set<string>();
-  for (const c of codes) {
-    const n = normalizeDciCode(c);
-    if (!n || seen.has(n)) continue;
-    seen.add(n);
-    unique.push(n);
+  for (const row of rows) {
+    const dciCode = normalizeDciCode(row.dciCode);
+    if (!dciCode || seen.has(dciCode)) continue;
+    seen.add(dciCode);
+    unique.push({
+      dciCode,
+      owner: row.owner.trim(),
+      name: row.name.trim(),
+    });
   }
   const results: DciVerifyResult[] = [];
-  for (const code of unique) {
-    results.push(
-      await verifyDciOnce({ dciCode: code, owner: query.owner, name: query.name }, workType),
-    );
+  for (const row of unique) {
+    results.push(await verifyDciOnce(row));
   }
   return results;
+}
+
+export type DciBatchRow = DciVerifyInput;
+
+export const DCI_BATCH_TEMPLATE_HEADERS = ["DCI 核验码", "著作权人", DCI_NAME_LABEL] as const;
+
+const DCI_BATCH_ACCEPT_EXT = ["csv", "xls", "xlsx"] as const;
+
+function escapeCsvCell(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function parseCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+function isHeaderRow(cells: string[]): boolean {
+  const first = (cells[0] ?? "").trim();
+  return first === DCI_BATCH_TEMPLATE_HEADERS[0] || first === "DCI核验码";
+}
+
+function normalizeBatchRows(raw: string[][]): DciBatchRow[] {
+  const rows: DciBatchRow[] = [];
+  for (const cells of raw) {
+    const dciCode = String(cells[0] ?? "").trim();
+    const owner = String(cells[1] ?? "").trim();
+    const name = String(cells[2] ?? "").trim();
+    if (!dciCode && !owner && !name) continue;
+    if (isHeaderRow([dciCode, owner, name])) continue;
+    rows.push({ dciCode, owner, name });
+  }
+  return rows;
+}
+
+function parseDciBatchCsv(text: string): DciBatchRow[] {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  return normalizeBatchRows(lines.map(parseCsvLine));
+}
+
+async function parseDciBatchSpreadsheet(file: File): Promise<DciBatchRow[]> {
+  const XLSX = await import("xlsx");
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array" });
+  const sheetName = wb.SheetNames[0];
+  if (!sheetName) return [];
+  const sheet = wb.Sheets[sheetName];
+  const raw = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+    header: 1,
+    defval: "",
+  });
+  return normalizeBatchRows(
+    raw.map((row) => row.map((cell) => String(cell ?? "").trim())),
+  );
+}
+
+export async function parseDciBatchFile(file: File): Promise<DciBatchRow[]> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!DCI_BATCH_ACCEPT_EXT.includes(ext as (typeof DCI_BATCH_ACCEPT_EXT)[number])) {
+    throw new Error("仅支持 CSV、XLS、XLSX 格式");
+  }
+  if (ext === "csv") {
+    return parseDciBatchCsv(await file.text());
+  }
+  return parseDciBatchSpreadsheet(file);
+}
+
+export function validateDciBatchRows(rows: DciBatchRow[]): string | null {
+  if (!rows.length) return "文件中没有可核验的数据行";
+  const seen = new Set<string>();
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const lineNo = i + 2;
+    const err = validateDciForm(row);
+    if (err) return `第 ${lineNo} 行：${err}`;
+    const code = normalizeDciCode(row.dciCode);
+    if (seen.has(code)) return `第 ${lineNo} 行：DCI 码重复（${code}）`;
+    seen.add(code);
+  }
+  if (seen.size > DCI_BATCH_LIMIT) {
+    return `单次批量上限 ${DCI_BATCH_LIMIT} 条（去重后 ${seen.size} 条）`;
+  }
+  return null;
+}
+
+export function downloadDciBatchTemplate() {
+  const header = DCI_BATCH_TEMPLATE_HEADERS.map(escapeCsvCell).join(",");
+  const sample = ["DCI-SWDEMO0001", "演示著作权人", "演示软件登记"].map(escapeCsvCell).join(",");
+  const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "DCI批量核验模板.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export function parseDciInputList(text: string): string[] {
@@ -444,8 +563,26 @@ export function formatMismatchTags(
 ): string {
   if (!result.mismatches?.length) return "";
   return result.mismatches
-    .map((f) => (f === "owner" ? "著作权人" : dciNameLabel(result.workType)))
+    .map((f) => (f === "owner" ? "著作权人" : DCI_NAME_LABEL))
     .join("、");
+}
+
+/** 详情抽屉：提交信息字段后的失败原因 */
+export function dciFieldFailReason(
+  result: DciVerifyResult,
+  field: "dciCode" | "owner" | "name",
+): string | null {
+  if (result.status === "pass") return null;
+  if (field === "dciCode" && result.status === "not_found") {
+    return result.message || "DCI不存在";
+  }
+  if (field === "owner" && result.mismatches?.includes("owner")) {
+    return "著作权人不一致";
+  }
+  if (field === "name" && result.mismatches?.includes("name")) {
+    return `${DCI_NAME_LABEL}不一致`;
+  }
+  return null;
 }
 
 /** 详情抽屉失败细节文案，如「著作权人不一致」 */
@@ -456,7 +593,7 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
   }
   if (result.mismatches?.length) {
     return result.mismatches.map((f) =>
-      f === "owner" ? "著作权人不一致" : `${dciNameLabel(result.workType)}不一致`,
+      f === "owner" ? "著作权人不一致" : `${DCI_NAME_LABEL}不一致`,
     );
   }
   return result.message ? [result.message] : ["核验未通过"];

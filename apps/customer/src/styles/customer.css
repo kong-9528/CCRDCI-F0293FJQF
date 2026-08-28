@@ -1670,6 +1670,37 @@ body,
   align-items: flex-start;
   gap: 6px;
   word-break: break-word;
+  flex-wrap: wrap;
+}
+
+.c-cert-detail__field-reason {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--er-600);
+  background: var(--er-50);
+  border: 1px solid rgba(198, 40, 40, 0.12);
+}
+
+.c-dci-batch-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--n-50);
+  border: 1px solid var(--n-200);
+}
+
+.c-dci-batch-intro p {
+  margin: 0;
+  font-size: var(--ad-fs-body);
+  line-height: 1.7;
+  color: var(--n-600);
 }
 
 .c-cert-detail__disclaimer {
