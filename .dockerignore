@@ -1,0 +1,23 @@
+# 依赖与构建产物，避免拖慢镜像构建
+node_modules
+**/node_modules
+**/dist
+**/out
+**/.next
+**/.turbo
+**/.vite
+**/tsconfig.tsbuildinfo
+
+.git
+.gitignore
+.cursor
+**/.DS_Store
+
+# 本地锁与文档杂项
+package-lock.json
+*.md
+s.yaml_back
+apps/portal/wrangler.toml
+
+# 已有的过期单包 Dockerfile，构建请用仓库根目录 Dockerfile.*
+apps/portal/Dockerfile
