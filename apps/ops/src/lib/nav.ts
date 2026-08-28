@@ -26,7 +26,7 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "产品管理",
+    title: "产品/能力上架管理",
     items: [
       { to: "/products/verify", label: "版权核验产品", ready: true },
       { to: "/products/audit", label: "智能辅助审核产品", ready: true },
@@ -37,6 +37,7 @@ export const OPS_NAV: NavGroup[] = [
     items: [
       { to: "/stats/customers", label: "客户使用统计", ready: true },
       { to: "/stats/products", label: "产品使用统计", ready: true },
+      { to: "/stats/account-products", label: "账号产品用量", ready: true },
     ],
   },
   {
@@ -72,8 +73,6 @@ export function findNavLabel(pathname: string): string {
   if (pathname === "/content/portal") return "门户首页管理";
   if (pathname === "/system/api-services/new") return "新增接口";
   if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";
-  if (pathname === "/products/new") return "新增产品";
-  if (/^\/products\/[^/]+\/edit$/.test(pathname)) return "编辑产品";
   if (pathname === "/products/verify") return "版权核验产品";
   if (pathname === "/products/audit") return "智能辅助审核产品";
   for (const group of OPS_NAV) {

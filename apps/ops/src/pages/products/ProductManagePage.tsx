@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Switch } from "@/components/Switch";
 import {
@@ -9,11 +8,6 @@ import {
   type ProductCategory,
   type ProductSection,
 } from "@/lib/productsStore";
-
-type PendingSwitch =
-  | { kind: "shelf"; row: ManagedProduct; next: boolean }
-  | { kind: "page"; row: ManagedProduct; next: boolean }
-  | { kind: "api"; row: ManagedProduct; next: boolean };
 
 type Props = {
   category: ProductCategory;
@@ -43,45 +37,28 @@ function StatusSwitchCell({
 function ProductSectionTable({
   section,
   rows,
-  showPageSubmit,
-  onRequestSwitch,
+  onRequestShelfChange,
 }: {
   section: ProductSection;
   rows: ManagedProduct[];
-  showPageSubmit: boolean;
-  onRequestSwitch: (pending: PendingSwitch) => void;
+  onRequestShelfChange: (row: ManagedProduct, next: boolean) => void;
 }) {
-  const colCount = showPageSubmit ? 5 : 4;
-
   return (
     <div className="a-card">
-      <div className="a-card__head">
-        {section.title}
-        <div className="a-card__extra">
-          <Link
-            className="a-btn a-btn--primary a-btn--sm"
-            to={`/products/new?category=${section.category}`}
-          >
-            新增产品
-          </Link>
-        </div>
-      </div>
+      <div className="a-card__head">{section.title}</div>
       <div className="a-card__body a-card__body--flush">
         <table className="a-table">
           <thead>
             <tr>
               <th>产品名称</th>
               <th>上线状态</th>
-              {showPageSubmit ? <th>页面提交</th> : null}
-              <th>API调用</th>
-              <th style={{ width: 88 }}>操作</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={colCount}>
-                  <div className="a-empty">暂无产品，可点击「新增产品」添加</div>
+                <td colSpan={2}>
+                  <div className="a-empty">暂无产品</div>
                 </td>
               </tr>
             ) : (
@@ -96,42 +73,8 @@ function ProductSectionTable({
                         labelOff="下线"
                         checked={online}
                         ariaLabel={`${row.name} ${online ? "下线" : "上线"}`}
-                        onChange={(next) =>
-                          onRequestSwitch({ kind: "shelf", row, next })
-                        }
+                        onChange={(next) => onRequestShelfChange(row, next)}
                       />
-                    </td>
-                    {showPageSubmit ? (
-                      <td>
-                        <StatusSwitchCell
-                          labelOn="支持"
-                          labelOff="不支持"
-                          checked={row.pageSubmitEnabled}
-                          ariaLabel={`${row.name} 页面提交`}
-                          onChange={(next) =>
-                            onRequestSwitch({ kind: "page", row, next })
-                          }
-                        />
-                      </td>
-                    ) : null}
-                    <td>
-                      <StatusSwitchCell
-                        labelOn="支持"
-                        labelOff="不支持"
-                        checked={row.apiEnabled}
-                        ariaLabel={`${row.name} API调用`}
-                        onChange={(next) =>
-                          onRequestSwitch({ kind: "api", row, next })
-                        }
-                      />
-                    </td>
-                    <td>
-                      <Link
-                        className="a-btn a-btn--text a-btn--sm"
-                        to={`/products/${row.code}/edit`}
-                      >
-                        编辑
-                      </Link>
                     </td>
                   </tr>
                 );
@@ -144,62 +87,12 @@ function ProductSectionTable({
   );
 }
 
-function switchConfirmCopy(pending: PendingSwitch): {
-  title: string;
-  description: string;
-  confirmText: string;
-  danger: boolean;
-} {
-  const name = pending.row.name;
-  if (pending.kind === "shelf") {
-    return pending.next
-      ? {
-          title: "确认上线产品",
-          description: `确定将产品「${name}」设为上线吗？上线后客户可使用该产品。`,
-          confirmText: "上线",
-          danger: false,
-        }
-      : {
-          title: "确认下线产品",
-          description: `确定将产品「${name}」设为下线吗？下线后客户将无法使用该产品。`,
-          confirmText: "下线",
-          danger: true,
-        };
-  }
-  if (pending.kind === "page") {
-    return pending.next
-      ? {
-          title: "确认开启页面提交",
-          description: `确定为产品「${name}」开启页面提交吗？`,
-          confirmText: "开启",
-          danger: false,
-        }
-      : {
-          title: "确认关闭页面提交",
-          description: `确定为产品「${name}」关闭页面提交吗？`,
-          confirmText: "关闭",
-          danger: true,
-        };
-  }
-  return pending.next
-    ? {
-        title: "确认开启 API 调用",
-        description: `确定为产品「${name}」开启 API 调用吗？`,
-        confirmText: "开启",
-        danger: false,
-      }
-    : {
-        title: "确认关闭 API 调用",
-        description: `确定为产品「${name}」关闭 API 调用吗？`,
-        confirmText: "关闭",
-        danger: true,
-      };
-}
-
 export function ProductManagePage({ category }: Props) {
-  const { getByCategory, setShelfStatus, setPageSubmitEnabled, setApiEnabled } =
-    useProductsStore();
-  const [pending, setPending] = useState<PendingSwitch | null>(null);
+  const { getByCategory, setShelfStatus } = useProductsStore();
+  const [pending, setPending] = useState<{
+    row: ManagedProduct;
+    next: boolean;
+  } | null>(null);
 
   const section =
     PRODUCT_SECTIONS.find((item) => item.category === category) ??
@@ -207,22 +100,32 @@ export function ProductManagePage({ category }: Props) {
 
   const confirmSwitch = () => {
     if (!pending) return;
-    const { kind, row, next } = pending;
-    if (kind === "shelf") setShelfStatus(row.code, next ? "online" : "offline");
-    if (kind === "page") setPageSubmitEnabled(row.code, next);
-    if (kind === "api") setApiEnabled(row.code, next);
+    setShelfStatus(pending.row.code, pending.next ? "online" : "offline");
     setPending(null);
   };
 
-  const copy = pending ? switchConfirmCopy(pending) : null;
+  const copy = pending
+    ? pending.next
+      ? {
+          title: "确认上线产品",
+          description: `确定将产品「${pending.row.name}」设为上线吗？上线后客户可使用该产品。`,
+          confirmText: "上线",
+          danger: false,
+        }
+      : {
+          title: "确认下线产品",
+          description: `确定将产品「${pending.row.name}」设为下线吗？下线后客户将无法使用该产品。`,
+          confirmText: "下线",
+          danger: true,
+        }
+    : null;
 
   return (
     <div className="a-stack">
       <ProductSectionTable
         section={section}
         rows={getByCategory(category)}
-        showPageSubmit={category !== "audit"}
-        onRequestSwitch={setPending}
+        onRequestShelfChange={(row, next) => setPending({ row, next })}
       />
 
       <ConfirmDialog

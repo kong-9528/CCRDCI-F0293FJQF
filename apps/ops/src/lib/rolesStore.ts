@@ -63,10 +63,10 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "products",
-    label: "产品管理",
+    label: "产品上架管理",
     children: [
       { id: "products.list", label: "列表页" },
-      { id: "products.settings", label: "设置按钮" },
+      { id: "products.settings", label: "上下架操作" },
     ],
   },
   {
@@ -75,6 +75,7 @@ export const PERMISSION_TREE: PermNode[] = [
     children: [
       { id: "stats.customers", label: "客户使用统计页" },
       { id: "stats.products", label: "产品使用统计页" },
+      { id: "stats.accountProducts", label: "账号产品用量页" },
     ],
   },
   {
@@ -248,6 +249,7 @@ let roles: Role[] = [
       "stats",
       "stats.customers",
       "stats.products",
+      "stats.accountProducts",
       "content",
       "content.portal",
       "content.portal.create",
@@ -278,6 +280,7 @@ let roles: Role[] = [
       "stats",
       "stats.customers",
       "stats.products",
+      "stats.accountProducts",
       "system",
       "system.opLogs",
     ],

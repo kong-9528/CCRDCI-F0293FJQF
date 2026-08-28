@@ -2,7 +2,9 @@ import {
   ACCOUNT_STATUS_LABEL,
   PERIOD_STATUS_LABEL,
   PRODUCTS,
+  SERVICE_STATUS_LABEL,
   derivePeriodStatus,
+  deriveServiceStatus,
   productName,
   type ProductCode,
 } from "@/lib/catalog";
@@ -311,6 +313,203 @@ export function exportProductDailyCsv(products?: ProductCode[]) {
       String(r.activeAccounts),
       String(r.calls),
       `${r.successRate}%`,
+    ]),
+  );
+}
+
+/** 账号×产品维度：统计周期内的汇总行 */
+export type AccountProductSummary = {
+  customerId: string;
+  account: string;
+  companyName: string;
+  contactName: string;
+  product: ProductCode;
+  productLabel: string;
+  productCategory: "verify" | "audit";
+  calls: number;
+  pageSubmitCalls: number;
+  apiCalls: number;
+  successRate: number;
+  activeDays: number;
+  lifetimeUsed: number;
+  quotaTotal: number | null;
+  quotaUsagePct: number | null;
+  serviceStatus: string;
+  accountStatus: string;
+  periodStatus: string;
+};
+
+export type AccountProductMatrix = {
+  accounts: { customerId: string; account: string; companyName: string }[];
+  products: { code: ProductCode; label: string; category: "verify" | "audit" }[];
+  cells: Map<string, number>;
+  maxCalls: number;
+};
+
+function productCategory(code: ProductCode): "verify" | "audit" {
+  return PRODUCTS.find((p) => p.code === code)?.category === "audit" ? "audit" : "verify";
+}
+
+export function buildAccountProductSummaries(
+  period: StatsPeriod,
+  filters?: {
+    product?: ProductCode | "";
+    category?: "verify" | "audit" | "";
+    accountQuery?: string;
+  },
+): AccountProductSummary[] {
+  const { accountProductDays, customers } = getStatsData();
+  const dates = new Set(sliceDates(period));
+  const periodRows = accountProductDays.filter((r) => dates.has(r.date));
+  const summaries: AccountProductSummary[] = [];
+
+  for (const c of customers) {
+    const q = filters?.accountQuery?.trim().toLowerCase() ?? "";
+    if (
+      q &&
+      !c.account.toLowerCase().includes(q) &&
+      !c.companyName.toLowerCase().includes(q)
+    ) {
+      continue;
+    }
+
+    for (const svc of c.productServices) {
+      if (filters?.product && svc.product !== filters.product) continue;
+      const cat = productCategory(svc.product);
+      if (filters?.category && cat !== filters.category) continue;
+
+      const dayRows = periodRows.filter(
+        (r) => r.customerId === c.id && r.product === svc.product,
+      );
+      const calls = sumCalls(dayRows);
+      const pageSubmitCalls = sumPageSubmitCalls(dayRows);
+      const apiCalls = sumApiCalls(dayRows);
+      const activeDays = dayRows.filter((r) => r.calls > 0).length;
+      const quotaTotal = svc.quotaType === "total" ? svc.quotaTotal : null;
+      const quotaUsagePct =
+        quotaTotal && quotaTotal > 0
+          ? Math.min(100, Math.round((svc.usedCount / quotaTotal) * 100))
+          : null;
+
+      summaries.push({
+        customerId: c.id,
+        account: c.account,
+        companyName: c.companyName,
+        contactName: c.contactName,
+        product: svc.product,
+        productLabel: productName(svc.product),
+        productCategory: cat,
+        calls,
+        pageSubmitCalls,
+        apiCalls,
+        successRate: avgSuccessRate(dayRows),
+        activeDays,
+        lifetimeUsed: svc.usedCount,
+        quotaTotal,
+        quotaUsagePct,
+        serviceStatus: SERVICE_STATUS_LABEL[deriveServiceStatus(svc)],
+        accountStatus: ACCOUNT_STATUS_LABEL[c.status],
+        periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(svc.startDate, svc.endDate)],
+      });
+    }
+  }
+
+  return summaries.sort((a, b) => b.calls - a.calls);
+}
+
+export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMatrix {
+  const summaries = buildAccountProductSummaries(period);
+  const accountMap = new Map<
+    string,
+    { customerId: string; account: string; companyName: string }
+  >();
+  const productMap = new Map<
+    ProductCode,
+    { code: ProductCode; label: string; category: "verify" | "audit" }
+  >();
+  const cells = new Map<string, number>();
+  let maxCalls = 0;
+
+  for (const row of summaries) {
+    accountMap.set(row.customerId, {
+      customerId: row.customerId,
+      account: row.account,
+      companyName: row.companyName,
+    });
+    productMap.set(row.product, {
+      code: row.product,
+      label: row.productLabel,
+      category: row.productCategory,
+    });
+    const key = `${row.customerId}:${row.product}`;
+    cells.set(key, row.calls);
+    if (row.calls > maxCalls) maxCalls = row.calls;
+  }
+
+  return {
+    accounts: [...accountMap.values()].sort((a, b) => a.account.localeCompare(b.account)),
+    products: [...productMap.values()].sort((a, b) => a.label.localeCompare(b.label)),
+    cells,
+    maxCalls,
+  };
+}
+
+export function getAccountProductTrend(
+  customerId: string,
+  product: ProductCode,
+  period: StatsPeriod | TrendRange,
+) {
+  const { accountProductDays } = getStatsData();
+  return sliceDates(period).map((date) => {
+    const row = accountProductDays.find(
+      (r) => r.date === date && r.customerId === customerId && r.product === product,
+    );
+    return {
+      date,
+      calls: row?.calls ?? 0,
+      successRate: row?.successRate ?? 0,
+    };
+  });
+}
+
+export function exportAccountProductSummaryCsv(
+  period: StatsPeriod,
+  filters?: Parameters<typeof buildAccountProductSummaries>[1],
+) {
+  const rows = buildAccountProductSummaries(period, filters);
+  downloadCsv(
+    `账号产品用量统计_${STATS_PERIOD_LABEL[period]}.csv`,
+    [
+      "账号",
+      "公司名称",
+      "联系人",
+      "产品",
+      "统计周期调用次数",
+      "页面提交次数",
+      "API调用次数",
+      "成功率",
+      "活跃天数",
+      "历史累积调用",
+      "额度使用率",
+      "服务状态",
+      "账号状态",
+      "产品有效期状态",
+    ],
+    rows.map((r) => [
+      r.account,
+      r.companyName,
+      r.contactName,
+      r.productLabel,
+      String(r.calls),
+      String(r.pageSubmitCalls),
+      String(r.apiCalls),
+      `${r.successRate}%`,
+      String(r.activeDays),
+      String(r.lifetimeUsed),
+      r.quotaUsagePct == null ? "—" : `${r.quotaUsagePct}%`,
+      r.serviceStatus,
+      r.accountStatus,
+      r.periodStatus,
     ]),
   );
 }
