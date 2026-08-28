@@ -1594,27 +1594,66 @@ body,
 /* 账号×产品双维度统计 */
 .a-stats-ap-intro {
   margin-bottom: 14px;
-  overflow-x: auto;
 }
 
 .a-stats-ap-intro__title {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
   color: var(--n-800);
 }
 
-.a-stats-ap-intro__desc {
-  margin: 0;
-  font-size: 13px;
-  color: var(--n-500);
-  line-height: 1.55;
-  white-space: nowrap;
+.a-stats-ap-panel {
+  overflow: hidden;
 }
 
-.a-stats-ap-matrix-card .a-card__head {
+.a-stats-ap-panel__filters,
+.a-stats-ap-panel__section {
+  border-bottom: 1px solid var(--n-100);
+}
+
+.a-stats-ap-panel__section--last {
+  border-bottom: none;
+}
+
+.a-stats-ap-panel__filters {
+  padding: var(--ad-sp-3) var(--ad-sp-4);
+}
+
+.a-stats-ap-panel__filters .a-toolbar--flat {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.a-stats-ap-panel__head {
+  display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-height: 48px;
+  padding: var(--ad-sp-3) var(--ad-sp-4);
+}
+
+.a-stats-ap-panel__title {
+  margin: 0;
+  font-size: var(--ad-fs-h2);
+  font-weight: 600;
+  color: var(--n-800);
+}
+
+.a-stats-ap-panel__head .a-field__hint {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.a-stats-ap-panel__body {
+  padding: var(--ad-sp-4);
+}
+
+.a-stats-ap-panel__body--flush {
+  padding: 0;
 }
 
 .a-stats-matrix-wrap {
@@ -1622,8 +1661,12 @@ body,
   max-height: 420px;
 }
 
+.a-stats-matrix--transposed {
+  width: max-content;
+  max-width: 100%;
+}
+
 .a-stats-matrix {
-  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 12px;
@@ -1650,12 +1693,42 @@ body,
 
 .a-stats-matrix__col-head {
   top: 0;
-  padding: 10px 8px;
+  padding: 8px 6px;
   text-align: center;
   font-weight: 600;
   color: var(--n-700);
   border-bottom: 1px solid var(--n-200);
-  min-width: 88px;
+  vertical-align: bottom;
+}
+
+.a-stats-matrix__col-head--account {
+  width: 96px;
+  min-width: 96px;
+  max-width: 96px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.a-stats-matrix--transposed .a-stats-matrix__col-head .a-stats-matrix__account {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--p-600);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.a-stats-matrix--transposed .a-stats-matrix__col-head .a-stats-matrix__company {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--n-400);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 }
 
 .a-stats-matrix__row-head {
@@ -1665,6 +1738,28 @@ body,
   border-right: 1px solid var(--n-200);
   min-width: 140px;
   max-width: 180px;
+}
+
+.a-stats-matrix__row-head--product {
+  font-weight: 600;
+  color: var(--n-700);
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.a-stats-matrix--transposed td {
+  width: 96px;
+  min-width: 96px;
+  max-width: 96px;
+  padding: 2px;
+  vertical-align: middle;
+}
+
+.a-stats-matrix--transposed .a-stats-matrix__cell {
+  min-width: 0;
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
 }
 
 .a-stats-matrix__account {

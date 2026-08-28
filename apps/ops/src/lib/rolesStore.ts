@@ -100,7 +100,7 @@ export const PERMISSION_TREE: PermNode[] = [
     children: [
       { id: "stats.customers", label: "客户使用统计页" },
       { id: "stats.products", label: "产品使用统计页" },
-      { id: "stats.accountProducts", label: "账号产品用量页" },
+      { id: "stats.accountProducts", label: "账号产品使用统计页" },
     ],
   },
   {

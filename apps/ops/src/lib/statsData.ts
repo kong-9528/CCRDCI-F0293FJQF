@@ -1,11 +1,14 @@
 import {
   ACCOUNT_STATUS_LABEL,
+  CONFIGURABLE_PRODUCTS,
   PERIOD_STATUS_LABEL,
   PRODUCTS,
   SERVICE_STATUS_LABEL,
   derivePeriodStatus,
   deriveServiceStatus,
+  normalizeProductCode,
   productName,
+  type ConfigurableProductCode,
   type ProductCode,
 } from "@/lib/catalog";
 import { getCustomers, listPeriodStatus } from "@/lib/customersStore";
@@ -128,10 +131,11 @@ function buildMock() {
       });
 
       for (const svc of c.productServices) {
-        const pb = hash(`${c.id}:${svc.product}:${date}`);
+        const product = normalizeProductCode(svc.product);
+        const pb = hash(`${c.id}:${product}:${date}`);
         const pActive = active && seeded(pb, 0, 10) > 3;
         const pCalls = pActive ? seeded(pb + 1, 5, 160) : 0;
-        const isAudit = PRODUCTS.find((item) => item.code === svc.product)?.category === "audit";
+        const isAudit = PRODUCTS.find((item) => item.code === product)?.category === "audit";
         const pageSubmitCalls = isAudit || !pActive ? 0 : seeded(pb + 4, 0, pCalls);
         const apiCalls = pCalls - pageSubmitCalls;
         const pRate =
@@ -142,8 +146,8 @@ function buildMock() {
           account: c.account,
           companyName: c.companyName,
           contactName: c.contactName,
-          product: svc.product,
-          productLabel: productName(svc.product),
+          product,
+          productLabel: productName(product),
           calls: pCalls,
           pageSubmitCalls,
           apiCalls,
@@ -346,7 +350,7 @@ export type AccountProductMatrix = {
   maxCalls: number;
 };
 
-function productCategory(code: ProductCode): "verify" | "audit" {
+function productCategory(code: ConfigurableProductCode): "verify" | "audit" {
   return PRODUCTS.find((p) => p.code === code)?.category === "audit" ? "audit" : "verify";
 }
 
@@ -373,22 +377,32 @@ export function buildAccountProductSummaries(
       continue;
     }
 
+    const grouped = new Map<ConfigurableProductCode, typeof c.productServices>();
     for (const svc of c.productServices) {
-      if (filters?.product && svc.product !== filters.product) continue;
-      const cat = productCategory(svc.product);
+      const product = normalizeProductCode(svc.product);
+      if (filters?.product && product !== filters.product) continue;
+      const cat = productCategory(product);
       if (filters?.category && cat !== filters.category) continue;
+      const list = grouped.get(product) ?? [];
+      list.push(svc);
+      grouped.set(product, list);
+    }
 
+    for (const [product, svcs] of grouped) {
+      const cat = productCategory(product);
       const dayRows = periodRows.filter(
-        (r) => r.customerId === c.id && r.product === svc.product,
+        (r) => r.customerId === c.id && normalizeProductCode(r.product) === product,
       );
       const calls = sumCalls(dayRows);
       const pageSubmitCalls = sumPageSubmitCalls(dayRows);
       const apiCalls = sumApiCalls(dayRows);
       const activeDays = dayRows.filter((r) => r.calls > 0).length;
-      const quotaTotal = svc.quotaType === "total" ? svc.quotaTotal : null;
+      const primarySvc = svcs[0]!;
+      const lifetimeUsed = svcs.reduce((sum, svc) => sum + svc.usedCount, 0);
+      const quotaTotal = primarySvc.quotaType === "total" ? primarySvc.quotaTotal : null;
       const quotaUsagePct =
         quotaTotal && quotaTotal > 0
-          ? Math.min(100, Math.round((svc.usedCount / quotaTotal) * 100))
+          ? Math.min(100, Math.round((lifetimeUsed / quotaTotal) * 100))
           : null;
 
       summaries.push({
@@ -396,20 +410,20 @@ export function buildAccountProductSummaries(
         account: c.account,
         companyName: c.companyName,
         contactName: c.contactName,
-        product: svc.product,
-        productLabel: productName(svc.product),
+        product,
+        productLabel: productName(product),
         productCategory: cat,
         calls,
         pageSubmitCalls,
         apiCalls,
         successRate: avgSuccessRate(dayRows),
         activeDays,
-        lifetimeUsed: svc.usedCount,
+        lifetimeUsed,
         quotaTotal,
         quotaUsagePct,
-        serviceStatus: SERVICE_STATUS_LABEL[deriveServiceStatus(svc)],
+        serviceStatus: SERVICE_STATUS_LABEL[deriveServiceStatus(primarySvc)],
         accountStatus: ACCOUNT_STATUS_LABEL[c.status],
-        periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(svc.startDate, svc.endDate)],
+        periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(primarySvc.startDate, primarySvc.endDate)],
       });
     }
   }
@@ -448,7 +462,9 @@ export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMa
 
   return {
     accounts: [...accountMap.values()].sort((a, b) => a.account.localeCompare(b.account)),
-    products: [...productMap.values()].sort((a, b) => a.label.localeCompare(b.label)),
+    products: CONFIGURABLE_PRODUCTS.filter((p) => productMap.has(p.code)).map(
+      (p) => productMap.get(p.code)!,
+    ),
     cells,
     maxCalls,
   };
@@ -459,10 +475,14 @@ export function getAccountProductTrend(
   product: ProductCode,
   period: StatsPeriod | TrendRange,
 ) {
+  const normalized = normalizeProductCode(product);
   const { accountProductDays } = getStatsData();
   return sliceDates(period).map((date) => {
     const row = accountProductDays.find(
-      (r) => r.date === date && r.customerId === customerId && r.product === product,
+      (r) =>
+        r.date === date &&
+        r.customerId === customerId &&
+        normalizeProductCode(r.product) === normalized,
     );
     return {
       date,
@@ -478,7 +498,7 @@ export function exportAccountProductSummaryCsv(
 ) {
   const rows = buildAccountProductSummaries(period, filters);
   downloadCsv(
-    `账号产品用量统计_${STATS_PERIOD_LABEL[period]}.csv`,
+    `账号产品使用统计_${STATS_PERIOD_LABEL[period]}.csv`,
     [
       "账号",
       "公司名称",
@@ -487,7 +507,6 @@ export function exportAccountProductSummaryCsv(
       "统计周期调用次数",
       "页面提交次数",
       "API调用次数",
-      "成功率",
       "活跃天数",
       "历史累积调用",
       "额度使用率",
@@ -503,7 +522,6 @@ export function exportAccountProductSummaryCsv(
       String(r.calls),
       String(r.pageSubmitCalls),
       String(r.apiCalls),
-      `${r.successRate}%`,
       String(r.activeDays),
       String(r.lifetimeUsed),
       r.quotaUsagePct == null ? "—" : `${r.quotaUsagePct}%`,

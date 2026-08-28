@@ -6,8 +6,6 @@ import { CONFIGURABLE_PRODUCTS, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   STATS_PERIOD_LABEL,
-  avgSuccessRate,
-  buildAccountProductMatrix,
   buildAccountProductSummaries,
   exportAccountProductDailyCsv,
   exportAccountProductSummaryCsv,
@@ -62,8 +60,7 @@ export function AccountProductStatsPage() {
     return getStatsData();
   }, []);
 
-  const [matrixPeriod, setMatrixPeriod] = useState<StatsPeriod>("7d");
-  const [trendPeriod, setTrendPeriod] = useState<StatsPeriod>("7d");
+  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");
   const [category, setCategory] = useState<CategoryFilter>("");
   const [productFilter, setProductFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
@@ -81,42 +78,64 @@ export function AccountProductStatsPage() {
   );
 
   const summaries = useMemo(
-    () => buildAccountProductSummaries(matrixPeriod, filters),
-    [matrixPeriod, filters, data],
+    () => buildAccountProductSummaries(statsPeriod, filters),
+    [statsPeriod, filters, data],
   );
 
-  const matrix = useMemo(() => buildAccountProductMatrix(matrixPeriod), [matrixPeriod, data]);
-
-  const trendTopPairs = useMemo(
-    () => buildAccountProductSummaries(trendPeriod, filters).slice(0, 5),
-    [trendPeriod, filters, data],
-  );
+  const cellCalls = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of summaries) {
+      map.set(`${row.customerId}:${row.product}`, row.calls);
+    }
+    return map;
+  }, [summaries]);
 
   const visibleMatrix = useMemo(() => {
     const summaryKeys = new Set(summaries.map((s) => `${s.customerId}:${s.product}`));
-    const accounts = matrix.accounts.filter((a) =>
-      summaries.some((s) => s.customerId === a.customerId),
+    const accountMap = new Map<
+      string,
+      { customerId: string; account: string; companyName: string }
+    >();
+    for (const row of summaries) {
+      if (!accountMap.has(row.customerId)) {
+        accountMap.set(row.customerId, {
+          customerId: row.customerId,
+          account: row.account,
+          companyName: row.companyName,
+        });
+      }
+    }
+    const accounts = [...accountMap.values()].sort((a, b) =>
+      a.account.localeCompare(b.account),
     );
-    const products = matrix.products.filter(
+    const productCodes = new Set(summaries.map((s) => s.product));
+    const products = CONFIGURABLE_PRODUCTS.filter(
       (p) =>
+        productCodes.has(p.code) &&
         (!category || p.category === category) &&
-        (!productFilter || p.code === productFilter) &&
-        summaries.some((s) => s.product === p.code),
-    );
+        (!productFilter || p.code === productFilter),
+    ).map((p) => ({
+      code: p.code,
+      label: p.name,
+      category: p.category as "verify" | "audit",
+    }));
     return { accounts, products, summaryKeys };
-  }, [matrix, summaries, category, productFilter]);
+  }, [summaries, category, productFilter]);
+
+  const trendTopPairs = useMemo(() => summaries.slice(0, 5), [summaries]);
 
   const activePairs = summaries.filter((s) => s.calls > 0).length;
   const totalCalls = sumCalls(summaries);
   const pageCalls = sumPageSubmitCalls(summaries);
   const apiCalls = sumApiCalls(summaries);
-  const avgRate = avgSuccessRate(summaries);
 
   const topPairs = trendTopPairs;
 
+  const hasActiveFilters = Boolean(appliedQuery || productFilter || category);
+
   const trendSeries = useMemo(() => {
     if (selection) {
-      const points = getAccountProductTrend(selection.customerId, selection.product, trendPeriod);
+      const points = getAccountProductTrend(selection.customerId, selection.product, statsPeriod);
       return {
         labels: points.map((p) => p.date.slice(5)),
         series: [
@@ -136,30 +155,46 @@ export function AccountProductStatsPage() {
     const labels = getAccountProductTrend(
       topPairs[0]!.customerId,
       topPairs[0]!.product,
-      trendPeriod,
+      statsPeriod,
     ).map((p) => p.date.slice(5));
+    const trendTitle = hasActiveFilters
+      ? `调用量 TOP5 组合趋势（当前筛选 · ${summaries.length} 个组合）`
+      : "调用量 TOP5 组合趋势";
     return {
       labels,
       series: topPairs.map((row, idx) => ({
         id: `${row.customerId}-${row.product}`,
         label: `${row.account}·${row.productLabel}`,
         color: chartColor(idx),
-        values: getAccountProductTrend(row.customerId, row.product, trendPeriod).map(
+        values: getAccountProductTrend(row.customerId, row.product, statsPeriod).map(
           (p) => p.calls,
         ),
       })),
-      title: "调用量 TOP5 组合趋势",
+      title: trendTitle,
     };
-  }, [selection, topPairs, trendPeriod]);
+  }, [selection, topPairs, statsPeriod, hasActiveFilters, summaries.length]);
 
   const totalPages = Math.max(1, Math.ceil(summaries.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageRows = summaries.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const applyFilters = () => {
-    setAppliedQuery(accountQuery);
+    const nextQuery = accountQuery;
+    setAppliedQuery(nextQuery);
     setPage(1);
-    setSelection(null);
+    setSelection((prev) => {
+      if (!prev) return null;
+      const nextSummaries = buildAccountProductSummaries(statsPeriod, {
+        product: productFilter,
+        category,
+        accountQuery: nextQuery,
+      });
+      return nextSummaries.some(
+        (s) => s.customerId === prev.customerId && s.product === prev.product,
+      )
+        ? prev
+        : null;
+    });
   };
 
   const resetFilters = () => {
@@ -182,23 +217,25 @@ export function AccountProductStatsPage() {
 
   const matrixMax = useMemo(() => {
     let max = 0;
-    for (const a of visibleMatrix.accounts) {
-      for (const p of visibleMatrix.products) {
-        const v = matrix.cells.get(`${a.customerId}:${p.code}`) ?? 0;
+    for (const p of visibleMatrix.products) {
+      for (const a of visibleMatrix.accounts) {
+        const v = cellCalls.get(`${a.customerId}:${p.code}`) ?? 0;
         if (v > max) max = v;
       }
     }
     return max;
-  }, [visibleMatrix, matrix.cells]);
+  }, [visibleMatrix, cellCalls]);
 
   const overviewMetrics = [
     { label: "开通组合", value: summaries.length.toLocaleString() },
-    { label: "活跃组合", value: activePairs.toLocaleString() },
     {
-      label: `${STATS_PERIOD_LABEL[matrixPeriod]}调用`,
+      label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
+      value: activePairs.toLocaleString(),
+    },
+    {
+      label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
       value: totalCalls.toLocaleString(),
     },
-    { label: "平均成功率", value: `${avgRate}%` },
     {
       label: "页面 / API",
       value: `${pageCalls.toLocaleString()} / ${apiCalls.toLocaleString()}`,
@@ -210,15 +247,10 @@ export function AccountProductStatsPage() {
       <section className="a-card a-dash-panel a-dash-panel--stats-board">
         <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
           <div className="a-stats-ap-intro">
-            <div>
-              <h2 className="a-stats-ap-intro__title">账号 × 产品用量分析</h2>
-              <p className="a-stats-ap-intro__desc">
-                围绕「每个账号在各产品上的提交与调用」展开统计：从开通组合、周期用量、渠道分布到额度消耗，支持矩阵热力图与明细下钻。
-              </p>
-            </div>
+            <h2 className="a-stats-ap-intro__title">账号 × 产品用量</h2>
           </div>
           <article className="a-stats-strip a-stats-strip--customer">
-            <div className="a-stats-strip__metrics a-stats-strip__metrics--5">
+            <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
               {overviewMetrics.map((item) => (
                 <div key={item.label} className="a-stats-strip__cell">
                   <span className="a-stats-strip__value">{item.value}</span>
@@ -230,122 +262,129 @@ export function AccountProductStatsPage() {
         </div>
       </section>
 
-      <div className="a-card">
-        <div className="a-toolbar a-toolbar--wrap">
-          <div className="a-field">
-            <span className="a-field__label">产品类型</span>
-            <SegmentedControl
-              value={category}
-              onChange={(v) => {
-                setCategory(v);
-                setProductFilter("");
-                setPage(1);
-                setSelection(null);
-              }}
-              options={CATEGORY_OPTIONS}
-            />
-          </div>
-          <div className="a-field">
-            <span className="a-field__label">产品</span>
-            <select
-              className="a-select"
-              value={productFilter}
-              onChange={(e) => {
-                setProductFilter(e.target.value as ProductCode | "");
-                setPage(1);
-                setSelection(null);
-              }}
-            >
-              <option value="">全部开通产品</option>
-              {CONFIGURABLE_PRODUCTS.filter(
-                (p) => !category || p.category === category,
-              ).map((p) => (
-                <option key={p.code} value={p.code}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="a-field">
-            <span className="a-field__label">账号 / 公司</span>
-            <input
-              className="a-input"
-              placeholder="模糊搜索"
-              value={accountQuery}
-              onChange={(e) => setAccountQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyFilters();
-              }}
-            />
-          </div>
-          <div className="a-toolbar__actions">
-            <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={applyFilters}>
-              查询
-            </button>
-            <button type="button" className="a-btn a-btn--sm" onClick={resetFilters}>
-              重置
-            </button>
+      <div className="a-card a-stats-ap-panel">
+        <div className="a-stats-ap-panel__filters">
+          <div className="a-toolbar a-toolbar--wrap a-toolbar--flat">
+            <div className="a-field">
+              <span className="a-field__label">产品类型</span>
+              <SegmentedControl
+                value={category}
+                onChange={(v) => {
+                  setCategory(v);
+                  setProductFilter("");
+                  setPage(1);
+                  setSelection(null);
+                }}
+                options={CATEGORY_OPTIONS}
+              />
+            </div>
+            <div className="a-field">
+              <span className="a-field__label">产品</span>
+              <select
+                className="a-select"
+                value={productFilter}
+                onChange={(e) => {
+                  setProductFilter(e.target.value as ProductCode | "");
+                  setPage(1);
+                  setSelection(null);
+                }}
+              >
+                <option value="">全部开通产品</option>
+                {CONFIGURABLE_PRODUCTS.filter(
+                  (p) => !category || p.category === category,
+                ).map((p) => (
+                  <option key={p.code} value={p.code}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="a-field">
+              <span className="a-field__label">账号 / 公司</span>
+              <input
+                className="a-input"
+                placeholder="模糊搜索"
+                value={accountQuery}
+                onChange={(e) => setAccountQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") applyFilters();
+                }}
+              />
+            </div>
+            <div className="a-toolbar__actions">
+              <div className="a-field">
+                <span className="a-field__label">统计周期</span>
+                <StatsPeriodToggle
+                  value={statsPeriod}
+                  onChange={(v) => {
+                    setStatsPeriod(v);
+                    setPage(1);
+                  }}
+                />
+              </div>
+              <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={applyFilters}>
+                查询
+              </button>
+              <button type="button" className="a-btn a-btn--sm" onClick={resetFilters}>
+                重置
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="a-card a-stats-ap-matrix-card">
-        <div className="a-card__head">
-          用量热力矩阵
-          <div className="a-card__extra a-inline-actions">
+        <section className="a-stats-ap-panel__section">
+          <div className="a-stats-ap-panel__head">
+            <h3 className="a-stats-ap-panel__title">用量热力矩阵</h3>
             <span className="a-field__hint">
-              行 = 账号，列 = 产品；颜色越深表示{STATS_PERIOD_LABEL[matrixPeriod]}调用越多。点击单元格查看趋势。
+              行 = 产品，列 = 账号；颜色越深表示{STATS_PERIOD_LABEL[statsPeriod]}调用越多。「—」表示该账号未开通对应产品。点击单元格查看趋势。
             </span>
-            <StatsPeriodToggle
-              value={matrixPeriod}
-              onChange={(v) => {
-                setMatrixPeriod(v);
-                setPage(1);
-              }}
-            />
           </div>
-        </div>
-        <div className="a-card__body a-card__body--flush">
+          <div className="a-stats-ap-panel__body a-stats-ap-panel__body--flush">
             {visibleMatrix.accounts.length === 0 || visibleMatrix.products.length === 0 ? (
               <div className="a-empty">暂无符合条件的开通组合</div>
             ) : (
               <div className="a-stats-matrix-wrap">
-                <table className="a-stats-matrix">
+                <table className="a-stats-matrix a-stats-matrix--transposed">
                   <thead>
                     <tr>
-                      <th className="a-stats-matrix__corner">账号 \ 产品</th>
-                      {visibleMatrix.products.map((p) => (
-                        <th key={p.code} className="a-stats-matrix__col-head">
-                          <span>{p.label}</span>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleMatrix.accounts.map((a) => (
-                      <tr key={a.customerId}>
-                        <th className="a-stats-matrix__row-head">
+                      <th className="a-stats-matrix__corner">产品 \ 账号</th>
+                      {visibleMatrix.accounts.map((a) => (
+                        <th key={a.customerId} className="a-stats-matrix__col-head a-stats-matrix__col-head--account">
                           <Link to={`/customers/${a.customerId}`} className="a-stats-matrix__account">
                             {a.account}
                           </Link>
                           <span className="a-stats-matrix__company">{a.companyName}</span>
                         </th>
-                        {visibleMatrix.products.map((p) => {
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleMatrix.products.map((p) => (
+                      <tr key={p.code}>
+                        <th className="a-stats-matrix__row-head a-stats-matrix__row-head--product">
+                          {p.label}
+                        </th>
+                        {visibleMatrix.accounts.map((a) => {
                           const key = `${a.customerId}:${p.code}`;
                           if (!visibleMatrix.summaryKeys.has(key)) {
                             return (
-                              <td key={p.code} className="a-stats-matrix__cell a-stats-matrix__cell--na">
-                                —
+                              <td key={a.customerId}>
+                                <span
+                                  className="a-stats-matrix__cell a-stats-matrix__cell--na"
+                                  title={`${a.account} · ${p.label}：未开通`}
+                                >
+                                  —
+                                </span>
                               </td>
                             );
                           }
-                          const calls = matrix.cells.get(key) ?? 0;
+                          const calls = cellCalls.get(key) ?? 0;
                           const level = heatLevel(calls, matrixMax);
                           const isSelected =
                             selection?.customerId === a.customerId &&
                             selection?.product === p.code;
                           return (
-                            <td key={p.code}>
+                            <td key={a.customerId}>
                               <button
                                 type="button"
                                 className={`a-stats-matrix__cell a-stats-matrix__cell--l${level}${isSelected ? " is-selected" : ""}`}
@@ -391,13 +430,12 @@ export function AccountProductStatsPage() {
               ))}
               <span>高</span>
             </div>
-        </div>
-      </div>
+          </div>
+        </section>
 
-      <div className="a-card">
-        <div className="a-card__head">
-          {trendSeries.title}
-          <div className="a-card__extra a-inline-actions">
+        <section className="a-stats-ap-panel__section a-stats-ap-panel__section--last">
+          <div className="a-stats-ap-panel__head">
+            <h3 className="a-stats-ap-panel__title">{trendSeries.title}</h3>
             {selection ? (
               <button
                 type="button"
@@ -407,26 +445,25 @@ export function AccountProductStatsPage() {
                 返回 TOP5
               </button>
             ) : null}
-            <StatsPeriodToggle value={trendPeriod} onChange={setTrendPeriod} />
           </div>
-        </div>
-        <div className="a-card__body">
-          {trendSeries.labels.length === 0 ? (
-            <div className="a-empty">暂无趋势数据</div>
-          ) : (
-            <TrendChart labels={trendSeries.labels} series={trendSeries.series} height={280} />
-          )}
-        </div>
+          <div className="a-stats-ap-panel__body">
+            {trendSeries.labels.length === 0 ? (
+              <div className="a-empty">暂无趋势数据</div>
+            ) : (
+              <TrendChart labels={trendSeries.labels} series={trendSeries.series} height={280} />
+            )}
+          </div>
+        </section>
       </div>
 
       <div className="a-card">
         <div className="a-card__head">
-          账号产品用量明细
+          账号产品使用明细
           <div className="a-card__extra a-inline-actions">
             <button
               type="button"
               className="a-btn a-btn--sm"
-              onClick={() => exportAccountProductSummaryCsv(matrixPeriod, filters)}
+              onClick={() => exportAccountProductSummaryCsv(statsPeriod, filters)}
             >
               下载汇总报表
             </button>
@@ -450,9 +487,8 @@ export function AccountProductStatsPage() {
                 <th>账号</th>
                 <th>公司</th>
                 <th>产品</th>
-                <th>{STATS_PERIOD_LABEL[matrixPeriod]}调用</th>
+                <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
                 <th>页面 / API</th>
-                <th>成功率</th>
                 <th>活跃天</th>
                 <th>历史累积</th>
                 <th>额度使用</th>
@@ -462,7 +498,7 @@ export function AccountProductStatsPage() {
             <tbody>
               {pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={10}>
+                  <td colSpan={9}>
                     <div className="a-empty">暂无数据</div>
                   </td>
                 </tr>
@@ -492,7 +528,6 @@ export function AccountProductStatsPage() {
                         ? `${row.pageSubmitCalls.toLocaleString()} / ${row.apiCalls.toLocaleString()}`
                         : "—"}
                     </td>
-                    <td className="num">{row.successRate ? `${row.successRate}%` : "—"}</td>
                     <td className="num">{row.activeDays}</td>
                     <td className="num">{row.lifetimeUsed.toLocaleString()}</td>
                     <td>
