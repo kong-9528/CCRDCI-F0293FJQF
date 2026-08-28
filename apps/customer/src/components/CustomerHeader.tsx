@@ -103,7 +103,7 @@ export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }
       <ConfirmDialog
         open={logoutConfirm}
         title="确认退出登录"
-        description="退出后需重新登录才能访问工作台。确定要退出吗？"
+        description="退出后需重新登录才能访问DCI®技术服务中心。确定要退出吗？"
         confirmText="退出登录"
         danger
         onCancel={() => setLogoutConfirm(false)}
