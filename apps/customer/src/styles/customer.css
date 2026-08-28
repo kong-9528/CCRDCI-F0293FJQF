@@ -47,7 +47,6 @@ body,
 
 .a-sidebar__logo {
   flex-shrink: 0;
-  gap: var(--ad-sp-2);
   text-decoration: none;
 }
 
@@ -78,22 +77,13 @@ body,
   overflow-y: auto;
 }
 
-.a-sidebar__mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, var(--p-500), var(--a-500));
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
 .a-layout.is-collapsed .a-sidebar__logo-text,
 .a-layout.is-collapsed .a-menu__group {
   display: none;
+}
+
+.a-sidebar__logo-text {
+  line-height: 1.25;
 }
 
 .a-layout.is-collapsed .a-menu__item {
@@ -118,10 +108,6 @@ body,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.a-sidebar__logo-text {
-  line-height: 1.25;
 }
 
 .a-menu__item.is-disabled {

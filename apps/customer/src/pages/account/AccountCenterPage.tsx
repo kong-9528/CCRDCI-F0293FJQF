@@ -37,6 +37,7 @@ const API_DOC_ID: Partial<Record<ProductCode, string>> = {
   safety: "safety",
   duplicate: "dedup",
   infringement: "infringe",
+  workReview: "safety",
 };
 
 function serviceStatusTag(status: (typeof MOCK_TENANT_SERVICES)[number]["status"]) {

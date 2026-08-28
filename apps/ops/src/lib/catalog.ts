@@ -1,16 +1,75 @@
 export const PLATFORM_NAME = "DCI®技术服务中心";
 
-/** 6 个可售 API 产品（与门户一致） */
+/** 4 个可售 API 产品（与门户一致） */
 export const PRODUCTS = [
   { code: "dci", name: "DCI核验", category: "verify" },
   { code: "info", name: "版权登记信息核验", category: "verify" },
   { code: "certificate", name: "版权登记证书核验", category: "verify" },
-  { code: "safety", name: "内容安全审核", category: "audit" },
-  { code: "duplicate", name: "作品登记查重", category: "audit" },
-  { code: "infringement", name: "疑似侵权审核", category: "audit" },
+  { code: "workReview", name: "作品智能辅助审核", category: "audit" },
 ] as const;
 
-export type ProductCode = (typeof PRODUCTS)[number]["code"];
+/** 历史拆分的审核子产品（只读兼容，配置时统一为 workReview） */
+export const LEGACY_AUDIT_PRODUCT_CODES = ["safety", "duplicate", "infringement"] as const;
+
+export type LegacyAuditProductCode = (typeof LEGACY_AUDIT_PRODUCT_CODES)[number];
+export type ProductCode = (typeof PRODUCTS)[number]["code"] | LegacyAuditProductCode;
+
+export type ConfigurableProductCode = (typeof PRODUCTS)[number]["code"];
+
+/** 产品配置、筛选项等 UI 使用的可售产品列表 */
+export const CONFIGURABLE_PRODUCTS = PRODUCTS;
+
+export function normalizeProductCode(code: ProductCode): ConfigurableProductCode {
+  if ((LEGACY_AUDIT_PRODUCT_CODES as readonly string[]).includes(code)) {
+    return "workReview";
+  }
+  return code as ConfigurableProductCode;
+}
+
+/** 开通业务类型 */
+export type BusinessType = "software" | "work" | "dataset";
+
+/** 产品使用方式 */
+export type UsageChannel = "web" | "api";
+
+export const BUSINESS_TYPE_OPTIONS = [
+  { code: "software" as const, label: "软件" },
+  { code: "work" as const, label: "作品" },
+  { code: "dataset" as const, label: "数据集" },
+];
+
+export const USAGE_CHANNEL_OPTIONS = [
+  { code: "web" as const, label: "Web页面" },
+  { code: "api" as const, label: "API接口" },
+];
+
+export const DEFAULT_BUSINESS_TYPES: BusinessType[] = ["software", "work", "dataset"];
+export const DEFAULT_USAGE_CHANNELS: UsageChannel[] = ["web", "api"];
+
+export function businessTypeLabel(code: BusinessType) {
+  return BUSINESS_TYPE_OPTIONS.find((o) => o.code === code)?.label ?? code;
+}
+
+export function usageChannelLabel(code: UsageChannel) {
+  return USAGE_CHANNEL_OPTIONS.find((o) => o.code === code)?.label ?? code;
+}
+
+export function formatBusinessTypes(types: BusinessType[]) {
+  return types.length ? types.map(businessTypeLabel).join("、") : "—";
+}
+
+export function formatUsageChannels(channels: UsageChannel[]) {
+  return channels.length ? channels.map(usageChannelLabel).join("、") : "—";
+}
+
+/** 版权核验类产品（需单独配置开通类型与使用方式） */
+export const VERIFY_PRODUCT_CODES = ["dci", "info", "certificate"] as const;
+
+export type VerifyProductCode = (typeof VERIFY_PRODUCT_CODES)[number];
+
+export function isVerifyProduct(code: ProductCode | ""): code is VerifyProductCode {
+  return Boolean(code && (VERIFY_PRODUCT_CODES as readonly string[]).includes(code));
+}
 
 export type CustomerType = "enterprise";
 
@@ -37,6 +96,10 @@ export type ProductServiceConfig = {
   endDate: string;
   /** 运营侧停用；与日期过期独立 */
   stopped: boolean;
+  /** 核验类产品：开通业务类型 */
+  businessTypes?: BusinessType[];
+  /** 核验类产品：使用方式 */
+  usageChannels?: UsageChannel[];
 };
 
 export type ContractFile = {
@@ -124,7 +187,38 @@ export const CUSTOMER_TYPE_LABEL: Record<CustomerType, string> = {
 };
 
 export function productName(code: ProductCode) {
-  return PRODUCTS.find((p) => p.code === code)?.name ?? code;
+  return PRODUCTS.find((p) => p.code === normalizeProductCode(code))?.name ?? code;
+}
+
+/** 列表展示：合并历史审核子产品为「作品智能辅助审核」 */
+export function productServicesForDisplay(
+  services: ProductServiceConfig[],
+): ProductServiceConfig[] {
+  const map = new Map<ConfigurableProductCode, ProductServiceConfig>();
+  for (const svc of services) {
+    const code = normalizeProductCode(svc.product);
+    const existing = map.get(code);
+    if (!existing) {
+      map.set(code, { ...svc, product: code });
+      continue;
+    }
+    map.set(code, {
+      ...existing,
+      startDate: existing.startDate < svc.startDate ? existing.startDate : svc.startDate,
+      endDate: existing.endDate > svc.endDate ? existing.endDate : svc.endDate,
+      stopped: existing.stopped || svc.stopped,
+    });
+  }
+  return [...map.values()];
+}
+
+export function customerHasProduct(
+  services: ProductServiceConfig[],
+  filter: string,
+): boolean {
+  if (!filter) return true;
+  const target = normalizeProductCode(filter as ProductCode);
+  return services.some((s) => normalizeProductCode(s.product) === target);
 }
 
 export function todayISO() {
@@ -220,29 +314,45 @@ export function withContractSummary(c: CustomerAccount): CustomerAccount {
   };
 }
 
-/** 兼容旧 mock：无 contracts 时从摘要字段生成首条合同 */
-export function ensureCustomerContracts(c: CustomerAccount): CustomerAccount {
-  if (c.contracts && c.contracts.length > 0) return withContractSummary(c);
+/** 兼容旧 mock：将账号级开通类型/使用方式迁移到各核验产品 */
+export function ensureCustomerContracts(
+  c: CustomerAccount & { businessTypes?: BusinessType[]; usageChannels?: UsageChannel[] },
+): CustomerAccount {
+  const legacyBiz = c.businessTypes?.length ? c.businessTypes : [...DEFAULT_BUSINESS_TYPES];
+  const legacyUsage = c.usageChannels?.length ? c.usageChannels : [...DEFAULT_USAGE_CHANNELS];
+  const productServices = c.productServices.map((svc) => {
+    if (!isVerifyProduct(svc.product)) return svc;
+    return {
+      ...svc,
+      businessTypes: svc.businessTypes?.length ? svc.businessTypes : [...legacyBiz],
+      usageChannels: svc.usageChannels?.length ? svc.usageChannels : [...legacyUsage],
+    };
+  });
+  const { businessTypes: _bt, usageChannels: _uc, ...rest } = c;
+  const normalized: CustomerAccount = { ...rest, productServices };
+  if (normalized.contracts && normalized.contracts.length > 0) {
+    return withContractSummary(normalized);
+  }
   const hasFlat =
-    Boolean(c.contractStart) ||
-    Boolean(c.contractEnd) ||
-    (c.contractFiles?.length ?? 0) > 0 ||
-    c.contractAmount != null;
+    Boolean(normalized.contractStart) ||
+    Boolean(normalized.contractEnd) ||
+    (normalized.contractFiles?.length ?? 0) > 0 ||
+    normalized.contractAmount != null;
   const contracts: CustomerContract[] = hasFlat
     ? [
         {
-          id: `ct-${c.id}-init`,
-          contractNo: `HT${String(c.id).padStart(6, "0")}`,
-          startDate: c.contractStart,
-          endDate: c.contractEnd,
-          amount: c.contractAmount,
-          files: [...(c.contractFiles ?? [])],
-          createdAt: c.createdAt,
-          updatedAt: c.updatedAt,
+          id: `ct-${normalized.id}-init`,
+          contractNo: `HT${String(normalized.id).padStart(6, "0")}`,
+          startDate: normalized.contractStart,
+          endDate: normalized.contractEnd,
+          amount: normalized.contractAmount,
+          files: [...(normalized.contractFiles ?? [])],
+          createdAt: normalized.createdAt,
+          updatedAt: normalized.updatedAt,
         },
       ]
     : [];
-  return withContractSummary({ ...c, contracts });
+  return withContractSummary({ ...normalized, contracts });
 }
 
 export function deriveServiceStatus(
@@ -313,8 +423,25 @@ function svc(
   startDate: string,
   endDate: string,
   stopped = false,
+  opts?: { businessTypes?: BusinessType[]; usageChannels?: UsageChannel[] },
 ): ProductServiceConfig {
-  return { product, quotaType, quotaTotal, usedCount, startDate, endDate, stopped };
+  const base: ProductServiceConfig = {
+    product,
+    quotaType,
+    quotaTotal,
+    usedCount,
+    startDate,
+    endDate,
+    stopped,
+  };
+  if (isVerifyProduct(product)) {
+    return {
+      ...base,
+      businessTypes: opts?.businessTypes ?? [...DEFAULT_BUSINESS_TYPES],
+      usageChannels: opts?.usageChannels ?? [...DEFAULT_USAGE_CHANNELS],
+    };
+  }
+  return base;
 }
 
 /** 前端演示数据，后续替换为 API */
@@ -342,7 +469,7 @@ export const MOCK_CUSTOMERS = [
     productServices: [
       svc("dci", "total", 50000, 12840, "2026-01-01", "2026-12-31"),
       svc("certificate", "total", 10000, 3188, "2026-01-01", "2026-12-31"),
-      svc("safety", "unlimited", null, 9021, "2026-01-01", "2026-12-31"),
+      svc("workReview", "unlimited", null, 9021, "2026-01-01", "2026-12-31"),
     ],
     createdAt: "2026-01-02 10:00:00",
     updatedAt: "2026-08-01 14:20:00",
@@ -367,8 +494,7 @@ export const MOCK_CUSTOMERS = [
     productServices: [
       svc("dci", "total", 80000, 22100, "2025-06-01", "2026-05-31"),
       svc("info", "total", 30000, 6420, "2025-06-01", "2026-05-31"),
-      svc("duplicate", "total", 15000, 2104, "2025-06-01", "2026-05-31"),
-      svc("infringement", "unlimited", null, 880, "2025-06-01", "2026-05-31"),
+      svc("workReview", "unlimited", null, 2984, "2025-06-01", "2026-05-31"),
     ],
     createdAt: "2025-05-28 09:30:00",
     updatedAt: "2026-07-12 11:05:00",
@@ -390,7 +516,7 @@ export const MOCK_CUSTOMERS = [
     account: "pixel_lab",
     passwordHint: "Pixel_Lab3!",
     status: "disabled",
-    productServices: [svc("safety", "total", 20000, 15002, "2025-03-01", "2026-02-28", true)],
+    productServices: [svc("workReview", "total", 20000, 15002, "2025-03-01", "2026-02-28", true)],
     createdAt: "2025-02-20 16:00:00",
     updatedAt: "2026-06-01 09:00:00",
   },
@@ -439,7 +565,7 @@ export const MOCK_CUSTOMERS = [
       svc("dci", "total", 40000, 39980, "2024-01-01", "2025-12-31"),
       svc("info", "total", 20000, 18800, "2024-01-01", "2025-12-31"),
       svc("certificate", "unlimited", null, 5400, "2024-01-01", "2025-12-31"),
-      svc("duplicate", "total", 5000, 4990, "2024-01-01", "2025-12-31"),
+      svc("workReview", "total", 5000, 4990, "2024-01-01", "2025-12-31"),
     ],
     createdAt: "2023-12-20 11:00:00",
     updatedAt: "2026-01-05 08:30:00",
@@ -462,8 +588,7 @@ export const MOCK_CUSTOMERS = [
     passwordHint: "Stream_Box8!",
     status: "enabled",
     productServices: [
-      svc("safety", "total", 30000, 4200, "2026-02-15", "2027-02-14"),
-      svc("infringement", "total", 10000, 910, "2026-02-15", "2027-02-14"),
+      svc("workReview", "total", 30000, 4200, "2026-02-15", "2027-02-14"),
     ],
     createdAt: "2026-02-10 15:00:00",
     updatedAt: "2026-07-01 12:00:00",
@@ -508,9 +633,7 @@ export const MOCK_CUSTOMERS = [
     status: "enabled",
     productServices: [
       svc("certificate", "total", 20000, 1200, "2026-04-01", "2027-03-31"),
-      svc("safety", "unlimited", null, 5600, "2026-04-01", "2027-03-31"),
-      svc("duplicate", "total", 8000, 640, "2026-04-01", "2027-03-31"),
-      svc("infringement", "total", 8000, 300, "2026-04-01", "2027-03-31"),
+      svc("workReview", "unlimited", null, 5600, "2026-04-01", "2027-03-31"),
     ],
     createdAt: "2026-03-28 13:20:00",
     updatedAt: "2026-08-05 10:10:00",
@@ -560,9 +683,7 @@ export const MOCK_CUSTOMERS = [
       svc("dci", "unlimited", null, 42000, "2026-01-15", "2026-12-15"),
       svc("info", "total", 50000, 18000, "2026-01-15", "2026-12-15"),
       svc("certificate", "total", 30000, 9000, "2026-01-15", "2026-12-15"),
-      svc("safety", "total", 40000, 21000, "2026-01-15", "2026-12-15"),
-      svc("duplicate", "total", 20000, 4500, "2026-01-15", "2026-12-15"),
-      svc("infringement", "total", 20000, 2100, "2026-01-15", "2026-12-15"),
+      svc("workReview", "total", 40000, 21000, "2026-01-15", "2026-12-15"),
     ],
     createdAt: "2026-01-10 11:00:00",
     updatedAt: "2026-08-12 16:00:00",
@@ -585,8 +706,7 @@ export const MOCK_CUSTOMERS = [
     passwordHint: "Silk_Road6!",
     status: "enabled",
     productServices: [
-      svc("duplicate", "total", 9000, 0, "2026-07-01", "2027-06-30"),
-      svc("infringement", "total", 9000, 0, "2026-07-01", "2027-06-30"),
+      svc("workReview", "total", 9000, 0, "2026-07-01", "2027-06-30"),
     ],
     createdAt: "2026-06-25 14:00:00",
     updatedAt: "2026-06-25 14:00:00",
@@ -610,10 +730,35 @@ export const MOCK_CUSTOMERS = [
     status: "disabled",
     productServices: [
       svc("info", "total", 8000, 8000, "2025-01-01", "2025-12-31"),
-      svc("safety", "total", 8000, 7600, "2025-01-01", "2025-12-31"),
+      svc("workReview", "total", 8000, 7600, "2025-01-01", "2025-12-31"),
     ],
     createdAt: "2024-12-18 10:30:00",
     updatedAt: "2026-01-02 09:15:00",
+  },
+  {
+    id: "101",
+    customerType: "enterprise",
+    creditCode: "91440300MA5D998877",
+    companyName: "前海智链科技有限公司",
+    legalPerson: "黄伟",
+    contactName: "林静",
+    contactPhone: "13800009988",
+    contactEmail: "linjing@zhilian.example",
+    address: "深圳市前海深港合作区梦海大道 5033 号",
+    contractFiles: [{ id: "af4", name: "智链-开通协议.pdf", size: 740_000 }],
+    contractStart: "2026-03-01",
+    contractEnd: "2027-02-28",
+    contractAmount: 98000,
+    account: "zhilian_sz",
+    passwordHint: "Zhilian8!",
+    status: "enabled",
+    productServices: [
+      svc("dci", "total", 20000, 3200, "2026-03-01", "2027-02-28"),
+      svc("info", "total", 15000, 1800, "2026-03-01", "2027-02-28"),
+      svc("workReview", "total", 30000, 5600, "2026-03-01", "2027-02-28"),
+    ],
+    createdAt: "2026-08-21 11:20:00",
+    updatedAt: "2026-08-21 11:20:00",
   },
 ].map((c) =>
   ensureCustomerContracts({ ...(c as CustomerAccount), contracts: [] }),

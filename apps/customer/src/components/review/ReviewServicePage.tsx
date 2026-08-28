@@ -3,8 +3,10 @@ import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
   REVIEW_RECORD_STATUS_LABEL,
   REVIEW_SERVICES,
+  WORK_REVIEW_SERVICE_NAME,
   formatReviewCount,
   getReviewQuota,
+  getReviewServiceStatus,
   type ReviewProductCode,
   type ReviewRecordStatus,
 } from "@/lib/review";
@@ -27,8 +29,9 @@ function recordStatusTag(status: ReviewRecordStatus) {
 
 export function ReviewServicePage({ product }: Props) {
   const cfg = REVIEW_SERVICES[product];
+  const serviceStatus = getReviewServiceStatus(product);
   const quota = getReviewQuota(product);
-  const stopped = cfg.serviceStatus === "stopped";
+  const stopped = serviceStatus === "stopped";
 
   return (
     <div className="a-stack c-review-page">
@@ -48,26 +51,21 @@ export function ReviewServicePage({ product }: Props) {
 
       <div className="a-card">
         <div className="a-card__head">
-          {cfg.title}
+          {WORK_REVIEW_SERVICE_NAME}
           <span className="a-card__extra">{cfg.subtitle}</span>
         </div>
         <div className="a-card__body a-stack">
           <div className="a-desc">
             <div className="a-desc__item">
               <span className="a-desc__label">服务状态</span>
-              <span className="a-desc__value">{serviceStatusTag(cfg.serviceStatus)}</span>
+              <span className="a-desc__value">{serviceStatusTag(serviceStatus)}</span>
             </div>
-            {stopped ? (
-              <div className="a-desc__item">
-                <span className="a-desc__label">说明</span>
-                <span className="a-desc__value">{cfg.stoppedNote ?? "—"}</span>
-              </div>
-            ) : (
+            {!stopped ? (
               <>
-                {(cfg.expireAt || quota?.expireAt) && (
+                {quota?.expireAt && (
                   <div className="a-desc__item">
                     <span className="a-desc__label">有效期</span>
-                    <span className="a-desc__value">{cfg.expireAt ?? quota?.expireAt}</span>
+                    <span className="a-desc__value">{quota.expireAt}</span>
                   </div>
                 )}
                 {quota && quota.quotaTotal != null ? (
@@ -79,7 +77,7 @@ export function ReviewServicePage({ product }: Props) {
                   </div>
                 ) : null}
               </>
-            )}
+            ) : null}
           </div>
           {!stopped && quota && quota.quotaTotal != null ? (
             <div className="c-review-quota">

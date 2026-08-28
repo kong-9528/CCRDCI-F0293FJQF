@@ -4,6 +4,7 @@ export const PRODUCTS = [
   { code: "dci", name: "DCI核验", category: "verify", path: "/verify/dci" },
   { code: "info", name: "版权登记信息核验", category: "verify", path: "/verify/info" },
   { code: "certificate", name: "版权登记证书核验", category: "verify", path: "/verify/certificate" },
+  { code: "workReview", name: "作品智能辅助审核", category: "audit", path: "/review/safety" },
   { code: "safety", name: "内容安全审核", category: "audit", path: "/review/safety" },
   { code: "duplicate", name: "作品登记查重", category: "audit", path: "/review/duplicate" },
   { code: "infringement", name: "疑似侵权审核", category: "audit", path: "/review/infringement" },
@@ -16,8 +17,7 @@ export const OPENED_PRODUCTS: ProductCode[] = [
   "dci",
   "info",
   "certificate",
-  "safety",
-  "duplicate",
+  "workReview",
 ];
 
 export type ProductUsage = {
@@ -33,8 +33,7 @@ export const MOCK_USAGE: ProductUsage[] = [
   { code: "dci", totalCalls: 12840, monthCalls: 1260, momPercent: 12.4, expireAt: "2026-12-31", daysLeft: 133 },
   { code: "info", totalCalls: 6420, monthCalls: 580, momPercent: -3.2, expireAt: "2026-09-15", daysLeft: 26 },
   { code: "certificate", totalCalls: 3188, monthCalls: 420, momPercent: 8.1, expireAt: "2026-12-31", daysLeft: 133 },
-  { code: "safety", totalCalls: 9021, monthCalls: 1102, momPercent: 5.6, expireAt: "2026-11-30", daysLeft: 102 },
-  { code: "duplicate", totalCalls: 2104, monthCalls: 198, momPercent: -1.4, expireAt: "2026-08-28", daysLeft: 8 },
+  { code: "workReview", totalCalls: 48230, monthCalls: 1200, momPercent: 12.8, expireAt: "2026-08-25", daysLeft: 5 },
 ];
 
 export function productName(code: ProductCode) {

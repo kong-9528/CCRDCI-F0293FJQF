@@ -1,5 +1,6 @@
 import type { ProductCode } from "@/lib/catalog";
 import { productName } from "@/lib/catalog";
+import { WORK_REVIEW_ENTITLEMENT } from "@/lib/review";
 
 export type ServiceStatus = "active" | "expiring" | "stopped";
 
@@ -68,37 +69,15 @@ export const DASHBOARD_PRODUCTS: DashboardProduct[] = [
     quotaUsagePct: 30,
   },
   {
-    code: "safety",
-    status: "expiring",
-    usedCount: 45230,
-    quotaTotal: 100000,
-    monthCalls: 680,
-    momPercent: 18.2,
-    expireAt: "2026-08-25",
+    code: "workReview",
+    status: WORK_REVIEW_ENTITLEMENT.status,
+    usedCount: WORK_REVIEW_ENTITLEMENT.usedCount,
+    quotaTotal: WORK_REVIEW_ENTITLEMENT.quotaTotal,
+    monthCalls: 1200,
+    momPercent: 12.8,
+    expireAt: WORK_REVIEW_ENTITLEMENT.expireAt,
     daysLeft: 5,
-    quotaUsagePct: 45.2,
-  },
-  {
-    code: "duplicate",
-    status: "active",
-    usedCount: 1500,
-    quotaTotal: 5000,
-    monthCalls: 520,
-    momPercent: 10.5,
-    expireAt: "2026-11-30",
-    daysLeft: 102,
-    quotaUsagePct: 30,
-  },
-  {
-    code: "infringement",
-    status: "stopped",
-    usedCount: 1500,
-    quotaTotal: 7000,
-    monthCalls: 0,
-    momPercent: null,
-    expireAt: "2026-07-31",
-    daysLeft: 0,
-    quotaUsagePct: 21.4,
+    quotaUsagePct: WORK_REVIEW_ENTITLEMENT.quotaUsagePct,
   },
 ];
 
@@ -117,8 +96,8 @@ export function dashboardOverview(products: DashboardProduct[]) {
 
 export function productWarnings(p: DashboardProduct): ProductWarning {
   if (p.status === "stopped") return { kind: "stopped" };
-  if (p.code === "safety" && p.daysLeft <= 7) {
-    return { kind: "expiring", daysLeft: p.daysLeft, quotaPct: 55 };
+  if (p.code === "workReview" && p.daysLeft <= 7) {
+    return { kind: "expiring", daysLeft: p.daysLeft, quotaPct: Math.round(p.quotaUsagePct) };
   }
   if (p.daysLeft <= 30 && p.daysLeft > 0) {
     return { kind: "expiring", daysLeft: p.daysLeft };
@@ -178,6 +157,7 @@ const CHART_7D: Record<ProductCode, number[]> = {
   dci: [420, 380, 510, 460, 490, 520, 641],
   info: [280, 310, 290, 320, 300, 340, 316],
   certificate: [95, 110, 88, 120, 105, 130, 154],
+  workReview: [42, 38, 51, 46, 49, 52, 64],
   safety: [0, 0, 0, 0, 0, 0, 0],
   duplicate: [0, 0, 0, 0, 0, 0, 0],
   infringement: [0, 0, 0, 0, 0, 0, 0],

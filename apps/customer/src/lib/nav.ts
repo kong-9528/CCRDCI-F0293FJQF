@@ -18,7 +18,7 @@ export const CUSTOMER_NAV: NavGroup[] = [
     items: [{ to: "/desk", label: "工作台", icon: "dashboard" }],
   },
   {
-    title: "版权核验服务",
+    title: "版权核验",
     items: [
       { to: "/verify/dci", label: "DCI核验", icon: "dci" },
       { to: "/verify/info", label: "版权登记信息核验", icon: "info" },
@@ -26,7 +26,7 @@ export const CUSTOMER_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "智能辅助审核服务",
+    title: "作品智能辅助审核",
     items: [
       { to: "/review/safety", label: "内容安全审核", icon: "safety" },
       { to: "/review/duplicate", label: "作品登记查重", icon: "duplicate" },

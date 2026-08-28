@@ -113,7 +113,7 @@ const SEED: PortalHomeItem[] = [
     columnKey: "focus-2",
     columnLabel: "焦点区2",
     regions: createRegions([
-      "版权核验服务",
+      "版权核验",
       "权威可溯",
       "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
     ]),
@@ -127,7 +127,7 @@ const SEED: PortalHomeItem[] = [
     columnKey: "focus-3",
     columnLabel: "焦点区3",
     regions: createRegions([
-      "智能辅助审核服务",
+      "智能辅助审核",
       "提效合规",
       "涵盖内容安全审核、作品登记查重与疑似侵权审核，辅助缩短人工审核链路。",
     ]),

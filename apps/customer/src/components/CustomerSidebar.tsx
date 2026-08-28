@@ -11,7 +11,6 @@ export function CustomerSidebar({ collapsed }: Props) {
   return (
     <aside className="a-sidebar">
       <NavLink to="/desk" className="a-sidebar__logo" title={PLATFORM_NAME}>
-        <span className="a-sidebar__mark">D</span>
         {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
       </NavLink>
 

@@ -16,6 +16,12 @@ import {
   type ProductUsageStat,
   type QuotaType,
 } from "@/lib/catalog";
+import {
+  diffProductConfig,
+  validateProductConfig,
+  type ProductConfigState,
+} from "@/lib/productConfig";
+import { parseProductServices } from "@/lib/customerForm";
 
 let customers: CustomerAccount[] = structuredClone(MOCK_CUSTOMERS).map(ensureCustomerContracts);
 let opLogs: CustomerOpLog[] = structuredClone(MOCK_OP_LOGS);
@@ -447,6 +453,56 @@ export function listPeriodStatus(c: CustomerAccount) {
   return listContractPeriod(c).status;
 }
 
+export function saveCustomerProductConfig(
+  customerId: string,
+  state: ProductConfigState,
+): string | null {
+  const cur = getCustomerById(customerId);
+  if (!cur) return "客户不存在";
+
+  const validationError = validateProductConfig(state);
+  if (validationError) return validationError;
+
+  const parsed = parseProductServices(state.productRows);
+  if (!parsed.ok) return parsed.error;
+
+  for (const existing of cur.productServices) {
+    if (!parsed.value.some((svc) => svc.product === existing.product)) {
+      return `不可移除已开通产品「${productName(existing.product)}」`;
+    }
+  }
+
+  const nextServices = parsed.value.map((svc) => {
+    const existing = cur.productServices.find((s) => s.product === svc.product);
+    return {
+      ...svc,
+      usedCount: existing?.usedCount ?? 0,
+    };
+  });
+
+  for (const svc of nextServices) {
+    if (svc.quotaType === "total" && svc.quotaTotal != null && svc.quotaTotal < svc.usedCount) {
+      return `产品「${productName(svc.product)}」的新额度不能小于已用次数 ${svc.usedCount}`;
+    }
+  }
+
+  const next: CustomerAccount = {
+    ...cur,
+    productServices: nextServices,
+  };
+
+  const changes = diffProductConfig(cur, state.productRows);
+
+  updateCustomer(
+    customerId,
+    next,
+    changes.length ? changes : [{ field: "产品服务配置", before: "—", after: "已更新" }],
+    "service",
+    "编辑产品服务配置",
+  );
+  return null;
+}
+
 export function useCustomerStore() {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -462,6 +518,7 @@ export function useCustomerStore() {
     updateProductService: updateCustomerProductService,
     addProductService: addCustomerProductService,
     setProductStopped: setCustomerProductStopped,
+    saveProductConfig: saveCustomerProductConfig,
     addContract: addCustomerContract,
     updateContract: updateCustomerContract,
     getLogs: getCustomerLogs,

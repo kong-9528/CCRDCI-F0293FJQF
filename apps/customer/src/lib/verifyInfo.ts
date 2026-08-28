@@ -338,8 +338,8 @@ export async function verifyInfoOnce(
     };
   } else {
     const mismatches: InfoMismatchField[] = [];
-    if (normCompare(name) !== normCompare(hit.name)) mismatches.push("name");
-    if (normCompare(owner) !== normCompare(hit.owner)) mismatches.push("owner");
+    if (name && normCompare(name) !== normCompare(hit.name)) mismatches.push("name");
+    if (owner && normCompare(owner) !== normCompare(hit.owner)) mismatches.push("owner");
 
     if (mismatches.length) {
       result = {
@@ -392,11 +392,8 @@ export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {
 
 export function validateInfoForm(workType: InfoWorkType, input: InfoVerifyInput): string | null {
   if (!input.regNo.trim()) return "请填写登记号";
-  if (!input.name.trim()) {
-    if (workType === "software") return "请填写软件名称";
-    if (workType === "work") return "请填写作品名称";
-    return "请填写数据集名称";
+  if (!input.name.trim() && !input.owner.trim()) {
+    return `著作权人与${infoNameLabel(workType)}至少填写一项`;
   }
-  if (!input.owner.trim()) return "请填写著作权人";
   return null;
 }

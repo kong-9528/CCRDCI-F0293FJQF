@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { normalizeProductCode, type ProductCode as CatalogProductCode } from "@/lib/catalog";
 import {
   PRODUCT_CODES,
   PRODUCT_NAME,
@@ -93,7 +94,7 @@ function fromEndpoint(ep: ApiEndpoint): FormState {
 }
 
 function tabForProduct(code: ProductCode): ApiServiceTab {
-  return code === "safety" || code === "duplicate" || code === "infringement" ? "audit" : "verify";
+  return normalizeProductCode(code as CatalogProductCode) === "workReview" ? "audit" : "verify";
 }
 
 function isProductCode(value: string | null | undefined): value is ProductCode {

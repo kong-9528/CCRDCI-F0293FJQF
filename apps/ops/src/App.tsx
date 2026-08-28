@@ -6,6 +6,9 @@ import { FaqManagePage } from "@/pages/content/FaqManagePage";
 import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { PortalHomeEditPage } from "@/pages/content/PortalHomeEditPage";
 import { PortalHomeManagePage } from "@/pages/content/PortalHomeManagePage";
+import { AccountApplicationEditPage } from "@/pages/accounts/AccountApplicationEditPage";
+import { AccountApplicationPage } from "@/pages/accounts/AccountApplicationPage";
+import { AccountApplicationsPage } from "@/pages/accounts/AccountApplicationsPage";
 import { CustomerCreatePage } from "@/pages/customers/CustomerCreatePage";
 import { CustomerContractsPage } from "@/pages/customers/CustomerContractsPage";
 import { CustomerDetailPage } from "@/pages/customers/CustomerDetailPage";
@@ -30,6 +33,10 @@ export function App() {
       <Route element={<OpsLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/accounts" element={<AccountApplicationsPage />} />
+        <Route path="/accounts/:id/review" element={<AccountApplicationPage mode="review" />} />
+        <Route path="/accounts/:id/edit" element={<AccountApplicationEditPage />} />
+        <Route path="/accounts/:id" element={<AccountApplicationPage mode="view" />} />
         <Route path="/customers" element={<CustomerListPage />} />
         <Route path="/customers/new" element={<CustomerCreatePage />} />
         <Route path="/customers/:id/edit" element={<CustomerEditPage />} />

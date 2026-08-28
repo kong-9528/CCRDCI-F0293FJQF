@@ -20,6 +20,7 @@ export const OPS_NAV: NavGroup[] = [
   {
     title: "客户管理",
     items: [
+      { to: "/accounts", label: "客户账号管理", ready: true },
       { to: "/customers", label: "客户账号列表", ready: true },
       { to: "/customer-services", label: "服务产品管理", ready: true, hidden: true },
     ],
@@ -58,6 +59,9 @@ export const OPS_NAV: NavGroup[] = [
 ];
 
 export function findNavLabel(pathname: string): string {
+  if (/^\/accounts\/[^/]+\/review$/.test(pathname)) return "审核开通申请";
+  if (/^\/accounts\/[^/]+\/edit$/.test(pathname)) return "编辑产品服务";
+  if (/^\/accounts\/[^/]+$/.test(pathname)) return "申请详情";
   if (pathname === "/customers/new") return "新增客户账号";
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";
   if (/^\/customers\/[^/]+\/contracts$/.test(pathname)) return "合同管理";

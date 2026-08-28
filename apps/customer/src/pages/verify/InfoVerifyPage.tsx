@@ -194,7 +194,7 @@ export function InfoVerifyPage() {
           <div className="c-verify-form-row">
             <input
               className="a-input"
-              placeholder="登记号"
+              placeholder="登记号（必填）"
               value={form.regNo}
               onChange={(e) => setField("regNo", e.target.value)}
             />
@@ -221,8 +221,8 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            演示数据：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致可核验通过；
-            作品页签可试 2024ZP009999（星河旅人）故意填错著作权人查看失败原因
+            登记号必填；{nameLabel}与著作权人至少填一项 · 演示：2024SR001234 / 2024ZP001234 /
+            2024SJ001234 配合正确名称或著作权人可核验通过；作品页签可试 2024ZP009999 填错著作权人
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}

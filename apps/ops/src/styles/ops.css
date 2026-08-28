@@ -1476,6 +1476,37 @@ body,
   overflow: visible;
 }
 
+.a-product-row-detail td {
+  background: var(--n-50);
+  border-top: none;
+  padding-top: 0;
+}
+
+.a-product-verify-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  padding: 8px 0 12px;
+}
+
+.a-product-verify-options--readonly {
+  font-size: var(--ad-fs-sm);
+  color: var(--n-600);
+}
+
+.a-product-verify-options__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.a-product-verify-options__label {
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
+  white-space: nowrap;
+}
+
 .a-log-changes {
   max-width: 420px;
   white-space: normal;

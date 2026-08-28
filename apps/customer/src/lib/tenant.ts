@@ -65,28 +65,12 @@ export const MOCK_TENANT_SERVICES: TenantService[] = [
     status: "active",
   },
   {
-    product: "safety",
+    product: "workReview",
     openedAt: "2025-06-01",
     expireAt: "2026-08-25",
     quotaTotal: 100000,
-    usedCount: 45230,
+    usedCount: 48230,
     status: "expiring",
-  },
-  {
-    product: "duplicate",
-    openedAt: "2025-04-01",
-    expireAt: "2026-11-30",
-    quotaTotal: 5000,
-    usedCount: 1500,
-    status: "active",
-  },
-  {
-    product: "infringement",
-    openedAt: "2025-03-01",
-    expireAt: "2026-07-31",
-    quotaTotal: 7000,
-    usedCount: 1500,
-    status: "stopped",
   },
 ];
 

@@ -152,6 +152,7 @@ export function IconPortal(props: IconProps) {
 
 const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/dashboard": IconHome,
+  "/accounts": IconCustomers,
   "/customers": IconCustomers,
   "/customer-services": IconServices,
   "/products": IconProducts,

@@ -11,6 +11,7 @@ const QUICK_DESC: Partial<Record<ProductCode, string>> = {
   dci: "编码核验 · 权属查询",
   info: "登记信息 · 权属匹配",
   certificate: "证书真伪 · 批量核验",
+  workReview: "内容安全 · 查重 · 侵权审核",
   safety: "文本 · 图片 · 视频",
   duplicate: "登记查重 · 相似报告",
   infringement: "侵权检测 · 风险分析",

@@ -82,7 +82,7 @@ let heroThemes: HeroTheme[] = [
     imageUrl: "",
     imageName: "",
     eyebrow: "Copyright Verification",
-    title: "版权核验服务",
+    title: "版权核验",
     highlight: "权威可溯",
     lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
     maintainer: "运营管理员",
@@ -90,7 +90,7 @@ let heroThemes: HeroTheme[] = [
   },
   {
     id: "hero-3",
-    name: "智能审核",
+    name: "智能辅助审核",
     weight: 30,
     status: "visible",
     imageUrl: "",
@@ -106,7 +106,7 @@ let heroThemes: HeroTheme[] = [
 
 let verifyMeta: ShowcaseSectionMeta = {
   eyebrow: "Copyright Verification",
-  heading: "版权核验服务",
+  heading: "版权核验",
 };
 
 let verifyThemes: ShowcaseTheme[] = [
@@ -150,7 +150,7 @@ let verifyThemes: ShowcaseTheme[] = [
 
 let auditMeta: ShowcaseSectionMeta = {
   eyebrow: "Intelligent Audit",
-  heading: "智能辅助审核服务",
+  heading: "智能辅助审核",
 };
 
 let auditThemes: ShowcaseTheme[] = [

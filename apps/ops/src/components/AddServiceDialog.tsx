@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  PRODUCTS,
+  CONFIGURABLE_PRODUCTS,
+  normalizeProductCode,
   type CustomerAccount,
   type ProductCode,
   type QuotaType,
@@ -81,7 +82,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
 
   const openedProducts = useMemo(() => {
     if (!customer) return new Set<string>();
-    return new Set(customer.productServices.map((s) => s.product));
+    return new Set(customer.productServices.map((s) => normalizeProductCode(s.product)));
   }, [customer]);
 
   const filteredAccounts = useMemo(() => {
@@ -99,7 +100,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
     : "";
 
   const selectedProductLabel = form.product
-    ? (PRODUCTS.find((p) => p.code === form.product)?.name ?? form.product)
+    ? (CONFIGURABLE_PRODUCTS.find((p) => p.code === form.product)?.name ?? form.product)
     : "";
 
   if (!open) return null;
@@ -291,7 +292,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
               {productOpen && form.customerId ? (
                 <div className="a-combobox__panel" role="listbox">
                   <div className="a-combobox__list">
-                    {PRODUCTS.map((p) => {
+                    {CONFIGURABLE_PRODUCTS.map((p) => {
                       const opened = openedProducts.has(p.code);
                       return (
                         <button
@@ -321,7 +322,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
             {productTip && !form.customerId ? (
               <div className="a-field__hint a-field__hint--warn">请先选择账号</div>
             ) : null}
-            {form.customerId && openedProducts.size >= PRODUCTS.length ? (
+            {form.customerId && openedProducts.size >= CONFIGURABLE_PRODUCTS.length ? (
               <div className="a-field__hint">该账号已开通全部产品</div>
             ) : null}
           </div>

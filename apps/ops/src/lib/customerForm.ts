@@ -5,9 +5,14 @@ import type {
   ProductCode,
   ProductServiceConfig,
   QuotaType,
+  BusinessType,
+  UsageChannel,
 } from "@/lib/catalog";
 import {
-  PRODUCTS,
+  isVerifyProduct,
+  formatBusinessTypes,
+  formatUsageChannels,
+  productName,
   generateStrongPassword,
   isStrongPassword,
   isValidAccount,
@@ -23,6 +28,8 @@ export type ProductFormRow = {
   endDate: string;
   stopped: boolean;
   usedCount: number;
+  businessTypes: BusinessType[];
+  usageChannels: UsageChannel[];
   /** 本次编辑过程中新增的配置行（可移除、可改选产品） */
   isNew?: boolean;
 };
@@ -59,6 +66,8 @@ export function emptyProductRow(defaults?: {
     endDate: defaults?.endDate ?? "",
     stopped: false,
     usedCount: 0,
+    businessTypes: [],
+    usageChannels: [],
     isNew: true,
   };
 }
@@ -113,6 +122,8 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
             endDate: s.endDate,
             stopped: s.stopped,
             usedCount: s.usedCount,
+            businessTypes: s.businessTypes ? [...s.businessTypes] : [],
+            usageChannels: s.usageChannels ? [...s.usageChannels] : [],
             isNew: false,
           }))
         : [emptyProductRow({ startDate: c.contractStart, endDate: c.contractEnd })],
@@ -121,7 +132,7 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
 
 function productRowLabel(row: ProductFormRow, index: number) {
   if (row.product) {
-    return `「${PRODUCTS.find((p) => p.code === row.product)?.name ?? row.product}」`;
+    return `「${productName(row.product)}」`;
   }
   return `第 ${index + 1} 行配置`;
 }
@@ -179,7 +190,15 @@ export function parseProductServices(
     if (r.startDate > r.endDate) {
       return { ok: false, error: `${label}：有效期开始日期不能晚于结束日期` };
     }
-    value.push({
+    if (isVerifyProduct(r.product)) {
+      if (r.businessTypes.length === 0) {
+        return { ok: false, error: `${label}：请至少选择一项开通业务类型` };
+      }
+      if (r.usageChannels.length === 0) {
+        return { ok: false, error: `${label}：请至少选择一种产品使用方式` };
+      }
+    }
+    const item: ProductServiceConfig = {
       product: r.product as ProductCode,
       quotaType: r.quotaType,
       quotaTotal,
@@ -187,7 +206,12 @@ export function parseProductServices(
       startDate: r.startDate,
       endDate: r.endDate,
       stopped: r.stopped,
-    });
+    };
+    if (isVerifyProduct(r.product)) {
+      item.businessTypes = [...r.businessTypes];
+      item.usageChannels = [...r.usageChannels];
+    }
+    value.push(item);
   }
   return { ok: true, value };
 }
@@ -338,23 +362,42 @@ export function diffCustomer(
   for (const code of codes) {
     const b = beforeMap.get(code);
     const a = afterMap.get(code);
-    const name = PRODUCTS.find((p) => p.code === code)?.name ?? code;
+    const name = productName(code);
     if (!b && a) {
+      const extra =
+        isVerifyProduct(code) && a.businessTypes && a.usageChannels
+          ? `｜${formatBusinessTypes(a.businessTypes)}｜${formatUsageChannels(a.usageChannels)}`
+          : "";
       push(
         `产品·${name}`,
         "未开通",
-        `${a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}`,
+        `${a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
       );
     } else if (b && !a) {
       push(`产品·${name}`, "已配置", "已移除");
     } else if (b && a) {
       const bq = b.quotaType === "unlimited" ? "不限量" : `总量${b.quotaTotal}`;
       const aq = a.quotaType === "unlimited" ? "不限量" : `总量${a.quotaTotal}`;
+      const bizDiff =
+        isVerifyProduct(code) && a.businessTypes && a.usageChannels
+          ? {
+              biz: formatBusinessTypes(b.businessTypes ?? []),
+              bizAfter: formatBusinessTypes(a.businessTypes),
+              usage: formatUsageChannels(b.usageChannels ?? []),
+              usageAfter: formatUsageChannels(a.usageChannels),
+            }
+          : null;
       push(
         `产品·${name}`,
         `${bq}｜${b.startDate}~${b.endDate}${b.stopped ? "｜已停止" : ""}`,
         `${aq}｜${a.startDate}~${a.endDate}${a.stopped ? "｜已停止" : ""}`,
       );
+      if (bizDiff && bizDiff.biz !== bizDiff.bizAfter) {
+        push(`产品·${name}·开通业务类型`, bizDiff.biz, bizDiff.bizAfter);
+      }
+      if (bizDiff && bizDiff.usage !== bizDiff.usageAfter) {
+        push(`产品·${name}·使用方式`, bizDiff.usage, bizDiff.usageAfter);
+      }
     }
   }
   return changes;

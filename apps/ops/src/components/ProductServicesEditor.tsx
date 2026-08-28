@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
-  PRODUCTS,
+  BUSINESS_TYPE_OPTIONS,
+  CONFIGURABLE_PRODUCTS,
+  USAGE_CHANNEL_OPTIONS,
+  isVerifyProduct,
   productName,
   type ProductCode,
 } from "@/lib/catalog";
@@ -8,6 +11,10 @@ import {
   emptyProductRow,
   type ProductFormRow,
 } from "@/lib/customerForm";
+import {
+  toggleBusinessType,
+  toggleUsageChannel,
+} from "@/lib/productConfig";
 
 type Props = {
   rows: ProductFormRow[];
@@ -47,7 +54,7 @@ function ProductCombobox({
   }, [open]);
 
   const selectedLabel = value
-    ? (PRODUCTS.find((p) => p.code === value)?.name ?? value)
+    ? (CONFIGURABLE_PRODUCTS.find((p) => p.code === value)?.name ?? value)
     : "";
 
   return (
@@ -68,7 +75,7 @@ function ProductCombobox({
       {open ? (
         <div className="a-combobox__panel" role="listbox">
           <div className="a-combobox__list">
-            {PRODUCTS.map((p) => {
+            {CONFIGURABLE_PRODUCTS.map((p) => {
               const taken = configured.has(p.code) && p.code !== value;
               return (
                 <button
@@ -100,6 +107,76 @@ function ProductCombobox({
   );
 }
 
+function VerifyProductOptions({
+  row,
+  onChange,
+}: {
+  row: ProductFormRow;
+  onChange: (patch: Partial<ProductFormRow>) => void;
+}) {
+  return (
+    <div className="a-product-verify-options">
+      <div className="a-product-verify-options__group">
+        <span className="a-product-verify-options__label">
+          开通业务类型 <span className="a-req">*</span>
+        </span>
+        <div className="a-inline-actions" style={{ flexWrap: "wrap", gap: 12 }}>
+          {BUSINESS_TYPE_OPTIONS.map((option) => (
+            <label key={option.code} className="a-radio">
+              <input
+                type="checkbox"
+                checked={row.businessTypes.includes(option.code)}
+                onChange={() =>
+                  onChange({
+                    businessTypes: toggleBusinessType(row.businessTypes, option.code),
+                  })
+                }
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="a-product-verify-options__group">
+        <span className="a-product-verify-options__label">
+          产品使用方式 <span className="a-req">*</span>
+        </span>
+        <div className="a-inline-actions" style={{ flexWrap: "wrap", gap: 12 }}>
+          {USAGE_CHANNEL_OPTIONS.map((option) => (
+            <label key={option.code} className="a-radio">
+              <input
+                type="checkbox"
+                checked={row.usageChannels.includes(option.code)}
+                onChange={() =>
+                  onChange({
+                    usageChannels: toggleUsageChannel(row.usageChannels, option.code),
+                  })
+                }
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function patchProductSelection(row: ProductFormRow, product: ProductCode): Partial<ProductFormRow> {
+  if (isVerifyProduct(product)) {
+    return {
+      product,
+      businessTypes: row.businessTypes,
+      usageChannels: row.usageChannels,
+    };
+  }
+  return {
+    product,
+    businessTypes: [],
+    usageChannels: [],
+  };
+}
+
 export function ProductServicesEditor({
   rows,
   onChange,
@@ -110,9 +187,15 @@ export function ProductServicesEditor({
 }: Props) {
   const isEdit = mode === "edit";
   const used = new Set(rows.map((r) => r.product).filter(Boolean) as string[]);
-  const showActions = isEdit
-    ? rows.some((r) => r.isNew)
-    : true;
+  const showActions = true;
+  const colCount =
+    1 +
+    1 +
+    1 +
+    (showUsed ? 1 : 0) +
+    1 +
+    (showStatus ? 1 : 0) +
+    (showActions ? 1 : 0);
 
   const update = (key: string, patch: Partial<ProductFormRow>) => {
     onChange(rows.map((r) => (r.key === key ? { ...r, ...patch } : r)));
@@ -137,7 +220,7 @@ export function ProductServicesEditor({
         规则：产品额度仅在「产品有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
         调用均不可再消耗。同一产品仅可配置一条。
         {isEdit
-          ? " 已有配置不可移除，仅可调整额度与有效期；本次新增的配置可移除。启停请在客户详情中操作。"
+          ? " 已有配置不可移除，可调整额度、有效期，或在操作列停止/恢复服务；本次新增的配置可移除。"
           : " 合同服务期仅用于提醒展示，不控制登录与调用。"}
       </div>
       <div className="a-table-wrap">
@@ -157,40 +240,47 @@ export function ProductServicesEditor({
             {rows.map((row) => {
               const locked = isEdit && !row.isNew;
               const canRemove = isEdit ? Boolean(row.isNew) : true;
-              const options = PRODUCTS.filter(
+              const options = CONFIGURABLE_PRODUCTS.filter(
                 (p) => p.code === row.product || !used.has(p.code),
               );
               return (
-                <tr key={row.key}>
-                  <td>
-                    {locked && row.product ? (
-                      <span>{productName(row.product)}</span>
-                    ) : isEdit ? (
-                      <ProductCombobox
-                        value={row.product}
-                        configured={used}
-                        onChange={(code) => update(row.key, { product: code })}
-                      />
-                    ) : (
-                      <select
-                        className="a-select"
-                        style={{ minWidth: 140 }}
-                        value={row.product}
-                        onChange={(e) =>
-                          update(row.key, {
-                            product: e.target.value as ProductCode | "",
-                          })
-                        }
-                      >
-                        <option value="">请选择产品</option>
-                        {options.map((p) => (
-                          <option key={p.code} value={p.code}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                  </td>
+                <Fragment key={row.key}>
+                  <tr>
+                    <td>
+                      {locked && row.product ? (
+                        <span>{productName(row.product)}</span>
+                      ) : isEdit ? (
+                        <ProductCombobox
+                          value={row.product}
+                          configured={used}
+                          onChange={(code) =>
+                            update(row.key, patchProductSelection(row, code))
+                          }
+                        />
+                      ) : (
+                        <select
+                          className="a-select"
+                          style={{ minWidth: 140 }}
+                          value={row.product}
+                          onChange={(e) =>
+                            update(
+                              row.key,
+                              patchProductSelection(
+                                row,
+                                e.target.value as ProductCode,
+                              ),
+                            )
+                          }
+                        >
+                          <option value="">请选择产品</option>
+                          {options.map((p) => (
+                            <option key={p.code} value={p.code}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </td>
                   <td>
                     <select
                       className="a-select"
@@ -270,13 +360,32 @@ export function ProductServicesEditor({
                           >
                             移除
                           </button>
+                        ) : locked && row.product ? (
+                          <button
+                            type="button"
+                            className="a-btn a-btn--text a-btn--sm"
+                            onClick={() => update(row.key, { stopped: !row.stopped })}
+                          >
+                            {row.stopped ? "恢复" : "停止"}
+                          </button>
                         ) : (
                           <span style={{ color: "var(--n-400)" }}>—</span>
                         )}
                       </div>
                     </td>
                   ) : null}
-                </tr>
+                  </tr>
+                  {row.product && isVerifyProduct(row.product) ? (
+                    <tr className="a-product-row-detail">
+                      <td colSpan={colCount}>
+                        <VerifyProductOptions
+                          row={row}
+                          onChange={(patch) => update(row.key, patch)}
+                        />
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
               );
             })}
           </tbody>
@@ -286,7 +395,7 @@ export function ProductServicesEditor({
         <button
           type="button"
           className="a-btn a-btn--sm"
-          disabled={used.size >= PRODUCTS.length}
+          disabled={used.size >= CONFIGURABLE_PRODUCTS.length}
           onClick={add}
         >
           {isEdit ? "新增配置" : "新增产品配置"}

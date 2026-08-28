@@ -3,7 +3,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AddServiceDialog } from "@/components/AddServiceDialog";
 import { EditServiceDialog } from "@/components/EditServiceDialog";
 import {
-  PRODUCTS,
+  CONFIGURABLE_PRODUCTS,
   SERVICE_STATUS_LABEL,
   deriveServiceStatus,
   productName,
@@ -135,7 +135,7 @@ export function CustomerServicesPage() {
               onChange={(e) => setDraft((p) => ({ ...p, product: e.target.value }))}
             >
               <option value="">请选择产品</option>
-              {PRODUCTS.map((p) => (
+              {CONFIGURABLE_PRODUCTS.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
                 </option>

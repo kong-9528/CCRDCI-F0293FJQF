@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ProductServiceTags } from "@/components/ProductServiceTags";
 import {
   ACCOUNT_STATUS_LABEL,
+  CONFIGURABLE_PRODUCTS,
+  customerHasProduct,
   PERIOD_STATUS_LABEL,
-  PRODUCTS,
-  derivePeriodStatus,
   productName,
   type AccountStatus,
   type ContractPeriodStatus,
@@ -51,8 +52,7 @@ function matchesFilters(row: CustomerAccount, f: Filters) {
 
   if (f.contact.trim() && !row.contactName.includes(f.contact.trim())) return false;
 
-  const products = row.productServices.map((s) => s.product);
-  if (f.product && !products.includes(f.product as ProductCode)) return false;
+  if (f.product && !customerHasProduct(row.productServices, f.product)) return false;
 
   if (f.status && row.status !== f.status) return false;
 
@@ -153,7 +153,7 @@ export function CustomerListPage() {
               onChange={(e) => setFilter("product", e.target.value)}
             >
               <option value="">请选择产品</option>
-              {PRODUCTS.map((p) => (
+              {CONFIGURABLE_PRODUCTS.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
                 </option>
@@ -251,25 +251,7 @@ export function CustomerListPage() {
                       <td>{row.companyName}</td>
                       <td>{row.contactName}</td>
                       <td>
-                        <div className="a-tag--list">
-                          {row.productServices.map((svc) => {
-                            const expired =
-                              derivePeriodStatus(svc.startDate, svc.endDate) === "expired";
-                            return (
-                              <span
-                                key={svc.product}
-                                className={`a-tag${expired ? " a-tag--muted" : " a-tag--cyan"}`}
-                                title={
-                                  expired
-                                    ? `产品有效期已到期（${svc.startDate} ~ ${svc.endDate}）`
-                                    : `产品有效期 ${svc.startDate} ~ ${svc.endDate}`
-                                }
-                              >
-                                {productName(svc.product)}
-                              </span>
-                            );
-                          })}
-                        </div>
+                        <ProductServiceTags services={row.productServices} />
                       </td>
                       <td>
                         <span

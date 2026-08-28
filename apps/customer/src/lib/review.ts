@@ -1,7 +1,26 @@
 import type { ProductCode } from "@/lib/catalog";
-import { DASHBOARD_PRODUCTS } from "@/lib/dashboard";
 
 export type ReviewProductCode = Extract<ProductCode, "safety" | "duplicate" | "infringement">;
+
+/** 统一产品开通名称（三个审核接口共用额度展示标题） */
+export const WORK_REVIEW_SERVICE_NAME = "作品智能辅助审核";
+
+export type WorkReviewEntitlement = {
+  status: "active" | "expiring" | "stopped";
+  usedCount: number;
+  quotaTotal: number;
+  quotaUsagePct: number;
+  expireAt: string;
+};
+
+/** 作品智能辅助审核统一额度（三个审核接口共用） */
+export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
+  status: "expiring",
+  usedCount: 48230,
+  quotaTotal: 100000,
+  quotaUsagePct: 48.2,
+  expireAt: "2026-08-25",
+};
 
 export type ReviewRecordStatus = "success" | "fail" | "partial";
 
@@ -20,9 +39,6 @@ export type ReviewServiceConfig = {
   title: string;
   subtitle: string;
   intro: { label: string; text: string }[];
-  serviceStatus: "active" | "expiring" | "stopped";
-  expireAt?: string;
-  stoppedNote?: string;
   records: ReviewRecord[];
 };
 
@@ -86,6 +102,33 @@ const MOCK_DEDUP_RECORDS: ReviewRecord[] = [
   },
 ];
 
+const MOCK_INFRINGEMENT_RECORDS: ReviewRecord[] = [
+  {
+    id: "ri1",
+    calledAt: "2026-08-19 17:10",
+    apiName: "疑似侵权审核",
+    status: "success",
+    responseMs: 450,
+    quotaCost: 2,
+  },
+  {
+    id: "ri2",
+    calledAt: "2026-08-19 16:05",
+    apiName: "疑似侵权审核",
+    status: "success",
+    responseMs: 380,
+    quotaCost: 2,
+  },
+  {
+    id: "ri3",
+    calledAt: "2026-08-19 15:22",
+    apiName: "疑似侵权审核",
+    status: "partial",
+    responseMs: 520,
+    quotaCost: 2,
+  },
+];
+
 export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
   safety: {
     productCode: "safety",
@@ -98,8 +141,6 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
         text: "对作品全部登记申请材料进行色情、暴恐、政治敏感等内容安全风险判定参考。",
       },
     ],
-    serviceStatus: "active",
-    expireAt: "2026-08-25",
     records: MOCK_SAFETY_RECORDS,
   },
   duplicate: {
@@ -113,7 +154,6 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
         text: "对作品登记的样本与已登记样本进行对比，识别高度雷同样本",
       },
     ],
-    serviceStatus: "active",
     records: MOCK_DEDUP_RECORDS,
   },
   infringement: {
@@ -127,20 +167,20 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
         text: "对登记作品样本进行肖像/人声识别，知名人物/商标/作品识别，疑似侵权作品识别",
       },
     ],
-    serviceStatus: "stopped",
-    stoppedNote: "需联系运营恢复",
-    records: [],
+    records: MOCK_INFRINGEMENT_RECORDS,
   },
 };
 
-export function getReviewQuota(productCode: ReviewProductCode) {
-  const p = DASHBOARD_PRODUCTS.find((d) => d.code === productCode);
-  if (!p) return null;
+export function getReviewServiceStatus(_productCode: ReviewProductCode) {
+  return WORK_REVIEW_ENTITLEMENT.status;
+}
+
+export function getReviewQuota(_productCode: ReviewProductCode) {
   return {
-    usedCount: p.usedCount,
-    quotaTotal: p.quotaTotal,
-    quotaUsagePct: p.quotaUsagePct,
-    expireAt: p.expireAt,
+    usedCount: WORK_REVIEW_ENTITLEMENT.usedCount,
+    quotaTotal: WORK_REVIEW_ENTITLEMENT.quotaTotal,
+    quotaUsagePct: WORK_REVIEW_ENTITLEMENT.quotaUsagePct,
+    expireAt: WORK_REVIEW_ENTITLEMENT.expireAt,
   };
 }
 

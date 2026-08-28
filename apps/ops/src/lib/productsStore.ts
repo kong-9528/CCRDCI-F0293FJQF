@@ -76,8 +76,8 @@ const INITIAL: ManagedProduct[] = PRODUCTS.map((p) => ({
   category: p.category as ProductCategory,
   description: "",
   businessLines: ["software", "work", "dataset"],
-  shelfStatus: p.code === "infringement" ? "offline" : "online",
-  pageSubmitEnabled: p.category === "verify" || p.code === "safety",
+  shelfStatus: "online",
+  pageSubmitEnabled: p.category === "verify" || p.code === "workReview",
   apiEnabled: true,
   builtin: true,
 }));

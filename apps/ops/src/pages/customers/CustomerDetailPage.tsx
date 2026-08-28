@@ -6,7 +6,10 @@ import {
   CUSTOMER_TYPE_LABEL,
   SERVICE_STATUS_LABEL,
   deriveServiceStatus,
+  formatBusinessTypes,
   formatQuota,
+  formatUsageChannels,
+  isVerifyProduct,
   productName,
   type ProductServiceConfig,
 } from "@/lib/catalog";
@@ -193,9 +196,9 @@ export function CustomerDetailPage() {
                         </td>
                       </tr>
                     ) : (
-                      customer.productServices.map((svc) => {
+                      customer.productServices.flatMap((svc) => {
                         const status = deriveServiceStatus(svc);
-                        return (
+                        const rows = [
                           <tr key={svc.product}>
                             <td>{productName(svc.product)}</td>
                             <td>{formatQuota(svc)}</td>
@@ -218,8 +221,27 @@ export function CustomerDetailPage() {
                                 </button>
                               </div>
                             </td>
-                          </tr>
-                        );
+                          </tr>,
+                        ];
+                        if (isVerifyProduct(svc.product)) {
+                          rows.push(
+                            <tr key={`${svc.product}-opts`} className="a-product-row-detail">
+                              <td colSpan={5}>
+                                <div className="a-product-verify-options a-product-verify-options--readonly">
+                                  <div className="a-product-verify-options__group">
+                                    <span className="a-product-verify-options__label">开通业务类型</span>
+                                    <span>{formatBusinessTypes(svc.businessTypes ?? [])}</span>
+                                  </div>
+                                  <div className="a-product-verify-options__group">
+                                    <span className="a-product-verify-options__label">产品使用方式</span>
+                                    <span>{formatUsageChannels(svc.usageChannels ?? [])}</span>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>,
+                          );
+                        }
+                        return rows;
                       })
                     )}
                   </tbody>
