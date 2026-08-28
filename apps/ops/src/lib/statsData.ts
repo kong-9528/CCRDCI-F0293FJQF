@@ -80,6 +80,7 @@ export type AccountProductDayStat = {
   contactName: string;
   product: ProductCode;
   productLabel: string;
+  /** 当日总调用 = 页面提交 + API */
   calls: number;
   pageSubmitCalls: number;
   apiCalls: number;
@@ -99,7 +100,11 @@ export type ProductDayStat = {
   successRate: number;
 };
 
-/** 生成近 30 天演示统计（确定性，便于联调） */
+/**
+ * 演示日报表生成规则（对齐真实「账号+产品+Web/API」日报）：
+ * - 跑表当日若该「账号×产品」未开通（未到有效期 / 已过期 / 已停止）：不写入日报
+ * - 若已开通：必须写入一行；当日无调用也记 0，这是「时段内曾具备权限」的依据
+ */
 function buildMock() {
   const customers = getCustomers();
   const dates = dateRange(30);
@@ -132,11 +137,17 @@ function buildMock() {
 
       for (const svc of c.productServices) {
         const product = normalizeProductCode(svc.product);
+        // 未开通日不落库（演示：停止 或 不在产品有效期内）
+        if (svc.stopped) continue;
+        if (date < svc.startDate || date > svc.endDate) continue;
+
         const pb = hash(`${c.id}:${product}:${date}`);
-        const pActive = active && seeded(pb, 0, 10) > 3;
-        const pCalls = pActive ? seeded(pb + 1, 5, 160) : 0;
+        const hadTraffic = active && seeded(pb, 0, 10) > 3;
+        // 已开通：即使 0 次调用也要落库
+        const pCalls = hadTraffic ? seeded(pb + 1, 5, 160) : 0;
         const isAudit = PRODUCTS.find((item) => item.code === product)?.category === "audit";
-        const pageSubmitCalls = isAudit || !pActive ? 0 : seeded(pb + 4, 0, pCalls);
+        const pageSubmitCalls =
+          isAudit || pCalls === 0 ? 0 : seeded(pb + 4, 0, pCalls);
         const apiCalls = pCalls - pageSubmitCalls;
         const pRate =
           pCalls === 0 ? 0 : Number((88 + seeded(pb + 2, 0, 110) / 10).toFixed(1));
@@ -321,7 +332,13 @@ export function exportProductDailyCsv(products?: ProductCode[]) {
   );
 }
 
-/** 账号×产品维度：统计周期内的汇总行 */
+/**
+ * 账号×产品维度：统计周期内的汇总行。
+ *
+ * 数据源仅为「账号+产品」日报表（见 buildMock 约定）：
+ * - 周期内至少有 1 条日报 → 视为时段内曾开通该产品，进入明细/矩阵可填格（汇总可为 0）
+ * - 周期内完全无日报 → 未开通/已到期/已停用 → 不进入本汇总，矩阵显示「—」
+ */
 export type AccountProductSummary = {
   customerId: string;
   account: string;
@@ -334,7 +351,11 @@ export type AccountProductSummary = {
   pageSubmitCalls: number;
   apiCalls: number;
   successRate: number;
-  activeDays: number;
+  /**
+   * 有调用天数：所选时段内，该组合「页面提交 + API」之和 > 0 的天数。
+   * （日报中 calls = pageSubmitCalls + apiCalls）
+   */
+  daysWithCalls: number;
   lifetimeUsed: number;
   quotaTotal: number | null;
   quotaUsagePct: number | null;
@@ -354,6 +375,10 @@ function productCategory(code: ConfigurableProductCode): "verify" | "audit" {
   return PRODUCTS.find((p) => p.code === code)?.category === "audit" ? "audit" : "verify";
 }
 
+/**
+ * 按筛选条件汇总「账号×产品」日报。
+ * 只输出周期内日报中出现过的组合；配置里有开通但时段内无日报的组合不会出现。
+ */
 export function buildAccountProductSummaries(
   period: StatsPeriod,
   filters?: {
@@ -363,69 +388,103 @@ export function buildAccountProductSummaries(
   },
 ): AccountProductSummary[] {
   const { accountProductDays, customers } = getStatsData();
+  const customerById = new Map(customers.map((c) => [c.id, c]));
   const dates = new Set(sliceDates(period));
   const periodRows = accountProductDays.filter((r) => dates.has(r.date));
-  const summaries: AccountProductSummary[] = [];
 
-  for (const c of customers) {
+  type Acc = {
+    customerId: string;
+    account: string;
+    companyName: string;
+    contactName: string;
+    product: ConfigurableProductCode;
+    dayRows: AccountProductDayStat[];
+  };
+  const groups = new Map<string, Acc>();
+
+  for (const r of periodRows) {
+    const product = normalizeProductCode(r.product);
+    const cat = productCategory(product);
+    if (filters?.product && product !== filters.product) continue;
+    if (filters?.category && cat !== filters.category) continue;
+
     const q = filters?.accountQuery?.trim().toLowerCase() ?? "";
     if (
       q &&
-      !c.account.toLowerCase().includes(q) &&
-      !c.companyName.toLowerCase().includes(q)
+      !r.account.toLowerCase().includes(q) &&
+      !r.companyName.toLowerCase().includes(q)
     ) {
       continue;
     }
 
-    const grouped = new Map<ConfigurableProductCode, typeof c.productServices>();
-    for (const svc of c.productServices) {
-      const product = normalizeProductCode(svc.product);
-      if (filters?.product && product !== filters.product) continue;
-      const cat = productCategory(product);
-      if (filters?.category && cat !== filters.category) continue;
-      const list = grouped.get(product) ?? [];
-      list.push(svc);
-      grouped.set(product, list);
-    }
-
-    for (const [product, svcs] of grouped) {
-      const cat = productCategory(product);
-      const dayRows = periodRows.filter(
-        (r) => r.customerId === c.id && normalizeProductCode(r.product) === product,
-      );
-      const calls = sumCalls(dayRows);
-      const pageSubmitCalls = sumPageSubmitCalls(dayRows);
-      const apiCalls = sumApiCalls(dayRows);
-      const activeDays = dayRows.filter((r) => r.calls > 0).length;
-      const primarySvc = svcs[0]!;
-      const lifetimeUsed = svcs.reduce((sum, svc) => sum + svc.usedCount, 0);
-      const quotaTotal = primarySvc.quotaType === "total" ? primarySvc.quotaTotal : null;
-      const quotaUsagePct =
-        quotaTotal && quotaTotal > 0
-          ? Math.min(100, Math.round((lifetimeUsed / quotaTotal) * 100))
-          : null;
-
-      summaries.push({
-        customerId: c.id,
-        account: c.account,
-        companyName: c.companyName,
-        contactName: c.contactName,
+    const key = `${r.customerId}:${product}`;
+    const cur = groups.get(key);
+    if (cur) {
+      cur.dayRows.push(r);
+    } else {
+      groups.set(key, {
+        customerId: r.customerId,
+        account: r.account,
+        companyName: r.companyName,
+        contactName: r.contactName,
         product,
-        productLabel: productName(product),
-        productCategory: cat,
-        calls,
-        pageSubmitCalls,
-        apiCalls,
-        successRate: avgSuccessRate(dayRows),
-        activeDays,
-        lifetimeUsed,
-        quotaTotal,
-        quotaUsagePct,
-        serviceStatus: SERVICE_STATUS_LABEL[deriveServiceStatus(primarySvc)],
-        accountStatus: ACCOUNT_STATUS_LABEL[c.status],
-        periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(primarySvc.startDate, primarySvc.endDate)],
+        dayRows: [r],
       });
     }
+  }
+
+  const summaries: AccountProductSummary[] = [];
+  for (const g of groups.values()) {
+    const cat = productCategory(g.product);
+    const dayRows = g.dayRows;
+    const calls = sumCalls(dayRows);
+    const pageSubmitCalls = sumPageSubmitCalls(dayRows);
+    const apiCalls = sumApiCalls(dayRows);
+    // 有调用天数：当日 Web + API 之和 > 0
+    const daysWithCalls = dayRows.filter(
+      (r) => r.pageSubmitCalls + r.apiCalls > 0,
+    ).length;
+
+    const customer = customerById.get(g.customerId);
+    const svcs =
+      customer?.productServices.filter(
+        (s) => normalizeProductCode(s.product) === g.product,
+      ) ?? [];
+    const primarySvc = svcs[0];
+    const lifetimeUsed = svcs.reduce((sum, svc) => sum + svc.usedCount, 0);
+    const quotaTotal =
+      primarySvc?.quotaType === "total" ? primarySvc.quotaTotal : null;
+    const quotaUsagePct =
+      quotaTotal && quotaTotal > 0
+        ? Math.min(100, Math.round((lifetimeUsed / quotaTotal) * 100))
+        : null;
+
+    summaries.push({
+      customerId: g.customerId,
+      account: g.account,
+      companyName: g.companyName,
+      contactName: g.contactName,
+      product: g.product,
+      productLabel: productName(g.product),
+      productCategory: cat,
+      calls,
+      pageSubmitCalls,
+      apiCalls,
+      successRate: avgSuccessRate(dayRows),
+      daysWithCalls,
+      lifetimeUsed,
+      quotaTotal,
+      quotaUsagePct,
+      serviceStatus: primarySvc
+        ? SERVICE_STATUS_LABEL[deriveServiceStatus(primarySvc)]
+        : "—",
+      accountStatus: customer
+        ? ACCOUNT_STATUS_LABEL[customer.status]
+        : dayRows[0]?.accountStatus ?? "—",
+      periodStatus: primarySvc
+        ? PERIOD_STATUS_LABEL[derivePeriodStatus(primarySvc.startDate, primarySvc.endDate)]
+        : dayRows[0]?.periodStatus ?? "—",
+    });
   }
 
   return summaries.sort((a, b) => b.calls - a.calls);
@@ -507,7 +566,7 @@ export function exportAccountProductSummaryCsv(
       "统计周期调用次数",
       "页面提交次数",
       "API调用次数",
-      "活跃天数",
+      "有调用天数",
       "历史累积调用",
       "额度使用率",
       "服务状态",
@@ -522,7 +581,7 @@ export function exportAccountProductSummaryCsv(
       String(r.calls),
       String(r.pageSubmitCalls),
       String(r.apiCalls),
-      String(r.activeDays),
+      String(r.daysWithCalls),
       String(r.lifetimeUsed),
       r.quotaUsagePct == null ? "—" : `${r.quotaUsagePct}%`,
       r.serviceStatus,

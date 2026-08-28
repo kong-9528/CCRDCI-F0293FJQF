@@ -40,6 +40,29 @@ const MATRIX_TOP_COMBO_LIMIT = 40;
 /** 趋势图：当前筛选下调用量最高的组合数 */
 const TREND_TOP_COMBO_LIMIT = 5;
 
+/**
+ * ---------------------------------------------------------------------------
+ * 账号产品使用统计 · 日报 / 矩阵 / 明细 口径（前端约定，需与后端日报一致）
+ * ---------------------------------------------------------------------------
+ * 日报表字段：账号 + 产品 + Web 调用数 + API 调用数（当日汇总）。
+ * - 跑表时刻该「账号×产品」未开通 → 当日不落库
+ * - 已开通 → 必落库；无调用也记 0（区分「未开通」与「开通但 0 调用」）
+ *
+ * 组合是否出现在统计结果中：
+ * - 所选时段内日报至少出现 1 天 → 视为时段内曾有权限，汇总多少（含 0）就展示多少
+ * - 时段内一次都未出现在日报 → 未开通 / 已到期 / 已停用 → 明细不展示，矩阵为「—」
+ *
+ * 热力矩阵步骤：
+ * 1) 在筛选后的「日报汇总组合」中取调用量 Top N 组合
+ * 2) 由 Top N 得到账号集合 X
+ * 3) 对 X 中每个账号，取该账号在时段内日报出现过的全部产品汇总填入矩阵（含 0）
+ * 4) 某账号×产品在时段内无任何日报 → 「—」
+ *
+ * 明细表：当前筛选下的全部日报汇总组合（不受 Top N 截断）。
+ * 有调用天数：时段内 Web+API 之和 > 0 的天数（见 AccountProductSummary.daysWithCalls）。
+ * ---------------------------------------------------------------------------
+ */
+
 function heatLevel(calls: number, max: number): number {
   if (!calls || !max) return 0;
   const ratio = calls / max;
@@ -81,41 +104,46 @@ export function AccountProductStatsPage() {
     [productFilter, category, appliedQuery],
   );
 
+  // summaries：筛选条件下、日报中出现过的全部「账号×产品」汇总（含调用为 0）
   const summaries = useMemo(
     () => buildAccountProductSummaries(statsPeriod, filters),
     [statsPeriod, filters, data],
   );
 
-  /** 搜索条件下的 Top N 组合（矩阵 / 趋势共用此排序结果） */
+  /** Step1：Top N 组合（按调用量）；仅用于圈定矩阵账号与趋势默认系列 */
   const topCombos = useMemo(
     () => summaries.slice(0, MATRIX_TOP_COMBO_LIMIT),
     [summaries],
   );
 
-  const cellCalls = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const row of topCombos) {
-      map.set(`${row.customerId}:${row.product}`, row.calls);
-    }
-    return map;
-  }, [topCombos]);
-
+  /**
+   * Step2–4：由 Top N 组合反推账号 X，再填入这些账号在日报中出现过的全部产品量。
+   * cellCalls / summaryKeys 来自「X 账号 × 其全部有日报的产品」，不是仅 Top N 组合格。
+   */
   const visibleMatrix = useMemo(() => {
-    const summaryKeys = new Set(
-      topCombos.map((s) => `${s.customerId}:${s.product}`),
-    );
     const accounts: { customerId: string; account: string; companyName: string }[] = [];
-    const seenAccounts = new Set<string>();
+    const accountIds = new Set<string>();
     for (const row of topCombos) {
-      if (seenAccounts.has(row.customerId)) continue;
-      seenAccounts.add(row.customerId);
+      if (accountIds.has(row.customerId)) continue;
+      accountIds.add(row.customerId);
       accounts.push({
         customerId: row.customerId,
         account: row.account,
         companyName: row.companyName,
       });
     }
-    const productCodes = new Set(topCombos.map((s) => s.product));
+
+    // 这些账号在筛选结果中的全部有日报组合（含 0 调用）
+    const accountSummaries = summaries.filter((s) => accountIds.has(s.customerId));
+    const cellCalls = new Map<string, number>();
+    const summaryKeys = new Set<string>();
+    for (const row of accountSummaries) {
+      const key = `${row.customerId}:${row.product}`;
+      summaryKeys.add(key);
+      cellCalls.set(key, row.calls);
+    }
+
+    const productCodes = new Set(accountSummaries.map((s) => s.product));
     const products = CONFIGURABLE_PRODUCTS.filter((p) => productCodes.has(p.code)).map(
       (p) => ({
         code: p.code,
@@ -123,15 +151,17 @@ export function AccountProductStatsPage() {
         category: p.category as "verify" | "audit",
       }),
     );
+
     return {
       accounts,
       products,
       summaryKeys,
+      cellCalls,
       topComboCount: topCombos.length,
       totalCombos: summaries.length,
       truncated: summaries.length > MATRIX_TOP_COMBO_LIMIT,
     };
-  }, [topCombos, summaries.length]);
+  }, [topCombos, summaries]);
 
   const trendTopPairs = useMemo(
     () => summaries.slice(0, TREND_TOP_COMBO_LIMIT),
@@ -233,12 +263,12 @@ export function AccountProductStatsPage() {
     let max = 0;
     for (const p of visibleMatrix.products) {
       for (const a of visibleMatrix.accounts) {
-        const v = cellCalls.get(`${a.customerId}:${p.code}`) ?? 0;
+        const v = visibleMatrix.cellCalls.get(`${a.customerId}:${p.code}`) ?? 0;
         if (v > max) max = v;
       }
     }
     return max;
-  }, [visibleMatrix, cellCalls]);
+  }, [visibleMatrix]);
 
   const overviewMetrics = [
     { label: "开通组合", value: summaries.length.toLocaleString() },
@@ -344,9 +374,9 @@ export function AccountProductStatsPage() {
           <div className="a-stats-ap-panel__head">
             <h3 className="a-stats-ap-panel__title">用量热力矩阵</h3>
             <span className="a-field__hint a-stats-ap-panel__hint">
-              颜色越深表示调用越多；「—」表示该账号在统计时段内未开通该产品。点击单元格可查看趋势。
+              先取调用量 Top {MATRIX_TOP_COMBO_LIMIT} 组合圈定账号，再展示这些账号在时段内日报出现过的全部产品用量（含 0）。「—」表示时段内日报未出现该组合（未开通/已到期/已停用）。点击单元格查看趋势。
               {visibleMatrix.truncated
-                ? ` 当前共 ${visibleMatrix.totalCombos} 个组合，矩阵展示其中 Top ${visibleMatrix.topComboCount}（对应 ${visibleMatrix.accounts.length} 个账号）；全部组合见下方明细。`
+                ? ` 当前共 ${visibleMatrix.totalCombos} 个有日报的组合，矩阵账号来自其中 Top ${visibleMatrix.topComboCount}（${visibleMatrix.accounts.length} 个账号）；全部组合见下方明细。`
                 : ""}
             </span>
             <div className="a-stats-matrix-legend a-stats-matrix-legend--inline">
@@ -389,14 +419,14 @@ export function AccountProductStatsPage() {
                               <td key={a.customerId}>
                                 <span
                                   className="a-stats-matrix__cell a-stats-matrix__cell--na"
-                                  title={`${a.account} · ${p.label}：未开通`}
+                                  title={`${a.account} · ${p.label}：所选时段日报未出现（未开通/已到期/已停用）`}
                                 >
                                   —
                                 </span>
                               </td>
                             );
                           }
-                          const calls = cellCalls.get(key) ?? 0;
+                          const calls = visibleMatrix.cellCalls.get(key) ?? 0;
                           const level = heatLevel(calls, matrixMax);
                           const isSelected =
                             selection?.customerId === a.customerId &&
@@ -420,7 +450,7 @@ export function AccountProductStatsPage() {
                                     pageSubmitCalls: 0,
                                     apiCalls: 0,
                                     successRate: 0,
-                                    activeDays: 0,
+                                    daysWithCalls: 0,
                                     lifetimeUsed: 0,
                                     quotaTotal: null,
                                     quotaUsagePct: null,
@@ -477,8 +507,8 @@ export function AccountProductStatsPage() {
           <div className="a-stats-ap-detail-head__main">
             <span>账号产品使用明细</span>
             <span className="a-field__hint a-stats-ap-detail-head__hint">
-              下列为当前搜索条件与统计周期下的全部「账号×产品」组合；上方矩阵 / 趋势仅展示其中调用量 Top{" "}
-              {MATRIX_TOP_COMBO_LIMIT} 组合及其账号
+              下列为当前搜索条件与统计周期下、日报中出现过的全部「账号×产品」组合；上方矩阵账号来自其中调用量 Top{" "}
+              {MATRIX_TOP_COMBO_LIMIT} 组合
             </span>
           </div>
           <div className="a-card__extra a-inline-actions">
@@ -511,7 +541,10 @@ export function AccountProductStatsPage() {
                 <th>产品</th>
                 <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
                 <th>页面 / API</th>
-                <th>活跃天</th>
+                <th>
+                  {/* 有调用天数：时段内该组合 Web+API 之和 > 0 的天数 */}
+                  有调用天数
+                </th>
                 <th>历史累积</th>
                 <th>额度使用</th>
                 <th>服务状态</th>
@@ -550,7 +583,7 @@ export function AccountProductStatsPage() {
                         ? `${row.pageSubmitCalls.toLocaleString()} / ${row.apiCalls.toLocaleString()}`
                         : "—"}
                     </td>
-                    <td className="num">{row.activeDays}</td>
+                    <td className="num">{row.daysWithCalls}</td>
                     <td className="num">{row.lifetimeUsed.toLocaleString()}</td>
                     <td>
                       {row.quotaUsagePct == null ? (
