@@ -49,11 +49,13 @@ const NAV_LABELS: Record<string, string> = {
   "/account/password": "修改密码",
   "/api-docs": "API文档",
   "/help": "帮助中心",
+  "/apply": "入驻申请",
 };
 
 export function findNavLabel(pathname: string): string {
   if (pathname === "/" || pathname === "/desk") return "工作台";
   if (pathname.startsWith("/api-docs")) return "API文档";
+  if (pathname === "/apply" || pathname.startsWith("/apply/")) return "入驻申请";
   for (const [path, label] of Object.entries(NAV_LABELS)) {
     if (pathname === path || pathname.startsWith(`${path}/`)) return label;
   }

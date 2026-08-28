@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
+import { ApplyOnboardingPage } from "@/pages/apply/ApplyOnboardingPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -14,12 +15,18 @@ import { SafetyReviewPage } from "@/pages/review/SafetyReviewPage";
 import { DciVerifyPage } from "@/pages/verify/DciVerifyPage";
 import { InfoVerifyPage } from "@/pages/verify/InfoVerifyPage";
 import { CertVerifyPage } from "@/pages/verify/CertVerifyPage";
+import { isConsoleUnlocked } from "@/lib/onboardingStore";
+
+function DefaultRedirect() {
+  return <Navigate to={isConsoleUnlocked() ? "/desk" : "/apply"} replace />;
+}
 
 export function App() {
   return (
     <Routes>
       <Route element={<CustomerLayout />}>
-        <Route index element={<Navigate to="/desk" replace />} />
+        <Route index element={<DefaultRedirect />} />
+        <Route path="/apply" element={<ApplyOnboardingPage />} />
         <Route path="/desk" element={<DeskPage />} />
         {/* 原工作台保留，不在侧栏暴露 */}
         <Route path="/dashboard" element={<DashboardPage />} />
@@ -40,7 +47,7 @@ export function App() {
         <Route path="/account/*" element={<Navigate to="/account" replace />} />
         <Route path="/analytics" element={<Navigate to="/desk" replace />} />
         <Route path="/reports/*" element={<Navigate to="/desk" replace />} />
-        <Route path="*" element={<Navigate to="/desk" replace />} />
+        <Route path="*" element={<DefaultRedirect />} />
       </Route>
     </Routes>
   );

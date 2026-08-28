@@ -5,9 +5,31 @@ import { PLATFORM_NAME } from "@/lib/catalog";
 
 type Props = {
   collapsed: boolean;
+  locked?: boolean;
 };
 
-export function CustomerSidebar({ collapsed }: Props) {
+export function CustomerSidebar({ collapsed, locked }: Props) {
+  if (locked) {
+    return (
+      <aside className="a-sidebar">
+        <div className="a-sidebar__logo" title={PLATFORM_NAME}>
+          {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
+        </div>
+        <nav className="a-sidebar__nav">
+          <NavLink
+            to="/apply"
+            end
+            className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
+            title="入驻申请"
+          >
+            <NavIcon id="account" />
+            {!collapsed ? <span className="a-menu__label">入驻申请</span> : null}
+          </NavLink>
+        </nav>
+      </aside>
+    );
+  }
+
   return (
     <aside className="a-sidebar">
       <NavLink to="/desk" className="a-sidebar__logo" title={PLATFORM_NAME}>
