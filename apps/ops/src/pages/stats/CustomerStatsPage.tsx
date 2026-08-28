@@ -84,19 +84,17 @@ export function CustomerStatsPage() {
 
   return (
     <div className="a-stack">
-      <section className="a-card a-dash-panel a-dash-panel--stats-board">
-        <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
-          <article className="a-stats-strip a-stats-strip--customer">
-            <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
-              {overviewMetrics.map((item) => (
-                <div key={item.label} className="a-stats-strip__cell">
-                  <span className="a-stats-strip__value">{item.value}</span>
-                  <span className="a-stats-strip__label">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-        </div>
+      <section className="a-stats-overview">
+        <article className="a-stats-strip a-stats-strip--customer">
+          <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+            {overviewMetrics.map((item) => (
+              <div key={item.label} className="a-stats-strip__cell">
+                <span className="a-stats-strip__value">{item.value}</span>
+                <span className="a-stats-strip__label">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
 
       <div className="a-card">

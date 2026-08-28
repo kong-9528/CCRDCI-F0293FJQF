@@ -120,49 +120,47 @@ export function ProductStatsPage() {
         ))}
       </div>
 
-      <section className="a-card a-dash-panel a-dash-panel--product-board">
-        <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
-          <div className="a-product-board a-product-board--compact">
-            {productCards.map((card, i) => {
-              const metrics = showChannelMetrics
-                ? [
-                    { label: "总账号数", value: String(card.totalAccounts) },
-                    { label: "总调用次数", value: card.totalCalls.toLocaleString() },
-                    { label: "页面提交次数", value: card.pageSubmitCalls.toLocaleString() },
-                    { label: "API调用次数", value: card.apiCalls.toLocaleString() },
-                  ]
-                : [
-                    { label: "总账号数", value: String(card.totalAccounts) },
-                    { label: "总调用次数", value: card.totalCalls.toLocaleString() },
-                  ];
+      <section className="a-stats-overview">
+        <div className="a-product-board a-product-board--compact">
+          {productCards.map((card, i) => {
+            const metrics = showChannelMetrics
+              ? [
+                  { label: "总账号数", value: String(card.totalAccounts) },
+                  { label: "总调用次数", value: card.totalCalls.toLocaleString() },
+                  { label: "页面提交次数", value: card.pageSubmitCalls.toLocaleString() },
+                  { label: "API调用次数", value: card.apiCalls.toLocaleString() },
+                ]
+              : [
+                  { label: "总账号数", value: String(card.totalAccounts) },
+                  { label: "总调用次数", value: card.totalCalls.toLocaleString() },
+                ];
 
-              return (
-                <article
-                  key={card.code}
-                  className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
-                  style={{ animationDelay: `${i * 45}ms` }}
+            return (
+              <article
+                key={card.code}
+                className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
+                style={{ animationDelay: `${i * 45}ms` }}
+              >
+                <header className="a-product-board__head">
+                  <h3 className="a-product-board__name">{card.name}</h3>
+                </header>
+                <div
+                  className={`a-stats-strip__metrics a-product-board__metrics${
+                    showChannelMetrics
+                      ? " a-stats-strip__metrics--4"
+                      : " a-stats-strip__metrics--2"
+                  }`}
                 >
-                  <header className="a-product-board__head">
-                    <h3 className="a-product-board__name">{card.name}</h3>
-                  </header>
-                  <div
-                    className={`a-stats-strip__metrics a-product-board__metrics${
-                      showChannelMetrics
-                        ? " a-stats-strip__metrics--4"
-                        : " a-stats-strip__metrics--2"
-                    }`}
-                  >
-                    {metrics.map((item) => (
-                      <div key={item.label} className="a-stats-strip__cell">
-                        <span className="a-stats-strip__value">{item.value}</span>
-                        <span className="a-stats-strip__label">{item.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  {metrics.map((item) => (
+                    <div key={item.label} className="a-stats-strip__cell">
+                      <span className="a-stats-strip__value">{item.value}</span>
+                      <span className="a-stats-strip__label">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 

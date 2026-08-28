@@ -14,6 +14,8 @@ type Props = {
   series: TrendSeries[];
   unit?: "" | "%";
   height?: number;
+  /** 更紧凑的内外边距，用于嵌套面板 */
+  dense?: boolean;
 };
 
 const PALETTE = ["#5470C6", "#91CC75", "#FAC858", "#EE6666", "#73C0DE", "#3BA272"];
@@ -22,7 +24,7 @@ export function chartColor(i: number) {
   return PALETTE[i % PALETTE.length]!;
 }
 
-export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
+export function TrendChart({ labels, series, unit = "", height = 320, dense = false }: Props) {
   const option = useMemo<EChartsOption>(() => {
     const isPercent = unit === "%";
 
@@ -31,10 +33,10 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
       animationDuration: 450,
       animationEasing: "cubicOut",
       grid: {
-        left: 52,
-        right: 24,
-        top: 28,
-        bottom: series.length > 1 ? 56 : 36,
+        left: dense ? 36 : 52,
+        right: dense ? 8 : 24,
+        top: dense ? 8 : 28,
+        bottom: series.length > 1 ? (dense ? 28 : 56) : dense ? 20 : 36,
         containLabel: false,
       },
       tooltip: {
@@ -67,10 +69,10 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
         icon: "roundRect",
         itemWidth: 12,
         itemHeight: 8,
-        itemGap: 16,
+        itemGap: dense ? 12 : 16,
         selectedMode: true,
         inactiveColor: "#B8C0CC",
-        textStyle: { color: "#4A5665", fontSize: 13 },
+        textStyle: { color: "#4A5665", fontSize: dense ? 12 : 13 },
         pageTextStyle: { color: "#6B7889" },
       },
       xAxis: {
@@ -83,7 +85,7 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
           color: "#6B7889",
           fontSize: 12,
           hideOverlap: true,
-          margin: 12,
+          margin: dense ? 8 : 12,
         },
         splitLine: { show: false },
       },
@@ -146,17 +148,17 @@ export function TrendChart({ labels, series, unit = "", height = 320 }: Props) {
             : undefined,
       })),
     };
-  }, [labels, series, unit]);
+  }, [labels, series, unit, dense]);
 
   if (!labels.length || !series.length) {
     return <div className="a-empty">暂无趋势数据</div>;
   }
 
   return (
-    <div className="a-trend-chart">
+    <div className="a-trend-chart" style={{ height }}>
       <ReactECharts
         option={option}
-        style={{ height, width: "100%" }}
+        style={{ height: "100%", width: "100%" }}
         opts={{ renderer: "canvas" }}
         notMerge
         lazyUpdate
