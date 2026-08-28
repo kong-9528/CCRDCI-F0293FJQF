@@ -7,12 +7,10 @@ import {
   INFO_DEFAULT_DAYS,
   INFO_EXPORT_LIMIT,
   INFO_STATUS_LABEL,
-  INFO_WORK_CATEGORIES,
   INFO_WORK_TYPE_LABEL,
   MOCK_INFO_RECORDS,
   PAGE_SIZES,
   emptyInfoForm,
-  formatInfoFailReasons,
   formatInfoMismatchTags,
   infoNameLabel,
   infoSubmittedFieldRows,
@@ -130,7 +128,6 @@ export function InfoVerifyPage() {
       "登记号",
       "名称",
       "著作权人",
-      "作品类型",
       "结果",
       "不一致字段",
       "方式",
@@ -144,7 +141,6 @@ export function InfoVerifyPage() {
           r.regNo,
           r.name,
           r.owner,
-          r.workCategory ?? "",
           INFO_STATUS_LABEL[r.status],
           formatInfoMismatchTags(r),
           r.channel,
@@ -213,28 +209,6 @@ export function InfoVerifyPage() {
               value={form.owner}
               onChange={(e) => setField("owner", e.target.value)}
             />
-            {workType === "software" ? (
-              <input
-                className="a-input"
-                placeholder="版本号（选填）"
-                value={form.version ?? ""}
-                onChange={(e) => setField("version", e.target.value)}
-              />
-            ) : null}
-            {workType === "work" ? (
-              <select
-                className="a-select"
-                value={form.workCategory ?? ""}
-                onChange={(e) => setField("workCategory", e.target.value)}
-              >
-                <option value="">作品类型（选填）</option>
-                {INFO_WORK_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            ) : null}
             <button
               type="button"
               className="a-btn a-btn--primary"
@@ -246,8 +220,8 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            演示数据：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致可核验成功；
-            作品页签可试 2024ZP009999（星河旅人）故意填错类型/著作权人查看失败原因
+            演示数据：登记号 2024SR001234 / 2024ZP001234 / 2024SJ001234 且名称、著作权人一致可核验通过；
+            作品页签可试 2024ZP009999（星河旅人）故意填错著作权人查看失败原因
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
@@ -269,21 +243,13 @@ export function InfoVerifyPage() {
                   <span className="c-dci-result-desc__meta">{latest.verifiedAt}</span>
                 </div>
                 {infoSubmittedFieldRows(latest).map((row) => (
-                  <div key={row.label} className="a-desc__item">
+                  <div key={row.field} className="a-desc__item">
                     <span className="a-desc__label">{row.label}：</span>
                     <span className="a-desc__value">
-                      {row.label === "登记号" ? <code>{row.value}</code> : row.value}
+                      {row.field === "regNo" ? <code>{row.value}</code> : row.value}
                     </span>
                   </div>
                 ))}
-                {!infoVerifyPassed(latest.status) && formatInfoFailReasons(latest).length > 0 ? (
-                  <div className="a-desc__item a-desc__item--wide">
-                    <span className="a-desc__label">原因：</span>
-                    <span className="a-desc__value">
-                      {formatInfoFailReasons(latest).join("；")}
-                    </span>
-                  </div>
-                ) : null}
               </div>
             </div>
           ) : null}
@@ -374,7 +340,6 @@ export function InfoVerifyPage() {
                   <th>登记号</th>
                   <th>{nameLabel}</th>
                   <th>著作权人</th>
-                  {workType === "work" ? <th>作品类型</th> : null}
                   <th>方式</th>
                   <th>结果</th>
                   <th>操作</th>
@@ -383,7 +348,7 @@ export function InfoVerifyPage() {
               <tbody>
                 {pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={workType === "work" ? 8 : 7}>
+                    <td colSpan={7}>
                       <div className="a-empty">暂无核验记录</div>
                     </td>
                   </tr>
@@ -402,7 +367,6 @@ export function InfoVerifyPage() {
                           {r.owner}
                         </div>
                       </td>
-                      {workType === "work" ? <td>{r.workCategory || "—"}</td> : null}
                       <td>{r.channel}</td>
                       <td>
                         <span

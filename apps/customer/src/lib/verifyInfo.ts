@@ -2,7 +2,9 @@ export type InfoWorkType = "software" | "work" | "dataset";
 
 export type InfoVerifyStatus = "match" | "mismatch" | "not_found";
 
-export type InfoMismatchField = "name" | "owner" | "workCategory";
+export type InfoMismatchField = "name" | "owner";
+
+export type InfoSubmitField = "regNo" | "name" | "owner";
 
 export type InfoVerifyResult = {
   id: string;
@@ -36,9 +38,9 @@ export const INFO_WORK_TYPE_LABEL: Record<InfoWorkType, string> = {
 };
 
 export const INFO_STATUS_LABEL: Record<InfoVerifyStatus, string> = {
-  match: "成功",
-  mismatch: "失败",
-  not_found: "失败",
+  match: "核验通过",
+  mismatch: "核验不通过",
+  not_found: "核验不通过",
 };
 
 export function infoVerifyPassed(status: InfoVerifyStatus): boolean {
@@ -46,18 +48,13 @@ export function infoVerifyPassed(status: InfoVerifyStatus): boolean {
 }
 
 export function infoVerifyTitle(status: InfoVerifyStatus): string {
-  if (status === "match") return "核验成功";
-  if (status === "not_found") return "核验失败";
-  return "核验失败";
+  return infoVerifyPassed(status) ? "核验通过" : "核验不通过";
 }
 
 export const INFO_MISMATCH_LABEL: Record<InfoMismatchField, string> = {
   name: "名称",
   owner: "著作权人",
-  workCategory: "作品类型",
 };
-
-export const INFO_WORK_CATEGORIES = ["美术作品", "文字作品", "音乐作品", "视听作品"] as const;
 
 export const INFO_DEFAULT_DAYS = 30;
 export const INFO_EXPORT_LIMIT = 5000;
@@ -204,12 +201,11 @@ const SEED: Omit<InfoVerifyResult, "id">[] = [
     regNo: "2024ZP009999",
     name: "星河旅人",
     owner: "错误出版社",
-    workCategory: "视听作品",
     status: "mismatch",
     verifiedAt: daysAgo(5),
     channel: "WebUI",
-    mismatches: ["owner", "workCategory"],
-    message: "著作权人、作品类型不一致",
+    mismatches: ["owner"],
+    message: "著作权人不一致",
     snapshot: {
       name: "星河旅人",
       owner: "北方出版集团股份有限公司",
@@ -253,28 +249,38 @@ export type InfoVerifyInput = {
   regNo: string;
   name: string;
   owner: string;
-  version?: string;
-  workCategory?: string;
 };
 
 function mismatchMessage(mismatches: InfoMismatchField[], workType: InfoWorkType): string {
-  const parts = mismatches.map((f) => {
-    if (f === "owner") return "著作权人";
-    if (f === "workCategory") return "作品类型";
-    return infoNameLabel(workType);
-  });
+  const parts = mismatches.map((f) =>
+    f === "owner" ? "著作权人" : infoNameLabel(workType),
+  );
   return `${parts.join("、")}不一致`;
 }
 
 export function formatInfoMismatchTags(result: InfoVerifyResult): string {
   if (!result.mismatches?.length) return "";
   return result.mismatches
-    .map((f) => {
-      if (f === "owner") return "著作权人";
-      if (f === "workCategory") return "作品类型";
-      return infoNameLabel(result.workType);
-    })
+    .map((f) => (f === "owner" ? "著作权人" : infoNameLabel(result.workType)))
     .join("、");
+}
+
+/** 详情抽屉：提交信息字段后的失败原因 */
+export function infoFieldFailReason(
+  result: InfoVerifyResult,
+  field: InfoSubmitField,
+): string | null {
+  if (result.status === "match") return null;
+  if (field === "regNo" && result.status === "not_found") {
+    return result.message || "未找到该登记号";
+  }
+  if (field === "owner" && result.mismatches?.includes("owner")) {
+    return "著作权人不一致";
+  }
+  if (field === "name" && result.mismatches?.includes("name")) {
+    return `${infoNameLabel(result.workType)}不一致`;
+  }
+  return null;
 }
 
 /** 详情抽屉失败细节文案，如「作品名称不一致」 */
@@ -284,25 +290,20 @@ export function formatInfoFailReasons(result: InfoVerifyResult): string[] {
     return [result.message || "未找到该登记号"];
   }
   if (result.mismatches?.length) {
-    return result.mismatches.map((f) => {
-      if (f === "owner") return "著作权人不一致";
-      if (f === "workCategory") return "作品类型不一致";
-      return `${infoNameLabel(result.workType)}不一致`;
-    });
+    return result.mismatches.map((f) =>
+      f === "owner" ? "著作权人不一致" : `${infoNameLabel(result.workType)}不一致`,
+    );
   }
   return result.message ? [result.message] : ["登记信息与系统记录不一致"];
 }
 
 /** 结果区仅展示用户提交过的字段 */
 export function infoSubmittedFieldRows(result: InfoVerifyResult) {
-  const rows: { label: string; value: string }[] = [
-    { label: "登记号", value: result.regNo },
-    { label: infoNameLabel(result.workType), value: result.name },
-    { label: "著作权人", value: result.owner },
+  return [
+    { label: "登记号", value: result.regNo, field: "regNo" as const },
+    { label: infoNameLabel(result.workType), value: result.name, field: "name" as const },
+    { label: "著作权人", value: result.owner, field: "owner" as const },
   ];
-  if (result.version) rows.push({ label: "版本号", value: result.version });
-  if (result.workCategory) rows.push({ label: "作品类型", value: result.workCategory });
-  return rows;
 }
 
 export async function verifyInfoOnce(
@@ -313,8 +314,6 @@ export async function verifyInfoOnce(
   const regNo = input.regNo.trim();
   const name = input.name.trim();
   const owner = input.owner.trim();
-  const version = input.version?.trim() || undefined;
-  const workCategory = input.workCategory?.trim() || undefined;
   const verifyCode = nextVerifyCode();
   const id = `info-${seq}`;
 
@@ -329,8 +328,6 @@ export async function verifyInfoOnce(
       regNo,
       name,
       owner,
-      ...(version ? { version } : {}),
-      ...(workCategory ? { workCategory } : {}),
       status: "not_found",
       verifiedAt: nowStamp(),
       channel: "WebUI",
@@ -343,14 +340,6 @@ export async function verifyInfoOnce(
     const mismatches: InfoMismatchField[] = [];
     if (normCompare(name) !== normCompare(hit.name)) mismatches.push("name");
     if (normCompare(owner) !== normCompare(hit.owner)) mismatches.push("owner");
-    if (
-      workType === "work" &&
-      workCategory &&
-      hit.workCategory &&
-      normCompare(workCategory) !== normCompare(hit.workCategory)
-    ) {
-      mismatches.push("workCategory");
-    }
 
     if (mismatches.length) {
       result = {
@@ -360,13 +349,17 @@ export async function verifyInfoOnce(
         regNo,
         name,
         owner,
-        ...(version ? { version } : {}),
-        ...(workCategory ? { workCategory } : {}),
         status: "mismatch",
         verifiedAt: nowStamp(),
         channel: "WebUI",
         mismatches,
         message: mismatchMessage(mismatches, workType),
+        snapshot: {
+          name: hit.name,
+          owner: hit.owner,
+          workCategory: hit.workCategory,
+          version: hit.version,
+        },
       };
     } else {
       result = {
@@ -376,11 +369,15 @@ export async function verifyInfoOnce(
         regNo,
         name,
         owner,
-        ...(version ? { version } : {}),
-        ...(workCategory ? { workCategory } : {}),
         status: "match",
         verifiedAt: nowStamp(),
         channel: "WebUI",
+        snapshot: {
+          name: hit.name,
+          owner: hit.owner,
+          workCategory: hit.workCategory,
+          version: hit.version,
+        },
       };
     }
   }
@@ -389,13 +386,7 @@ export async function verifyInfoOnce(
   return result;
 }
 
-export function emptyInfoForm(workType: InfoWorkType): InfoVerifyInput {
-  if (workType === "software") {
-    return { regNo: "", name: "", owner: "", version: "" };
-  }
-  if (workType === "work") {
-    return { regNo: "", name: "", owner: "", workCategory: "" };
-  }
+export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {
   return { regNo: "", name: "", owner: "" };
 }
 

@@ -439,21 +439,11 @@ export function DciVerifyPage() {
                       <td>
                         <div className="a-cell-clamp" title={r.queryOwner || undefined}>
                           {r.queryOwner || "—"}
-                          {r.mismatches?.includes("owner") ? (
-                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                              不一致
-                            </span>
-                          ) : null}
                         </div>
                       </td>
                       <td>
                         <div className="a-cell-clamp" title={r.queryName || undefined}>
                           {r.queryName || "—"}
-                          {r.mismatches?.includes("name") ? (
-                            <span className="a-tag a-tag--er" style={{ marginLeft: 6 }}>
-                              不一致
-                            </span>
-                          ) : null}
                         </div>
                       </td>
                       <td>{CHANNEL_LABEL[r.channel as DciChannel]}</td>

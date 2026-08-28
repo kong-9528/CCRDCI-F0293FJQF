@@ -1,10 +1,11 @@
 import { Drawer } from "@/components/Drawer";
+import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
 import { copyText } from "@/lib/keys";
 import {
   CHANNEL_LABEL,
   DCI_NAME_LABEL,
   WORK_TYPE_LABEL,
-  dciFieldFailReason,
+  formatDciFailReasons,
   isDciVerifyPass,
   type DciVerifyResult,
 } from "@/lib/dci";
@@ -76,25 +77,11 @@ function ShieldFailIcon() {
   );
 }
 
-function FieldValue({
-  value,
-  reason,
-}: {
-  value: React.ReactNode;
-  reason: string | null;
-}) {
-  return (
-    <dd>
-      <span>{value}</span>
-      {reason ? <span className="c-cert-detail__field-reason">{reason}</span> : null}
-    </dd>
-  );
-}
-
 export function DciDetailDrawer({ open, result, onClose, onToast }: Props) {
   if (!result) return null;
 
   const ok = isDciVerifyPass(result.status);
+  const failReasons = formatDciFailReasons(result);
 
   const copyCode = async () => {
     const done = await copyText(result.verifyCode);
@@ -109,11 +96,13 @@ export function DciDetailDrawer({ open, result, onClose, onToast }: Props) {
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
             <div className="c-cert-detail__status-title">
-              {ok ? "核验通过" : "核验不通过"}
+              {ok ? "DCI 核验通过" : "DCI 核验未通过"}
             </div>
-            <span className={`c-cert-detail__badge ${ok ? "is-ok" : "is-er"}`}>
-              {ok ? "核验通过" : "核验不通过"}
-            </span>
+            {ok ? (
+              <span className="c-cert-detail__badge is-ok">核验通过</span>
+            ) : (
+              <VerifyFailReasons reasons={failReasons} />
+            )}
           </div>
         </div>
 
@@ -155,24 +144,17 @@ export function DciDetailDrawer({ open, result, onClose, onToast }: Props) {
         <dl className="c-cert-detail__meta">
           <div className="c-cert-detail__row">
             <dt>DCI 核验码</dt>
-            <FieldValue
-              value={<code>{result.dciCode}</code>}
-              reason={dciFieldFailReason(result, "dciCode")}
-            />
+            <dd>
+              <code>{result.dciCode}</code>
+            </dd>
           </div>
           <div className="c-cert-detail__row">
             <dt>著作权人</dt>
-            <FieldValue
-              value={result.queryOwner || "—"}
-              reason={dciFieldFailReason(result, "owner")}
-            />
+            <dd>{result.queryOwner || "—"}</dd>
           </div>
           <div className="c-cert-detail__row">
             <dt>{DCI_NAME_LABEL}</dt>
-            <FieldValue
-              value={result.queryName || "—"}
-              reason={dciFieldFailReason(result, "name")}
-            />
+            <dd>{result.queryName || "—"}</dd>
           </div>
         </dl>
 

@@ -6,7 +6,6 @@ import {
   formatInfoFailReasons,
   infoSubmittedFieldRows,
   infoVerifyPassed,
-  infoVerifyTitle,
   type InfoVerifyResult,
 } from "@/lib/verifyInfo";
 
@@ -96,9 +95,11 @@ export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
         <div className={`c-cert-detail__status${ok ? "" : " is-fail"}`}>
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
-            <div className="c-cert-detail__status-title">{infoVerifyTitle(result.status)}</div>
+            <div className="c-cert-detail__status-title">
+              {ok ? "登记信息核验通过" : "登记信息核验未通过"}
+            </div>
             {ok ? (
-              <span className="c-cert-detail__badge is-ok">核验成功</span>
+              <span className="c-cert-detail__badge is-ok">核验通过</span>
             ) : (
               <VerifyFailReasons reasons={failReasons} />
             )}
@@ -138,11 +139,9 @@ export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
         <div className="c-cert-detail__section-bar">提交信息</div>
         <dl className="c-cert-detail__meta">
           {submittedRows.map((row) => (
-            <div key={row.label} className="c-cert-detail__row">
+            <div key={row.field} className="c-cert-detail__row">
               <dt>{row.label}</dt>
-              <dd>
-                {row.label === "登记号" ? <code>{row.value}</code> : row.value}
-              </dd>
+              <dd>{row.field === "regNo" ? <code>{row.value}</code> : row.value}</dd>
             </div>
           ))}
         </dl>
