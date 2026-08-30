@@ -58,6 +58,9 @@ export const INFO_MISMATCH_LABEL: Record<InfoMismatchField, string> = {
 
 export const INFO_DEFAULT_DAYS = 30;
 export const INFO_EXPORT_LIMIT = 5000;
+/** 单次批量上限 / 每日上限（演示常量，与 DCI 核验一致） */
+export const INFO_BATCH_LIMIT = 100;
+export const INFO_DAILY_LIMIT = 1000;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 
 export function infoNameLabel(workType: InfoWorkType): string {
@@ -384,6 +387,165 @@ export async function verifyInfoOnce(
 
   MOCK_INFO_RECORDS = [result, ...MOCK_INFO_RECORDS];
   return result;
+}
+
+export type InfoBatchRow = InfoVerifyInput;
+
+export function infoBatchTemplateHeaders(workType: InfoWorkType) {
+  return ["登记号", "著作权人", infoNameLabel(workType)] as const;
+}
+
+const INFO_BATCH_ACCEPT_EXT = ["csv", "xls", "xlsx"] as const;
+
+function escapeCsvCell(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+function parseCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === "," && !inQuotes) {
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+function normalizeRegNo(regNo: string): string {
+  return regNo.trim().toUpperCase();
+}
+
+function isInfoHeaderRow(cells: string[], workType: InfoWorkType): boolean {
+  const first = (cells[0] ?? "").trim();
+  const headers = infoBatchTemplateHeaders(workType);
+  return first === headers[0] || first === "登记号";
+}
+
+function normalizeInfoBatchRows(raw: string[][], workType: InfoWorkType): InfoBatchRow[] {
+  const rows: InfoBatchRow[] = [];
+  for (const cells of raw) {
+    const regNo = String(cells[0] ?? "").trim();
+    const owner = String(cells[1] ?? "").trim();
+    const name = String(cells[2] ?? "").trim();
+    if (!regNo && !owner && !name) continue;
+    if (isInfoHeaderRow([regNo, owner, name], workType)) continue;
+    rows.push({ regNo, owner, name });
+  }
+  return rows;
+}
+
+function parseInfoBatchCsv(text: string, workType: InfoWorkType): InfoBatchRow[] {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  return normalizeInfoBatchRows(lines.map(parseCsvLine), workType);
+}
+
+async function parseInfoBatchSpreadsheet(file: File, workType: InfoWorkType): Promise<InfoBatchRow[]> {
+  const XLSX = await import("xlsx");
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array" });
+  const sheetName = wb.SheetNames[0];
+  if (!sheetName) return [];
+  const sheet = wb.Sheets[sheetName];
+  const raw = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+    header: 1,
+    defval: "",
+  });
+  return normalizeInfoBatchRows(
+    raw.map((row) => row.map((cell) => String(cell ?? "").trim())),
+    workType,
+  );
+}
+
+export async function parseInfoBatchFile(
+  file: File,
+  workType: InfoWorkType,
+): Promise<InfoBatchRow[]> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!INFO_BATCH_ACCEPT_EXT.includes(ext as (typeof INFO_BATCH_ACCEPT_EXT)[number])) {
+    throw new Error("仅支持 CSV、XLS、XLSX 格式");
+  }
+  if (ext === "csv") {
+    return parseInfoBatchCsv(await file.text(), workType);
+  }
+  return parseInfoBatchSpreadsheet(file, workType);
+}
+
+export function validateInfoBatchRows(
+  workType: InfoWorkType,
+  rows: InfoBatchRow[],
+): string | null {
+  if (!rows.length) return "文件中没有可核验的数据行";
+  const seen = new Set<string>();
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const lineNo = i + 2;
+    const err = validateInfoForm(workType, row);
+    if (err) return `第 ${lineNo} 行：${err}`;
+    const code = normalizeRegNo(row.regNo);
+    if (seen.has(code)) return `第 ${lineNo} 行：登记号重复（${code}）`;
+    seen.add(code);
+  }
+  if (seen.size > INFO_BATCH_LIMIT) {
+    return `单次批量上限 ${INFO_BATCH_LIMIT} 条（去重后 ${seen.size} 条）`;
+  }
+  return null;
+}
+
+export async function verifyInfoBatch(
+  workType: InfoWorkType,
+  rows: InfoBatchRow[],
+): Promise<InfoVerifyResult[]> {
+  const unique: InfoBatchRow[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const regNo = normalizeRegNo(row.regNo);
+    if (!regNo || seen.has(regNo)) continue;
+    seen.add(regNo);
+    unique.push({
+      regNo,
+      owner: row.owner.trim(),
+      name: row.name.trim(),
+    });
+  }
+  const results: InfoVerifyResult[] = [];
+  for (const row of unique) {
+    results.push(await verifyInfoOnce(workType, row));
+  }
+  return results;
+}
+
+export function downloadInfoBatchTemplate(workType: InfoWorkType) {
+  const headers = infoBatchTemplateHeaders(workType);
+  const header = headers.map(escapeCsvCell).join(",");
+  const samples: Record<InfoWorkType, [string, string, string]> = {
+    software: ["2024SR001234", "北京华信科技", "华信OA系统"],
+    work: ["2024ZP001234", "北京华信科技", "春江水暖图"],
+    dataset: ["2024SJ001234", "北京华信科技", "用户行为数据集"],
+  };
+  const sample = samples[workType].map(escapeCsvCell).join(",");
+  const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `版权登记信息核验批量模板-${INFO_WORK_TYPE_LABEL[workType]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {

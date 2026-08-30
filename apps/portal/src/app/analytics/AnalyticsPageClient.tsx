@@ -274,10 +274,11 @@ export function AnalyticsPageClient() {
           <div className="p-analytics-scenes__grid">
             {useCases.map((item, i) => (
               <Reveal key={item.title} className={`p-analytics-scenes__item p-analytics-scenes__item--${i + 1}`}>
-                <div className="p-analytics-scene-card">
+                <article className={`p-analytics-scene-card p-analytics-scene-card--${i + 1}`}>
+                  <span className="p-analytics-scene-card__mark" aria-hidden />
                   <h3 className="p-analytics-scene-card__title">{item.title}</h3>
                   <p className="p-analytics-scene-card__desc">{item.desc}</p>
-                </div>
+                </article>
               </Reveal>
             ))}
           </div>

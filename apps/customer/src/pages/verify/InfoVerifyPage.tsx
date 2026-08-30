@@ -2,8 +2,11 @@ import { useMemo, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { BatchInfoModal } from "@/components/verify/BatchInfoModal";
 import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
 import {
+  INFO_BATCH_LIMIT,
+  INFO_DAILY_LIMIT,
   INFO_DEFAULT_DAYS,
   INFO_EXPORT_LIMIT,
   INFO_STATUS_LABEL,
@@ -16,8 +19,12 @@ import {
   infoSubmittedFieldRows,
   infoVerifyPassed,
   infoVerifyTitle,
+  parseInfoBatchFile,
+  validateInfoBatchRows,
   validateInfoForm,
+  verifyInfoBatch,
   verifyInfoOnce,
+  type InfoBatchRow,
   type InfoVerifyInput,
   type InfoVerifyResult,
   type InfoWorkType,
@@ -39,13 +46,43 @@ type Filters = {
   channel: string;
 };
 
+function InfoResultCard({ result }: { result: InfoVerifyResult }) {
+  const ok = infoVerifyPassed(result.status);
+  return (
+    <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
+      <div className="a-result__head">
+        <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
+        <span className="a-result__title">{infoVerifyTitle(result.status)}</span>
+      </div>
+      <div className="a-desc c-dci-result-desc">
+        <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
+          <span className="a-desc__label">核验编码：</span>
+          <span className="a-desc__value">{result.verifyCode}</span>
+          <span className="c-dci-result-desc__meta">{result.verifiedAt}</span>
+        </div>
+        {infoSubmittedFieldRows(result).map((row) => (
+          <div key={row.field} className="a-desc__item">
+            <span className="a-desc__label">{row.label}：</span>
+            <span className="a-desc__value">
+              {row.field === "regNo" ? <code>{row.value}</code> : row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function InfoVerifyPage() {
   const range0 = defaultDateRange();
   const [workType, setWorkType] = useState<InfoWorkType>("software");
   const [form, setForm] = useState<InfoVerifyInput>(() => emptyInfoForm("software"));
+  const [batchRows, setBatchRows] = useState<InfoBatchRow[]>([]);
+  const [batchFileName, setBatchFileName] = useState<string | null>(null);
+  const [batchOpen, setBatchOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [latest, setLatest] = useState<InfoVerifyResult | null>(null);
+  const [latest, setLatest] = useState<InfoVerifyResult[]>([]);
   const [records, setRecords] = useState<InfoVerifyResult[]>(() => [...MOCK_INFO_RECORDS]);
   const [detail, setDetail] = useState<InfoVerifyResult | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -66,11 +103,16 @@ export function InfoVerifyPage() {
     window.setTimeout(() => setToast(null), 2200);
   };
 
+  const syncRecords = () => setRecords([...MOCK_INFO_RECORDS]);
+
   const onTabChange = (t: InfoWorkType) => {
     setWorkType(t);
     setForm(emptyInfoForm(t));
-    setLatest(null);
+    setLatest([]);
     setError(null);
+    setBatchOpen(false);
+    setBatchRows([]);
+    setBatchFileName(null);
     setPage(1);
   };
 
@@ -113,12 +155,56 @@ export function InfoVerifyPage() {
     setLoading(true);
     try {
       const result = await verifyInfoOnce(workType, form);
-      setLatest(result);
-      setRecords([...MOCK_INFO_RECORDS]);
+      setLatest([result]);
+      syncRecords();
       setPage(1);
     } finally {
       setLoading(false);
     }
+  };
+
+  const runBatch = async () => {
+    setError(null);
+    const batchErr = validateInfoBatchRows(workType, batchRows);
+    if (batchErr) {
+      setError(batchErr);
+      return;
+    }
+    setLoading(true);
+    try {
+      const results = await verifyInfoBatch(workType, batchRows);
+      setLatest(results);
+      syncRecords();
+      setPage(1);
+      setBatchOpen(false);
+      setBatchRows([]);
+      setBatchFileName(null);
+      showToast(`批量核验完成：${results.length} 条（同批已去重）`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onBatchFile = async (file: File) => {
+    try {
+      const rows = await parseInfoBatchFile(file, workType);
+      setBatchRows(rows);
+      setBatchFileName(file.name);
+      setError(null);
+      showToast(`已导入 ${rows.length} 条`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "文件解析失败";
+      setBatchRows([]);
+      setBatchFileName(null);
+      setError(msg);
+    }
+  };
+
+  const openBatchModal = () => {
+    setError(null);
+    setBatchRows([]);
+    setBatchFileName(null);
+    setBatchOpen(true);
   };
 
   const exportExcel = () => {
@@ -218,40 +304,32 @@ export function InfoVerifyPage() {
             >
               {loading ? "核验中…" : "核验"}
             </button>
+            <button
+              type="button"
+              className="a-btn"
+              disabled={loading}
+              onClick={openBatchModal}
+            >
+              批量核验
+            </button>
           </div>
 
           <p className="a-field__hint">
-            登记号必填；{nameLabel}与著作权人至少填一项 · 演示：2024SR001234 / 2024ZP001234 /
-            2024SJ001234 配合正确名称或著作权人可核验通过；作品页签可试 2024ZP009999 填错著作权人
+            登记号必填；{nameLabel}与著作权人至少填一项 · 单次批量上限 {INFO_BATCH_LIMIT} 条 · 每日上限{" "}
+            {INFO_DAILY_LIMIT} 条 · 演示：2024SR001234 / 2024ZP001234 / 2024SJ001234
+            配合正确名称或著作权人可核验通过
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}
 
-          {latest ? (
-            <div
-              className={`a-result${infoVerifyPassed(latest.status) ? " a-result--ok" : " a-result--er"}`}
-            >
-              <div className="a-result__head">
-                <span
-                  className={`a-dot ${infoVerifyPassed(latest.status) ? "a-dot--ok" : "a-dot--er"}`}
-                />
-                <span className="a-result__title">{infoVerifyTitle(latest.status)}</span>
+          {latest.length ? (
+            <div className="a-stack">
+              <div className="c-verify-section-title">
+                核验结果{latest.length > 1 ? `（${latest.length}）` : ""}
               </div>
-              <div className="a-desc c-dci-result-desc">
-                <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
-                  <span className="a-desc__label">核验编码：</span>
-                  <span className="a-desc__value">{latest.verifyCode}</span>
-                  <span className="c-dci-result-desc__meta">{latest.verifiedAt}</span>
-                </div>
-                {infoSubmittedFieldRows(latest).map((row) => (
-                  <div key={row.field} className="a-desc__item">
-                    <span className="a-desc__label">{row.label}：</span>
-                    <span className="a-desc__value">
-                      {row.field === "regNo" ? <code>{row.value}</code> : row.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {latest.map((r) => (
+                <InfoResultCard key={r.id} result={r} />
+              ))}
             </div>
           ) : null}
         </div>
@@ -426,6 +504,17 @@ export function InfoVerifyPage() {
       </div>
 
       <ServiceDisclaimer />
+
+      <BatchInfoModal
+        open={batchOpen}
+        loading={loading}
+        workType={workType}
+        fileName={batchFileName}
+        rowCount={batchRows.length}
+        onClose={() => setBatchOpen(false)}
+        onSubmit={() => void runBatch()}
+        onFile={(f) => void onBatchFile(f)}
+      />
 
       {VERIFY_DETAIL_DRAWER_ENABLED ? (
         <InfoDetailDrawer

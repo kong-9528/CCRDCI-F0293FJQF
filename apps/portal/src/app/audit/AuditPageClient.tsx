@@ -42,11 +42,11 @@ export function AuditPageClient() {
           <div className="p-audit-highlights">
             {overview.highlights.map((item, i) => (
               <Reveal key={item.title} className={`p-audit-highlights__item p-audit-highlights__item--${i + 1}`}>
-                <div className="p-audit-highlight">
-                  <span className="p-audit-highlight__index">{String(i + 1).padStart(2, "0")}</span>
+                <article className={`p-audit-highlight p-audit-highlight--${i + 1}`}>
+                  <span className="p-audit-highlight__mark" aria-hidden />
                   <h3 className="p-audit-highlight__title">{item.title}</h3>
                   <p className="p-audit-highlight__desc">{item.desc}</p>
-                </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -124,10 +124,11 @@ export function AuditPageClient() {
           <div className="p-audit-scenes__grid">
             {useCases.map((item, i) => (
               <Reveal key={item.title} className={`p-audit-scenes__item p-audit-scenes__item--${i + 1}`}>
-                <div className="p-audit-scene-card">
+                <article className={`p-audit-scene-card p-audit-scene-card--${i + 1}`}>
+                  <span className="p-audit-scene-card__mark" aria-hidden />
                   <h3 className="p-audit-scene-card__title">{item.title}</h3>
                   <p className="p-audit-scene-card__desc">{item.desc}</p>
-                </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -144,9 +145,6 @@ export function AuditPageClient() {
             <div className="p-audit-cta__actions">
               <Link href="/guide" className="p-btn p-btn--primary">
                 查看接入指南
-              </Link>
-              <Link href="/contact" className="p-btn p-btn--outline">
-                联系我们
               </Link>
             </div>
           </Reveal>

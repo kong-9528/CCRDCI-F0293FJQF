@@ -42,11 +42,11 @@ export function VerifyPageClient() {
           <div className="p-verify-highlights">
             {overview.highlights.map((item, i) => (
               <Reveal key={item.title} className={`p-verify-highlights__item p-verify-highlights__item--${i + 1}`}>
-                <div className="p-verify-highlight">
-                  <span className="p-verify-highlight__index">{String(i + 1).padStart(2, "0")}</span>
+                <article className={`p-verify-highlight p-verify-highlight--${i + 1}`}>
+                  <span className="p-verify-highlight__mark" aria-hidden />
                   <h3 className="p-verify-highlight__title">{item.title}</h3>
                   <p className="p-verify-highlight__desc">{item.desc}</p>
-                </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -124,10 +124,11 @@ export function VerifyPageClient() {
           <div className="p-verify-scenes__grid">
             {useCases.map((item, i) => (
               <Reveal key={item.title} className={`p-verify-scenes__item p-verify-scenes__item--${i + 1}`}>
-                <div className="p-verify-scene-card">
+                <article className={`p-verify-scene-card p-verify-scene-card--${i + 1}`}>
+                  <span className="p-verify-scene-card__mark" aria-hidden />
                   <h3 className="p-verify-scene-card__title">{item.title}</h3>
                   <p className="p-verify-scene-card__desc">{item.desc}</p>
-                </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -144,9 +145,6 @@ export function VerifyPageClient() {
             <div className="p-verify-cta__actions">
               <Link href="/guide" className="p-btn p-btn--primary">
                 查看接入指南
-              </Link>
-              <Link href="/contact" className="p-btn p-btn--outline">
-                联系我们
               </Link>
             </div>
           </Reveal>
