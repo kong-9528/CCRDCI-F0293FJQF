@@ -7,7 +7,6 @@ import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import {
   CERT_DEFAULT_DAYS,
-  CERT_EXPORT_LIMIT,
   CERT_STATUS_LABEL,
   MOCK_CERT_RECORDS,
   PAGE_SIZES,
@@ -115,38 +114,6 @@ export function CertVerifyPage() {
     } finally {
       setConfirmLoading(false);
     }
-  };
-
-  const exportExcel = () => {
-    const rows = filtered.slice(0, CERT_EXPORT_LIMIT);
-    const header = ["核验编码", "核验时间", "证书编号", "作品名称", "权利人", "结果", "文件名", "方式"];
-    const lines = [
-      header.join(","),
-      ...rows.map((r) =>
-        [
-          r.verifyCode,
-          r.verifiedAt,
-          r.certNo,
-          r.workName,
-          r.owner,
-          r.status === "pass" ? "通过" : "未通过",
-          r.fileName,
-          r.channel,
-        ]
-          .map((c) => `"${String(c).replace(/"/g, '""')}"`)
-          .join(","),
-      ),
-    ];
-    const blob = new Blob(["\uFEFF" + lines.join("\n")], {
-      type: "text/csv;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cert-records.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast(`已导出 ${rows.length} 条（上限 ${CERT_EXPORT_LIMIT}）`);
   };
 
   return (
@@ -264,15 +231,15 @@ export function CertVerifyPage() {
             </div>
           </div>
           <div className="a-field">
-            <span className="a-field__label">核验状态</span>
+            <span className="a-field__label">结果</span>
             <select
               className="a-select"
               value={filterDraft.status}
               onChange={(e) => setFilterDraft((p) => ({ ...p, status: e.target.value }))}
             >
               <option value="">全部</option>
-              <option value="pass">通过</option>
-              <option value="fail">未通过</option>
+              <option value="pass">核验通过</option>
+              <option value="fail">核验不通过</option>
             </select>
           </div>
           <div className="a-field">
@@ -314,9 +281,6 @@ export function CertVerifyPage() {
               }}
             >
               重置
-            </button>
-            <button type="button" className="a-btn a-btn--sm" onClick={exportExcel}>
-              导出 Excel
             </button>
           </div>
         </div>

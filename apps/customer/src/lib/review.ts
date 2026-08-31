@@ -24,6 +24,9 @@ export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
 
 export type ReviewRecordStatus = "success" | "fail" | "partial";
 
+/** 审核记录默认查询天数 */
+export const REVIEW_DEFAULT_DAYS = 30;
+
 export type ReviewRecord = {
   id: string;
   calledAt: string;

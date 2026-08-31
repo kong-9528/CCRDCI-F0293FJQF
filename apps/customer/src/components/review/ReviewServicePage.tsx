@@ -1,6 +1,8 @@
+import { useMemo, useState } from "react";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
+  REVIEW_DEFAULT_DAYS,
   REVIEW_RECORD_STATUS_LABEL,
   REVIEW_SERVICES,
   WORK_REVIEW_SERVICE_NAME,
@@ -14,6 +16,20 @@ import {
 type Props = {
   product: ReviewProductCode;
 };
+
+type Filters = {
+  from: string;
+  to: string;
+  status: string;
+};
+
+function defaultDateRange() {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - REVIEW_DEFAULT_DAYS);
+  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+  return { from: fmt(from), to: fmt(to) };
+}
 
 function serviceStatusTag(status: "active" | "expiring" | "stopped") {
   if (status === "stopped") return <span className="a-tag a-tag--muted">已停用</span>;
@@ -32,6 +48,24 @@ export function ReviewServicePage({ product }: Props) {
   const serviceStatus = getReviewServiceStatus(product);
   const quota = getReviewQuota(product);
   const stopped = serviceStatus === "stopped";
+  const range0 = defaultDateRange();
+
+  const [draft, setDraft] = useState<Filters>({
+    from: range0.from,
+    to: range0.to,
+    status: "",
+  });
+  const [applied, setApplied] = useState<Filters>({ ...draft });
+
+  const filtered = useMemo(() => {
+    return cfg.records.filter((row) => {
+      const day = row.calledAt.slice(0, 10);
+      if (applied.from && day < applied.from) return false;
+      if (applied.to && day > applied.to) return false;
+      if (applied.status && row.status !== applied.status) return false;
+      return true;
+    });
+  }, [cfg.records, applied]);
 
   return (
     <div className="a-stack c-review-page">
@@ -52,7 +86,7 @@ export function ReviewServicePage({ product }: Props) {
       <div className="a-card">
         <div className="a-card__head">
           {WORK_REVIEW_SERVICE_NAME}
-          <span className="a-card__extra">{cfg.subtitle}</span>
+          <span className="a-card__extra">额度与有效期</span>
         </div>
         <div className="a-card__body a-stack">
           <div className="a-desc">
@@ -93,9 +127,65 @@ export function ReviewServicePage({ product }: Props) {
       </div>
 
       <div className="a-card">
-        <div className="a-card__head">审核记录</div>
+        <div className="a-card__head">
+          审核记录
+          <div className="a-card__extra">默认近 {REVIEW_DEFAULT_DAYS} 天</div>
+        </div>
+        <div className="a-toolbar">
+          <div className="a-field">
+            <span className="a-field__label">时间范围</span>
+            <div className="a-date-range">
+              <input
+                type="date"
+                className="a-input"
+                value={draft.from}
+                onChange={(e) => setDraft((p) => ({ ...p, from: e.target.value }))}
+              />
+              <span>至</span>
+              <input
+                type="date"
+                className="a-input"
+                value={draft.to}
+                onChange={(e) => setDraft((p) => ({ ...p, to: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">结果</span>
+            <select
+              className="a-select"
+              value={draft.status}
+              onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="success">成功</option>
+              <option value="fail">失败</option>
+              <option value="partial">部分匹配</option>
+            </select>
+          </div>
+          <div className="a-toolbar__right">
+            <button
+              type="button"
+              className="a-btn a-btn--primary a-btn--sm"
+              onClick={() => setApplied({ ...draft })}
+            >
+              查询
+            </button>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => {
+                const next = { from: range0.from, to: range0.to, status: "" };
+                setDraft(next);
+                setApplied(next);
+              }}
+            >
+              重置
+            </button>
+          </div>
+        </div>
         <div className="a-card__body a-card__body--flush">
-          {cfg.records.length === 0 ? (
+          {cfg.records.length === 0 || filtered.length === 0 ? (
             <div className="c-review-empty">
               <div className="c-review-empty__icon" aria-hidden>
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -105,7 +195,13 @@ export function ReviewServicePage({ product }: Props) {
                   <line x1="16" y1="17" x2="8" y2="17" />
                 </svg>
               </div>
-              <p>{stopped ? "服务已停用，暂无审核记录" : "暂无审核记录"}</p>
+              <p>
+                {stopped
+                  ? "服务已停用，暂无审核记录"
+                  : cfg.records.length === 0
+                    ? "暂无审核记录"
+                    : "当前筛选条件下暂无审核记录"}
+              </p>
             </div>
           ) : (
             <div className="a-table-wrap">
@@ -115,18 +211,14 @@ export function ReviewServicePage({ product }: Props) {
                     <th>调用时间</th>
                     <th>接口</th>
                     <th>状态</th>
-                    <th>响应时间</th>
-                    <th>配额消耗</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {cfg.records.map((row) => (
+                  {filtered.map((row) => (
                     <tr key={row.id}>
                       <td>{row.calledAt}</td>
                       <td>{row.apiName}</td>
                       <td>{recordStatusTag(row.status)}</td>
-                      <td>{row.responseMs != null ? `${row.responseMs}ms` : "—"}</td>
-                      <td>{row.quotaCost}次</td>
                     </tr>
                   ))}
                 </tbody>

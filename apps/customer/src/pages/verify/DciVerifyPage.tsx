@@ -416,8 +416,8 @@ export function DciVerifyPage() {
                 <tr>
                   <th>核验时间</th>
                   <th>DCI码</th>
-                  <th>著作权人</th>
                   <th>{DCI_NAME_LABEL}</th>
+                  <th>著作权人</th>
                   <th>方式</th>
                   <th>结果</th>
                   {VERIFY_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
@@ -438,13 +438,13 @@ export function DciVerifyPage() {
                         <code>{r.dciCode}</code>
                       </td>
                       <td>
-                        <div className="a-cell-clamp" title={r.queryOwner || undefined}>
-                          {r.queryOwner || "—"}
+                        <div className="a-cell-clamp" title={r.queryName || undefined}>
+                          {r.queryName || "—"}
                         </div>
                       </td>
                       <td>
-                        <div className="a-cell-clamp" title={r.queryName || undefined}>
-                          {r.queryName || "—"}
+                        <div className="a-cell-clamp" title={r.queryOwner || undefined}>
+                          {r.queryOwner || "—"}
                         </div>
                       </td>
                       <td>{CHANNEL_LABEL[r.channel as DciChannel]}</td>

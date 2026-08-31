@@ -8,13 +8,11 @@ import {
   INFO_BATCH_LIMIT,
   INFO_DAILY_LIMIT,
   INFO_DEFAULT_DAYS,
-  INFO_EXPORT_LIMIT,
   INFO_STATUS_LABEL,
   INFO_WORK_TYPE_LABEL,
   MOCK_INFO_RECORDS,
   PAGE_SIZES,
   emptyInfoForm,
-  formatInfoMismatchTags,
   infoNameLabel,
   infoSubmittedFieldRows,
   infoVerifyPassed,
@@ -44,6 +42,7 @@ type Filters = {
   to: string;
   keyword: string;
   channel: string;
+  status: string;
 };
 
 function InfoResultCard({ result }: { result: InfoVerifyResult }) {
@@ -91,6 +90,7 @@ export function InfoVerifyPage() {
     to: range0.to,
     keyword: "",
     channel: "",
+    status: "",
   });
   const [applied, setApplied] = useState<Filters>({ ...draft });
   const [page, setPage] = useState(1);
@@ -127,6 +127,8 @@ export function InfoVerifyPage() {
       const day = r.verifiedAt.slice(0, 10);
       if (applied.from && day < applied.from) return false;
       if (applied.to && day > applied.to) return false;
+      if (applied.status === "pass" && !infoVerifyPassed(r.status)) return false;
+      if (applied.status === "fail" && infoVerifyPassed(r.status)) return false;
       if (applied.channel && r.channel !== applied.channel) return false;
       if (
         kw &&
@@ -205,47 +207,6 @@ export function InfoVerifyPage() {
     setBatchRows([]);
     setBatchFileName(null);
     setBatchOpen(true);
-  };
-
-  const exportExcel = () => {
-    const rows = filtered.slice(0, INFO_EXPORT_LIMIT);
-    const header = [
-      "核验编码",
-      "核验时间",
-      "登记号",
-      "名称",
-      "著作权人",
-      "结果",
-      "不一致字段",
-      "方式",
-    ];
-    const lines = [
-      header.join(","),
-      ...rows.map((r) =>
-        [
-          r.verifyCode,
-          r.verifiedAt,
-          r.regNo,
-          r.name,
-          r.owner,
-          INFO_STATUS_LABEL[r.status],
-          formatInfoMismatchTags(r),
-          r.channel,
-        ]
-          .map((c) => `"${String(c).replace(/"/g, '""')}"`)
-          .join(","),
-      ),
-    ];
-    const blob = new Blob(["\uFEFF" + lines.join("\n")], {
-      type: "text/csv;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `info-records-${workType}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast(`已导出 ${rows.length} 条（上限 ${INFO_EXPORT_LIMIT}）`);
   };
 
   return (
@@ -362,6 +323,18 @@ export function InfoVerifyPage() {
             </div>
           </div>
           <div className="a-field">
+            <span className="a-field__label">结果</span>
+            <select
+              className="a-select"
+              value={draft.status}
+              onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="pass">核验通过</option>
+              <option value="fail">核验不通过</option>
+            </select>
+          </div>
+          <div className="a-field">
             <span className="a-field__label">方式</span>
             <select
               className="a-select"
@@ -397,16 +370,19 @@ export function InfoVerifyPage() {
               type="button"
               className="a-btn a-btn--sm"
               onClick={() => {
-                const next = { from: range0.from, to: range0.to, keyword: "", channel: "" };
+                const next = {
+                  from: range0.from,
+                  to: range0.to,
+                  keyword: "",
+                  channel: "",
+                  status: "",
+                };
                 setDraft(next);
                 setApplied(next);
                 setPage(1);
               }}
             >
               重置
-            </button>
-            <button type="button" className="a-btn a-btn--sm" onClick={exportExcel}>
-              导出 Excel
             </button>
           </div>
         </div>
@@ -417,8 +393,8 @@ export function InfoVerifyPage() {
                 <tr>
                   <th>核验时间</th>
                   <th>登记号</th>
-                  <th>{nameLabel}</th>
                   <th>著作权人</th>
+                  <th>{nameLabel}</th>
                   <th>方式</th>
                   <th>结果</th>
                   {VERIFY_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
@@ -437,13 +413,13 @@ export function InfoVerifyPage() {
                       <td>{r.verifiedAt}</td>
                       <td>{r.regNo}</td>
                       <td>
-                        <div className="a-cell-clamp" title={r.name}>
-                          {r.name}
+                        <div className="a-cell-clamp" title={r.owner}>
+                          {r.owner}
                         </div>
                       </td>
                       <td>
-                        <div className="a-cell-clamp" title={r.owner}>
-                          {r.owner}
+                        <div className="a-cell-clamp" title={r.name}>
+                          {r.name}
                         </div>
                       </td>
                       <td>{r.channel}</td>
