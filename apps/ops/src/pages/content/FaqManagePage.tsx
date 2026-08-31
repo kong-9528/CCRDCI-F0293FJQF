@@ -286,7 +286,7 @@ export function FaqManagePage() {
         description={
           confirmVis
             ? confirmVis.status === "visible"
-              ? `隐藏后前端帮助中心将不再展示该问答。确定隐藏「${confirmVis.question}」吗？`
+              ? `隐藏后门户 FAQ 将不再展示该问答。确定隐藏「${confirmVis.question}」吗？`
               : `显示后该问答将对前端用户可见。确定显示「${confirmVis.question}」吗？`
             : ""
         }

@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { RichTextEditor } from "@/components/RichTextEditor";
-import { useContentStore } from "@/lib/contentStore";
+import { useConsoleHelpStore } from "@/lib/consoleHelpStore";
 
 type FormState = {
   title: string;
-  catalogId: string;
   weight: string;
   summary: string;
   body: string;
@@ -13,57 +12,49 @@ type FormState = {
 
 const EMPTY_FORM: FormState = {
   title: "",
-  catalogId: "",
   weight: "10",
   summary: "",
   body: "",
 };
 
-const LIST_PATH = "/content/guide";
+const LIST_PATH = "/content/console-help";
 
-export function ArticleEditPage() {
+export function ConsoleHelpArticleEditPage() {
   const { id } = useParams();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const store = useContentStore();
+  const store = useConsoleHelpStore();
   const isCreate = !id;
 
   const article = useMemo(() => {
     if (!id) return null;
-    return store.articles.find((a) => a.id === id && !a.deleted) ?? null;
+    return store.articles.find((a) => a.id === id) ?? null;
   }, [id, store.articles]);
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(isCreate);
 
-  const catalogOptions = store.catalogSelectOptions();
-
   useEffect(() => {
     if (isCreate) {
-      setForm({
-        ...EMPTY_FORM,
-        catalogId: searchParams.get("catalogId") ?? "",
-      });
+      setForm(EMPTY_FORM);
       setReady(true);
       return;
     }
     if (article) {
       setForm({
         title: article.title,
-        catalogId: article.catalogId ?? "",
         weight: String(article.weight),
         summary: article.summary,
         body: article.body,
       });
       setReady(true);
     }
-  }, [isCreate, article, searchParams]);
+  }, [isCreate, article]);
 
   if (!ready) {
     return (
       <div className="a-card">
-        <div className="a-card__head">编辑指南文章</div>
+        <div className="a-card__head">编辑文章</div>
         <div className="a-card__body">
           <div className="a-empty">加载中…</div>
         </div>
@@ -74,7 +65,7 @@ export function ArticleEditPage() {
   if (!isCreate && !article) {
     return (
       <div className="a-card">
-        <div className="a-card__head">编辑指南文章</div>
+        <div className="a-card__head">编辑文章</div>
         <div className="a-card__body">
           <div className="a-empty">文章不存在或已删除</div>
           <div className="a-form-actions" style={{ marginTop: 16 }}>
@@ -99,7 +90,6 @@ export function ArticleEditPage() {
     }
     const payload = {
       title: form.title,
-      catalogId: form.catalogId || null,
       weight,
       summary: form.summary,
       body: form.body,
@@ -116,7 +106,7 @@ export function ArticleEditPage() {
     <div className="a-stack">
       <div className="a-card">
         <div className="a-card__head">
-          {isCreate ? "新增指南文章" : "编辑指南文章"}
+          {isCreate ? "新增文章" : "编辑文章"}
           <div className="a-card__extra">
             <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(LIST_PATH)}>
               返回
@@ -126,28 +116,13 @@ export function ArticleEditPage() {
         <div className="a-card__body a-stack">
           {isCreate ? (
             <p className="a-field__hint" style={{ margin: 0 }}>
-              新增文章默认为隐藏，需手动「显示」后才会在门户接入指南展示。
+              新增文章默认为隐藏，需手动「显示」后才会在控制台帮助中心展示。
             </p>
           ) : null}
 
           <section className="a-form-section">
             <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-form a-form--grid">
-              <div className="a-field">
-                <span className="a-field__label">所属指南目录</span>
-                <select
-                  className="a-select"
-                  value={form.catalogId}
-                  onChange={(e) => setForm((p) => ({ ...p, catalogId: e.target.value }))}
-                >
-                  <option value="">（根目录）</option>
-                  {catalogOptions.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <div className="a-field">
                 <span className="a-field__label">
                   文章标题 <span className="a-req">*</span>
@@ -171,7 +146,7 @@ export function ArticleEditPage() {
                     }))
                   }
                 />
-                <div className="a-field__hint">数值越小越靠前</div>
+                <div className="a-field__hint">数值越小越靠前（列表按权重排序）</div>
               </div>
               <div className="a-field a-field--wide">
                 <span className="a-field__label">摘要</span>

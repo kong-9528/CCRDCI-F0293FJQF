@@ -17,6 +17,8 @@ type Filters = { keyword: string; type: "" | "catalog" | "article"; status: stri
 
 const EMPTY_FILTERS: Filters = { keyword: "", type: "", status: "" };
 
+const LIST_PATH = "/content/guide";
+
 export function ContentManagePage() {
   const navigate = useNavigate();
   const store = useContentStore();
@@ -80,11 +82,11 @@ export function ContentManagePage() {
 
   const openCreateArticle = (catalogId = "") => {
     const qs = catalogId ? `?catalogId=${encodeURIComponent(catalogId)}` : "";
-    navigate(`/content/hc/articles/new${qs}`);
+    navigate(`${LIST_PATH}/articles/new${qs}`);
   };
 
   const openEditArticle = (row: HelpArticle) => {
-    navigate(`/content/hc/articles/${row.id}/edit`);
+    navigate(`${LIST_PATH}/articles/${row.id}/edit`);
   };
 
   const submitCatalog = () => {
@@ -121,7 +123,7 @@ export function ContentManagePage() {
             <input
               className="a-input"
               style={{ minWidth: 200 }}
-              placeholder="目录名 / 文章标题或正文"
+              placeholder="指南目录 / 文章标题或正文"
               value={draft.keyword}
               onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
             />
@@ -139,8 +141,8 @@ export function ContentManagePage() {
               }
             >
               <option value="">全部</option>
-              <option value="catalog">目录</option>
-              <option value="article">文章</option>
+              <option value="catalog">指南目录</option>
+              <option value="article">指南文章</option>
             </select>
           </div>
           <div className="a-field">
@@ -177,14 +179,14 @@ export function ContentManagePage() {
             className="a-btn a-btn--primary"
             onClick={() => openCreateCatalog()}
           >
-            新增目录
+            新增指南目录
           </button>
           <button
             type="button"
             className="a-btn a-btn--primary"
             onClick={() => openCreateArticle()}
           >
-            新增文章
+            新增指南文章
           </button>
         </div>
 
@@ -220,7 +222,7 @@ export function ContentManagePage() {
                             {c.name}
                           </span>
                         </td>
-                        <td>目录</td>
+                        <td>指南目录</td>
                         <td className="num">{c.weight}</td>
                         <td>
                           <span
@@ -261,14 +263,14 @@ export function ContentManagePage() {
                               className="a-btn a-btn--text a-btn--sm"
                               onClick={() => openCreateCatalog(c.id)}
                             >
-                              新增目录
+                              新增指南目录
                             </button>
                             <button
                               type="button"
                               className="a-btn a-btn--text a-btn--sm"
                               onClick={() => openCreateArticle(c.id)}
                             >
-                              新增文章
+                              新增指南文章
                             </button>
                           </div>
                         </td>
@@ -285,7 +287,7 @@ export function ContentManagePage() {
                           {a.title}
                         </span>
                       </td>
-                      <td>文章</td>
+                        <td>指南文章</td>
                       <td className="num">{a.weight}</td>
                       <td>
                         <span
@@ -345,7 +347,7 @@ export function ContentManagePage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="a-modal__title">
-              {catalogDialog === "create" ? "新增目录" : "编辑目录"}
+              {catalogDialog === "create" ? "新增指南目录" : "编辑指南目录"}
             </h3>
             <div className="a-form a-form--modal a-form--stack">
               <div className="a-field a-field--stack">
@@ -407,10 +409,10 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmDeleteCatalog)}
-        title="确认删除目录"
+        title="确认删除指南目录"
         description={
           confirmDeleteCatalog
-            ? `确定删除目录「${confirmDeleteCatalog.name}」吗？名下有子目录或文章时不可删除。`
+            ? `确定删除指南目录「${confirmDeleteCatalog.name}」吗？名下有子目录或文章时不可删除。`
             : ""
         }
         confirmText="删除"
@@ -426,10 +428,10 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmDeleteArticle)}
-        title="确认删除文章"
+        title="确认删除指南文章"
         description={
           confirmDeleteArticle
-            ? `删除后后台列表不再展示，前端亦不可访问（软删除）。确定删除「${confirmDeleteArticle.title}」吗？`
+            ? `删除后后台列表不再展示，门户接入指南亦不可访问（软删除）。确定删除「${confirmDeleteArticle.title}」吗？`
             : ""
         }
         confirmText="删除"
@@ -444,12 +446,12 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmVisCatalog)}
-        title={confirmVisCatalog?.status === "visible" ? "确认隐藏目录" : "确认显示目录"}
+        title={confirmVisCatalog?.status === "visible" ? "确认隐藏指南目录" : "确认显示指南目录"}
         description={
           confirmVisCatalog
             ? confirmVisCatalog.status === "visible"
-              ? `隐藏后，前端帮助中心将不可见该目录及其下属文章。确定隐藏「${confirmVisCatalog.name}」吗？`
-              : `确定重新显示目录「${confirmVisCatalog.name}」吗？`
+              ? `隐藏后，门户接入指南将不可见该目录及其下属文章。确定隐藏「${confirmVisCatalog.name}」吗？`
+              : `确定重新显示指南目录「${confirmVisCatalog.name}」吗？`
             : ""
         }
         confirmText={confirmVisCatalog?.status === "visible" ? "隐藏" : "显示"}
@@ -467,12 +469,12 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmVisArticle)}
-        title={confirmVisArticle?.status === "visible" ? "确认隐藏文章" : "确认显示文章"}
+        title={confirmVisArticle?.status === "visible" ? "确认隐藏指南文章" : "确认显示指南文章"}
         description={
           confirmVisArticle
             ? confirmVisArticle.status === "visible"
-              ? `隐藏后前端帮助中心将不再展示「${confirmVisArticle.title}」，确定继续吗？`
-              : `显示后「${confirmVisArticle.title}」将对前端用户可见，确定继续吗？`
+              ? `隐藏后门户接入指南将不再展示「${confirmVisArticle.title}」，确定继续吗？`
+              : `显示后「${confirmVisArticle.title}」将对门户用户可见，确定继续吗？`
             : ""
         }
         confirmText={confirmVisArticle?.status === "visible" ? "隐藏" : "显示"}
