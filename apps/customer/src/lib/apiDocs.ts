@@ -7,6 +7,7 @@ import {
   type ApiEndpoint as CatalogEndpoint,
   type ApiErrorCode,
   type ApiParam,
+  type ApiServiceTab,
 } from "@ctp/api-catalog";
 
 export type { ApiErrorCode, ApiParam };
@@ -21,10 +22,9 @@ export type ApiDocProduct = {
   productCode: string;
   name: string;
   summary: string;
+  category: ApiServiceTab;
   apis: ApiEndpoint[];
 };
-
-export const API_DOC_VERSION = "v2.1";
 
 function toDocEndpoint(ep: CatalogEndpoint): ApiEndpoint {
   return {
@@ -41,6 +41,7 @@ export function getApiDocProducts(): ApiDocProduct[] {
       productCode: meta.productCode,
       name: meta.name,
       summary: meta.summary,
+      category: meta.category,
       apis,
     };
   }).filter((prod) => prod.apis.length > 0);
@@ -53,6 +54,7 @@ export function getApiDocProductsForOverview(): ApiDocProduct[] {
     productCode: meta.productCode,
     name: meta.name,
     summary: meta.summary,
+    category: meta.category,
     apis: listOnlineByProduct(meta.productCode).map(toDocEndpoint),
   }));
 }
@@ -73,6 +75,7 @@ export function getApiDocProduct(id: string): ApiDocProduct | undefined {
     productCode: meta.productCode,
     name: meta.name,
     summary: meta.summary,
+    category: meta.category,
     apis: listOnlineByProduct(meta.productCode).map(toDocEndpoint),
   };
 }
