@@ -84,17 +84,7 @@ export function CustomerCreatePage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  统一社会信用代码 <span className="a-req">*</span>
-                </span>
-                <input
-                  className="a-input"
-                  value={form.creditCode}
-                  onChange={(e) => set("creditCode", e.target.value)}
-                />
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  公司全称 <span className="a-req">*</span>
+                  机构/企业名称 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
@@ -104,11 +94,21 @@ export function CustomerCreatePage() {
                 />
               </div>
               <div className="a-field">
-                <span className="a-field__label">法人代表</span>
+                <span className="a-field__label">统一社会信用代码</span>
                 <input
                   className="a-input"
-                  value={form.legalPerson}
-                  onChange={(e) => set("legalPerson", e.target.value)}
+                  value={form.creditCode}
+                  onChange={(e) => set("creditCode", e.target.value)}
+                  placeholder="选填，企业请填写"
+                />
+              </div>
+              <div className="a-field a-field--wide">
+                <span className="a-field__label">机构/企业地址</span>
+                <input
+                  className="a-input"
+                  style={{ minWidth: 360 }}
+                  value={form.address}
+                  onChange={(e) => set("address", e.target.value)}
                 />
               </div>
               <div className="a-field">
@@ -123,32 +123,13 @@ export function CustomerCreatePage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  联系人电话 <span className="a-req">*</span>
+                  联系人手机号 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
+                  inputMode="tel"
                   value={form.contactPhone}
                   onChange={(e) => set("contactPhone", e.target.value)}
-                />
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  联系人邮箱 <span className="a-req">*</span>
-                </span>
-                <input
-                  className="a-input"
-                  style={{ minWidth: 200 }}
-                  value={form.contactEmail}
-                  onChange={(e) => set("contactEmail", e.target.value)}
-                />
-              </div>
-              <div className="a-field a-field--wide">
-                <span className="a-field__label">有效联系地址</span>
-                <input
-                  className="a-input"
-                  style={{ minWidth: 360 }}
-                  value={form.address}
-                  onChange={(e) => set("address", e.target.value)}
                 />
               </div>
             </div>

@@ -22,12 +22,11 @@ export type OnboardingApplication = {
   id: string;
   /** draft：已填写/撤回后待提交；pending：审核中；rejected：已驳回 */
   status: "draft" | "pending" | "rejected";
+  /** 统一社会信用代码（选填，仅企业通常有） */
   creditCode: string;
   companyName: string;
-  legalPerson: string;
   contactName: string;
   contactPhone: string;
-  contactEmail: string;
   address: string;
   contractNo: string;
   contractFiles: OnboardingContractFile[];
@@ -45,10 +44,8 @@ export type OnboardingApplication = {
 export type OnboardingFormInput = {
   creditCode: string;
   companyName: string;
-  legalPerson: string;
   contactName: string;
   contactPhone: string;
-  contactEmail: string;
   address: string;
   contractNo: string;
   contractFiles: OnboardingContractFile[];
@@ -139,10 +136,8 @@ export function emptyOnboardingForm(): OnboardingFormInput {
   return {
     creditCode: "",
     companyName: "",
-    legalPerson: "",
     contactName: "",
     contactPhone: "",
-    contactEmail: "",
     address: "",
     contractNo: "",
     contractFiles: [],
@@ -157,10 +152,8 @@ export function applicationToForm(app: OnboardingApplication): OnboardingFormInp
   return {
     creditCode: app.creditCode,
     companyName: app.companyName,
-    legalPerson: app.legalPerson,
     contactName: app.contactName,
     contactPhone: app.contactPhone,
-    contactEmail: app.contactEmail,
     address: app.address,
     contractNo: app.contractNo,
     contractFiles: [...app.contractFiles],
@@ -171,17 +164,23 @@ export function applicationToForm(app: OnboardingApplication): OnboardingFormInp
   };
 }
 
+function normalizePhone(phone: string) {
+  return phone.replace(/[\s-]/g, "");
+}
+
+export function isValidMobile(phone: string) {
+  return /^1\d{10}$/.test(normalizePhone(phone));
+}
+
 export function validateOnboardingForm(form: OnboardingFormInput): string | null {
-  if (!form.creditCode.trim()) return "请填写统一社会信用代码";
-  if (!form.companyName.trim()) return "请填写公司全称";
-  if (!form.legalPerson.trim()) return "请填写法人代表";
+  if (!form.companyName.trim()) return "请填写机构/企业名称";
   if (!form.contactName.trim()) return "请填写联系人姓名";
-  if (!form.contactPhone.trim()) return "请填写联系人电话";
-  if (!form.contactEmail.trim()) return "请填写联系人邮箱";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim())) {
-    return "联系人邮箱格式不正确";
+  if (!form.contactPhone.trim()) return "请填写联系人手机号";
+  if (!isValidMobile(form.contactPhone)) return "联系人手机号格式不正确";
+  if (!form.address.trim()) return "请填写机构/企业地址";
+  if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
+    return "统一社会信用代码格式不正确";
   }
-  if (!form.address.trim()) return "请填写有效联系地址";
   if (!form.contractNo.trim()) return "请填写合同编号";
   if (!form.contractStart || !form.contractEnd) return "请填写合同起止日期";
   if (form.contractStart > form.contractEnd) return "合同开始日期不能晚于结束日期";
@@ -204,10 +203,8 @@ function formToApplication(
     status,
     creditCode: form.creditCode.trim(),
     companyName: form.companyName.trim(),
-    legalPerson: form.legalPerson.trim(),
     contactName: form.contactName.trim(),
-    contactPhone: form.contactPhone.trim(),
-    contactEmail: form.contactEmail.trim(),
+    contactPhone: normalizePhone(form.contactPhone.trim()),
     address: form.address.trim(),
     contractNo: form.contractNo.trim(),
     contractFiles: [...form.contractFiles],

@@ -2,28 +2,28 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   changePassword,
-  getBoundEmail,
+  getBoundPhone,
   getDemoOldPasswordHint,
   getSendCodeCooldownSec,
-  maskEmail,
+  maskPhone,
   resetPasswordChangeFlow,
-  sendEmailVerificationCode,
-  verifyEmailCode,
+  sendSmsVerificationCode,
   verifyOldPassword,
+  verifySmsCode,
 } from "@/lib/passwordAuth";
 
 type Step = 1 | 2 | 3 | "done";
 
 const STEPS: { key: 1 | 2 | 3; label: string }[] = [
   { key: 1, label: "验证当前密码" },
-  { key: 2, label: "邮箱验证" },
+  { key: 2, label: "短信验证" },
   { key: 3, label: "设置新密码" },
 ];
 
 export function ChangePasswordPage() {
   const [step, setStep] = useState<Step>(1);
   const [oldPassword, setOldPassword] = useState("");
-  const [emailCode, setEmailCode] = useState("");
+  const [smsCode, setSmsCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function ChangePasswordPage() {
   }, [cooldown]);
 
   const sendCode = (auto = false) => {
-    const result = sendEmailVerificationCode();
+    const result = sendSmsVerificationCode();
     if (!result.ok) {
       if (!auto) setError(result.error);
       if (result.cooldownSec) setCooldown(result.cooldownSec);
@@ -54,7 +54,7 @@ export function ChangePasswordPage() {
     setError(null);
     setCooldown(result.cooldownSec);
     setInfo(
-      `验证码已发送至 ${result.maskedEmail}${result.demoCode ? `（演示验证码：${result.demoCode}）` : ""}`,
+      `验证码已发送至 ${result.maskedPhone}${result.demoCode ? `（演示验证码：${result.demoCode}）` : ""}`,
     );
   };
 
@@ -73,11 +73,11 @@ export function ChangePasswordPage() {
     sendCode(true);
   };
 
-  const submitEmailCode = async () => {
+  const submitSmsCode = async () => {
     setLoading(true);
     setError(null);
     await new Promise((r) => window.setTimeout(r, 220));
-    const result = verifyEmailCode(emailCode);
+    const result = verifySmsCode(smsCode);
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
@@ -116,7 +116,7 @@ export function ChangePasswordPage() {
 
       <div className="a-card__body a-stack">
         <p className="c-password-page__intro">
-          为保障账号安全，修改密码需依次验证当前密码与绑定邮箱验证码。修改成功后将下线其他设备的登录会话，仅保留当前会话。
+          为保障账号安全，修改密码需依次验证当前密码与绑定手机短信验证码。修改成功后将下线其他设备的登录会话，仅保留当前会话。
         </p>
 
         <ol className="c-password-steps" aria-label="修改密码步骤">
@@ -170,23 +170,23 @@ export function ChangePasswordPage() {
 
         {step === 2 ? (
           <section className="c-password-panel">
-            <h3 className="a-form-section__title">第二步：邮箱验证</h3>
+            <h3 className="a-form-section__title">第二步：短信验证</h3>
             <p className="c-password-panel__desc">
-              已向绑定邮箱 <b>{maskEmail(getBoundEmail())}</b> 发送 6 位验证码，有效期 10 分钟。
+              已向绑定手机 <b>{maskPhone(getBoundPhone())}</b> 发送 6 位短信验证码，有效期 10 分钟。
             </p>
             <div className="a-field a-field--stack">
-              <label className="a-field__label" htmlFor="email-code">
-                邮箱验证码
+              <label className="a-field__label" htmlFor="sms-code">
+                短信验证码
               </label>
               <div className="c-password-code-row">
                 <input
-                  id="email-code"
+                  id="sms-code"
                   className="a-input"
                   inputMode="numeric"
                   maxLength={6}
                   placeholder="6 位验证码"
-                  value={emailCode}
-                  onChange={(e) => setEmailCode(e.target.value.replace(/\D/g, ""))}
+                  value={smsCode}
+                  onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, ""))}
                   disabled={loading}
                 />
                 <button
@@ -198,7 +198,7 @@ export function ChangePasswordPage() {
                   {cooldown > 0 ? `${cooldown}s 后重发` : "重新发送"}
                 </button>
               </div>
-              <span className="a-field__hint">同一邮箱 60 秒内仅可发送 1 次，每日上限 10 次</span>
+              <span className="a-field__hint">同一手机号 60 秒内仅可发送 1 次，每日上限 10 次</span>
             </div>
             <div className="c-password-panel__actions">
               <button
@@ -208,7 +208,7 @@ export function ChangePasswordPage() {
                 onClick={() => {
                   resetPasswordChangeFlow();
                   setStep(1);
-                  setEmailCode("");
+                  setSmsCode("");
                   setError(null);
                   setInfo(null);
                 }}
@@ -219,7 +219,7 @@ export function ChangePasswordPage() {
                 type="button"
                 className="a-btn a-btn--primary"
                 disabled={loading}
-                onClick={() => void submitEmailCode()}
+                onClick={() => void submitSmsCode()}
               >
                 {loading ? "验证中…" : "下一步"}
               </button>

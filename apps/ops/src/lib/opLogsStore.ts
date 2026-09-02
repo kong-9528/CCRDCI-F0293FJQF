@@ -445,7 +445,7 @@ const LOGS: OpLog[] = [
     id: "o05",
     scope: "ops",
     actionType: "customer_edit",
-    content: "编辑客户 north_press：更新联系人邮箱 liqiang@north.example",
+    content: "编辑客户 north_press：更新联系人手机号 13900002222",
     operator: "王编辑",
     operatedAt: "2026-08-20 15:28:17",
   },

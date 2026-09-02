@@ -113,32 +113,24 @@ export function CustomerDetailPage() {
                   </span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">统一社会信用代码</span>
-                  <span className="a-desc__value">{customer.creditCode}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">公司全称</span>
+                  <span className="a-desc__label">机构/企业名称</span>
                   <span className="a-desc__value">{customer.companyName}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">法人代表</span>
-                  <span className="a-desc__value">{customer.legalPerson || "—"}</span>
+                  <span className="a-desc__label">统一社会信用代码</span>
+                  <span className="a-desc__value">{customer.creditCode || "—"}</span>
+                </div>
+                <div className="a-desc__item">
+                  <span className="a-desc__label">机构/企业地址</span>
+                  <span className="a-desc__value">{customer.address || "—"}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">联系人姓名</span>
                   <span className="a-desc__value">{customer.contactName}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">联系人电话</span>
+                  <span className="a-desc__label">联系人手机号</span>
                   <span className="a-desc__value">{customer.contactPhone}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">联系人邮箱</span>
-                  <span className="a-desc__value">{customer.contactEmail}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">有效联系地址</span>
-                  <span className="a-desc__value">{customer.address || "—"}</span>
                 </div>
               </div>
             </section>

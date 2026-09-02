@@ -131,7 +131,7 @@ export function CustomerListPage() {
             <input
               className="a-input"
               style={{ minWidth: 220 }}
-              placeholder="请输入公司全称或企业统一社会信用代码"
+              placeholder="请输入机构/企业名称或统一社会信用代码"
               value={draft.customer}
               onChange={(e) => setFilter("customer", e.target.value)}
             />
@@ -225,7 +225,7 @@ export function CustomerListPage() {
             <thead>
               <tr>
                 <th>账号</th>
-                <th>公司名称</th>
+                <th>机构/企业名称</th>
                 <th>联系人姓名</th>
                 <th>开通产品</th>
                 <th>账号状态</th>

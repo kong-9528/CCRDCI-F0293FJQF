@@ -3,10 +3,8 @@ import type { ProductCode } from "@/lib/catalog";
 export type TenantProfile = {
   companyName: string;
   creditCode: string;
-  legalPerson: string;
   contactName: string;
   contactPhone: string;
-  contactEmail: string;
   address: string;
 };
 
@@ -32,10 +30,8 @@ export type TenantContract = {
 export const MOCK_TENANT: TenantProfile = {
   companyName: "太极计算机股份有限公司",
   creditCode: "91110000MA01XXXX3K",
-  legalPerson: "张三",
   contactName: "李四",
-  contactPhone: "138-0000-1234",
-  contactEmail: "admin@huaxin.com",
+  contactPhone: "13800001234",
   address: "北京市海淀区中关村大街1号",
 };
 
@@ -80,20 +76,11 @@ export const MOCK_TENANT_CONTRACTS: TenantContract[] = [
     contractNo: "HT-2025-0088",
     startDate: "2025-01-01",
     endDate: "2026-12-31",
-    amount: 128000,
+    amount: 280000,
     periodStatus: "active",
     files: [
-      { id: "f1", name: "主合同.pdf" },
-      { id: "f2", name: "附件1.pdf" },
+      { id: "f1", name: "服务合同.pdf" },
+      { id: "f2", name: "补充协议.pdf" },
     ],
-  },
-  {
-    id: "c2",
-    contractNo: "HT-2024-0012",
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    amount: 96000,
-    periodStatus: "expired",
-    files: [{ id: "f3", name: "合同.pdf" }],
   },
 ];

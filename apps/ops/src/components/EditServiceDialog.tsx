@@ -91,7 +91,7 @@ export function EditServiceDialog({
             </span>
           </div>
           <div className="a-desc__item">
-            <span className="a-desc__label">公司全称</span>
+            <span className="a-desc__label">机构/企业名称</span>
             <span className="a-desc__value">{customer.companyName}</span>
           </div>
           <div className="a-desc__item">

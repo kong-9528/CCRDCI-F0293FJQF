@@ -3,13 +3,26 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-const MOCK_CODE = "1111";
+const MOCK_CODE = "123456";
 
 type Step = 1 | 2 | 3 | 4;
 
+function normalizePhone(phone: string) {
+  return phone.replace(/[\s-]/g, "");
+}
+
+function isValidMobile(phone: string) {
+  return /^1\d{10}$/.test(normalizePhone(phone));
+}
+
+function maskPhone(phone: string) {
+  const digits = normalizePhone(phone);
+  return `${digits.slice(0, 3)}****${digits.slice(-4)}`;
+}
+
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>(1);
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -21,8 +34,8 @@ export default function ForgotPasswordPage() {
   const goSendCode = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("请输入有效的邮箱地址");
+    if (!isValidMobile(phone)) {
+      setError("请输入正确的手机号");
       return;
     }
     setSentHint(true);
@@ -61,16 +74,14 @@ export default function ForgotPasswordPage() {
             忘记密码
           </h1>
           <p style={{ margin: "0 0 8px", color: "var(--n-500)", fontSize: 14 }}>
-            通过绑定邮箱验证码找回密码。演示环境验证码固定为 <strong>1111</strong>。
+            通过绑定手机号短信验证码找回密码。演示环境验证码固定为 <strong>123456</strong>。
           </p>
 
           <div className="p-steps-indicator" aria-hidden>
             {indicators.map((n) => (
               <span
                 key={n}
-                className={
-                  n < step ? "is-done" : n === step ? "is-current" : undefined
-                }
+                className={n < step ? "is-done" : n === step ? "is-current" : undefined}
               />
             ))}
           </div>
@@ -78,19 +89,19 @@ export default function ForgotPasswordPage() {
           {step === 1 ? (
             <form onSubmit={goSendCode}>
               <div className="p-field">
-                <label htmlFor="fp-email">绑定邮箱</label>
+                <label htmlFor="fp-phone">绑定手机号</label>
                 <input
-                  id="fp-email"
+                  id="fp-phone"
                   className="p-input"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  inputMode="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="请输入 11 位手机号"
                 />
               </div>
               {error ? <div className="p-field__error">{error}</div> : null}
               <button type="submit" className="p-btn p-btn--primary p-btn--block">
-                发送验证码
+                发送短信验证码
               </button>
             </form>
           ) : null}
@@ -99,18 +110,20 @@ export default function ForgotPasswordPage() {
             <form onSubmit={goVerify}>
               {sentHint ? (
                 <p style={{ color: "var(--n-500)", fontSize: 14, marginTop: 0 }}>
-                  验证码已发送至 <strong>{email}</strong>（模拟）。请输入 1111 继续。
+                  验证码已发送至 <strong>{maskPhone(phone)}</strong>（模拟）。请输入 123456
+                  继续。
                 </p>
               ) : null}
               <div className="p-field">
-                <label htmlFor="fp-code">邮箱验证码</label>
+                <label htmlFor="fp-code">短信验证码</label>
                 <input
                   id="fp-code"
                   className="p-input"
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="4 位验证码"
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="6 位验证码"
                   inputMode="numeric"
+                  maxLength={6}
                 />
               </div>
               {error ? <div className="p-field__error">{error}</div> : null}
@@ -126,7 +139,7 @@ export default function ForgotPasswordPage() {
                   setStep(1);
                 }}
               >
-                返回修改邮箱
+                返回修改手机号
               </button>
             </form>
           ) : null}

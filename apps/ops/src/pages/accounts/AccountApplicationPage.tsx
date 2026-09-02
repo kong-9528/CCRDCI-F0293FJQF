@@ -151,22 +151,18 @@ export function AccountApplicationPage({ mode }: Props) {
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">企业信息</h3>
+            <h3 className="a-form-section__title">机构/企业信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">统一社会信用代码</span>
-                <span className="a-desc__value">{application.creditCode}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">公司全称</span>
+                <span className="a-desc__label">机构/企业名称</span>
                 <span className="a-desc__value">{application.companyName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">法人代表</span>
-                <span className="a-desc__value">{application.legalPerson || "—"}</span>
+                <span className="a-desc__label">统一社会信用代码</span>
+                <span className="a-desc__value">{application.creditCode || "—"}</span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">有效联系地址</span>
+                <span className="a-desc__label">机构/企业地址</span>
                 <span className="a-desc__value">{application.address || "—"}</span>
               </div>
             </div>
@@ -180,12 +176,8 @@ export function AccountApplicationPage({ mode }: Props) {
                 <span className="a-desc__value">{application.contactName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">联系人电话</span>
+                <span className="a-desc__label">联系人手机号</span>
                 <span className="a-desc__value">{application.contactPhone}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人邮箱</span>
-                <span className="a-desc__value">{application.contactEmail}</span>
               </div>
             </div>
           </section>

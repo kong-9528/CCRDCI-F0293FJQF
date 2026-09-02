@@ -800,7 +800,7 @@ export const HELP_FAQ: HelpFaqItem[] = [
   {
     id: "faq-password",
     question: "忘记密码如何找回？",
-    answerHtml: `<p>在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定邮箱发送验证码以校验身份。</p>`,
+    answerHtml: `<p>在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定手机号发送短信验证码以校验身份。</p>`,
   },
   {
     id: "faq-products",

@@ -176,7 +176,7 @@ let faqs: HelpFaq[] = [
   {
     id: "f3",
     question: "忘记密码如何找回？",
-    answer: "在登录弹窗点击「忘记密码」，通过绑定邮箱验证码校验身份。",
+    answer: "在登录弹窗点击「忘记密码」，通过绑定手机短信验证码校验身份。",
     weight: 30,
     status: "hidden",
     maintainer: "运营管理员",

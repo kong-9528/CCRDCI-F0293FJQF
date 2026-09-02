@@ -38,10 +38,8 @@ export type CustomerFormState = {
   customerType: "enterprise";
   creditCode: string;
   companyName: string;
-  legalPerson: string;
   contactName: string;
   contactPhone: string;
-  contactEmail: string;
   address: string;
   contractNo: string;
   contractFiles: ContractFile[];
@@ -77,10 +75,8 @@ export function emptyCustomerForm(): CustomerFormState {
     customerType: "enterprise",
     creditCode: "",
     companyName: "",
-    legalPerson: "",
     contactName: "",
     contactPhone: "",
-    contactEmail: "",
     address: "",
     contractNo: "",
     contractFiles: [],
@@ -99,10 +95,8 @@ export function customerToForm(c: CustomerAccount): CustomerFormState {
     customerType: "enterprise",
     creditCode: c.creditCode,
     companyName: c.companyName,
-    legalPerson: c.legalPerson,
     contactName: c.contactName,
     contactPhone: c.contactPhone,
-    contactEmail: c.contactEmail,
     address: c.address,
     contractNo: primary?.contractNo ?? "",
     contractFiles: [...c.contractFiles],
@@ -217,16 +211,15 @@ export function validateCustomerForm(
   mode: ValidateMode,
   opts?: { accountTaken?: boolean },
 ): string | null {
-  if (!form.creditCode.trim()) return "请填写统一社会信用代码";
-  if (!form.companyName.trim()) return "请填写公司全称";
-  if (!form.contactName.trim()) return "请填写联系人姓名";
-  if (!form.contactPhone.trim()) return "请填写联系人电话";
-  if (!/^1\d{10}$/.test(form.contactPhone.trim()) && !/^0\d{2,3}-?\d{7,8}$/.test(form.contactPhone.trim())) {
-    return "联系人电话格式不正确";
+  if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
+    return "统一社会信用代码格式不正确";
   }
-  if (!form.contactEmail.trim()) return "请填写联系人邮箱";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim())) {
-    return "联系人邮箱格式不正确";
+  if (!form.companyName.trim()) return "请填写机构/企业名称";
+  if (!form.contactName.trim()) return "请填写联系人姓名";
+  if (!form.contactPhone.trim()) return "请填写联系人手机号";
+  const phone = form.contactPhone.replace(/[\s-]/g, "");
+  if (!/^1\d{10}$/.test(phone)) {
+    return "联系人手机号格式不正确";
   }
   if (mode === "create") {
     if (!form.contractNo.trim()) return "请输入合同编号";
@@ -308,10 +301,8 @@ export function formToCustomerPayload(
     customerType: "enterprise",
     creditCode: form.creditCode.trim(),
     companyName: form.companyName.trim(),
-    legalPerson: form.legalPerson.trim(),
     contactName: form.contactName.trim(),
-    contactPhone: form.contactPhone.trim(),
-    contactEmail: form.contactEmail.trim(),
+    contactPhone: form.contactPhone.replace(/[\s-]/g, "").trim(),
     address: form.address.trim(),
     contracts: summary.contracts,
     contractFiles: summary.contractFiles,
@@ -337,9 +328,8 @@ export function diffCustomer(
   };
 
   push("联系人姓名", before.contactName, after.contactName);
-  push("联系人电话", before.contactPhone, after.contactPhone);
-  push("联系人邮箱", before.contactEmail, after.contactEmail);
-  push("有效联系地址", before.address, after.address);
+  push("联系人手机号", before.contactPhone, after.contactPhone);
+  push("机构/企业地址", before.address, after.address);
   push(
     "合同总金额",
     before.contractAmount == null ? "" : String(before.contractAmount),

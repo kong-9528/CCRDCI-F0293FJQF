@@ -58,15 +58,13 @@ export function CustomerEditPage() {
       account: original.account,
       creditCode: original.creditCode,
       companyName: original.companyName,
-      legalPerson: original.legalPerson,
       customerType: original.customerType,
       status: original.status,
       createdAt: original.createdAt,
     };
-    // 编辑页：信用代码/公司全称/法人/账号/合同信息只读；合同请在合同管理页维护
+    // 编辑页：信用代码/机构名称/账号/合同信息只读；合同请在合同管理页维护
     next.contactName = form.contactName.trim();
-    next.contactPhone = form.contactPhone.trim();
-    next.contactEmail = form.contactEmail.trim();
+    next.contactPhone = form.contactPhone.replace(/[\s-]/g, "").trim();
     next.address = form.address.trim();
     next.productServices = payload.productServices;
     if (form.password) next.passwordHint = form.password;
@@ -112,11 +110,7 @@ export function CustomerEditPage() {
                 />
               </div>
               <div className="a-field">
-                <span className="a-field__label">统一社会信用代码</span>
-                <input className="a-input" value={form.creditCode} disabled />
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">公司全称</span>
+                <span className="a-field__label">机构/企业名称</span>
                 <input
                   className="a-input"
                   style={{ minWidth: 240 }}
@@ -125,8 +119,17 @@ export function CustomerEditPage() {
                 />
               </div>
               <div className="a-field">
-                <span className="a-field__label">法人代表</span>
-                <input className="a-input" value={form.legalPerson} disabled />
+                <span className="a-field__label">统一社会信用代码</span>
+                <input className="a-input" value={form.creditCode} disabled />
+              </div>
+              <div className="a-field a-field--wide">
+                <span className="a-field__label">机构/企业地址</span>
+                <input
+                  className="a-input"
+                  style={{ minWidth: 360 }}
+                  value={form.address}
+                  onChange={(e) => set("address", e.target.value)}
+                />
               </div>
               <div className="a-field">
                 <span className="a-field__label">
@@ -140,32 +143,13 @@ export function CustomerEditPage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  联系人电话 <span className="a-req">*</span>
+                  联系人手机号 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
+                  inputMode="tel"
                   value={form.contactPhone}
                   onChange={(e) => set("contactPhone", e.target.value)}
-                />
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  联系人邮箱 <span className="a-req">*</span>
-                </span>
-                <input
-                  className="a-input"
-                  style={{ minWidth: 200 }}
-                  value={form.contactEmail}
-                  onChange={(e) => set("contactEmail", e.target.value)}
-                />
-              </div>
-              <div className="a-field a-field--wide">
-                <span className="a-field__label">有效联系地址</span>
-                <input
-                  className="a-input"
-                  style={{ minWidth: 360 }}
-                  value={form.address}
-                  onChange={(e) => set("address", e.target.value)}
                 />
               </div>
             </div>

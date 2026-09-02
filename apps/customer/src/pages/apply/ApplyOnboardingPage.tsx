@@ -170,22 +170,18 @@ export function ApplyOnboardingPage() {
       {viewApp ? (
         <div className="a-stack">
           <section className="a-form-section">
-            <h3 className="a-form-section__title">企业信息</h3>
+            <h3 className="a-form-section__title">机构/企业信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">统一社会信用代码</span>
-                <span className="a-desc__value">{viewApp.creditCode}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">公司全称</span>
+                <span className="a-desc__label">机构/企业名称</span>
                 <span className="a-desc__value">{viewApp.companyName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">法人代表</span>
-                <span className="a-desc__value">{viewApp.legalPerson || "—"}</span>
+                <span className="a-desc__label">统一社会信用代码</span>
+                <span className="a-desc__value">{viewApp.creditCode || "—"}</span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">有效联系地址</span>
+                <span className="a-desc__label">机构/企业地址</span>
                 <span className="a-desc__value">{viewApp.address || "—"}</span>
               </div>
             </div>
@@ -199,12 +195,8 @@ export function ApplyOnboardingPage() {
                 <span className="a-desc__value">{viewApp.contactName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">联系人电话</span>
+                <span className="a-desc__label">联系人手机号</span>
                 <span className="a-desc__value">{viewApp.contactPhone}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人邮箱</span>
-                <span className="a-desc__value">{viewApp.contactEmail}</span>
               </div>
             </div>
           </section>
@@ -252,38 +244,30 @@ export function ApplyOnboardingPage() {
       {editing ? (
         <div className="a-stack">
           <section className="a-form-section">
-            <h3 className="a-form-section__title">企业信息</h3>
+            <h3 className="a-form-section__title">机构/企业信息</h3>
             <div className="a-form-grid">
-              <Field label="统一社会信用代码" required>
-                <input
-                  className="a-input"
-                  value={form.creditCode}
-                  onChange={(e) => set("creditCode", e.target.value)}
-                  placeholder="请输入统一社会信用代码"
-                />
-              </Field>
-              <Field label="公司全称" required>
+              <Field label="机构/企业名称" required>
                 <input
                   className="a-input"
                   value={form.companyName}
                   onChange={(e) => set("companyName", e.target.value)}
-                  placeholder="请输入公司全称"
+                  placeholder="请输入机构/企业名称"
                 />
               </Field>
-              <Field label="法人代表" required>
+              <Field label="统一社会信用代码">
                 <input
                   className="a-input"
-                  value={form.legalPerson}
-                  onChange={(e) => set("legalPerson", e.target.value)}
-                  placeholder="请输入法人代表"
+                  value={form.creditCode}
+                  onChange={(e) => set("creditCode", e.target.value)}
+                  placeholder="选填，企业请填写"
                 />
               </Field>
-              <Field label="有效联系地址" required>
+              <Field label="机构/企业地址" required>
                 <input
                   className="a-input"
                   value={form.address}
                   onChange={(e) => set("address", e.target.value)}
-                  placeholder="请输入有效联系地址"
+                  placeholder="请输入机构/企业地址"
                 />
               </Field>
             </div>
@@ -299,19 +283,13 @@ export function ApplyOnboardingPage() {
                   onChange={(e) => set("contactName", e.target.value)}
                 />
               </Field>
-              <Field label="联系人电话" required>
+              <Field label="联系人手机号" required>
                 <input
                   className="a-input"
+                  inputMode="tel"
                   value={form.contactPhone}
                   onChange={(e) => set("contactPhone", e.target.value)}
-                />
-              </Field>
-              <Field label="联系人邮箱" required>
-                <input
-                  className="a-input"
-                  type="email"
-                  value={form.contactEmail}
-                  onChange={(e) => set("contactEmail", e.target.value)}
+                  placeholder="用于登录与短信验证"
                 />
               </Field>
             </div>

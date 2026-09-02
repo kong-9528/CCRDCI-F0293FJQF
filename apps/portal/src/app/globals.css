@@ -347,9 +347,59 @@ a {
 }
 
 .p-modal__desc {
-  margin: 0 0 28px;
+  margin: 0 0 20px;
   color: var(--n-500);
   font-size: 14px;
+}
+
+.p-login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin: 0 0 20px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--n-100);
+}
+
+.p-login-tabs__item {
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--n-500);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.p-login-tabs__item.is-active {
+  background: var(--n-0);
+  color: var(--n-900);
+  box-shadow: 0 1px 2px rgba(22, 28, 36, 0.06);
+}
+
+.p-code-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.p-code-row .p-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.p-code-row .p-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.p-field__hint {
+  margin: -8px 0 12px;
+  font-size: 13px;
+  color: var(--n-500);
 }
 
 .p-field {

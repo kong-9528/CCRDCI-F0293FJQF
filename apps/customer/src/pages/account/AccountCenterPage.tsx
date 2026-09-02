@@ -13,10 +13,7 @@ import {
 
 type TabKey = "info" | "services" | "contracts";
 
-type ContactForm = Pick<
-  TenantProfile,
-  "contactName" | "contactPhone" | "contactEmail" | "address"
->;
+type ContactForm = Pick<TenantProfile, "contactName" | "contactPhone">;
 
 const TAB_ITEMS = [
   { key: "info" as const, label: "机构信息" },
@@ -54,10 +51,9 @@ function periodTag(status: TenantContract["periodStatus"]) {
 
 function validateContact(form: ContactForm): string | null {
   if (!form.contactName.trim()) return "请填写联系人姓名";
-  if (!form.contactPhone.trim()) return "请填写联系电话";
-  if (!form.contactEmail.trim()) return "请填写联系邮箱";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim())) {
-    return "联系邮箱格式不正确";
+  if (!form.contactPhone.trim()) return "请填写联系人手机号";
+  if (!/^1\d{10}$/.test(form.contactPhone.replace(/[\s-]/g, ""))) {
+    return "联系人手机号格式不正确";
   }
   return null;
 }
@@ -70,8 +66,6 @@ export function AccountCenterPage() {
   const [draft, setDraft] = useState<ContactForm>({
     contactName: MOCK_TENANT.contactName,
     contactPhone: MOCK_TENANT.contactPhone,
-    contactEmail: MOCK_TENANT.contactEmail,
-    address: MOCK_TENANT.address,
   });
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -85,8 +79,6 @@ export function AccountCenterPage() {
     setDraft({
       contactName: profile.contactName,
       contactPhone: profile.contactPhone,
-      contactEmail: profile.contactEmail,
-      address: profile.address,
     });
     setError(null);
     setEditOpen(true);
@@ -101,9 +93,7 @@ export function AccountCenterPage() {
     setProfile((p) => ({
       ...p,
       contactName: draft.contactName.trim(),
-      contactPhone: draft.contactPhone.trim(),
-      contactEmail: draft.contactEmail.trim(),
-      address: draft.address.trim(),
+      contactPhone: draft.contactPhone.replace(/[\s-]/g, "").trim(),
     }));
     setEditOpen(false);
     showToast("联系信息已更新");
@@ -119,20 +109,20 @@ export function AccountCenterPage() {
           <>
             <section className="a-form-section">
               <h3 className="a-form-section__title">
-                企业基本信息 <span className="a-field__hint">（只读）</span>
+                机构/企业基本信息 <span className="a-field__hint">（只读）</span>
               </h3>
               <div className="a-desc">
                 <div className="a-desc__item">
-                  <span className="a-desc__label">公司全称</span>
+                  <span className="a-desc__label">机构/企业名称</span>
                   <span className="a-desc__value">{profile.companyName}</span>
                 </div>
                 <div className="a-desc__item">
                   <span className="a-desc__label">统一社会信用代码</span>
-                  <span className="a-desc__value">{profile.creditCode}</span>
+                  <span className="a-desc__value">{profile.creditCode || "—"}</span>
                 </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">法人代表</span>
-                  <span className="a-desc__value">{profile.legalPerson}</span>
+                <div className="a-desc__item a-desc__item--wide">
+                  <span className="a-desc__label">机构/企业地址</span>
+                  <span className="a-desc__value">{profile.address || "—"}</span>
                 </div>
               </div>
             </section>
@@ -152,16 +142,8 @@ export function AccountCenterPage() {
                   <span className="a-desc__value">{profile.contactName}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">联系电话</span>
+                  <span className="a-desc__label">联系人手机号</span>
                   <span className="a-desc__value">{profile.contactPhone}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">联系邮箱</span>
-                  <span className="a-desc__value">{profile.contactEmail}</span>
-                </div>
-                <div className="a-desc__item a-desc__item--wide">
-                  <span className="a-desc__label">联系地址</span>
-                  <span className="a-desc__value">{profile.address || "—"}</span>
                 </div>
               </div>
             </section>
@@ -175,7 +157,7 @@ export function AccountCenterPage() {
                 </Link>
               </div>
               <p className="a-field__hint" style={{ marginTop: 8 }}>
-                修改密码需验证当前密码与绑定邮箱验证码，成功后其他设备会话将自动下线。
+                修改密码需验证当前密码与绑定手机短信验证码，成功后其他设备会话将自动下线。
               </p>
             </section>
           </>
@@ -309,35 +291,14 @@ export function AccountCenterPage() {
           </div>
           <div className="a-field a-field--stack">
             <label className="a-field__label" htmlFor="contact-phone">
-              联系电话 <span className="c-required">*</span>
+              联系人手机号 <span className="c-required">*</span>
             </label>
             <input
               id="contact-phone"
               className="a-input"
+              inputMode="tel"
               value={draft.contactPhone}
               onChange={(e) => setDraft((d) => ({ ...d, contactPhone: e.target.value }))}
-            />
-          </div>
-          <div className="a-field a-field--stack">
-            <label className="a-field__label" htmlFor="contact-email">
-              联系邮箱 <span className="c-required">*</span>
-            </label>
-            <input
-              id="contact-email"
-              className="a-input"
-              value={draft.contactEmail}
-              onChange={(e) => setDraft((d) => ({ ...d, contactEmail: e.target.value }))}
-            />
-          </div>
-          <div className="a-field a-field--stack">
-            <label className="a-field__label" htmlFor="contact-address">
-              有效联系地址
-            </label>
-            <input
-              id="contact-address"
-              className="a-input"
-              value={draft.address}
-              onChange={(e) => setDraft((d) => ({ ...d, address: e.target.value }))}
             />
           </div>
           {error ? <span className="a-field__error">{error}</span> : null}

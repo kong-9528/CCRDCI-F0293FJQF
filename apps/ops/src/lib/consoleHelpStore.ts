@@ -76,7 +76,7 @@ let articles: ConsoleHelpArticle[] = [
     status: "hidden",
     views: 120,
     summary: "控制台高频问题汇总",
-    body: "<p>额度不足请联系客户经理追加；忘记密码可在登录页通过邮箱验证码找回。</p>",
+    body: "<p>额度不足请联系客户经理追加；忘记密码可在登录页通过手机短信验证码找回。</p>",
     maintainer: "运营管理员",
     updatedAt: "2026-07-28 15:00:00",
     deleted: false,

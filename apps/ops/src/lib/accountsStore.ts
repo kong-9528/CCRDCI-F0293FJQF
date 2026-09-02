@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import type { ContractFile, ProductCode } from "@/lib/catalog";
 import { createCustomer, isAccountTaken } from "@/lib/customersStore";
 import { parseProductServices, type ProductFormRow } from "@/lib/customerForm";
@@ -12,10 +12,8 @@ export type AccountApplication = {
   status: ApplicationStatus;
   creditCode: string;
   companyName: string;
-  legalPerson: string;
   contactName: string;
   contactPhone: string;
-  contactEmail: string;
   address: string;
   contractNo: string;
   contractFiles: ContractFile[];
@@ -45,10 +43,8 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     status: "pending",
     creditCode: "91110108MA01XY1234",
     companyName: "云图数字科技有限公司",
-    legalPerson: "赵明",
     contactName: "周婷",
     contactPhone: "13600001234",
-    contactEmail: "zhouting@yuntu.example",
     address: "北京市海淀区中关村软件园二期 8 号",
     contractNo: "HT-2026-0318",
     contractFiles: [{ id: "af1", name: "云图-平台开通申请.pdf", size: 860_000 }],
@@ -65,10 +61,8 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     status: "pending",
     creditCode: "91330100MA2HJK5678",
     companyName: "江南文创集团有限公司",
-    legalPerson: "孙丽",
     contactName: "吴浩",
     contactPhone: "13500005678",
-    contactEmail: "wuhao@jnwc.example",
     address: "杭州市西湖区文三路 478 号",
     contractNo: "HT-2026-0422",
     contractFiles: [
@@ -88,10 +82,8 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     status: "approved",
     creditCode: "91440300MA5D998877",
     companyName: "前海智链科技有限公司",
-    legalPerson: "黄伟",
     contactName: "林静",
     contactPhone: "13800009988",
-    contactEmail: "linjing@zhilian.example",
     address: "深圳市前海深港合作区梦海大道 5033 号",
     contractNo: "HT-2026-0208",
     contractFiles: [{ id: "af4", name: "智链-开通协议.pdf", size: 740_000 }],
@@ -111,10 +103,8 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     status: "rejected",
     creditCode: "91510100MA62AB1122",
     companyName: "蜀锦文化传播工作室",
-    legalPerson: "何平",
     contactName: "何平",
     contactPhone: "13900008877",
-    contactEmail: "heping@shujin.example",
     address: "成都市武侯区科华北路 65 号",
     contractNo: "HT-2026-0510",
     contractFiles: [],
@@ -184,10 +174,8 @@ export function approveApplication(
     customerType: "enterprise",
     creditCode: app.creditCode,
     companyName: app.companyName,
-    legalPerson: app.legalPerson,
     contactName: app.contactName,
     contactPhone: app.contactPhone,
-    contactEmail: app.contactEmail,
     address: app.address,
     contracts: [
       {

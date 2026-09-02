@@ -17,7 +17,7 @@ type SendLog = {
 
 let sendLog: SendLog = { dateKey: "", count: 0, lastSentAt: 0 };
 let flowOldVerified = false;
-let flowEmailVerified = false;
+let flowSmsVerified = false;
 let pendingCode: string | null = null;
 let codeExpiresAt = 0;
 
@@ -44,15 +44,14 @@ function resetDailyIfNeeded() {
   }
 }
 
-export function getBoundEmail() {
-  return MOCK_TENANT.contactEmail;
+export function getBoundPhone() {
+  return MOCK_TENANT.contactPhone.replace(/[\s-]/g, "");
 }
 
-export function maskEmail(email: string) {
-  const [local, domain] = email.split("@");
-  if (!local || !domain) return email;
-  if (local.length <= 1) return `*@${domain}`;
-  return `${local[0]}***@${domain}`;
+export function maskPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 7) return phone;
+  return `${digits.slice(0, 3)}****${digits.slice(-4)}`;
 }
 
 export function isStrongPassword(pwd: string): boolean {
@@ -67,7 +66,7 @@ export function isStrongPassword(pwd: string): boolean {
 
 export function resetPasswordChangeFlow() {
   flowOldVerified = false;
-  flowEmailVerified = false;
+  flowSmsVerified = false;
   pendingCode = null;
   codeExpiresAt = 0;
 }
@@ -98,8 +97,8 @@ export function verifyOldPassword(password: string):
   return { ok: true };
 }
 
-export function sendEmailVerificationCode():
-  | { ok: true; maskedEmail: string; cooldownSec: number; demoCode?: string }
+export function sendSmsVerificationCode():
+  | { ok: true; maskedPhone: string; cooldownSec: number; demoCode?: string }
   | { ok: false; error: string; cooldownSec?: number } {
   if (!flowOldVerified) {
     return { ok: false, error: "请先完成当前密码验证" };
@@ -128,13 +127,16 @@ export function sendEmailVerificationCode():
 
   return {
     ok: true,
-    maskedEmail: maskEmail(getBoundEmail()),
+    maskedPhone: maskPhone(getBoundPhone()),
     cooldownSec: 60,
     demoCode: DEMO_CODE,
   };
 }
 
-export function verifyEmailCode(code: string):
+/** @deprecated 使用 sendSmsVerificationCode */
+export const sendEmailVerificationCode = sendSmsVerificationCode;
+
+export function verifySmsCode(code: string):
   | { ok: true }
   | { ok: false; error: string } {
   if (!flowOldVerified) {
@@ -144,19 +146,22 @@ export function verifyEmailCode(code: string):
     return { ok: false, error: "验证码已失效，请重新获取" };
   }
   if (!code.trim()) {
-    return { ok: false, error: "请输入邮箱验证码" };
+    return { ok: false, error: "请输入短信验证码" };
   }
   if (code.trim() !== pendingCode) {
     return { ok: false, error: "验证码不正确" };
   }
-  flowEmailVerified = true;
+  flowSmsVerified = true;
   return { ok: true };
 }
+
+/** @deprecated 使用 verifySmsCode */
+export const verifyEmailCode = verifySmsCode;
 
 export function changePassword(newPassword: string, confirmPassword: string):
   | { ok: true; revokedSessions: number }
   | { ok: false; error: string } {
-  if (!flowOldVerified || !flowEmailVerified) {
+  if (!flowOldVerified || !flowSmsVerified) {
     return { ok: false, error: "请按步骤完成验证后再提交" };
   }
   if (!newPassword) {
