@@ -189,7 +189,7 @@ export function chartSeries(
   codes: ProductCode[],
 ): { code: ProductCode; name: string; values: number[]; color: string }[] {
   const palette: Partial<Record<ProductCode, string>> = {
-    dci: "#1890ff",
+    dci: "#0075c1",
     info: "#52c41a",
     certificate: "#ff9c6e",
   };

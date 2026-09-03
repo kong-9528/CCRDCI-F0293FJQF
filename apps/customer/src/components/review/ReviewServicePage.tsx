@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { IconReset, IconSearch } from "@/components/icons/UiIcons";
+import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
@@ -10,6 +10,7 @@ import {
   formatReviewCount,
   getReviewQuota,
   getReviewServiceStatus,
+  listWorkReviewRecords,
   type ReviewProductCode,
   type ReviewRecordStatus,
 } from "@/lib/review";
@@ -22,6 +23,7 @@ type Filters = {
   from: string;
   to: string;
   status: string;
+  taskId: string;
 };
 
 function defaultDateRange() {
@@ -40,7 +42,11 @@ function serviceStatusTag(status: "active" | "expiring" | "stopped") {
 
 function recordStatusTag(status: ReviewRecordStatus) {
   const cls =
-    status === "success" ? "a-tag--ok" : status === "partial" ? "a-tag--wn" : "a-tag--er";
+    status === "success"
+      ? "a-tag--ok"
+      : status === "reviewing"
+        ? "a-tag--cyan"
+        : "a-tag--er";
   return <span className={`a-tag ${cls}`}>{REVIEW_RECORD_STATUS_LABEL[status]}</span>;
 }
 
@@ -49,47 +55,85 @@ export function ReviewServicePage({ product }: Props) {
   const serviceStatus = getReviewServiceStatus(product);
   const quota = getReviewQuota(product);
   const stopped = serviceStatus === "stopped";
+  const overQuota = !stopped && quota.overQuota;
   const range0 = defaultDateRange();
+  const records = listWorkReviewRecords();
 
   const [draft, setDraft] = useState<Filters>({
     from: range0.from,
     to: range0.to,
     status: "",
+    taskId: "",
   });
   const [applied, setApplied] = useState<Filters>({ ...draft });
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(null), 2200);
+  };
 
   const filtered = useMemo(() => {
-    return cfg.records.filter((row) => {
-      const day = row.calledAt.slice(0, 10);
+    const key = applied.taskId.trim().toLowerCase();
+    return records.filter((row) => {
+      const day = row.submittedAt.slice(0, 10);
       if (applied.from && day < applied.from) return false;
       if (applied.to && day > applied.to) return false;
       if (applied.status && row.status !== applied.status) return false;
+      if (key && !row.taskId.toLowerCase().includes(key)) return false;
       return true;
     });
-  }, [cfg.records, applied]);
+  }, [records, applied]);
+
+  const copyTaskId = (taskId: string) => {
+    void navigator.clipboard?.writeText(taskId);
+    showToast("流水号已复制");
+  };
+
+  const queryResult = (taskId: string, status: ReviewRecordStatus) => {
+    if (status === "reviewing") {
+      showToast(`已按流水号 ${taskId} 查询：任务仍在审核中`);
+      return;
+    }
+    showToast(
+      `已按流水号 ${taskId} 查询：${REVIEW_RECORD_STATUS_LABEL[status]}`,
+    );
+  };
 
   return (
     <div className="a-stack c-review-page">
+      {toast ? <div className="a-toast">{toast}</div> : null}
+
       <div className="a-card c-review-intro">
         <div className="a-card__body">
           <div className="c-verify-panel-head">
-            <h2 className="c-verify-panel-head__title">服务说明</h2>
+            <h2 className="c-verify-panel-head__title">{WORK_REVIEW_SERVICE_NAME}</h2>
             <ApiDocLink productId={cfg.apiDocId} />
           </div>
           <div className="c-review-intro__body">
             {cfg.intro.map((item) => (
               <p key={item.label}>{item.text}</p>
             ))}
+            <p className="c-review-intro__async">
+              内容安全审核、作品登记查重、疑似侵权审核共用同一额度；提交后请保存流水号，并在下方记录中查询审核结果。
+            </p>
           </div>
         </div>
       </div>
 
       <div className="a-card">
         <div className="a-card__head">
-          {WORK_REVIEW_SERVICE_NAME}
-          <span className="a-card__extra">额度与有效期</span>
+          额度与有效期
+          <span className="a-card__extra">超额不拦截，仅提示</span>
         </div>
         <div className="a-card__body a-stack">
+          {overQuota ? (
+            <div className="c-review-over-tip" role="status">
+              当前已超出套餐额度（{formatReviewCount(quota.usedCount)} /{" "}
+              {formatReviewCount(quota.quotaTotal)}
+              ），仍可继续提交审核任务。请及时联系商务扩容或确认超额结算方式。
+            </div>
+          ) : null}
           <div className="a-desc">
             <div className="a-desc__item">
               <span className="a-desc__label">服务状态</span>
@@ -97,30 +141,37 @@ export function ReviewServicePage({ product }: Props) {
             </div>
             {!stopped ? (
               <>
-                {quota?.expireAt && (
+                {quota.expireAt ? (
                   <div className="a-desc__item">
                     <span className="a-desc__label">有效期</span>
                     <span className="a-desc__value">{quota.expireAt}</span>
                   </div>
-                )}
-                {quota && quota.quotaTotal != null ? (
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">已用额度</span>
-                    <span className="a-desc__value">
-                      {formatReviewCount(quota.usedCount)} / {formatReviewCount(quota.quotaTotal)}
-                    </span>
-                  </div>
                 ) : null}
+                <div className="a-desc__item">
+                  <span className="a-desc__label">已用额度</span>
+                  <span className="a-desc__value">
+                    {formatReviewCount(quota.usedCount)} / {formatReviewCount(quota.quotaTotal)}
+                    {overQuota ? (
+                      <span className="a-tag a-tag--wn" style={{ marginLeft: 8 }}>
+                        已超额
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
               </>
             ) : null}
           </div>
-          {!stopped && quota && quota.quotaTotal != null ? (
+          {!stopped ? (
             <div className="c-review-quota">
               <div className="c-review-quota__bar">
                 <div
-                  className="c-review-quota__fill"
+                  className={`c-review-quota__fill${overQuota ? " is-over" : ""}`}
                   style={{ width: `${Math.min(100, quota.quotaUsagePct)}%` }}
                 />
+              </div>
+              <div className="c-review-quota__meta">
+                使用率 {quota.quotaUsagePct.toFixed(1)}%
+                {overQuota ? "（已超出，仍可继续调用）" : ""}
               </div>
             </div>
           ) : null}
@@ -130,11 +181,13 @@ export function ReviewServicePage({ product }: Props) {
       <div className="a-card">
         <div className="a-card__head">
           审核记录
-          <div className="a-card__extra">默认近 {REVIEW_DEFAULT_DAYS} 天</div>
+          <div className="a-card__extra">
+            异步任务流水 · 默认近 {REVIEW_DEFAULT_DAYS} 天
+          </div>
         </div>
         <div className="a-toolbar">
           <div className="a-field">
-            <span className="a-field__label">时间范围</span>
+            <span className="a-field__label">提交时间</span>
             <div className="a-date-range">
               <input
                 type="date"
@@ -152,7 +205,16 @@ export function ReviewServicePage({ product }: Props) {
             </div>
           </div>
           <div className="a-field">
-            <span className="a-field__label">结果</span>
+            <span className="a-field__label">流水号</span>
+            <input
+              className="a-input"
+              placeholder="请输入流水号"
+              value={draft.taskId}
+              onChange={(e) => setDraft((p) => ({ ...p, taskId: e.target.value }))}
+            />
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">状态</span>
             <select
               className="a-select"
               value={draft.status}
@@ -161,7 +223,7 @@ export function ReviewServicePage({ product }: Props) {
               <option value="">全部</option>
               <option value="success">成功</option>
               <option value="fail">失败</option>
-              <option value="partial">部分匹配</option>
+              <option value="reviewing">正在审核</option>
             </select>
           </div>
           <div className="a-toolbar__right">
@@ -177,7 +239,7 @@ export function ReviewServicePage({ product }: Props) {
               type="button"
               className="a-btn a-btn--outline a-btn--sm"
               onClick={() => {
-                const next = { from: range0.from, to: range0.to, status: "" };
+                const next = { from: range0.from, to: range0.to, status: "", taskId: "" };
                 setDraft(next);
                 setApplied(next);
               }}
@@ -188,7 +250,7 @@ export function ReviewServicePage({ product }: Props) {
           </div>
         </div>
         <div className="a-card__body a-card__body--flush">
-          {cfg.records.length === 0 || filtered.length === 0 ? (
+          {records.length === 0 || filtered.length === 0 ? (
             <div className="c-review-empty">
               <div className="c-review-empty__icon" aria-hidden>
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -201,7 +263,7 @@ export function ReviewServicePage({ product }: Props) {
               <p>
                 {stopped
                   ? "服务已停用，暂无审核记录"
-                  : cfg.records.length === 0
+                  : records.length === 0
                     ? "暂无审核记录"
                     : "当前筛选条件下暂无审核记录"}
               </p>
@@ -211,17 +273,44 @@ export function ReviewServicePage({ product }: Props) {
               <table className="a-table">
                 <thead>
                   <tr>
-                    <th>调用时间</th>
-                    <th>接口</th>
+                    <th>提交时间</th>
+                    <th>流水号</th>
+                    <th>审核类型</th>
                     <th>状态</th>
+                    <th>完成时间</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((row) => (
                     <tr key={row.id}>
-                      <td>{row.calledAt}</td>
+                      <td>{row.submittedAt}</td>
+                      <td>
+                        <span className="a-code-cell">
+                          <button
+                            type="button"
+                            className="a-link-action"
+                            title="复制流水号"
+                            onClick={() => copyTaskId(row.taskId)}
+                          >
+                            {row.taskId}
+                            <IconCopy />
+                          </button>
+                        </span>
+                      </td>
                       <td>{row.apiName}</td>
                       <td>{recordStatusTag(row.status)}</td>
+                      <td>{row.finishedAt ?? "—"}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        <button
+                          type="button"
+                          className="a-link-action"
+                          onClick={() => queryResult(row.taskId, row.status)}
+                        >
+                          <IconEye />
+                          {row.status === "reviewing" ? "查询结果" : "查看结果"}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

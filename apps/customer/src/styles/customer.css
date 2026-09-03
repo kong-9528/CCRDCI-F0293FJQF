@@ -1988,8 +1988,12 @@ body,
 .c-review-quota__fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--p-500), var(--a-500));
+  background: linear-gradient(90deg, var(--p-500), var(--p-400));
   transition: width 0.4s ease;
+}
+
+.c-review-quota__fill.is-over {
+  background: linear-gradient(90deg, #fa8c16, #fa541c);
 }
 
 .c-service-disclaimer {

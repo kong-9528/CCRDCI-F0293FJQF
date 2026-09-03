@@ -156,7 +156,7 @@ export function DashboardTrendChart() {
 }
 
 function chartColor(code: ProductCode): string {
-  if (code === "dci") return "#1890ff";
+  if (code === "dci") return "#0075c1";
   if (code === "info") return "#52c41a";
   return "#ff9c6e";
 }

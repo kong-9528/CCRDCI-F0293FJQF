@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { IconBell, IconFullscreen, IconMenu } from "@/components/icons/UiIcons";
+import { IconBell, IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { EXTERNAL_LOGIN_ACCOUNT, demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
 import { MOCK_TENANT } from "@/lib/tenant";
@@ -36,7 +36,7 @@ export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }
   return (
     <header className="a-header">
       <div className="a-header__brand">
-        <span className="a-header__logo-mark" aria-hidden />
+        <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
         <span className="a-header__logo-text">{PLATFORM_NAME}</span>
         <button
           type="button"
@@ -44,7 +44,7 @@ export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }
           aria-label={collapsed ? "展开侧栏" : "收起侧栏"}
           onClick={onToggleCollapse}
         >
-          <IconMenu />
+          <IconSidebarToggle />
         </button>
       </div>
 
