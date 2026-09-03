@@ -41,10 +41,10 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
-    title: "DCI技术服务平台门户",
+    title: "门户内容管理",
     items: [
-      { to: "/content/portal", label: "门户首页管理", ready: true },
-      { to: "/content/home", label: "门户内容管理", ready: true },
+      { to: "/content/portal", label: "技术服务中心专题管理", ready: true },
+      { to: "/content/home", label: "门户内容管理", ready: true, hidden: true },
       { to: "/content/center", label: "技术服务中心内容管理", ready: true },
     ],
   },
@@ -73,8 +73,9 @@ export function findNavLabel(pathname: string): string {
   if (/^\/content\/guide\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑指南文章";
   if (pathname === "/content/console-help/articles/new") return "新增文章";
   if (/^\/content\/console-help\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";
+  if (pathname === "/content/portal") return "技术服务中心专题管理";
+  if (pathname === "/content/home") return "门户内容管理";
   if (/^\/content\/home\/[^/]+\/edit$/.test(pathname)) return "门户内容编辑";
-  if (pathname === "/content/portal") return "门户首页管理";
   if (pathname === "/content/center") return "技术服务中心内容管理";
   if (pathname === "/system/api-services/new") return "新增接口";
   if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";

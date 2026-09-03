@@ -13,17 +13,53 @@ export const PORTAL_TAB_LABEL: Record<PortalContentTab, string> = {
   audit: "智能辅助审核",
 };
 
-/** 门户首屏焦点主题：对齐 HeroCarousel 文案槽位 + 焦点图 */
+/** 焦点区视觉变体（对齐门户 HeroVisual） */
+export type HeroVariant = "trust" | "verify" | "audit";
+
+export const HERO_VARIANT_LABEL: Record<HeroVariant, string> = {
+  trust: "平台能力",
+  verify: "版权核验",
+  audit: "智能审核",
+};
+
+export const HERO_VARIANTS: HeroVariant[] = ["trust", "verify", "audit"];
+
+/** 版权核验产品视觉 id（对齐 ProductVisual） */
+export type VerifyProductKey = "dci" | "info" | "certificate";
+
+export const VERIFY_PRODUCT_KEYS: VerifyProductKey[] = ["dci", "info", "certificate"];
+
+export const VERIFY_PRODUCT_KEY_LABEL: Record<VerifyProductKey, string> = {
+  dci: "DCI核验",
+  info: "版权登记信息核验",
+  certificate: "版权登记证书核验",
+};
+
+/** 智能辅助审核产品视觉 id */
+export type AuditProductKey = "safety" | "duplicate" | "infringement";
+
+export const AUDIT_PRODUCT_KEYS: AuditProductKey[] = ["safety", "duplicate", "infringement"];
+
+export const AUDIT_PRODUCT_KEY_LABEL: Record<AuditProductKey, string> = {
+  safety: "内容安全审核",
+  duplicate: "作品登记查重",
+  infringement: "疑似侵权审核",
+};
+
+/**
+ * 门户首屏焦点主题
+ * 对齐 HeroCarousel：主标题 / 高亮副标题 / 导语 + 视觉变体
+ */
 export type HeroTheme = {
   id: string;
   /** 运营侧主题名称，便于列表识别 */
   name: string;
   weight: number;
   status: Visibility;
-  /** 演示用：本地预览 Data URL 或空 */
-  imageUrl: string;
-  imageName: string;
-  eyebrow: string;
+  /** 驱动右侧插画与轮播 Tab 默认文案 */
+  variant: HeroVariant;
+  /** 轮播 Tab 文案；空则回退 HERO_VARIANT_LABEL[variant] */
+  tabLabel: string;
   title: string;
   highlight: string;
   lead: string;
@@ -31,24 +67,26 @@ export type HeroTheme = {
   updatedAt: string;
 };
 
-/** 门户产品展示区主题：对齐 ProductShowcase */
+/**
+ * 门户产品展示卡片
+ * 对齐 ProductShowcase：产品标题 + 描述 + 视觉 id
+ */
 export type ShowcaseTheme = {
   id: string;
+  /** 产品视觉键，对齐门户 ProductVisual */
+  productKey: string;
   title: string;
   desc: string;
-  /** 关键词，门户用「 · 」分隔展示为 chips */
-  visual: string;
-  imageUrl: string;
-  imageName: string;
   weight: number;
   status: Visibility;
   maintainer: string;
   updatedAt: string;
 };
 
+/** 板块级：标题 + 导语（门户无 eyebrow） */
 export type ShowcaseSectionMeta = {
-  eyebrow: string;
   heading: string;
+  lead: string;
 };
 
 function nowStamp() {
@@ -65,9 +103,8 @@ let heroThemes: HeroTheme[] = [
     name: "信任主张",
     weight: 10,
     status: "visible",
-    imageUrl: "",
-    imageName: "",
-    eyebrow: "Copyright Infrastructure",
+    variant: "trust",
+    tabLabel: "平台能力",
     title: "以可信数据能力",
     highlight: "护航版权经营",
     lead: "面向内容平台与版权机构，提供版权核验、智能辅助审核与开放 API，让每一次确权与用权都可追溯、可计量。",
@@ -79,9 +116,8 @@ let heroThemes: HeroTheme[] = [
     name: "版权核验",
     weight: 20,
     status: "visible",
-    imageUrl: "",
-    imageName: "",
-    eyebrow: "Copyright Verification",
+    variant: "verify",
+    tabLabel: "版权核验",
     title: "版权核验",
     highlight: "权威可溯",
     lead: "覆盖 DCI 核验、版权登记信息核验与版权登记证书核验，支撑业务接入、交易确权与合规审查。",
@@ -93,10 +129,9 @@ let heroThemes: HeroTheme[] = [
     name: "智能辅助审核",
     weight: 30,
     status: "visible",
-    imageUrl: "",
-    imageName: "",
-    eyebrow: "Intelligent Review",
-    title: "智能辅助审核服务",
+    variant: "audit",
+    tabLabel: "智能审核",
+    title: "智能辅助审核",
     highlight: "提效合规",
     lead: "涵盖内容安全审核、作品登记查重与疑似侵权审核，辅助缩短人工审核链路。",
     maintainer: "运营管理员",
@@ -105,18 +140,16 @@ let heroThemes: HeroTheme[] = [
 ];
 
 let verifyMeta: ShowcaseSectionMeta = {
-  eyebrow: "Copyright Verification",
   heading: "版权核验",
+  lead: "连接权威登记数据，以下三项产品可独立或组合调用，帮助您在业务接入、交易确权与合规审查中快速确认权利信息。",
 };
 
 let verifyThemes: ShowcaseTheme[] = [
   {
     id: "verify-1",
+    productKey: "dci",
     title: "DCI核验",
-    desc: "对接 DCI 登记信息，快速核验作品登记状态与权利信息，为交易、分发与确权提供可信依据。",
-    visual: "登记状态 · 权利主体 · 登记编号",
-    imageUrl: "",
-    imageName: "",
+    desc: "通过 DCI 编码，结合作品名称与著作权人信息，核验 DCI 码是否存在，以及与作品、著作权人是否一致。",
     weight: 10,
     status: "visible",
     maintainer: "运营管理员",
@@ -124,11 +157,9 @@ let verifyThemes: ShowcaseTheme[] = [
   },
   {
     id: "verify-2",
+    productKey: "info",
     title: "版权登记信息核验",
-    desc: "核验作品相关版权基础信息，核对权利归属与关键字段，降低业务侧信息不对称风险。",
-    visual: "作品信息 · 权利核对 · 结果回传",
-    imageUrl: "",
-    imageName: "",
+    desc: "通过版权登记号、作品名称与著作权人信息，核验登记号是否存在、登记类型（软件或作品），以及与软件名称/作品名称、著作权人是否一致。",
     weight: 20,
     status: "visible",
     maintainer: "运营管理员",
@@ -136,11 +167,9 @@ let verifyThemes: ShowcaseTheme[] = [
   },
   {
     id: "verify-3",
+    productKey: "certificate",
     title: "版权登记证书核验",
-    desc: "对版权证书真伪与记载内容进行核验，支持单件与批量场景，结果结构化返回便于系统对接。",
-    visual: "证书核验 · 批量处理 · 结构化结果",
-    imageUrl: "",
-    imageName: "",
+    desc: "上传版权证书文件或图片，核验该证书是否真实准确，支持业务侧快速验真与留档。",
     weight: 30,
     status: "visible",
     maintainer: "运营管理员",
@@ -149,18 +178,16 @@ let verifyThemes: ShowcaseTheme[] = [
 ];
 
 let auditMeta: ShowcaseSectionMeta = {
-  eyebrow: "Intelligent Audit",
   heading: "智能辅助审核",
+  lead: "面向内容运营与登记审核场景，以下三项产品提供智能辅助研判能力，帮助缩短人工审核链路、提升处置效率。",
 };
 
 let auditThemes: ShowcaseTheme[] = [
   {
     id: "audit-1",
+    productKey: "safety",
     title: "内容安全审核",
-    desc: "对文本、图像等内容进行安全合规筛查，帮助运营前置识别违规与高风险素材。",
-    visual: "内容筛查 · 风险标签 · 处置建议",
-    imageUrl: "",
-    imageName: "",
+    desc: "对作品全部登记申请材料进行色情、暴恐、政治敏感等内容安全风险判定参考。",
     weight: 10,
     status: "visible",
     maintainer: "运营管理员",
@@ -168,11 +195,9 @@ let auditThemes: ShowcaseTheme[] = [
   },
   {
     id: "audit-2",
+    productKey: "duplicate",
     title: "作品登记查重",
-    desc: "对照已登记作品库进行查重比对，辅助发现重复登记与高度相似内容，支撑登记前风控。",
-    visual: "相似度 · 比对摘要 · 登记辅助",
-    imageUrl: "",
-    imageName: "",
+    desc: "对作品登记的样本与已登记样本进行对比，识别高度雷同样本。",
     weight: 20,
     status: "visible",
     maintainer: "运营管理员",
@@ -180,11 +205,9 @@ let auditThemes: ShowcaseTheme[] = [
   },
   {
     id: "audit-3",
+    productKey: "infringement",
     title: "疑似侵权审核",
-    desc: "围绕疑似侵权行为提供智能辅助研判与证据线索，便于人工复核与后续处置。",
-    visual: "侵权线索 · 风险等级 · 复核工单",
-    imageUrl: "",
-    imageName: "",
+    desc: "对登记作品样本进行肖像/人声识别，知名人物/商标/作品识别，疑似侵权作品识别。",
     weight: 30,
     status: "visible",
     maintainer: "运营管理员",
@@ -244,9 +267,8 @@ function visibleShowcaseCount(list: ShowcaseTheme[], excludeId?: string) {
 export type HeroThemeInput = {
   name: string;
   weight: number;
-  imageUrl: string;
-  imageName: string;
-  eyebrow: string;
+  variant: HeroVariant;
+  tabLabel: string;
   title: string;
   highlight: string;
   lead: string;
@@ -258,9 +280,10 @@ export function createHeroTheme(input: HeroThemeInput) {
     ...heroThemes,
     {
       id: `hero-${heroSeq}`,
-      ...input,
       name: input.name.trim(),
-      eyebrow: input.eyebrow.trim(),
+      weight: input.weight,
+      variant: input.variant,
+      tabLabel: input.tabLabel.trim(),
       title: input.title.trim(),
       highlight: input.highlight.trim(),
       lead: input.lead.trim(),
@@ -278,9 +301,10 @@ export function updateHeroTheme(id: string, input: HeroThemeInput): string | nul
     t.id === id
       ? {
           ...t,
-          ...input,
           name: input.name.trim(),
-          eyebrow: input.eyebrow.trim(),
+          weight: input.weight,
+          variant: input.variant,
+          tabLabel: input.tabLabel.trim(),
           title: input.title.trim(),
           highlight: input.highlight.trim(),
           lead: input.lead.trim(),
@@ -320,21 +344,19 @@ export function setHeroThemeVisibility(id: string, status: Visibility): string |
 }
 
 export type ShowcaseThemeInput = {
+  productKey: string;
   title: string;
   desc: string;
-  visual: string;
-  imageUrl: string;
-  imageName: string;
   weight: number;
 };
 
 export function updateVerifyMeta(meta: ShowcaseSectionMeta) {
-  verifyMeta = { eyebrow: meta.eyebrow.trim(), heading: meta.heading.trim() };
+  verifyMeta = { heading: meta.heading.trim(), lead: meta.lead.trim() };
   emit();
 }
 
 export function updateAuditMeta(meta: ShowcaseSectionMeta) {
-  auditMeta = { eyebrow: meta.eyebrow.trim(), heading: meta.heading.trim() };
+  auditMeta = { heading: meta.heading.trim(), lead: meta.lead.trim() };
   emit();
 }
 
@@ -344,11 +366,9 @@ export function addVerifyTheme(input: ShowcaseThemeInput) {
     ...verifyThemes,
     {
       id: `verify-${verifySeq}`,
+      productKey: input.productKey.trim(),
       title: input.title.trim(),
       desc: input.desc.trim(),
-      visual: input.visual.trim(),
-      imageUrl: input.imageUrl,
-      imageName: input.imageName,
       weight: input.weight,
       status: "hidden",
       maintainer: "运营管理员",
@@ -364,11 +384,9 @@ export function addAuditTheme(input: ShowcaseThemeInput) {
     ...auditThemes,
     {
       id: `audit-${auditSeq}`,
+      productKey: input.productKey.trim(),
       title: input.title.trim(),
       desc: input.desc.trim(),
-      visual: input.visual.trim(),
-      imageUrl: input.imageUrl,
-      imageName: input.imageName,
       weight: input.weight,
       status: "hidden",
       maintainer: "运营管理员",
@@ -384,11 +402,9 @@ export function updateVerifyTheme(id: string, input: ShowcaseThemeInput): string
     t.id === id
       ? {
           ...t,
+          productKey: input.productKey.trim(),
           title: input.title.trim(),
           desc: input.desc.trim(),
-          visual: input.visual.trim(),
-          imageUrl: input.imageUrl,
-          imageName: input.imageName,
           weight: input.weight,
           maintainer: "运营管理员",
           updatedAt: nowStamp(),
@@ -405,11 +421,9 @@ export function updateAuditTheme(id: string, input: ShowcaseThemeInput): string 
     t.id === id
       ? {
           ...t,
+          productKey: input.productKey.trim(),
           title: input.title.trim(),
           desc: input.desc.trim(),
-          visual: input.visual.trim(),
-          imageUrl: input.imageUrl,
-          imageName: input.imageName,
           weight: input.weight,
           maintainer: "运营管理员",
           updatedAt: nowStamp(),

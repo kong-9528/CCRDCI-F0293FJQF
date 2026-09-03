@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
+  AUDIT_PRODUCT_KEY_LABEL,
+  AUDIT_PRODUCT_KEYS,
+  HERO_VARIANT_LABEL,
+  HERO_VARIANTS,
   PORTAL_TAB_LABEL,
+  VERIFY_PRODUCT_KEY_LABEL,
+  VERIFY_PRODUCT_KEYS,
   VISIBILITY_LABEL,
   usePortalContentStore,
   type HeroTheme,
+  type HeroVariant,
   type PortalContentTab,
   type ShowcaseSectionMeta,
   type ShowcaseTheme,
@@ -14,66 +21,36 @@ import {
 type HeroForm = {
   name: string;
   weight: string;
-  imageUrl: string;
-  imageName: string;
-  eyebrow: string;
+  variant: HeroVariant;
+  tabLabel: string;
   title: string;
   highlight: string;
   lead: string;
 };
 
 type ShowcaseForm = {
+  productKey: string;
   title: string;
   desc: string;
-  visual: string;
-  imageUrl: string;
-  imageName: string;
   weight: string;
 };
 
 const EMPTY_HERO: HeroForm = {
   name: "",
   weight: "10",
-  imageUrl: "",
-  imageName: "",
-  eyebrow: "",
+  variant: "trust",
+  tabLabel: "",
   title: "",
   highlight: "",
   lead: "",
 };
 
 const EMPTY_SHOWCASE: ShowcaseForm = {
+  productKey: "",
   title: "",
   desc: "",
-  visual: "",
-  imageUrl: "",
-  imageName: "",
   weight: "10",
 };
-
-function readImageFile(file: File): Promise<{ url: string; name: string }> {
-  return new Promise((resolve, reject) => {
-    if (!file.type.startsWith("image/")) {
-      reject(new Error("请上传图片文件"));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => resolve({ url: String(reader.result), name: file.name });
-    reader.onerror = () => reject(new Error("图片读取失败"));
-    reader.readAsDataURL(file);
-  });
-}
-
-function ImageThumb({ url, name }: { url: string; name: string }) {
-  if (!url) {
-    return <span className="a-img-thumb a-img-thumb--empty">未上传</span>;
-  }
-  return (
-    <span className="a-img-thumb" title={name || "焦点图"}>
-      <img src={url} alt="" />
-    </span>
-  );
-}
 
 export function PortalContentPage() {
   const store = usePortalContentStore();
@@ -152,9 +129,8 @@ function HeroPanel({
     setForm({
       name: row.name,
       weight: String(row.weight),
-      imageUrl: row.imageUrl,
-      imageName: row.imageName,
-      eyebrow: row.eyebrow,
+      variant: row.variant,
+      tabLabel: row.tabLabel,
       title: row.title,
       highlight: row.highlight,
       lead: row.lead,
@@ -166,10 +142,6 @@ function HeroPanel({
   const submit = () => {
     if (!form.name.trim()) {
       setError("请填写主题名称");
-      return;
-    }
-    if (!form.eyebrow.trim()) {
-      setError("请填写眉题（Eyebrow）");
       return;
     }
     if (!form.title.trim()) {
@@ -192,9 +164,8 @@ function HeroPanel({
     const payload = {
       name: form.name,
       weight,
-      imageUrl: form.imageUrl,
-      imageName: form.imageName,
-      eyebrow: form.eyebrow,
+      variant: form.variant,
+      tabLabel: form.tabLabel,
       title: form.title,
       highlight: form.highlight,
       lead: form.lead,
@@ -210,17 +181,6 @@ function HeroPanel({
     setDialog(null);
   };
 
-  const onPickImage = async (fileList: FileList | null) => {
-    const file = fileList?.[0];
-    if (!file) return;
-    try {
-      const { url, name } = await readImageFile(file);
-      setForm((p) => ({ ...p, imageUrl: url, imageName: name }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "图片上传失败");
-    }
-  };
-
   return (
     <>
       <div className="a-toolbar">
@@ -228,7 +188,7 @@ function HeroPanel({
           新增主题
         </button>
         <div className="a-field__hint" style={{ margin: 0 }}>
-          对应门户首页焦点区轮播。权重越小越靠前；至少保留{" "}
+          对应门户首页焦点区轮播。右侧为内置插画（按视觉变体切换），无需上传背景图。至少保留{" "}
           <b>1</b> 个「展示中」主题（当前 {visibleCount} 个）。
         </div>
       </div>
@@ -239,8 +199,9 @@ function HeroPanel({
             <tr>
               <th style={{ width: 72 }}>权重</th>
               <th>主题名称</th>
-              <th style={{ width: 88 }}>焦点图</th>
+              <th style={{ width: 100 }}>视觉变体</th>
               <th>主标题 / 高亮</th>
+              <th style={{ width: 100 }}>Tab 文案</th>
               <th style={{ width: 88 }}>状态</th>
               <th style={{ width: 150 }}>更新时间</th>
               <th style={{ width: 200 }}>操作</th>
@@ -249,7 +210,7 @@ function HeroPanel({
           <tbody>
             {store.heroThemes.length === 0 ? (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={8}>
                   <div className="a-empty">暂无焦点主题</div>
                 </td>
               </tr>
@@ -258,15 +219,14 @@ function HeroPanel({
                 <tr key={row.id}>
                   <td className="num">{row.weight}</td>
                   <td>{row.name}</td>
-                  <td>
-                    <ImageThumb url={row.imageUrl} name={row.imageName} />
-                  </td>
+                  <td>{HERO_VARIANT_LABEL[row.variant]}</td>
                   <td>
                     <div className="a-cell-stack">
                       <span>{row.title}</span>
                       <span className="a-muted">{row.highlight}</span>
                     </div>
                   </td>
+                  <td>{row.tabLabel || HERO_VARIANT_LABEL[row.variant]}</td>
                   <td>
                     <span
                       className={`a-tag ${
@@ -321,8 +281,7 @@ function HeroPanel({
               {dialog === "create" ? "新增焦点主题" : "编辑焦点主题"}
             </h3>
             <p className="a-modal__desc">
-              文案槽位对齐门户首屏：眉题 → 主标题 → 高亮副标题（渐变行）→ 导语；焦点图建议
-              1920×1080 横图，作为主题背景使用。
+              对齐门户首屏：主标题 → 高亮副标题（渐变行）→ 导语；视觉变体决定右侧插画与默认 Tab 文案。
             </p>
             <div className="a-form a-form--stack">
               <div className="a-field">
@@ -348,46 +307,36 @@ function HeroPanel({
                 <div className="a-field__hint">数值越小，轮播中越靠前</div>
               </div>
               <div className="a-field">
-                <span className="a-field__label">焦点图片</span>
-                <div className="a-inline-actions">
-                  <label className="a-btn a-btn--sm">
-                    上传图片
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(e) => {
-                        void onPickImage(e.target.files);
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
-                  {form.imageUrl ? (
-                    <button
-                      type="button"
-                      className="a-btn a-btn--sm"
-                      onClick={() => setForm((p) => ({ ...p, imageUrl: "", imageName: "" }))}
-                    >
-                      清除
-                    </button>
-                  ) : null}
-                  <span className="a-muted">{form.imageName || "未选择文件"}</span>
-                </div>
-                {form.imageUrl ? (
-                  <div className="a-img-preview">
-                    <img src={form.imageUrl} alt="焦点图预览" />
-                  </div>
-                ) : null}
+                <span className="a-field__label">
+                  视觉变体 <span className="a-req">*</span>
+                </span>
+                <select
+                  className="a-select"
+                  value={form.variant}
+                  onChange={(e) => {
+                    const variant = e.target.value as HeroVariant;
+                    setForm((p) => ({
+                      ...p,
+                      variant,
+                      tabLabel: p.tabLabel || HERO_VARIANT_LABEL[variant],
+                    }));
+                  }}
+                >
+                  {HERO_VARIANTS.map((v) => (
+                    <option key={v} value={v}>
+                      {HERO_VARIANT_LABEL[v]}（{v}）
+                    </option>
+                  ))}
+                </select>
+                <div className="a-field__hint">对应门户右侧插画：trust / verify / audit</div>
               </div>
               <div className="a-field">
-                <span className="a-field__label">
-                  眉题 Eyebrow <span className="a-req">*</span>
-                </span>
+                <span className="a-field__label">轮播 Tab 文案</span>
                 <input
                   className="a-input"
-                  placeholder="如 Copyright Infrastructure"
-                  value={form.eyebrow}
-                  onChange={(e) => setForm((p) => ({ ...p, eyebrow: e.target.value }))}
+                  placeholder={`默认：${HERO_VARIANT_LABEL[form.variant]}`}
+                  value={form.tabLabel}
+                  onChange={(e) => setForm((p) => ({ ...p, tabLabel: e.target.value }))}
                 />
               </div>
               <div className="a-field">
@@ -396,7 +345,7 @@ function HeroPanel({
                 </span>
                 <input
                   className="a-input"
-                  placeholder="h1 第一行（白色）"
+                  placeholder="h1 第一行"
                   value={form.title}
                   onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
                 />
@@ -502,14 +451,25 @@ function ShowcasePanel({
   const [confirmVis, setConfirmVis] = useState<ShowcaseTheme | null>(null);
 
   const visibleCount = themes.filter((t) => t.status === "visible").length;
+  const productKeys = kind === "verify" ? VERIFY_PRODUCT_KEYS : AUDIT_PRODUCT_KEYS;
+
+  const labelOf = (key: string) => {
+    if (kind === "verify") {
+      return VERIFY_PRODUCT_KEY_LABEL[key as keyof typeof VERIFY_PRODUCT_KEY_LABEL] ?? key;
+    }
+    return AUDIT_PRODUCT_KEY_LABEL[key as keyof typeof AUDIT_PRODUCT_KEY_LABEL] ?? key;
+  };
 
   useEffect(() => {
     setSection(meta);
-  }, [kind, meta.eyebrow, meta.heading]);
+  }, [kind, meta.heading, meta.lead]);
 
   const openCreate = () => {
     setEditing(null);
-    setForm(EMPTY_SHOWCASE);
+    setForm({
+      ...EMPTY_SHOWCASE,
+      productKey: productKeys[0],
+    });
     setError(null);
     setDialog("create");
   };
@@ -517,11 +477,9 @@ function ShowcasePanel({
   const openEdit = (row: ShowcaseTheme) => {
     setEditing(row);
     setForm({
+      productKey: row.productKey,
       title: row.title,
       desc: row.desc,
-      visual: row.visual,
-      imageUrl: row.imageUrl,
-      imageName: row.imageName,
       weight: String(row.weight),
     });
     setError(null);
@@ -529,8 +487,12 @@ function ShowcasePanel({
   };
 
   const saveSection = () => {
-    if (!section.eyebrow.trim() || !section.heading.trim()) {
-      onToast("请填写板块眉题与标题");
+    if (!section.heading.trim()) {
+      onToast("请填写板块标题");
+      return;
+    }
+    if (!section.lead.trim()) {
+      onToast("请填写板块导语");
       return;
     }
     if (kind === "verify") store.updateVerifyMeta(section);
@@ -539,16 +501,16 @@ function ShowcasePanel({
   };
 
   const submit = () => {
+    if (!form.productKey.trim()) {
+      setError("请选择产品视觉");
+      return;
+    }
     if (!form.title.trim()) {
-      setError("请填写主题标题");
+      setError("请填写产品标题");
       return;
     }
     if (!form.desc.trim()) {
-      setError("请填写主题描述");
-      return;
-    }
-    if (!form.visual.trim()) {
-      setError("请填写视觉关键词");
+      setError("请填写产品描述");
       return;
     }
     const weight = Number(form.weight);
@@ -557,11 +519,9 @@ function ShowcasePanel({
       return;
     }
     const payload = {
+      productKey: form.productKey,
       title: form.title,
       desc: form.desc,
-      visual: form.visual,
-      imageUrl: form.imageUrl,
-      imageName: form.imageName,
       weight,
     };
     if (dialog === "create") {
@@ -580,29 +540,10 @@ function ShowcasePanel({
     setDialog(null);
   };
 
-  const onPickImage = async (fileList: FileList | null) => {
-    const file = fileList?.[0];
-    if (!file) return;
-    try {
-      const { url, name } = await readImageFile(file);
-      setForm((p) => ({ ...p, imageUrl: url, imageName: name }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "图片上传失败");
-    }
-  };
-
   return (
     <>
       <div className="a-portal-section-meta">
-        <div className="a-form a-form--grid">
-          <div className="a-field">
-            <span className="a-field__label">板块眉题</span>
-            <input
-              className="a-input"
-              value={section.eyebrow}
-              onChange={(e) => setSection((p) => ({ ...p, eyebrow: e.target.value }))}
-            />
-          </div>
+        <div className="a-form a-form--stack" style={{ flex: 1 }}>
           <div className="a-field">
             <span className="a-field__label">板块标题</span>
             <input
@@ -610,6 +551,16 @@ function ShowcasePanel({
               value={section.heading}
               onChange={(e) => setSection((p) => ({ ...p, heading: e.target.value }))}
             />
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">板块导语</span>
+            <textarea
+              className="a-textarea"
+              rows={2}
+              value={section.lead}
+              onChange={(e) => setSection((p) => ({ ...p, lead: e.target.value }))}
+            />
+            <div className="a-field__hint">对应门户首页板块标题下方的说明文案</div>
           </div>
         </div>
         <button type="button" className="a-btn a-btn--sm" onClick={saveSection}>
@@ -619,11 +570,11 @@ function ShowcasePanel({
 
       <div className="a-toolbar">
         <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
-          新增主题
+          新增产品
         </button>
         <div className="a-field__hint" style={{ margin: 0 }}>
-          对应门户首页产品展示轮播。权重越小越靠前；至少保留 <b>1</b> 个展示中主题（当前{" "}
-          {visibleCount} 个）。
+          对应门户首页产品卡片。卡片配图由「产品视觉」内置插画决定，无需上传。至少保留{" "}
+          <b>1</b> 个展示中产品（当前 {visibleCount} 个）。
         </div>
       </div>
 
@@ -632,10 +583,9 @@ function ShowcasePanel({
           <thead>
             <tr>
               <th style={{ width: 72 }}>权重</th>
-              <th>主题标题</th>
+              <th style={{ width: 120 }}>产品视觉</th>
+              <th>产品标题</th>
               <th>描述</th>
-              <th>关键词</th>
-              <th style={{ width: 88 }}>配图</th>
               <th style={{ width: 88 }}>状态</th>
               <th style={{ width: 200 }}>操作</th>
             </tr>
@@ -643,20 +593,17 @@ function ShowcasePanel({
           <tbody>
             {themes.length === 0 ? (
               <tr>
-                <td colSpan={7}>
-                  <div className="a-empty">暂无主题</div>
+                <td colSpan={6}>
+                  <div className="a-empty">暂无产品</div>
                 </td>
               </tr>
             ) : (
               themes.map((row) => (
                 <tr key={row.id}>
                   <td className="num">{row.weight}</td>
+                  <td>{labelOf(row.productKey)}</td>
                   <td>{row.title}</td>
                   <td className="a-cell-clamp a-cell-clamp--wide">{row.desc}</td>
-                  <td className="a-cell-clamp">{row.visual}</td>
-                  <td>
-                    <ImageThumb url={row.imageUrl} name={row.imageName} />
-                  </td>
                   <td>
                     <span
                       className={`a-tag ${
@@ -707,15 +654,38 @@ function ShowcasePanel({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="a-modal__title">
-              {dialog === "create" ? "新增展示主题" : "编辑展示主题"}
+              {dialog === "create" ? "新增产品" : "编辑产品"}
             </h3>
             <p className="a-modal__desc">
-              对齐门户产品展示区：标题、描述、关键词（用「 · 」分隔）及可选配图。
+              对齐门户产品展示卡片：产品视觉（内置插画）→ 标题 → 描述。
             </p>
             <div className="a-form a-form--stack">
               <div className="a-field">
                 <span className="a-field__label">
-                  主题标题 <span className="a-req">*</span>
+                  产品视觉 <span className="a-req">*</span>
+                </span>
+                <select
+                  className="a-select"
+                  value={form.productKey}
+                  onChange={(e) => {
+                    const key = e.target.value;
+                    setForm((p) => ({
+                      ...p,
+                      productKey: key,
+                      title: p.title || labelOf(key),
+                    }));
+                  }}
+                >
+                  {productKeys.map((k) => (
+                    <option key={k} value={k}>
+                      {labelOf(k)}（{k}）
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="a-field">
+                <span className="a-field__label">
+                  产品标题 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
@@ -735,58 +705,14 @@ function ShowcasePanel({
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  主题描述 <span className="a-req">*</span>
+                  产品描述 <span className="a-req">*</span>
                 </span>
                 <textarea
                   className="a-textarea"
-                  rows={3}
+                  rows={4}
                   value={form.desc}
                   onChange={(e) => setForm((p) => ({ ...p, desc: e.target.value }))}
                 />
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">
-                  视觉关键词 <span className="a-req">*</span>
-                </span>
-                <input
-                  className="a-input"
-                  placeholder="如：登记状态 · 权利主体 · 登记编号"
-                  value={form.visual}
-                  onChange={(e) => setForm((p) => ({ ...p, visual: e.target.value }))}
-                />
-                <div className="a-field__hint">建议用「 · 」分隔，门户将展示为标签</div>
-              </div>
-              <div className="a-field">
-                <span className="a-field__label">配图（可选）</span>
-                <div className="a-inline-actions">
-                  <label className="a-btn a-btn--sm">
-                    上传图片
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={(e) => {
-                        void onPickImage(e.target.files);
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
-                  {form.imageUrl ? (
-                    <button
-                      type="button"
-                      className="a-btn a-btn--sm"
-                      onClick={() => setForm((p) => ({ ...p, imageUrl: "", imageName: "" }))}
-                    >
-                      清除
-                    </button>
-                  ) : null}
-                  <span className="a-muted">{form.imageName || "未选择文件"}</span>
-                </div>
-                {form.imageUrl ? (
-                  <div className="a-img-preview">
-                    <img src={form.imageUrl} alt="配图预览" />
-                  </div>
-                ) : null}
               </div>
               {error ? <div className="a-form-error">{error}</div> : null}
             </div>
@@ -804,9 +730,9 @@ function ShowcasePanel({
 
       <ConfirmDialog
         open={Boolean(confirmDelete)}
-        title="确认删除主题"
+        title="确认删除产品"
         description={
-          confirmDelete ? `确定删除主题「${confirmDelete.title}」吗？删除后不可恢复。` : ""
+          confirmDelete ? `确定删除产品「${confirmDelete.title}」吗？删除后不可恢复。` : ""
         }
         confirmText="删除"
         danger
@@ -824,10 +750,10 @@ function ShowcasePanel({
 
       <ConfirmDialog
         open={Boolean(confirmVis)}
-        title={confirmVis?.status === "visible" ? "确认隐藏主题" : "确认展示主题"}
+        title={confirmVis?.status === "visible" ? "确认隐藏产品" : "确认展示产品"}
         description={
           confirmVis?.status === "visible"
-            ? `隐藏后该主题将不再出现在门户轮播中。确定隐藏「${confirmVis.title}」吗？`
+            ? `隐藏后该产品将不再出现在门户首页。确定隐藏「${confirmVis.title}」吗？`
             : `确定将「${confirmVis?.title ?? ""}」设为展示中吗？`
         }
         confirmText={confirmVis?.status === "visible" ? "隐藏" : "显示"}

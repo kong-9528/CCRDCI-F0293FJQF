@@ -132,11 +132,11 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "content",
-    label: "DCI技术服务平台门户",
+    label: "门户内容管理",
     children: [
       {
         id: "content.portal",
-        label: "门户首页管理页",
+        label: "技术服务中心专题管理",
         children: [
           { id: "content.portal.create", label: "新增主题按钮" },
           { id: "content.portal.edit", label: "编辑按钮" },
