@@ -2,10 +2,12 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
 const ADMIN_LINKS = [
+  { to: "/admin/org", label: "组织结构", perm: "sso.org" },
   { to: "/admin/users", label: "用户管理", perm: "sso.users" },
   { to: "/admin/roles", label: "角色管理", perm: "sso.roles" },
   { to: "/admin/permissions", label: "权限目录", perm: "sso.perms" },
   { to: "/admin/subsystems", label: "子系统管理", perm: "sso.subsystems" },
+  { to: "/admin/apis", label: "接口管理", perm: "sso.apis" },
 ] as const;
 
 export function AppLayout() {
@@ -21,8 +23,7 @@ export function AppLayout() {
           <Link to="/" className="sso-brand">
             <span className="sso-brand__mark" aria-hidden />
             <span>
-              <strong>集团统一身份认证</strong>
-              <em>SSO</em>
+              <strong>用户统一认证系统</strong>
             </span>
           </Link>
           <nav className="sso-header__nav" aria-label="主导航">

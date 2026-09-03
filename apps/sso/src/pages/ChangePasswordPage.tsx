@@ -41,11 +41,10 @@ function ChangePasswordForm() {
 
   return (
     <div className="sso-narrow">
-      <header className="sso-page-head">
-        <div>
-          <p className="sso-eyebrow">Account</p>
-          <h1 className="sso-h1">修改密码</h1>
-          <p className="sso-lead">使用原密码校验后即可更新，无需短信或邮箱二次验证。</p>
+      <header className="sso-list-head">
+        <div className="sso-list-head__main">
+          <h1 className="sso-list-title">修改密码</h1>
+          <p className="sso-list-desc">使用原密码校验后即可更新，无需短信或邮箱二次验证。</p>
         </div>
       </header>
       <div className="sso-card">

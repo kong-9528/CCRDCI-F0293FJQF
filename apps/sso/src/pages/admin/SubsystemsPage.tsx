@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ListPageHeader } from "@/components/ListPageHeader";
+import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
@@ -9,6 +11,7 @@ import {
   type EntityStatus,
   type Subsystem,
 } from "@/lib/rbacStore";
+import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
 export function SubsystemsPage() {
@@ -23,23 +26,23 @@ function SubsystemsPageInner() {
   useRbacTick();
   const { can } = useAuth();
   const systems = listSubsystems(true);
+  const pager = useClientPagination(systems);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Subsystem | null>(null);
 
   return (
     <div className="sso-admin">
-      <header className="sso-page-head sso-page-head--row">
-        <div>
-          <p className="sso-eyebrow">RBAC</p>
-          <h1 className="sso-h1">子系统管理</h1>
-          <p className="sso-lead">维护可接入的业务系统清单与入口地址。</p>
-        </div>
-        {can("sso.subsystems.write") ? (
-          <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-            新增子系统
-          </button>
-        ) : null}
-      </header>
+      <ListPageHeader
+        title="子系统管理"
+        description="维护可接入的业务系统清单与入口地址。"
+        actions={
+          can("sso.subsystems.write") ? (
+            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
+              新增子系统
+            </button>
+          ) : null
+        }
+      />
 
       <div className="sso-card sso-card--flush">
         <table className="sso-table">
@@ -54,7 +57,7 @@ function SubsystemsPageInner() {
             </tr>
           </thead>
           <tbody>
-            {systems.map((s) => (
+            {pager.pageItems.map((s) => (
               <tr key={s.id}>
                 <td>
                   <code>{s.code}</code>
@@ -81,8 +84,24 @@ function SubsystemsPageInner() {
                 </td>
               </tr>
             ))}
+            {!pager.total ? (
+              <tr>
+                <td colSpan={6}>
+                  <div className="sso-empty">暂无子系统</div>
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
+        <SsoPagination
+          page={pager.page}
+          pageSize={pager.pageSize}
+          total={pager.total}
+          totalPages={pager.totalPages}
+          pageSizes={pager.pageSizes}
+          onPageChange={pager.setPage}
+          onPageSizeChange={pager.setPageSize}
+        />
       </div>
 
       {creating ? <SysDialog mode="create" onClose={() => setCreating(false)} /> : null}
@@ -107,7 +126,7 @@ function SysDialog({
   const [name, setName] = useState(system?.name ?? "");
   const [description, setDescription] = useState(system?.description ?? "");
   const [entryUrl, setEntryUrl] = useState(system?.entryUrl ?? "");
-  const [accent, setAccent] = useState(system?.accent ?? "#0B62B8");
+  const [accent, setAccent] = useState(system?.accent ?? "#0f3786");
   const [sort, setSort] = useState(String(system?.sort ?? 50));
   const [status, setStatus] = useState<EntityStatus>(system?.status ?? "active");
   const [error, setError] = useState("");

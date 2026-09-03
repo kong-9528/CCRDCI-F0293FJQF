@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { ListPageHeader } from "@/components/ListPageHeader";
+import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
@@ -11,6 +13,7 @@ import {
   type EntityStatus,
   type Role,
 } from "@/lib/rbacStore";
+import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
 export function RolesPage() {
@@ -25,23 +28,23 @@ function RolesPageInner() {
   useRbacTick();
   const { can } = useAuth();
   const roles = listRoles();
+  const pager = useClientPagination(roles);
   const [editing, setEditing] = useState<Role | null>(null);
   const [creating, setCreating] = useState(false);
 
   return (
     <div className="sso-admin">
-      <header className="sso-page-head sso-page-head--row">
-        <div>
-          <p className="sso-eyebrow">RBAC</p>
-          <h1 className="sso-h1">角色管理</h1>
-          <p className="sso-lead">角色归属单一子系统；用户通过绑定多角色获得多系统权限。</p>
-        </div>
-        {can("sso.roles.write") ? (
-          <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-            新增角色
-          </button>
-        ) : null}
-      </header>
+      <ListPageHeader
+        title="角色管理"
+        description="角色归属单一子系统；用户通过绑定多角色获得多系统权限。"
+        actions={
+          can("sso.roles.write") ? (
+            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
+              新增角色
+            </button>
+          ) : null
+        }
+      />
 
       <div className="sso-card sso-card--flush">
         <table className="sso-table">
@@ -56,7 +59,7 @@ function RolesPageInner() {
             </tr>
           </thead>
           <tbody>
-            {roles.map((r) => (
+            {pager.pageItems.map((r) => (
               <tr key={r.id}>
                 <td>
                   <code>{r.code}</code>
@@ -80,8 +83,24 @@ function RolesPageInner() {
                 </td>
               </tr>
             ))}
+            {!pager.total ? (
+              <tr>
+                <td colSpan={6}>
+                  <div className="sso-empty">暂无角色</div>
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
+        <SsoPagination
+          page={pager.page}
+          pageSize={pager.pageSize}
+          total={pager.total}
+          totalPages={pager.totalPages}
+          pageSizes={pager.pageSizes}
+          onPageChange={pager.setPage}
+          onPageSizeChange={pager.setPageSize}
+        />
       </div>
 
       {creating ? <RoleDialog mode="create" onClose={() => setCreating(false)} /> : null}

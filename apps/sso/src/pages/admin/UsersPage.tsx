@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
+import { ListPageHeader } from "@/components/ListPageHeader";
+import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
+  getOrgPathLabel,
   getSubsystem,
   getUserSubsystems,
   listRoles,
   listUsers,
 } from "@/lib/rbacStore";
+import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
 export function UsersPage() {
@@ -22,23 +26,21 @@ function UsersPageInner() {
   const { can } = useAuth();
   const users = listUsers();
   const roles = listRoles();
+  const pager = useClientPagination(users);
 
   return (
     <div className="sso-admin">
-      <header className="sso-page-head sso-page-head--row">
-        <div>
-          <p className="sso-eyebrow">RBAC</p>
-          <h1 className="sso-h1">用户管理</h1>
-          <p className="sso-lead">
-            SSO 用户名全局唯一。可为同一用户绑定多个子系统下的角色，实现跨系统权限开通。
-          </p>
-        </div>
-        {can("sso.users.write") ? (
-          <Link to="/admin/users/new" className="sso-btn sso-btn--primary">
-            新增用户
-          </Link>
-        ) : null}
-      </header>
+      <ListPageHeader
+        title="用户管理"
+        description="用户名全局唯一。可为同一用户绑定多个子系统下的角色，实现跨系统权限开通。"
+        actions={
+          can("sso.users.write") ? (
+            <Link to="/admin/users/new" className="sso-btn sso-btn--primary">
+              新增用户
+            </Link>
+          ) : null
+        }
+      />
 
       <div className="sso-card sso-card--flush">
         <table className="sso-table">
@@ -46,6 +48,7 @@ function UsersPageInner() {
             <tr>
               <th>用户名</th>
               <th>显示名</th>
+              <th>所属组织</th>
               <th>状态</th>
               <th>已开通子系统</th>
               <th>角色数</th>
@@ -53,7 +56,7 @@ function UsersPageInner() {
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => {
+            {pager.pageItems.map((u) => {
               const sys = getUserSubsystems(u);
               return (
                 <tr key={u.id}>
@@ -61,19 +64,16 @@ function UsersPageInner() {
                     <code>{u.username}</code>
                   </td>
                   <td>{u.displayName}</td>
+                  <td className="sso-cell-ellipsis" title={getOrgPathLabel(u.orgUnitId)}>
+                    {getOrgPathLabel(u.orgUnitId)}
+                  </td>
                   <td>
                     <span className={`sso-tag${u.status === "active" ? " is-ok" : ""}`}>
                       {u.status === "active" ? "启用" : "停用"}
                     </span>
                   </td>
-                  <td>
-                    {sys.length
-                      ? sys.map((s) => s.name).join("、")
-                      : "—"}
-                  </td>
-                  <td>
-                    {u.roleIds.filter((id) => roles.some((r) => r.id === id)).length}
-                  </td>
+                  <td>{sys.length ? sys.map((s) => s.name).join("、") : "—"}</td>
+                  <td>{u.roleIds.filter((id) => roles.some((r) => r.id === id)).length}</td>
                   <td>
                     {can("sso.users.write") ? (
                       <Link to={`/admin/users/${u.id}`} className="sso-text-link">
@@ -86,8 +86,24 @@ function UsersPageInner() {
                 </tr>
               );
             })}
+            {!pager.total ? (
+              <tr>
+                <td colSpan={7}>
+                  <div className="sso-empty">暂无用户</div>
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
+        <SsoPagination
+          page={pager.page}
+          pageSize={pager.pageSize}
+          total={pager.total}
+          totalPages={pager.totalPages}
+          pageSizes={pager.pageSizes}
+          onPageChange={pager.setPage}
+          onPageSizeChange={pager.setPageSize}
+        />
       </div>
     </div>
   );

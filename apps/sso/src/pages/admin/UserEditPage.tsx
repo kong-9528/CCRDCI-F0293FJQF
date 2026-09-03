@@ -4,7 +4,9 @@ import { RequirePerm } from "@/components/RequireAuth";
 import {
   SSO_SUBSYSTEM_ID,
   createUser,
+  getOrgPathLabel,
   getUser,
+  listOrgUnits,
   listRoles,
   listSubsystems,
   updateUser,
@@ -32,10 +34,12 @@ function UserEditInner() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<EntityStatus>(existing?.status ?? "active");
   const [roleIds, setRoleIds] = useState<string[]>(existing?.roleIds ?? ["r-sso-user"]);
+  const [orgUnitId, setOrgUnitId] = useState(existing?.orgUnitId ?? "");
   const [error, setError] = useState("");
 
   const subsystems = listSubsystems(true);
   const roles = listRoles();
+  const orgs = listOrgUnits().filter((o) => o.status === "active");
 
   const rolesBySys = useMemo(() => {
     const map = new Map<string, typeof roles>();
@@ -72,6 +76,7 @@ function UserEditInner() {
         password,
         roleIds,
         status,
+        orgUnitId: orgUnitId || null,
       });
       if (!result.ok) {
         setError(result.message);
@@ -83,6 +88,7 @@ function UserEditInner() {
         roleIds,
         status,
         password: password || undefined,
+        orgUnitId: orgUnitId || null,
       });
       if (!result.ok) {
         setError(result.message);
@@ -94,11 +100,10 @@ function UserEditInner() {
 
   return (
     <div className="sso-narrow sso-narrow--wide">
-      <header className="sso-page-head">
-        <div>
-          <p className="sso-eyebrow">Users</p>
-          <h1 className="sso-h1">{isCreate ? "新增用户" : "编辑用户"}</h1>
-          <p className="sso-lead">勾选各子系统角色即可开通对应系统入口与权限。</p>
+      <header className="sso-list-head">
+        <div className="sso-list-head__main">
+          <h1 className="sso-list-title">{isCreate ? "新增用户" : "编辑用户"}</h1>
+          <p className="sso-list-desc">勾选各子系统角色即可开通对应系统入口与权限。</p>
         </div>
       </header>
 
@@ -158,6 +163,22 @@ function UserEditInner() {
             >
               <option value="active">启用</option>
               <option value="disabled">停用</option>
+            </select>
+          </div>
+          <div className="sso-field sso-form-grid__span">
+            <label htmlFor="u-org">所属组织</label>
+            <select
+              id="u-org"
+              className="sso-select"
+              value={orgUnitId}
+              onChange={(e) => setOrgUnitId(e.target.value)}
+            >
+              <option value="">未分配</option>
+              {orgs.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {getOrgPathLabel(o.id)}
+                </option>
+              ))}
             </select>
           </div>
         </div>

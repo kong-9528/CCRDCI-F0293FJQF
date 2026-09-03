@@ -1,3 +1,4 @@
+import { ListPageHeader } from "@/components/ListPageHeader";
 import { useAuth } from "@/lib/auth";
 import { listRoles } from "@/lib/rbacStore";
 
@@ -25,16 +26,10 @@ export function LauncherPage() {
 
   return (
     <div className="sso-launcher">
-      <header className="sso-page-head">
-        <div>
-          <p className="sso-eyebrow">Application portal</p>
-          <h1 className="sso-h1">
-            你好，{user?.displayName}
-            <span>已为你开通 {subsystems.length} 个业务系统</span>
-          </h1>
-          <p className="sso-lead">点击卡片进入对应子系统。权限由 SSO 统一用户名下的多系统角色决定。</p>
-        </div>
-      </header>
+      <ListPageHeader
+        title={`你好，${user?.displayName ?? ""}`}
+        description={`已开通 ${subsystems.length} 个业务系统。点击卡片进入对应子系统，权限由统一账号下的多系统角色决定。`}
+      />
 
       {subsystems.length === 0 ? (
         <div className="sso-card">
@@ -53,9 +48,6 @@ export function LauncherPage() {
                 rel="noopener noreferrer"
                 style={{ ["--sso-accent" as string]: sys.accent }}
               >
-                <div className="sso-app-card__icon" aria-hidden>
-                  {sys.name.slice(0, 1)}
-                </div>
                 <div className="sso-app-card__body">
                   <h2>{sys.name}</h2>
                   <p>{sys.description}</p>
