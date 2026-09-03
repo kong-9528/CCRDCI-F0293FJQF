@@ -4,8 +4,10 @@ import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
+  formatRoleBindingSummary,
   getOrgPathLabel,
   getSubsystem,
+  getUserRoleIds,
   getUserSubsystems,
   listRoles,
   listUsers,
@@ -25,14 +27,13 @@ function UsersPageInner() {
   useRbacTick();
   const { can } = useAuth();
   const users = listUsers();
-  const roles = listRoles();
   const pager = useClientPagination(users);
 
   return (
     <div className="sso-admin">
       <ListPageHeader
         title="用户管理"
-        description="用户名全局唯一。可为同一用户绑定多个子系统下的角色，实现跨系统权限开通。"
+        description="用户名全局唯一。每位用户有唯一归属部门，并为每个角色配置履职部门（可多部门）。"
         actions={
           can("sso.users.write") ? (
             <Link to="/admin/users/new" className="sso-btn sso-btn--primary">
@@ -48,16 +49,17 @@ function UsersPageInner() {
             <tr>
               <th>用户名</th>
               <th>显示名</th>
-              <th>所属组织</th>
+              <th>归属部门</th>
+              <th>角色履职</th>
               <th>状态</th>
               <th>已开通子系统</th>
-              <th>角色数</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {pager.pageItems.map((u) => {
               const sys = getUserSubsystems(u);
+              const roleTip = u.roleBindings.map(formatRoleBindingSummary).join("\n");
               return (
                 <tr key={u.id}>
                   <td>
@@ -67,13 +69,19 @@ function UsersPageInner() {
                   <td className="sso-cell-ellipsis" title={getOrgPathLabel(u.orgUnitId)}>
                     {getOrgPathLabel(u.orgUnitId)}
                   </td>
+                  <td className="sso-cell-ellipsis" title={roleTip}>
+                    {u.roleBindings.length
+                      ? `${getUserRoleIds(u).length} 个角色 · ${formatRoleBindingSummary(u.roleBindings[0])}${
+                          u.roleBindings.length > 1 ? " 等" : ""
+                        }`
+                      : "—"}
+                  </td>
                   <td>
                     <span className={`sso-tag${u.status === "active" ? " is-ok" : ""}`}>
                       {u.status === "active" ? "启用" : "停用"}
                     </span>
                   </td>
                   <td>{sys.length ? sys.map((s) => s.name).join("、") : "—"}</td>
-                  <td>{u.roleIds.filter((id) => roles.some((r) => r.id === id)).length}</td>
                   <td>
                     {can("sso.users.write") ? (
                       <Link to={`/admin/users/${u.id}`} className="sso-text-link">

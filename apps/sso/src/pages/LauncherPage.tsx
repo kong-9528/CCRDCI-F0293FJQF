@@ -1,6 +1,6 @@
 import { ListPageHeader } from "@/components/ListPageHeader";
 import { useAuth } from "@/lib/auth";
-import { listRoles } from "@/lib/rbacStore";
+import { getRole, getUserRoleIds } from "@/lib/rbacStore";
 
 export function LauncherPage() {
   const { user, subsystems, can } = useAuth();
@@ -15,11 +15,11 @@ export function LauncherPage() {
 
   const roleNamesBySys = new Map<string, string[]>();
   if (user) {
-    for (const rid of user.roleIds) {
-      const role = listRoles().find((r) => r.id === rid);
+    for (const rid of getUserRoleIds(user)) {
+      const role = getRole(rid);
       if (!role || role.status !== "active") continue;
       const list = roleNamesBySys.get(role.subsystemId) ?? [];
-      list.push(role.name);
+      if (!list.includes(role.name)) list.push(role.name);
       roleNamesBySys.set(role.subsystemId, list);
     }
   }

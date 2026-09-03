@@ -750,6 +750,370 @@ code {
   border-top: 1px solid var(--n-100);
 }
 
+.sso-role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  overflow: visible;
+}
+
+@media (max-width: 800px) {
+  .sso-role-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sso-role-card {
+  border: 1px solid var(--n-200);
+  border-radius: 12px;
+  background: var(--n-0);
+  padding: 12px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.sso-role-card.is-checked {
+  position: relative;
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--p-500) 40%, var(--n-200));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-500) 12%, transparent);
+  background: color-mix(in srgb, var(--p-500) 4%, white);
+}
+
+.sso-role-card.is-disabled {
+  opacity: 0.55;
+}
+
+.sso-role-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.sso-role-card__head input {
+  margin-top: 3px;
+}
+
+.sso-role-card__head strong {
+  display: block;
+  font-size: 14px;
+}
+
+.sso-role-card__head small {
+  display: block;
+  margin-top: 2px;
+  color: var(--n-500);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sso-role-card__orgs {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--n-200);
+  position: relative;
+  z-index: 1;
+}
+
+.sso-role-card__orgs-label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--n-600);
+}
+
+.sso-error--inline {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+/* 组织树多选下拉 */
+.sso-otms {
+  position: relative;
+  z-index: 1;
+}
+
+.sso-otms.is-open {
+  z-index: 30;
+}
+
+.sso-otms__trigger {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--n-200);
+  background: linear-gradient(180deg, #fff 0%, var(--n-50) 100%);
+  box-shadow: 0 1px 2px rgba(6, 24, 59, 0.04);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.sso-otms.is-open .sso-otms__trigger,
+.sso-otms__trigger:hover {
+  border-color: color-mix(in srgb, var(--p-500) 45%, var(--n-200));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-500) 12%, transparent);
+}
+
+.sso-otms.is-error .sso-otms__trigger {
+  border-color: #d14343;
+}
+
+.sso-otms__summary {
+  min-width: 0;
+  flex: 1;
+}
+
+.sso-otms__placeholder {
+  font-size: 13px;
+  color: var(--n-400);
+}
+
+.sso-otms__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sso-otms__tag {
+  max-width: 9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--p-500) 12%, white);
+  color: var(--p-800);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sso-otms__tag--more {
+  background: var(--n-100);
+  color: var(--n-600);
+}
+
+.sso-otms__meta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--n-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.sso-otms__chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--n-500);
+  border-bottom: 1.5px solid var(--n-500);
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+  margin-top: -3px;
+}
+
+.sso-otms__chevron.is-open {
+  transform: rotate(225deg);
+  margin-top: 2px;
+}
+
+.sso-otms__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--p-500) 18%, var(--n-200));
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 18px 40px rgba(6, 24, 59, 0.14),
+    0 2px 8px rgba(6, 24, 59, 0.06);
+  overflow: hidden;
+  animation: sso-otms-in 160ms ease;
+}
+
+@keyframes sso-otms-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sso-otms__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--n-100);
+  background: linear-gradient(180deg, var(--n-50), #fff);
+}
+
+.sso-otms__search {
+  flex: 1;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.sso-otms__clear {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-700);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.sso-otms__clear:hover {
+  color: var(--p-500);
+}
+
+.sso-otms__tree {
+  max-height: 240px;
+  overflow: auto;
+  padding: 6px 0;
+}
+
+.sso-otms__tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sso-otms__tree::-webkit-scrollbar-thumb {
+  background: var(--n-200);
+  border-radius: 999px;
+}
+
+.sso-otms__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding-right: 10px;
+}
+
+.sso-otms__row:hover {
+  background: var(--n-50);
+}
+
+.sso-otms__row.is-on {
+  background: color-mix(in srgb, var(--p-500) 8%, white);
+}
+
+.sso-otms__caret,
+.sso-otms__caret-spacer {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sso-otms__caret {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  border-radius: 4px;
+}
+
+.sso-otms__caret::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--n-500);
+  border-bottom: 1.5px solid var(--n-500);
+  transform: rotate(-45deg);
+  transition: transform 140ms ease;
+}
+
+.sso-otms__caret.is-open::before {
+  transform: rotate(45deg);
+  top: 4px;
+}
+
+.sso-otms__caret:hover {
+  background: var(--n-100);
+}
+
+.sso-otms__node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.sso-otms__node input {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.sso-otms__type {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--n-100);
+  color: var(--n-600);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sso-otms__row.is-on .sso-otms__type {
+  background: color-mix(in srgb, var(--p-500) 14%, white);
+  color: var(--p-800);
+}
+
+.sso-otms__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--n-800);
+}
+
+.sso-otms__row.is-on .sso-otms__name {
+  color: var(--p-800);
+  font-weight: 600;
+}
+
+.sso-otms__empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--n-400);
+}
+
+.sso-otms__footer {
+  padding: 8px 12px;
+  border-top: 1px solid var(--n-100);
+  background: var(--n-50);
+  font-size: 12px;
+  color: var(--n-500);
+}
+
+.sso-otms__footer b {
+  color: var(--p-700);
+  font-weight: 700;
+}
+
 .sso-role-group {
   margin-bottom: 18px;
 }

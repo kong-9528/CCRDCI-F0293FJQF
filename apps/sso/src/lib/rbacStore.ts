@@ -64,6 +64,12 @@ export type OrgUnit = {
   description: string;
 };
 
+/** 角色履职绑定：同一角色可管辖多个部门 */
+export type RoleBinding = {
+  roleId: string;
+  orgUnitIds: string[];
+};
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type ApiEndpoint = {
@@ -93,9 +99,10 @@ export type SsoUser = {
   displayName: string;
   password: string;
   status: EntityStatus;
-  roleIds: string[];
-  /** 所属组织节点 */
-  orgUnitId: string | null;
+  /** 唯一归属部门 */
+  orgUnitId: string;
+  /** 角色及各自履职部门（同角色可多部门） */
+  roleBindings: RoleBinding[];
   createdAt: string;
   updatedAt: string;
 };
@@ -396,7 +403,7 @@ let apiEndpoints: ApiEndpoint[] = [
     path: "/api/v1/users",
     tags: "用户",
     sort: 12,
-    requestExample: '{\n  "username": "zhangsan",\n  "displayName": "张三",\n  "orgUnitId": "org-ops",\n  "roleIds": ["r-sso-user"]\n}',
+    requestExample: '{\n  "username": "zhangsan",\n  "displayName": "张三",\n  "orgUnitId": "org-ops",\n  "roleBindings": [{ "roleId": "r-sso-user", "orgUnitIds": ["org-ops"] }]\n}',
   }),
   api({
     id: "api-sso-users-update",
@@ -739,13 +746,13 @@ let users: SsoUser[] = [
     password: "admin123",
     status: "active",
     orgUnitId: "org-it-sso",
-    roleIds: [
-      "r-sso-admin",
-      "role-super",
-      "r-oa-admin",
-      "r-hr-admin",
-      "r-erp-user",
-      "r-crm-user",
+    roleBindings: [
+      { roleId: "r-sso-admin", orgUnitIds: ["org-root"] },
+      { roleId: "role-super", orgUnitIds: ["org-ops"] },
+      { roleId: "r-oa-admin", orgUnitIds: ["org-root"] },
+      { roleId: "r-hr-admin", orgUnitIds: ["org-root"] },
+      { roleId: "r-erp-user", orgUnitIds: ["org-it"] },
+      { roleId: "r-crm-user", orgUnitIds: ["org-it"] },
     ],
     createdAt: "2026-01-01 10:00:00",
     updatedAt: "2026-01-01 10:00:00",
@@ -757,7 +764,10 @@ let users: SsoUser[] = [
     password: "demo123456",
     status: "active",
     orgUnitId: "org-ops-content",
-    roleIds: ["r-sso-user", "role-ops"],
+    roleBindings: [
+      { roleId: "r-sso-user", orgUnitIds: ["org-ops-content"] },
+      { roleId: "role-ops", orgUnitIds: ["org-ops-content", "org-ops-biz"] },
+    ],
     createdAt: "2026-02-01 09:00:00",
     updatedAt: "2026-02-01 09:00:00",
   },
@@ -768,7 +778,10 @@ let users: SsoUser[] = [
     password: "demo123456",
     status: "active",
     orgUnitId: "org-ops-biz",
-    roleIds: ["r-sso-user", "role-ops"],
+    roleBindings: [
+      { roleId: "r-sso-user", orgUnitIds: ["org-ops-biz"] },
+      { roleId: "role-ops", orgUnitIds: ["org-ops-biz"] },
+    ],
     createdAt: "2026-02-05 10:00:00",
     updatedAt: "2026-02-05 10:00:00",
   },
@@ -779,7 +792,10 @@ let users: SsoUser[] = [
     password: "demo123456",
     status: "disabled",
     orgUnitId: "org-ops",
-    roleIds: ["r-sso-user", "role-viewer"],
+    roleBindings: [
+      { roleId: "r-sso-user", orgUnitIds: ["org-ops"] },
+      { roleId: "role-viewer", orgUnitIds: ["org-ops"] },
+    ],
     createdAt: "2026-02-08 14:00:00",
     updatedAt: "2026-02-08 14:00:00",
   },
@@ -790,7 +806,11 @@ let users: SsoUser[] = [
     password: "demo123456",
     status: "active",
     orgUnitId: "org-tech",
-    roleIds: ["r-sso-user", "r-oa-user", "r-hr-user"],
+    roleBindings: [
+      { roleId: "r-sso-user", orgUnitIds: ["org-tech"] },
+      { roleId: "r-oa-user", orgUnitIds: ["org-tech"] },
+      { roleId: "r-hr-user", orgUnitIds: ["org-root"] },
+    ],
     createdAt: "2026-02-01 09:00:00",
     updatedAt: "2026-02-01 09:00:00",
   },
@@ -801,7 +821,11 @@ let users: SsoUser[] = [
     password: "demo123456",
     status: "active",
     orgUnitId: "org-it",
-    roleIds: ["r-sso-user", "r-crm-user", "r-erp-user"],
+    roleBindings: [
+      { roleId: "r-sso-user", orgUnitIds: ["org-it"] },
+      { roleId: "r-crm-user", orgUnitIds: ["org-it"] },
+      { roleId: "r-erp-user", orgUnitIds: ["org-root"] },
+    ],
     createdAt: "2026-02-10 11:00:00",
     updatedAt: "2026-02-10 11:00:00",
   },
@@ -875,9 +899,13 @@ export function authenticate(username: string, password: string):
   return { ok: true, user };
 }
 
+export function getUserRoleIds(user: SsoUser): string[] {
+  return [...new Set(user.roleBindings.map((b) => b.roleId))];
+}
+
 export function getUserPermissionCodes(user: SsoUser): Set<string> {
   const codes = new Set<string>();
-  for (const rid of user.roleIds) {
+  for (const rid of getUserRoleIds(user)) {
     const role = getRole(rid);
     if (!role || role.status !== "active") continue;
     for (const pid of role.permissionIds) {
@@ -895,13 +923,95 @@ export function userHasPermission(user: SsoUser, code: string) {
 /** 用户已开通的业务子系统（有该系统下任一有效角色，且系统启用） */
 export function getUserSubsystems(user: SsoUser): Subsystem[] {
   const ids = new Set<string>();
-  for (const rid of user.roleIds) {
+  for (const rid of getUserRoleIds(user)) {
     const role = getRole(rid);
     if (!role || role.status !== "active") continue;
     if (role.subsystemId === SSO_SUBSYSTEM_ID) continue;
     ids.add(role.subsystemId);
   }
   return listSubsystems(false).filter((s) => s.status === "active" && ids.has(s.id));
+}
+
+/** 某组织节点及其全部下级 id */
+export function getOrgSubtreeIds(rootId: string): Set<string> {
+  const result = new Set<string>();
+  if (!getOrgUnit(rootId)) return result;
+  const childrenByParent = new Map<string, string[]>();
+  for (const o of orgUnits) {
+    if (!o.parentId) continue;
+    const list = childrenByParent.get(o.parentId) ?? [];
+    list.push(o.id);
+    childrenByParent.set(o.parentId, list);
+  }
+  const walk = (id: string) => {
+    result.add(id);
+    for (const child of childrenByParent.get(id) ?? []) walk(child);
+  };
+  walk(rootId);
+  return result;
+}
+
+/**
+ * 当前账号可管辖的组织范围：
+ * 各角色履职部门及其下级的并集（演示环境暂用全部角色身份的并集；后续可按「当前身份」收窄）。
+ */
+export function getManagedOrgIds(actor: SsoUser): Set<string> {
+  const ids = new Set<string>();
+  for (const binding of actor.roleBindings) {
+    for (const orgId of binding.orgUnitIds) {
+      for (const id of getOrgSubtreeIds(orgId)) ids.add(id);
+    }
+  }
+  return ids;
+}
+
+export function listAssignableOrgUnits(actor: SsoUser, includeDisabled = false): OrgUnit[] {
+  const allowed = getManagedOrgIds(actor);
+  return listOrgUnits().filter(
+    (o) => allowed.has(o.id) && (includeDisabled || o.status === "active"),
+  );
+}
+
+export function formatRoleBindingSummary(binding: RoleBinding): string {
+  const role = getRole(binding.roleId);
+  const orgs = binding.orgUnitIds.map((id) => getOrgUnit(id)?.name ?? id).join("、");
+  return `${role?.name ?? binding.roleId}（${orgs || "未选部门"}）`;
+}
+
+function validateUserOrgAssignment(
+  orgUnitId: string,
+  roleBindings: RoleBinding[],
+  managedOrgIds?: Set<string>,
+): { ok: true; orgUnitId: string; roleBindings: RoleBinding[] } | { ok: false; message: string } {
+  if (!orgUnitId) return { ok: false, message: "请选择归属部门" };
+  if (!getOrgUnit(orgUnitId)) return { ok: false, message: "归属部门不存在" };
+  if (managedOrgIds && !managedOrgIds.has(orgUnitId)) {
+    return { ok: false, message: "归属部门超出当前账号的管辖范围" };
+  }
+  if (!roleBindings.length) return { ok: false, message: "请至少勾选一个角色" };
+
+  const seenRoles = new Set<string>();
+  const cleaned: RoleBinding[] = [];
+  for (const raw of roleBindings) {
+    const roleId = raw.roleId?.trim();
+    if (!roleId) return { ok: false, message: "角色绑定无效" };
+    if (seenRoles.has(roleId)) return { ok: false, message: "角色重复勾选" };
+    seenRoles.add(roleId);
+    if (!getRole(roleId)) return { ok: false, message: `角色不存在：${roleId}` };
+    const orgUnitIds = [...new Set((raw.orgUnitIds ?? []).filter(Boolean))];
+    if (!orgUnitIds.length) {
+      const role = getRole(roleId);
+      return { ok: false, message: `请为角色「${role?.name ?? roleId}」选择至少一个履职部门` };
+    }
+    for (const oid of orgUnitIds) {
+      if (!getOrgUnit(oid)) return { ok: false, message: "履职部门不存在" };
+      if (managedOrgIds && !managedOrgIds.has(oid)) {
+        return { ok: false, message: "履职部门超出当前账号的管辖范围" };
+      }
+    }
+    cleaned.push({ roleId, orgUnitIds });
+  }
+  return { ok: true, orgUnitId, roleBindings: cleaned };
 }
 
 export function changePassword(
@@ -921,23 +1031,25 @@ export function changePassword(
   return { ok: true };
 }
 
-export function createUser(input: {
-  username: string;
-  displayName: string;
-  password: string;
-  roleIds: string[];
-  status: EntityStatus;
-  orgUnitId?: string | null;
-}): { ok: true; user: SsoUser } | { ok: false; message: string } {
+export function createUser(
+  input: {
+    username: string;
+    displayName: string;
+    password: string;
+    orgUnitId: string;
+    roleBindings: RoleBinding[];
+    status: EntityStatus;
+  },
+  opts?: { managedOrgIds?: Set<string> },
+): { ok: true; user: SsoUser } | { ok: false; message: string } {
   const username = input.username.trim();
   if (!/^[a-zA-Z][a-zA-Z0-9._-]{2,31}$/.test(username)) {
     return { ok: false, message: "用户名须字母开头，3–32 位，仅含字母数字._-" };
   }
   if (findUserByUsername(username)) return { ok: false, message: "用户名已存在" };
   if (input.password.length < 6) return { ok: false, message: "密码至少 6 位" };
-  if (input.orgUnitId && !getOrgUnit(input.orgUnitId)) {
-    return { ok: false, message: "所属组织不存在" };
-  }
+  const checked = validateUserOrgAssignment(input.orgUnitId, input.roleBindings, opts?.managedOrgIds);
+  if (!checked.ok) return checked;
   userSeq += 1;
   const user: SsoUser = {
     id: `u-${userSeq}`,
@@ -945,8 +1057,8 @@ export function createUser(input: {
     displayName: input.displayName.trim() || username,
     password: input.password,
     status: input.status,
-    roleIds: [...new Set(input.roleIds)],
-    orgUnitId: input.orgUnitId ?? null,
+    orgUnitId: checked.orgUnitId,
+    roleBindings: checked.roleBindings,
     createdAt: nowStamp(),
     updatedAt: nowStamp(),
   };
@@ -959,29 +1071,29 @@ export function updateUser(
   id: string,
   input: {
     displayName: string;
-    roleIds: string[];
+    orgUnitId: string;
+    roleBindings: RoleBinding[];
     status: EntityStatus;
     password?: string;
-    orgUnitId?: string | null;
   },
+  opts?: { managedOrgIds?: Set<string> },
 ): { ok: true } | { ok: false; message: string } {
   const user = getUser(id);
   if (!user) return { ok: false, message: "用户不存在" };
   if (input.password !== undefined && input.password !== "" && input.password.length < 6) {
     return { ok: false, message: "密码至少 6 位" };
   }
-  if (input.orgUnitId && !getOrgUnit(input.orgUnitId)) {
-    return { ok: false, message: "所属组织不存在" };
-  }
+  const checked = validateUserOrgAssignment(input.orgUnitId, input.roleBindings, opts?.managedOrgIds);
+  if (!checked.ok) return checked;
   users = users.map((u) =>
     u.id === id
       ? {
           ...u,
           displayName: input.displayName.trim() || u.displayName,
-          roleIds: [...new Set(input.roleIds)],
+          orgUnitId: checked.orgUnitId,
+          roleBindings: checked.roleBindings,
           status: input.status,
           password: input.password ? input.password : u.password,
-          orgUnitId: input.orgUnitId === undefined ? u.orgUnitId : input.orgUnitId,
           updatedAt: nowStamp(),
         }
       : u,
@@ -1137,6 +1249,27 @@ export type OrgTreeNode = OrgUnit & { children: OrgTreeNode[] };
 
 export function buildOrgTree(includeDisabled = true): OrgTreeNode[] {
   const list = listOrgUnits().filter((o) => includeDisabled || o.status === "active");
+  const map = new Map<string, OrgTreeNode>();
+  for (const o of list) map.set(o.id, { ...o, children: [] });
+  const roots: OrgTreeNode[] = [];
+  for (const o of list) {
+    const node = map.get(o.id)!;
+    if (o.parentId && map.has(o.parentId)) map.get(o.parentId)!.children.push(node);
+    else roots.push(node);
+  }
+  const sortRec = (nodes: OrgTreeNode[]) => {
+    nodes.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+    nodes.forEach((n) => sortRec(n.children));
+  };
+  sortRec(roots);
+  return roots;
+}
+
+/** 在允许的组织 id 集合内重建树；父节点不在集合内时该节点升为根 */
+export function buildOrgTreeWithin(allowedIds: Set<string>, includeDisabled = false): OrgTreeNode[] {
+  const list = listOrgUnits().filter(
+    (o) => allowedIds.has(o.id) && (includeDisabled || o.status === "active"),
+  );
   const map = new Map<string, OrgTreeNode>();
   for (const o of list) map.set(o.id, { ...o, children: [] });
   const roots: OrgTreeNode[] = [];
