@@ -1078,6 +1078,42 @@ body,
   font-weight: 600;
 }
 
+.a-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: var(--ad-sp-3);
+  padding-bottom: var(--ad-sp-3);
+  border-bottom: 1px solid var(--n-100);
+}
+
+.a-modal__head .a-modal__title {
+  margin: 0;
+}
+
+.a-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--ad-radius-sm);
+  background: transparent;
+  color: var(--n-400);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.a-modal__close:hover {
+  color: var(--n-700);
+  background: var(--n-50);
+}
+
 .a-modal__desc {
   margin: 0 0 var(--ad-sp-4);
   color: var(--n-500);

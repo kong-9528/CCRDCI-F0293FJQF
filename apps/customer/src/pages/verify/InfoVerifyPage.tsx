@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
+import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
@@ -211,9 +212,17 @@ export function InfoVerifyPage() {
   };
 
   return (
-    <div className="a-stack c-verify-page">
+    <>
       {toast ? <div className="a-toast">{toast}</div> : null}
 
+      <SectionGuideLayout
+        className="c-verify-page"
+        footer={<ServiceDisclaimer />}
+        sections={[
+          {
+            id: "verify",
+            label: "版权登记信息核验",
+            content: (
       <div className="a-card">
         <div className="c-verify-tabbar">
           <div className="a-tabs c-verify-tabs" role="tablist">
@@ -296,9 +305,17 @@ export function InfoVerifyPage() {
           ) : null}
         </div>
       </div>
-
-      <ProductUsagePanel product="info" />
-
+            ),
+          },
+          {
+            id: "quota",
+            label: "额度与有效期",
+            content: <ProductUsagePanel product="info" />,
+          },
+          {
+            id: "records",
+            label: "核验记录",
+            content: (
       <div className="a-card">
         <div className="a-card__head">
           核验记录
@@ -482,8 +499,10 @@ export function InfoVerifyPage() {
           </div>
         </div>
       </div>
-
-      <ServiceDisclaimer />
+            ),
+          },
+        ]}
+      />
 
       <BatchInfoModal
         open={batchOpen}
@@ -504,6 +523,6 @@ export function InfoVerifyPage() {
           onToast={showToast}
         />
       ) : null}
-    </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@ export type NavItem = {
   matchPrefix?: string;
 };
 
-/** 扁平侧栏：无分组目录 */
+/** 顶栏主导航（原侧栏模块 + API文档 / 帮助中心） */
 export const CUSTOMER_NAV: NavItem[] = [
   { to: "/desk", label: "工作台", icon: "dashboard" },
   { to: "/verify/dci", label: "DCI核验", icon: "dci" },

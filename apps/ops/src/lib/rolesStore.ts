@@ -137,6 +137,15 @@ export const PERMISSION_TREE: PermNode[] = [
           { id: "system.users.status", label: "启用/停用按钮" },
         ],
       },
+      {
+        id: "system.inviteCodes",
+        label: "邀请码管理页",
+        children: [
+          { id: "system.inviteCodes.create", label: "新增按钮" },
+          { id: "system.inviteCodes.edit", label: "编辑按钮" },
+          { id: "system.inviteCodes.delete", label: "删除按钮" },
+        ],
+      },
       { id: "system.opLogs", label: "操作日志页" },
       { id: "system.apiVerify", label: "版权核验接口管理页" },
       { id: "system.apiAudit", label: "智能审核接口管理页" },

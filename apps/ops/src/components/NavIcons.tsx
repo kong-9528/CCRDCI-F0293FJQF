@@ -172,6 +172,7 @@ const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/content/faqs": IconFaq,
   "/system/roles": IconRoles,
   "/system/users": IconUsers,
+  "/system/invite-codes": IconUsers,
   "/system/api-services": IconApi,
   "/system/op-logs": IconLogs,
 };

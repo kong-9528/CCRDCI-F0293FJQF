@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
+import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
@@ -239,9 +240,17 @@ export function DciVerifyPage() {
   };
 
   return (
-    <div className="a-stack c-verify-page">
+    <>
       {toast ? <div className="a-toast">{toast}</div> : null}
 
+      <SectionGuideLayout
+        className="c-verify-page"
+        footer={<ServiceDisclaimer />}
+        sections={[
+          {
+            id: "verify",
+            label: "DCI核验",
+            content: (
       <div className="a-card">
         <div className="a-card__body a-stack">
           <div className="c-verify-panel-head">
@@ -318,9 +327,17 @@ export function DciVerifyPage() {
           ) : null}
         </div>
       </div>
-
-      <ProductUsagePanel product="dci" />
-
+            ),
+          },
+          {
+            id: "quota",
+            label: "额度与有效期",
+            content: <ProductUsagePanel product="dci" />,
+          },
+          {
+            id: "records",
+            label: "核验记录",
+            content: (
       <div className="a-card">
         <div className="a-card__head">
           核验记录
@@ -548,8 +565,10 @@ export function DciVerifyPage() {
           </div>
         </div>
       </div>
-
-      <ServiceDisclaimer />
+            ),
+          },
+        ]}
+      />
 
       <BatchDciModal
         open={batchOpen}
@@ -569,6 +588,6 @@ export function DciVerifyPage() {
           onToast={showToast}
         />
       ) : null}
-    </div>
+    </>
   );
 }

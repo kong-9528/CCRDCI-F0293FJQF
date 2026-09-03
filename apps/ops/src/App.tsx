@@ -22,6 +22,7 @@ import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
 import { ApiEndpointEditPage } from "@/pages/system/ApiEndpointEditPage";
 import { ApiServicesPage } from "@/pages/system/ApiServicesPage";
 import { OpLogsPage } from "@/pages/system/OpLogsPage";
+import { InviteCodesPage } from "@/pages/system/InviteCodesPage";
 import { RolesPage } from "@/pages/system/RolesPage";
 import { UsersPage } from "@/pages/system/UsersPage";
 
@@ -95,6 +96,7 @@ export function App() {
         <Route path="/content/faqs" element={<Navigate to="/content/center?channel=portal_faq" replace />} />
         <Route path="/system/roles" element={<RolesPage />} />
         <Route path="/system/users" element={<UsersPage />} />
+        <Route path="/system/invite-codes" element={<InviteCodesPage />} />
         <Route path="/system/api-services" element={<ApiServicesPage />} />
         <Route path="/system/api-services/new" element={<ApiEndpointEditPage />} />
         <Route path="/system/api-services/:id/edit" element={<ApiEndpointEditPage />} />

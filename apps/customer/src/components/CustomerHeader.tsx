@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { IconBell, IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
+import { IconBell } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
+import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
 import { EXTERNAL_LOGIN_ACCOUNT, demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
 import { MOCK_TENANT } from "@/lib/tenant";
 
 type Props = {
   pathname: string;
-  collapsed: boolean;
   locked?: boolean;
-  onToggleCollapse: () => void;
 };
 
 function tenantInitial(name: string) {
@@ -18,110 +17,116 @@ function tenantInitial(name: string) {
   return t ? t.slice(0, 1) : "企";
 }
 
-export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }: Props) {
+export function CustomerHeader({ pathname, locked }: Props) {
   const navigate = useNavigate();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { unlocked } = useOnboardingStore();
   const displayName = locked ? EXTERNAL_LOGIN_ACCOUNT : MOCK_TENANT.companyName;
   const roleLabel = locked ? "申请人" : "企业用户";
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      void document.documentElement.requestFullscreen?.();
-    } else {
-      void document.exitFullscreen?.();
-    }
-  };
-
   return (
     <header className="a-header">
       <div className="a-header__brand">
         <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
         <span className="a-header__logo-text">{PLATFORM_NAME}</span>
-        <button
-          type="button"
-          className="a-header__icon-btn"
-          aria-label={collapsed ? "展开侧栏" : "收起侧栏"}
-          onClick={onToggleCollapse}
-        >
-          <IconSidebarToggle />
-        </button>
       </div>
 
-      <div className="a-header__actions">
-        {!locked ? (
-          <div className="a-header__text-links">
-            <Link
-              to="/api-docs"
-              className={`a-header__text-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
+      <div className="a-header__right">
+        <nav className="a-header__nav" aria-label="主导航">
+          {locked ? (
+            <NavLink
+              to="/apply"
+              end
+              className={({ isActive }) => `a-header__nav-link${isActive ? " is-active" : ""}`}
             >
-              API文档
-            </Link>
-            <Link
-              to="/help"
-              className={`a-header__text-link${pathname.startsWith("/help") ? " is-active" : ""}`}
-            >
-              帮助中心
-            </Link>
-          </div>
-        ) : null}
-
-        <button type="button" className="a-header__icon-btn" aria-label="全屏" onClick={toggleFullscreen}>
-          <IconFullscreen />
-        </button>
-        <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
-          <IconBell />
-          <span className="a-header__badge">3</span>
-        </button>
-
-        <div className="a-header__user">
-          <button type="button" className="a-header__user-btn" aria-haspopup="menu">
-            <span className="a-header__avatar">{tenantInitial(displayName)}</span>
-            <span className="a-header__user-meta">
-              <span className="a-header__user-role">{roleLabel}</span>
-            </span>
-            <span className="a-header__chevron" aria-hidden>
-              ▾
-            </span>
-          </button>
-          <div className="a-header__user-dropdown">
-            <div className="a-header__user-menu" role="menu">
-              <div className="a-header__user-menu-name">{displayName}</div>
-              {!locked ? (
-                <>
-                  <Link to="/account" role="menuitem" className="a-header__user-menu-link">
-                    账号中心
-                  </Link>
-                  <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
-                    修改密码
-                  </Link>
-                  <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
-                    API Keys
-                  </Link>
-                  {unlocked ? (
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="a-header__user-menu-item"
-                      onClick={() => {
-                        demoResetOnboarding();
-                        navigate("/apply");
-                      }}
-                    >
-                      演示：模拟未入驻
-                    </button>
-                  ) : null}
-                  <div className="a-header__user-menu-divider" />
-                </>
-              ) : null}
-              <button
-                type="button"
-                role="menuitem"
-                className="a-header__user-menu-item"
-                onClick={() => setLogoutConfirm(true)}
+              入驻申请
+            </NavLink>
+          ) : (
+            <>
+              {CUSTOMER_NAV.map((item) => {
+                const active = isNavItemActive(item, pathname);
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === "/desk"}
+                    className={`a-header__nav-link${active ? " is-active" : ""}`}
+                  >
+                    {item.label}
+                  </NavLink>
+                );
+              })}
+              <Link
+                to="/api-docs"
+                className={`a-header__nav-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
               >
-                退出登录
-              </button>
+                API文档
+              </Link>
+              <Link
+                to="/help"
+                className={`a-header__nav-link${pathname.startsWith("/help") ? " is-active" : ""}`}
+              >
+                帮助中心
+              </Link>
+            </>
+          )}
+        </nav>
+
+        <div className="a-header__actions">
+          <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
+            <IconBell />
+            <span className="a-header__badge">3</span>
+          </button>
+
+          <div className="a-header__user">
+            <button type="button" className="a-header__user-btn" aria-haspopup="menu">
+              <span className="a-header__avatar">{tenantInitial(displayName)}</span>
+              <span className="a-header__user-meta">
+                <span className="a-header__user-role">{roleLabel}</span>
+              </span>
+              <span className="a-header__chevron" aria-hidden>
+                ▾
+              </span>
+            </button>
+            <div className="a-header__user-dropdown">
+              <div className="a-header__user-menu" role="menu">
+                <div className="a-header__user-menu-name">{displayName}</div>
+                {!locked ? (
+                  <>
+                    <Link to="/account" role="menuitem" className="a-header__user-menu-link">
+                      账号中心
+                    </Link>
+                    <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
+                      修改密码
+                    </Link>
+                    <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
+                      API Keys
+                    </Link>
+                    {unlocked ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="a-header__user-menu-item"
+                        onClick={() => {
+                          demoResetOnboarding();
+                          navigate("/apply");
+                        }}
+                      >
+                        演示：模拟未入驻
+                      </button>
+                    ) : null}
+                    <div className="a-header__user-menu-divider" />
+                  </>
+                ) : null}
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="a-header__user-menu-item"
+                  onClick={() => setLogoutConfirm(true)}
+                >
+                  退出登录
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
   REVIEW_DEFAULT_DAYS,
@@ -101,9 +102,17 @@ export function ReviewServicePage({ product }: Props) {
   };
 
   return (
-    <div className="a-stack c-review-page">
+    <>
       {toast ? <div className="a-toast">{toast}</div> : null}
 
+      <SectionGuideLayout
+        className="c-review-page"
+        footer={<ServiceDisclaimer />}
+        sections={[
+          {
+            id: "intro",
+            label: "服务说明",
+            content: (
       <div className="a-card c-review-intro">
         <div className="a-card__body">
           <div className="c-verify-panel-head">
@@ -120,7 +129,12 @@ export function ReviewServicePage({ product }: Props) {
           </div>
         </div>
       </div>
-
+            ),
+          },
+          {
+            id: "quota",
+            label: "额度与有效期",
+            content: (
       <div className="a-card">
         <div className="a-card__head">
           额度与有效期
@@ -177,7 +191,12 @@ export function ReviewServicePage({ product }: Props) {
           ) : null}
         </div>
       </div>
-
+            ),
+          },
+          {
+            id: "records",
+            label: "审核记录",
+            content: (
       <div className="a-card">
         <div className="a-card__head">
           审核记录
@@ -319,8 +338,10 @@ export function ReviewServicePage({ product }: Props) {
           )}
         </div>
       </div>
-
-      <ServiceDisclaimer />
-    </div>
+            ),
+          },
+        ]}
+      />
+    </>
   );
 }
