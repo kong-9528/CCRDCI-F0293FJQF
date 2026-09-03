@@ -1,105 +1,12 @@
 @import "@ctp/styles/tokens.css";
 @import "@ctp/styles/admin.css";
+@import "./dci-theme.css";
 
-/* 运营后台补充：不改 admin.css 源文件，仅组合增强 */
+/* 运营后台：滚动骨架 + 功能样式（视觉由 dci-theme.css 接管） */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-/*
- * 运营后台：宽松密度（覆盖 admin 紧凑规范，不影响客户后台 / 门户）
- * 字号略大、8px 级留白、控件与表格行更高，阅读与操作更透气。
- */
-.theme-ops {
-  --ad-fs-body: 14px;
-  --ad-fs-sm: 13px;
-  --ad-fs-h1: 18px;
-  --ad-fs-h2: 16px;
-  --ad-lh: 1.6;
-
-  --ad-sp-1: 4px;
-  --ad-sp-2: 10px;
-  --ad-sp-3: 16px;
-  --ad-sp-4: 24px;
-  --ad-sp-6: 32px;
-
-  --ad-sidebar-w: 232px;
-  --ad-sidebar-w-min: 64px;
-  --ad-header-h: 56px;
-  --ad-table-row-h: 44px;
-  --ad-ctrl-sm: 28px;
-  --ad-ctrl-md: 36px;
-  --ad-ctrl-lg: 40px;
-
-  --ad-radius: 8px;
-  --ad-radius-sm: 6px;
-  --ad-shadow-1: 0 2px 8px rgba(22, 28, 36, 0.06);
-}
-
-.theme-ops .a-sidebar__logo {
-  font-size: 16px;
-}
-
-.theme-ops .a-stat__num {
-  font-size: 26px;
-}
-
-/* 侧栏菜单：高于 admin 默认 36px */
-.theme-ops .a-menu__item {
-  height: 42px;
-  margin: 2px var(--ad-sp-2);
-}
-
-.theme-ops .a-menu__group {
-  padding: var(--ad-sp-3) var(--ad-sp-3) var(--ad-sp-2);
-}
-
-/* 内容区与卡片留白加大 */
-.theme-ops .a-content {
-  padding: var(--ad-sp-4);
-  gap: var(--ad-sp-4);
-}
-
-.theme-ops .a-card__head {
-  min-height: 48px;
-  padding: var(--ad-sp-3) var(--ad-sp-4);
-}
-
-.theme-ops .a-card__body {
-  padding: var(--ad-sp-4);
-}
-
-.theme-ops .a-card__body--flush {
-  padding: 0;
-}
-
-.theme-ops .a-toolbar {
-  padding: var(--ad-sp-3) var(--ad-sp-4);
-  gap: var(--ad-sp-3);
-}
-
-.theme-ops .a-table th,
-.theme-ops .a-table td {
-  padding: 0 var(--ad-sp-4);
-}
-
-.theme-ops .a-tag {
-  height: 22px;
-  padding: 0 8px;
-}
-
-.theme-ops .a-tabs__item {
-  height: 42px;
-}
-
-.theme-ops .a-pagination {
-  padding: var(--ad-sp-3) var(--ad-sp-4);
-}
-
-.theme-ops .a-empty {
-  padding: var(--ad-sp-6) var(--ad-sp-4);
 }
 
 html,
@@ -109,7 +16,6 @@ body,
   overflow: hidden;
 }
 
-/* 侧栏与右侧主区各自独立垂直滚动 */
 .a-layout {
   height: 100%;
   min-height: 0;
@@ -123,10 +29,6 @@ body,
   flex-direction: column;
   overflow: hidden;
   padding-bottom: 0;
-}
-
-.a-sidebar__logo {
-  flex-shrink: 0;
 }
 
 .a-sidebar__nav {
@@ -156,13 +58,13 @@ body,
   overflow-y: auto;
 }
 
-/* 细滚动条：浅色主区 + 深色侧栏 */
 .theme-ops {
   --sb-size: 6px;
   --sb-radius: 999px;
   --sb-track: transparent;
   --sb-thumb: color-mix(in srgb, var(--n-400) 55%, transparent);
   --sb-thumb-hover: color-mix(in srgb, var(--p-500) 70%, transparent);
+  --primary: var(--p-600);
 }
 
 .a-content,
@@ -219,10 +121,7 @@ body,
   background: transparent;
 }
 
-.a-sidebar__nav {
-  --sb-thumb: color-mix(in srgb, var(--n-0) 22%, transparent);
-  --sb-thumb-hover: color-mix(in srgb, var(--a-400) 55%, transparent);
-}
+/* ===== 运营后台功能样式 ===== */
 
 .a-sidebar__logo {
   gap: var(--ad-sp-2);
@@ -233,7 +132,7 @@ body,
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: linear-gradient(135deg, var(--p-500), var(--a-500));
+  background: linear-gradient(135deg, var(--p-500), var(--p-500));
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -1820,7 +1719,7 @@ body,
   display: block;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--primary);
+  color: var(--p-600);
   text-decoration: none;
 }
 
@@ -1887,7 +1786,7 @@ body,
 }
 
 .a-stats-matrix__cell.is-selected {
-  box-shadow: 0 0 0 2px var(--primary);
+  box-shadow: 0 0 0 2px var(--p-600);
   transform: scale(1.02);
 }
 
@@ -2370,7 +2269,7 @@ body,
 }
 
 .a-dash-kpi--calls::before {
-  background: linear-gradient(180deg, var(--a-400), var(--a-600));
+  background: linear-gradient(180deg, var(--p-400), var(--a-600));
 }
 
 .a-dash-kpi__meta {
@@ -2413,7 +2312,7 @@ body,
 }
 
 .a-dash-kpi--calls .a-dash-kpi__value {
-  background: linear-gradient(120deg, var(--a-800), var(--a-500));
+  background: linear-gradient(120deg, var(--p-800), var(--p-500));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -2466,7 +2365,7 @@ body,
 }
 
 .a-dash-product--audit::before {
-  background: linear-gradient(90deg, var(--a-500), var(--a-300));
+  background: linear-gradient(90deg, var(--p-500), var(--p-300));
 }
 
 .a-dash-product__head {
@@ -2975,4 +2874,257 @@ body,
 .a-desc__item--wide {
   grid-column: 1 / -1;
 }
+
+/* ===== 手风琴侧栏（对齐截图：目录展开收起） ===== */
+.theme-ops .a-sidebar {
+  background: #f7f8fa;
+  padding: 0 0 16px;
+}
+
+.theme-ops .a-sidebar__nav.a-menu-acc {
+  padding: 24px 0 8px;
+}
+
+.theme-ops .a-menu__group {
+  display: none !important;
+}
+
+.theme-ops .a-menu__item {
+  height: 48px;
+  margin: 0;
+  padding: 0 16px 0 20px;
+  border-radius: 0;
+  border-left: none;
+  color: var(--n-800);
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  background: transparent;
+}
+
+.theme-ops .a-menu__item:hover {
+  background: rgba(0, 117, 193, 0.06);
+  color: var(--p-600);
+}
+
+/* 截图风格：当前模块实心蓝底高亮 */
+.theme-ops .a-menu__item.is-active {
+  background: var(--p-600);
+  color: #fff;
+  font-weight: 500;
+  border-left: none;
+}
+
+.theme-ops .a-menu__item.is-active:hover {
+  background: var(--p-600);
+  color: #fff;
+}
+
+.theme-ops .a-menu__item.is-active .a-menu__icon {
+  color: #fff;
+  opacity: 1;
+}
+
+.theme-ops .a-menu__icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.9;
+}
+
+.theme-ops .a-menu__dir {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.theme-ops .a-menu__dir.is-active {
+  background: transparent;
+  color: var(--p-600);
+}
+
+.theme-ops .a-menu__dir.is-active:hover {
+  background: rgba(0, 117, 193, 0.06);
+  color: var(--p-600);
+}
+
+.theme-ops .a-menu__dir.is-active .a-menu__icon {
+  color: var(--p-600);
+}
+
+.theme-ops .a-menu__dir .a-menu__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-ops .a-menu__caret {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.45;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  translate: 0 -2px;
+}
+
+.theme-ops .a-menu__caret.is-open {
+  transform: rotate(-135deg);
+  translate: 0 2px;
+  opacity: 0.65;
+}
+
+.theme-ops .a-menu__acc.has-active > .a-menu__dir {
+  color: var(--p-600);
+}
+
+.theme-ops .a-menu__sub {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 子模块：无图标，文字与目录文字左对齐 */
+.theme-ops .a-menu__item--sub {
+  height: 44px;
+  padding-left: 48px;
+  padding-right: 16px;
+  color: var(--n-700);
+  font-size: 14px;
+}
+
+.theme-ops .a-menu__item--sub.is-active {
+  color: #fff;
+  font-weight: 500;
+  background: var(--p-600);
+}
+
+.theme-ops .a-menu__item--sub.is-active:hover {
+  color: #fff;
+  background: var(--p-600);
+}
+
+.theme-ops .a-menu__item--sub .a-menu__label {
+  max-width: none;
+}
+
+.theme-ops .a-stat__num {
+  font-size: 26px;
+  color: var(--p-700);
+}
+
+.theme-ops .a-sidebar__mark {
+  background: var(--p-600);
+}
+
+.theme-ops .a-layout.is-collapsed .a-menu__item {
+  justify-content: center;
+  padding: 0 12px;
+  gap: 0;
+}
+
+.theme-ops .a-layout.is-collapsed .a-menu__label,
+.theme-ops .a-layout.is-collapsed .a-menu__caret {
+  display: none;
+}
+
+.theme-ops .a-layout.is-collapsed .a-menu__item.is-active,
+.theme-ops .a-layout.is-collapsed .a-menu__dir.is-active {
+  background: var(--p-600);
+  color: #fff;
+}
+
+.theme-ops .a-layout.is-collapsed .a-menu__dir.is-active .a-menu__icon {
+  color: #fff;
+}
+
+/* 模块主体：白底；面包屑底部分割线 */
+.theme-ops .a-main {
+  background: #fff;
+}
+
+.theme-ops .a-breadcrumb {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--n-500);
+  line-height: 1.4;
+  background: #fff;
+  border-bottom: 1px solid var(--n-200);
+}
+
+.theme-ops .a-breadcrumb__sep {
+  color: var(--n-400);
+}
+
+.theme-ops .a-breadcrumb__current {
+  color: var(--n-800);
+}
+
+.theme-ops .a-content {
+  background: #fff;
+  padding: 16px 20px 24px;
+  gap: 16px;
+}
+
+/* 列表/筛选：去掉圆角卡片外框，直接铺在白底上 */
+.theme-ops .a-content .a-card {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.theme-ops .a-content .a-card__head {
+  min-height: 40px;
+  padding: 0 0 12px;
+  margin-bottom: 4px;
+  border-bottom: none;
+  background: transparent;
+}
+
+.theme-ops .a-content .a-card__body {
+  padding: 0;
+  background: transparent;
+}
+
+.theme-ops .a-content .a-card__body--flush {
+  padding: 0;
+}
+
+.theme-ops .a-content .a-toolbar {
+  padding: 0 0 16px;
+  margin: 0;
+  background: transparent;
+  border-bottom: none;
+  gap: 12px 16px;
+}
+
+.theme-ops .a-content .a-pagination {
+  padding: 12px 0 0;
+  border-top: none;
+  background: transparent;
+}
+
+.theme-ops .a-content .a-table-wrap {
+  border: none;
+  background: transparent;
+}
+
+.theme-ops .a-content .a-tabs {
+  margin-bottom: 12px;
+  background: transparent;
+}
+
+
 

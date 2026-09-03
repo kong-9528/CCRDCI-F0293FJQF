@@ -4,6 +4,7 @@ import { createCustomer, isAccountTaken } from "@/lib/customersStore";
 import { parseProductServices, type ProductFormRow } from "@/lib/customerForm";
 import type { ProductConfigState } from "@/lib/productConfig";
 import { defaultProductConfigForApplication, validateProductConfig } from "@/lib/productConfig";
+import { getCurrentUser } from "@/lib/usersStore";
 
 export type ApplicationStatus = "pending" | "approved" | "rejected";
 
@@ -94,7 +95,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     passwordHint: "Zhilian8!",
     submittedAt: "2026-08-20 09:08:00",
     reviewedAt: "2026-08-21 11:20:00",
-    reviewer: "运营管理员",
+    reviewer: "超级管理员",
     customerId: "101",
     requestedProducts: ["dci", "info", "workReview"],
   },
@@ -115,11 +116,56 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     passwordHint: "Shujin#1",
     submittedAt: "2026-08-22 16:45:00",
     reviewedAt: "2026-08-23 10:05:00",
-    reviewer: "运营管理员",
+    reviewer: "超级管理员",
     rejectReason: "提交的合同附件不完整，请补充盖章版合同后重新申请。",
     requestedProducts: ["info"],
   },
+  {
+    id: "app-5",
+    status: "approved",
+    creditCode: "91310000MA1FL2XY99",
+    companyName: "申城融媒体科技有限公司",
+    contactName: "赵敏",
+    contactPhone: "13700006655",
+    address: "上海市静安区南京西路 1266 号",
+    contractNo: "HT-2026-0612",
+    contractFiles: [{ id: "af5", name: "申城融媒体-开通合同.pdf", size: 920_000 }],
+    contractStart: "2026-07-01",
+    contractEnd: "2027-06-30",
+    contractAmount: 128000,
+    account: "shencheng_media",
+    passwordHint: "ScMedia#26",
+    submittedAt: "2026-08-18 11:20:00",
+    reviewedAt: "2026-08-19 15:40:00",
+    reviewer: "王编辑",
+    requestedProducts: ["certificate", "workReview"],
+  },
+  {
+    id: "app-6",
+    status: "rejected",
+    creditCode: "91440100MA5K3N7788",
+    companyName: "粤海数字创意有限公司",
+    contactName: "陈峰",
+    contactPhone: "13600007766",
+    address: "广州市天河区珠江新城花城大道 85 号",
+    contractNo: "HT-2026-0701",
+    contractFiles: [{ id: "af6", name: "粤海-申请材料.zip", size: 2_100_000 }],
+    contractStart: "2026-08-01",
+    contractEnd: "2027-07-31",
+    contractAmount: 76000,
+    account: "yuehai_digital",
+    passwordHint: "Yuehai@26",
+    submittedAt: "2026-08-24 09:30:00",
+    reviewedAt: "2026-08-25 16:12:00",
+    reviewer: "李运营",
+    rejectReason: "申请账号命名不规范，请按企业简称重新提交。",
+    requestedProducts: ["dci"],
+  },
 ];
+
+function currentReviewerName() {
+  return getCurrentUser()?.displayName?.trim() || "运营管理员";
+}
 
 let applications: AccountApplication[] = structuredClone(MOCK_APPLICATIONS);
 const listeners = new Set<() => void>();
@@ -205,7 +251,7 @@ export function approveApplication(
           ...row,
           status: "approved",
           reviewedAt: stamp,
-          reviewer: "运营管理员",
+          reviewer: currentReviewerName(),
           customerId: customer.id,
         }
       : row,
@@ -231,7 +277,7 @@ export function rejectApplication(
           ...row,
           status: "rejected",
           reviewedAt: nowStamp(),
-          reviewer: "运营管理员",
+          reviewer: currentReviewerName(),
           rejectReason: trimmed,
         }
       : row,

@@ -52,12 +52,24 @@ export const OPS_PERMISSION_TREE: OpsPermNode[] = [
     label: "客户账号管理",
     children: [
       {
-        id: "accounts.list",
-        label: "客户账号管理列表页",
+        id: "accounts.pending",
+        label: "待审核",
+        children: [{ id: "accounts.pending.review", label: "审核按钮" }],
+      },
+      {
+        id: "accounts.mine",
+        label: "我的审核",
         children: [
-          { id: "accounts.list.review", label: "审核按钮" },
-          { id: "accounts.list.view", label: "查看按钮" },
-          { id: "accounts.list.edit", label: "编辑按钮" },
+          { id: "accounts.mine.view", label: "查看按钮" },
+          { id: "accounts.mine.edit", label: "编辑按钮" },
+        ],
+      },
+      {
+        id: "accounts.all",
+        label: "全部审核",
+        children: [
+          { id: "accounts.all.view", label: "查看按钮" },
+          { id: "accounts.all.edit", label: "编辑按钮" },
         ],
       },
       {
@@ -244,10 +256,14 @@ export const OPS_SEED_ROLES = [
       "customers.services.create",
       "customers.services.toggle",
       "accounts",
-      "accounts.list",
-      "accounts.list.review",
-      "accounts.list.view",
-      "accounts.list.edit",
+      "accounts.pending",
+      "accounts.pending.review",
+      "accounts.mine",
+      "accounts.mine.view",
+      "accounts.mine.edit",
+      "accounts.all",
+      "accounts.all.view",
+      "accounts.all.edit",
       "accounts.review",
       "accounts.review.contractDownload",
       "accounts.detail",

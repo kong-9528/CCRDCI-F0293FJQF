@@ -153,6 +153,9 @@ export function IconPortal(props: IconProps) {
 const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/dashboard": IconHome,
   "/accounts": IconCustomers,
+  "/accounts/pending": IconCustomers,
+  "/accounts/mine": IconCustomers,
+  "/accounts/all": IconCustomers,
   "/customers": IconCustomers,
   "/customer-services": IconServices,
   "/products": IconProducts,
@@ -173,8 +176,24 @@ const NAV_ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "/system/op-logs": IconLogs,
 };
 
+const GROUP_ICON_MAP: Record<string, ComponentType<IconProps>> = {
+  home: IconHome,
+  customers: IconCustomers,
+  products: IconProducts,
+  stats: IconStatsCustomers,
+  content: IconPortal,
+  system: IconRoles,
+};
+
 export function NavIcon({ to, className }: { to: string; className?: string }) {
   const Icon = NAV_ICON_MAP[to];
+  if (!Icon) return null;
+  return <Icon className={className} />;
+}
+
+/** 目录级图标（不用于子模块） */
+export function NavGroupIcon({ id, className }: { id: string; className?: string }) {
+  const Icon = GROUP_ICON_MAP[id];
   if (!Icon) return null;
   return <Icon className={className} />;
 }

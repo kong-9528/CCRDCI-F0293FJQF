@@ -16,15 +16,18 @@ import {
   type ProductServiceConfig,
 } from "@/lib/catalog";
 import { getCustomerById } from "@/lib/customersStore";
+import { getCurrentUser } from "@/lib/usersStore";
 
 const PAGE_SIZES = [10, 20, 30, 50] as const;
+
+export type AccountListMode = "pending" | "mine" | "all";
 
 type Filters = {
   company: string;
   creditCode: string;
   account: string;
   product: string;
-  status: string;
+  reviewer: string;
 };
 
 const EMPTY_FILTERS: Filters = {
@@ -32,8 +35,10 @@ const EMPTY_FILTERS: Filters = {
   creditCode: "",
   account: "",
   product: "",
-  status: "",
+  reviewer: "",
 };
+
+type ResultTab = "approved" | "rejected";
 
 function applicationProductServices(app: AccountApplication): ProductServiceConfig[] {
   if (app.status === "approved" && app.customerId) {
@@ -57,7 +62,7 @@ function statusTag(status: ApplicationStatus) {
   return <span className="a-tag a-tag--wn">{APPLICATION_STATUS_LABEL[status]}</span>;
 }
 
-function matchesFilters(row: AccountApplication, f: Filters) {
+function matchesFilters(row: AccountApplication, f: Filters, mode: AccountListMode) {
   const companyQ = f.company.trim();
   if (companyQ && !row.companyName.includes(companyQ)) return false;
 
@@ -71,27 +76,55 @@ function matchesFilters(row: AccountApplication, f: Filters) {
     return false;
   }
 
-  if (f.status && row.status !== f.status) return false;
+  if (mode === "all") {
+    const reviewerQ = f.reviewer.trim();
+    if (reviewerQ && !(row.reviewer ?? "").includes(reviewerQ)) return false;
+  }
+
   return true;
 }
 
-export function AccountApplicationsPage() {
+type Props = {
+  mode: AccountListMode;
+};
+
+export function AccountApplicationsPage({ mode }: Props) {
   const { applications } = useAccountsStore();
+  const me = getCurrentUser();
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
+  const [resultTab, setResultTab] = useState<ResultTab>("approved");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
 
-  const filtered = useMemo(
-    () =>
-      [...applications]
-        .filter((row) => matchesFilters(row, applied))
-        .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt)),
-    [applications, applied],
-  );
+  const scoped = useMemo(() => {
+    let rows = [...applications];
+    if (mode === "pending") {
+      rows = rows.filter((r) => r.status === "pending");
+    } else if (mode === "mine") {
+      const name = me?.displayName ?? "";
+      rows = rows.filter(
+        (r) => (r.status === "approved" || r.status === "rejected") && r.reviewer === name,
+      );
+    } else {
+      rows = rows.filter((r) => r.status === "approved" || r.status === "rejected");
+    }
+    return rows;
+  }, [applications, mode, me?.displayName]);
 
-  const pendingCount = applications.filter((a) => a.status === "pending").length;
+  const filtered = useMemo(() => {
+    let rows = scoped.filter((row) => matchesFilters(row, applied, mode));
+    if (mode === "mine" || mode === "all") {
+      rows = rows.filter((r) => r.status === resultTab);
+    }
+    return rows.sort((a, b) => {
+      const ta = mode === "pending" ? a.submittedAt : (a.reviewedAt ?? a.submittedAt);
+      const tb = mode === "pending" ? b.submittedAt : (b.reviewedAt ?? b.submittedAt);
+      return tb.localeCompare(ta);
+    });
+  }, [scoped, applied, mode, resultTab]);
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const pageRows = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -115,8 +148,37 @@ export function AccountApplicationsPage() {
     setPage(Math.min(Math.max(1, p), totalPages));
   };
 
+  const switchTab = (tab: ResultTab) => {
+    setResultTab(tab);
+    setPage(1);
+  };
+
+  const showTabs = mode === "mine" || mode === "all";
+  const colSpan = mode === "pending" ? 8 : mode === "all" ? 9 : 8;
+
   return (
     <div className="a-card">
+      {showTabs ? (
+        <div className="a-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            className={`a-tabs__item${resultTab === "approved" ? " is-active" : ""}`}
+            onClick={() => switchTab("approved")}
+          >
+            通过
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={`a-tabs__item${resultTab === "rejected" ? " is-active" : ""}`}
+            onClick={() => switchTab("rejected")}
+          >
+            不通过
+          </button>
+        </div>
+      ) : null}
+
       <div className="a-toolbar">
         <div className="a-field">
           <span className="a-field__label">机构/企业名称</span>
@@ -161,24 +223,22 @@ export function AccountApplicationsPage() {
             ))}
           </select>
         </div>
-        <div className="a-field">
-          <span className="a-field__label">状态</span>
-          <select
-            className="a-select"
-            value={draft.status}
-            onChange={(e) => setFilter("status", e.target.value)}
-          >
-            <option value="">请选择状态</option>
-            <option value="pending">待审核</option>
-            <option value="approved">已通过</option>
-            <option value="rejected">已拒绝</option>
-          </select>
-        </div>
-        <button type="button" className="a-btn" onClick={reset}>
-          重置
-        </button>
+        {mode === "all" ? (
+          <div className="a-field">
+            <span className="a-field__label">审核人</span>
+            <input
+              className="a-input"
+              placeholder="请输入审核人"
+              value={draft.reviewer}
+              onChange={(e) => setFilter("reviewer", e.target.value)}
+            />
+          </div>
+        ) : null}
         <button type="button" className="a-btn a-btn--primary" onClick={search}>
           查询
+        </button>
+        <button type="button" className="a-btn" onClick={reset}>
+          重置
         </button>
       </div>
 
@@ -191,7 +251,8 @@ export function AccountApplicationsPage() {
               <th>联系人姓名</th>
               <th>申请账号</th>
               <th>开通产品</th>
-              <th>提交时间</th>
+              <th>{mode === "pending" ? "提交时间" : "审核时间"}</th>
+              {mode === "all" ? <th>审核人</th> : null}
               <th>状态</th>
               <th className="a-table__col-actions">操作</th>
             </tr>
@@ -199,7 +260,7 @@ export function AccountApplicationsPage() {
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={8}>
+                <td colSpan={colSpan}>
                   <div className="a-empty">暂无符合条件的申请记录</div>
                 </td>
               </tr>
@@ -215,7 +276,8 @@ export function AccountApplicationsPage() {
                   <td>
                     <ProductServiceTags services={applicationProductServices(row)} />
                   </td>
-                  <td>{row.submittedAt}</td>
+                  <td>{mode === "pending" ? row.submittedAt : (row.reviewedAt ?? "—")}</td>
+                  {mode === "all" ? <td>{row.reviewer ?? "—"}</td> : null}
                   <td>{statusTag(row.status)}</td>
                   <td>
                     <div className="a-actions a-actions--nowrap">
@@ -252,12 +314,7 @@ export function AccountApplicationsPage() {
 
       <div className="a-list-footer">
         <div className="a-summary">
-          当前筛选结果共 <b>{filtered.length}</b> 条申请
-          {pendingCount > 0 ? (
-            <>
-              ，其中待审核 <b>{pendingCount}</b> 条
-            </>
-          ) : null}
+          当前筛选结果共 <b>{filtered.length}</b> 条
           {applied.product
             ? `，已筛选产品「${productName(applied.product as ProductCode)}」`
             : ""}

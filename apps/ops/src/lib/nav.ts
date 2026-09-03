@@ -8,32 +8,48 @@ export type NavItem = {
 };
 
 export type NavGroup = {
+  /** 分组唯一键 */
+  key: string;
+  /** 目录标题；空字符串表示顶层单链（如首页） */
   title: string;
+  /** 目录级图标 id（仅目录/首页，不挂在子模块） */
+  icon: string;
   items: NavItem[];
 };
 
 export const OPS_NAV: NavGroup[] = [
   {
+    key: "home",
     title: "",
+    icon: "home",
     items: [{ to: "/dashboard", label: "首页", ready: true }],
   },
   {
+    key: "customers",
     title: "客户管理",
+    icon: "customers",
     items: [
-      { to: "/accounts", label: "客户账号管理", ready: true },
-      { to: "/customers", label: "客户账号列表", ready: true },
+      { to: "/accounts/pending", label: "待审核", ready: true },
+      { to: "/accounts/mine", label: "我的审核", ready: true },
+      { to: "/accounts/all", label: "全部审核", ready: true },
+      { to: "/accounts", label: "客户账号管理", ready: true, hidden: true },
+      { to: "/customers", label: "客户账号列表", ready: true, hidden: true },
       { to: "/customer-services", label: "服务产品管理", ready: true, hidden: true },
     ],
   },
   {
+    key: "products",
     title: "产品/能力上架管理",
+    icon: "products",
     items: [
       { to: "/products/verify", label: "版权核验产品", ready: true },
       { to: "/products/audit", label: "智能辅助审核产品", ready: true },
     ],
   },
   {
+    key: "stats",
     title: "运营统计",
+    icon: "stats",
     items: [
       { to: "/stats/customers", label: "客户使用统计", ready: true },
       { to: "/stats/products", label: "产品使用统计", ready: true },
@@ -41,7 +57,9 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
+    key: "content",
     title: "门户内容管理",
+    icon: "content",
     items: [
       { to: "/content/portal", label: "技术服务中心专题管理", ready: true },
       { to: "/content/home", label: "门户内容管理", ready: true, hidden: true },
@@ -49,7 +67,9 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
+    key: "system",
     title: "系统管理",
+    icon: "system",
     items: [
       { to: "/system/roles", label: "角色权限", ready: true },
       { to: "/system/users", label: "用户管理", ready: true },
@@ -59,7 +79,23 @@ export const OPS_NAV: NavGroup[] = [
   },
 ];
 
+export function findNavGroupKey(pathname: string): string | null {
+  let best: { key: string; len: number } | null = null;
+  for (const group of OPS_NAV) {
+    for (const item of group.items) {
+      if (pathname === item.to || pathname.startsWith(`${item.to}/`)) {
+        const len = item.to.length;
+        if (!best || len > best.len) best = { key: group.key, len };
+      }
+    }
+  }
+  return best?.key ?? null;
+}
+
 export function findNavLabel(pathname: string): string {
+  if (pathname === "/accounts/pending") return "待审核";
+  if (pathname === "/accounts/mine") return "我的审核";
+  if (pathname === "/accounts/all") return "全部审核";
   if (/^\/accounts\/[^/]+\/review$/.test(pathname)) return "审核开通申请";
   if (/^\/accounts\/[^/]+\/edit$/.test(pathname)) return "编辑产品服务";
   if (/^\/accounts\/[^/]+$/.test(pathname)) return "申请详情";

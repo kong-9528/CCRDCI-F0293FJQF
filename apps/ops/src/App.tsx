@@ -41,7 +41,10 @@ export function App() {
       <Route element={<OpsLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/accounts" element={<AccountApplicationsPage />} />
+        <Route path="/accounts" element={<Navigate to="/accounts/pending" replace />} />
+        <Route path="/accounts/pending" element={<AccountApplicationsPage mode="pending" />} />
+        <Route path="/accounts/mine" element={<AccountApplicationsPage mode="mine" />} />
+        <Route path="/accounts/all" element={<AccountApplicationsPage mode="all" />} />
         <Route path="/accounts/:id/review" element={<AccountApplicationPage mode="review" />} />
         <Route path="/accounts/:id/edit" element={<AccountApplicationEditPage />} />
         <Route path="/accounts/:id" element={<AccountApplicationPage mode="view" />} />

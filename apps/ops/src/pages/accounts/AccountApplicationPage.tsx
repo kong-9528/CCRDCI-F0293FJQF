@@ -12,7 +12,7 @@ import {
   emptyProductConfig,
   type ProductConfigState,
 } from "@/lib/productConfig";
-import { getCurrentUserPermissions } from "@/lib/usersStore";
+import { getCurrentUser, getCurrentUserPermissions } from "@/lib/usersStore";
 
 type ReviewDecision = "approve" | "reject";
 
@@ -71,6 +71,13 @@ export function AccountApplicationPage({ mode }: Props) {
   const readOnly = mode === "view";
   const pageTitle = mode === "review" ? "审核开通申请" : "申请详情";
   const userPerms = getCurrentUserPermissions();
+  const meName = getCurrentUser()?.displayName ?? "";
+  const listBackPath =
+    application.status === "pending"
+      ? "/accounts/pending"
+      : application.reviewer === meName
+        ? "/accounts/mine"
+        : "/accounts/all";
   const contractDownloadPerm =
     mode === "review" ? "accounts.review.contractDownload" : "accounts.detail.contractDownload";
   const canDownloadContract = hasAccountsPerm(userPerms, contractDownloadPerm);
@@ -91,7 +98,7 @@ export function AccountApplicationPage({ mode }: Props) {
       setError(result.error);
       return;
     }
-    navigate(`/customers/${result.customerId}`);
+    navigate(`/accounts/${application.id}`, { replace: true });
   };
 
   return (
@@ -108,7 +115,7 @@ export function AccountApplicationPage({ mode }: Props) {
                 编辑产品服务
               </Link>
             ) : null}
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate("/accounts")}>
+            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(listBackPath)}>
               返回列表
             </button>
           </div>
@@ -294,7 +301,7 @@ export function AccountApplicationPage({ mode }: Props) {
               <button type="button" className="a-btn a-btn--primary" onClick={submit}>
                 {decision === "approve" ? "确认通过并开通" : "确认拒绝"}
               </button>
-              <button type="button" className="a-btn" onClick={() => navigate("/accounts")}>
+              <button type="button" className="a-btn" onClick={() => navigate(listBackPath)}>
                 取消
               </button>
             </div>
