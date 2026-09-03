@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
@@ -169,17 +170,19 @@ export function ReviewServicePage({ product }: Props) {
               className="a-btn a-btn--primary a-btn--sm"
               onClick={() => setApplied({ ...draft })}
             >
-              查询
+              <IconSearch />
+              搜索
             </button>
             <button
               type="button"
-              className="a-btn a-btn--sm"
+              className="a-btn a-btn--outline a-btn--sm"
               onClick={() => {
                 const next = { from: range0.from, to: range0.to, status: "" };
                 setDraft(next);
                 setApplied(next);
               }}
             >
+              <IconReset />
               重置
             </button>
           </div>

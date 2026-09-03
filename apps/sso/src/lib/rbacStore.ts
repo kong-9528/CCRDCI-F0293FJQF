@@ -4,9 +4,18 @@
  * - User.username：全集团唯一身份（可与入职邮箱同值，但 SSO 侧只存统一用户名）
  * - Role 归属某一子系统（含 SSO 平台本身 subsystemId = "sso"）
  * - 用户可绑定多个子系统下的多个角色 → 开通多系统权限
+ * - 技术服务中心（ops）权限树 / 角色 / 演示用户与 apps/ops 对齐
  */
 
+import {
+  flattenOpsPermissions,
+  OPS_SEED_ROLES,
+  OPS_SUBSYSTEM_ID,
+} from "@/lib/opsPermissionSeed";
+
 export type EntityStatus = "active" | "disabled";
+
+export { OPS_SUBSYSTEM_ID };
 
 export type Subsystem = {
   id: string;
@@ -74,11 +83,21 @@ let subsystems: Subsystem[] = [
     sort: 0,
   },
   {
+    id: OPS_SUBSYSTEM_ID,
+    code: "ops",
+    name: "技术服务中心",
+    description: "运营后台：客户、产品上架、内容与系统管理",
+    entryUrl: "http://localhost:3001",
+    accent: "#0B62B8",
+    status: "active",
+    sort: 5,
+  },
+  {
     id: "sys-oa",
     code: "oa",
     name: "协同办公 OA",
     description: "审批、公文、日程与组织通讯录",
-    entryUrl: "http://localhost:3002",
+    entryUrl: "https://www.ccopyright.com",
     accent: "#00B8C6",
     status: "active",
     sort: 10,
@@ -88,7 +107,7 @@ let subsystems: Subsystem[] = [
     code: "hr",
     name: "人力资源 HR",
     description: "组织人事、考勤与员工自助",
-    entryUrl: "http://localhost:3001",
+    entryUrl: "https://www.ccopyright.com",
     accent: "#0B62B8",
     status: "active",
     sort: 20,
@@ -115,6 +134,11 @@ let subsystems: Subsystem[] = [
   },
 ];
 
+const opsPermissions: Permission[] = flattenOpsPermissions().map((p) => ({
+  ...p,
+  subsystemId: OPS_SUBSYSTEM_ID,
+}));
+
 let permissions: Permission[] = [
   // SSO 平台
   { id: "p-sso-launcher", code: "sso.launcher", name: "访问应用入口", subsystemId: SSO_SUBSYSTEM_ID, description: "登录后查看已开通子系统" },
@@ -126,6 +150,8 @@ let permissions: Permission[] = [
   { id: "p-sso-perms", code: "sso.perms", name: "权限目录", subsystemId: SSO_SUBSYSTEM_ID, description: "查看权限点定义" },
   { id: "p-sso-subsystems", code: "sso.subsystems", name: "子系统管理", subsystemId: SSO_SUBSYSTEM_ID, description: "维护可接入子系统" },
   { id: "p-sso-subsystems-write", code: "sso.subsystems.write", name: "子系统编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "新增/编辑子系统" },
+  // 技术服务中心（与 ops 权限树对齐）
+  ...opsPermissions,
   // OA
   { id: "p-oa-home", code: "oa.home", name: "OA 工作台", subsystemId: "sys-oa", description: "进入 OA" },
   { id: "p-oa-approve", code: "oa.approve", name: "审批办理", subsystemId: "sys-oa", description: "处理审批单据" },
@@ -173,6 +199,16 @@ let roles: Role[] = [
     permissionIds: ["p-sso-launcher", "p-sso-password"],
     status: "active",
   },
+  // 技术服务中心（与 ops rolesStore 对齐）
+  ...OPS_SEED_ROLES.map((r) => ({
+    id: r.id,
+    code: r.code,
+    name: r.name,
+    subsystemId: OPS_SUBSYSTEM_ID,
+    description: r.description,
+    permissionIds: [...r.permissionIds],
+    status: "active" as const,
+  })),
   {
     id: "r-oa-user",
     code: "oa_user",
@@ -233,12 +269,49 @@ let users: SsoUser[] = [
   {
     id: "u-admin",
     username: "admin",
-    displayName: "系统管理员",
+    displayName: "超级管理员",
     password: "admin123",
     status: "active",
-    roleIds: ["r-sso-admin", "r-oa-admin", "r-hr-admin", "r-erp-user", "r-crm-user"],
+    roleIds: [
+      "r-sso-admin",
+      "role-super",
+      "r-oa-admin",
+      "r-hr-admin",
+      "r-erp-user",
+      "r-crm-user",
+    ],
     createdAt: "2026-01-01 10:00:00",
     updatedAt: "2026-01-01 10:00:00",
+  },
+  {
+    id: "u-wang",
+    username: "wang_editor",
+    displayName: "王编辑",
+    password: "demo123456",
+    status: "active",
+    roleIds: ["r-sso-user", "role-ops"],
+    createdAt: "2026-02-01 09:00:00",
+    updatedAt: "2026-02-01 09:00:00",
+  },
+  {
+    id: "u-li",
+    username: "li_ops",
+    displayName: "李运营",
+    password: "demo123456",
+    status: "active",
+    roleIds: ["r-sso-user", "role-ops"],
+    createdAt: "2026-02-05 10:00:00",
+    updatedAt: "2026-02-05 10:00:00",
+  },
+  {
+    id: "u-viewer",
+    username: "viewer01",
+    displayName: "观察员甲",
+    password: "demo123456",
+    status: "disabled",
+    roleIds: ["r-sso-user", "role-viewer"],
+    createdAt: "2026-02-08 14:00:00",
+    updatedAt: "2026-02-08 14:00:00",
   },
   {
     id: "u-zhangsan",

@@ -45,7 +45,7 @@ export function LoginPage() {
         <div className="sso-login__brand">
           <span className="sso-brand__mark sso-brand__mark--lg" aria-hidden />
           <h1>集团统一身份认证</h1>
-          <p>一次登录，安全访问已开通的业务子系统</p>
+          {/* <p>一次登录，安全访问已开通的业务子系统</p> */}
         </div>
         <form className="sso-login__form" onSubmit={(e) => void onSubmit(e)}>
           <div className="sso-field">
@@ -76,7 +76,7 @@ export function LoginPage() {
             {loading ? "登录中…" : "登录"}
           </button>
           <p className="sso-login__hint">
-            演示账号：admin / admin123（管理员）；zhangsan / demo123456（员工）
+            演示：admin / admin123（SSO+技术服务中心超管）；wang_editor / demo123456（运营专员）
           </p>
         </form>
       </div>

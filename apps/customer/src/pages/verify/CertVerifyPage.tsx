@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
+import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { CertConfirmModal } from "@/components/verify/CertConfirmModal";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
@@ -263,11 +264,12 @@ export function CertVerifyPage() {
                 setPage(1);
               }}
             >
-              查询
+              <IconSearch />
+              搜索
             </button>
             <button
               type="button"
-              className="a-btn a-btn--sm"
+              className="a-btn a-btn--outline a-btn--sm"
               onClick={() => {
                 const next = {
                   from: range0.from,
@@ -280,6 +282,7 @@ export function CertVerifyPage() {
                 setPage(1);
               }}
             >
+              <IconReset />
               重置
             </button>
           </div>
@@ -333,10 +336,11 @@ export function CertVerifyPage() {
                         <td>
                           <button
                             type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                            className="a-link-action"
                             onClick={() => setDetail(r)}
                           >
-                            查看
+                            <IconEye />
+                            详情
                           </button>
                         </td>
                       ) : null}

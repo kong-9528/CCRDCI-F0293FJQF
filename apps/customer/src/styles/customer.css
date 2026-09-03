@@ -1,27 +1,8 @@
 @import "@ctp/styles/tokens.css";
 @import "@ctp/styles/admin.css";
+@import "./dci-theme.css";
 
-/* 客户台：在 admin 紧凑字号基础上整体放大两档，便于阅读 */
-.theme-customer {
-  --ad-fs-body: 15px;
-  --ad-fs-sm: 14px;
-  --ad-fs-h1: 18px;
-  --ad-fs-h2: 16px;
-  --ad-ctrl-sm: 26px;
-  --ad-ctrl-md: 30px;
-  --ad-ctrl-lg: 34px;
-  --ad-table-row-h: 36px;
-  --ad-header-h: 52px;
-}
-
-.theme-customer .a-sidebar__logo {
-  font-size: 17px;
-}
-
-.theme-customer .a-stat__num {
-  font-size: 26px;
-}
-
+/* 客户台滚动骨架（视觉由 dci-theme.css 接管） */
 html,
 body,
 #root {

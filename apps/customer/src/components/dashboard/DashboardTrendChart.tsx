@@ -112,17 +112,24 @@ export function DashboardTrendChart() {
             })}
             {series.map((s) => {
               const n = s.values.length;
-              const points = s.values.map((v, i) => `${xAt(i, n)},${yAt(v)}`).join(" ");
+              const linePoints = s.values.map((v, i) => `${xAt(i, n)},${yAt(v)}`).join(" ");
+              const areaPoints = [
+                `${xAt(0, n)},${pad.t + innerH}`,
+                ...s.values.map((v, i) => `${xAt(i, n)},${yAt(v)}`),
+                `${xAt(n - 1, n)},${pad.t + innerH}`,
+              ].join(" ");
               return (
-                <polyline
-                  key={s.code}
-                  fill="none"
-                  stroke={s.color}
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  points={points}
-                />
+                <g key={s.code}>
+                  <polygon fill={s.color} fillOpacity="0.12" points={areaPoints} />
+                  <polyline
+                    fill="none"
+                    stroke={s.color}
+                    strokeWidth="2.5"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    points={linePoints}
+                  />
+                </g>
               );
             })}
             {labels.map((label, i) => {
@@ -149,7 +156,7 @@ export function DashboardTrendChart() {
 }
 
 function chartColor(code: ProductCode): string {
-  if (code === "dci") return "var(--p-600)";
-  if (code === "info") return "var(--a-500)";
-  return "#6366F1";
+  if (code === "dci") return "#1890ff";
+  if (code === "info") return "#52c41a";
+  return "#ff9c6e";
 }

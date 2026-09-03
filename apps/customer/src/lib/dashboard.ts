@@ -189,9 +189,9 @@ export function chartSeries(
   codes: ProductCode[],
 ): { code: ProductCode; name: string; values: number[]; color: string }[] {
   const palette: Partial<Record<ProductCode, string>> = {
-    dci: "var(--p-600)",
-    info: "var(--a-500)",
-    certificate: "#6366F1",
+    dci: "#1890ff",
+    info: "#52c41a",
+    certificate: "#ff9c6e",
   };
   const data = range === "7d" ? CHART_7D : CHART_30D;
   return codes.map((code) => ({

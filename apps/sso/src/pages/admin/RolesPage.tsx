@@ -208,6 +208,7 @@ function RoleDialog({
                     <strong>{p.name}</strong>
                     <small>
                       <code>{p.code}</code>
+                      {p.description && p.description !== p.name ? ` · ${p.description}` : ""}
                     </small>
                   </span>
                 </label>

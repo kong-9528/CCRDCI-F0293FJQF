@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
+import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchInfoModal } from "@/components/verify/BatchInfoModal";
 import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
@@ -364,11 +365,12 @@ export function InfoVerifyPage() {
                 setPage(1);
               }}
             >
-              查询
+              <IconSearch />
+              搜索
             </button>
             <button
               type="button"
-              className="a-btn a-btn--sm"
+              className="a-btn a-btn--outline a-btn--sm"
               onClick={() => {
                 const next = {
                   from: range0.from,
@@ -382,6 +384,7 @@ export function InfoVerifyPage() {
                 setPage(1);
               }}
             >
+              <IconReset />
               重置
             </button>
           </div>
@@ -434,9 +437,10 @@ export function InfoVerifyPage() {
                         <td style={{ whiteSpace: "nowrap" }}>
                           <button
                             type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                            className="a-link-action"
                             onClick={() => setDetail(r)}
                           >
+                            <IconEye />
                             详情
                           </button>
                         </td>

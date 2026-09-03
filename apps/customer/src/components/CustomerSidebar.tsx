@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { NavIcon } from "@/components/icons/NavIcons";
 import { CUSTOMER_NAV } from "@/lib/nav";
-import { PLATFORM_NAME } from "@/lib/catalog";
 
 type Props = {
   collapsed: boolean;
@@ -12,9 +11,6 @@ export function CustomerSidebar({ collapsed, locked }: Props) {
   if (locked) {
     return (
       <aside className="a-sidebar">
-        <div className="a-sidebar__logo" title={PLATFORM_NAME}>
-          {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
-        </div>
         <nav className="a-sidebar__nav">
           <NavLink
             to="/apply"
@@ -32,14 +28,10 @@ export function CustomerSidebar({ collapsed, locked }: Props) {
 
   return (
     <aside className="a-sidebar">
-      <NavLink to="/desk" className="a-sidebar__logo" title={PLATFORM_NAME}>
-        {!collapsed ? <span className="a-sidebar__logo-text">{PLATFORM_NAME}</span> : null}
-      </NavLink>
-
       <nav className="a-sidebar__nav">
         {CUSTOMER_NAV.map((group) => (
-          <div key={group.title || group.items[0]?.to || "group"}>
-            {group.title ? <div className="a-menu__group">{group.title}</div> : null}
+          <div key={group.title || group.items[0]?.to || "group"} className="a-menu__block">
+            {group.title && !collapsed ? <div className="a-menu__group">{group.title}</div> : null}
             {group.items.map((item) => (
               <NavLink
                 key={item.to}

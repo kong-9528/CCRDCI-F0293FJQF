@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
+import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchDciModal } from "@/components/verify/BatchDciModal";
 import { DciDetailDrawer } from "@/components/verify/DciDetailDrawer";
@@ -386,11 +387,12 @@ export function DciVerifyPage() {
                 setPage(1);
               }}
             >
-              查询
+              <IconSearch />
+              搜索
             </button>
             <button
               type="button"
-              className="a-btn a-btn--sm"
+              className="a-btn a-btn--outline a-btn--sm"
               onClick={() => {
                 const next = {
                   from: range0.from,
@@ -404,6 +406,7 @@ export function DciVerifyPage() {
                 setPage(1);
               }}
             >
+              <IconReset />
               重置
             </button>
           </div>
@@ -435,7 +438,19 @@ export function DciVerifyPage() {
                     <tr key={r.id}>
                       <td>{r.verifiedAt}</td>
                       <td>
-                        <code>{r.dciCode}</code>
+                        <span className="a-code-cell">
+                          <button
+                            type="button"
+                            className="a-link-action"
+                            title="复制 DCI 码"
+                            onClick={() => {
+                              void navigator.clipboard?.writeText(r.dciCode);
+                            }}
+                          >
+                            {r.dciCode}
+                            <IconCopy />
+                          </button>
+                        </span>
                       </td>
                       <td>
                         <div className="a-cell-clamp" title={r.queryName || undefined}>
@@ -459,9 +474,10 @@ export function DciVerifyPage() {
                         <td style={{ whiteSpace: "nowrap" }}>
                           <button
                             type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                            className="a-link-action"
                             onClick={() => setDetail(r)}
                           >
+                            <IconEye />
                             详情
                           </button>
                         </td>

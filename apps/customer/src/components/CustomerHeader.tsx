@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { IconBell, IconFullscreen, IconMenu } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
-import { findNavLabel } from "@/lib/nav";
 import { EXTERNAL_LOGIN_ACCOUNT, demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
 import { MOCK_TENANT } from "@/lib/tenant";
 
@@ -19,20 +19,35 @@ function tenantInitial(name: string) {
 }
 
 export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }: Props) {
-  const title = findNavLabel(pathname);
   const navigate = useNavigate();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { unlocked } = useOnboardingStore();
   const displayName = locked ? EXTERNAL_LOGIN_ACCOUNT : MOCK_TENANT.companyName;
+  const roleLabel = locked ? "申请人" : "企业用户";
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      void document.documentElement.requestFullscreen?.();
+    } else {
+      void document.exitFullscreen?.();
+    }
+  };
 
   return (
     <header className="a-header">
-      <button type="button" className="a-btn a-btn--text a-btn--sm" onClick={onToggleCollapse}>
-        {collapsed ? "»" : "«"}
-      </button>
-      <div className="a-header__crumb">
-        {PLATFORM_NAME} / <b>{title}</b>
+      <div className="a-header__brand">
+        <span className="a-header__logo-mark" aria-hidden />
+        <span className="a-header__logo-text">{PLATFORM_NAME}</span>
+        <button
+          type="button"
+          className="a-header__icon-btn"
+          aria-label={collapsed ? "展开侧栏" : "收起侧栏"}
+          onClick={onToggleCollapse}
+        >
+          <IconMenu />
+        </button>
       </div>
+
       <div className="a-header__actions">
         {!locked ? (
           <div className="a-header__text-links">
@@ -50,16 +65,28 @@ export function CustomerHeader({ pathname, collapsed, locked, onToggleCollapse }
             </Link>
           </div>
         ) : null}
+
+        <button type="button" className="a-header__icon-btn" aria-label="全屏" onClick={toggleFullscreen}>
+          <IconFullscreen />
+        </button>
+        <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
+          <IconBell />
+          <span className="a-header__badge">3</span>
+        </button>
+
         <div className="a-header__user">
           <button type="button" className="a-header__user-btn" aria-haspopup="menu">
             <span className="a-header__avatar">{tenantInitial(displayName)}</span>
-            <span>{displayName}</span>
+            <span className="a-header__user-meta">
+              <span className="a-header__user-role">{roleLabel}</span>
+            </span>
             <span className="a-header__chevron" aria-hidden>
               ▾
             </span>
           </button>
           <div className="a-header__user-dropdown">
             <div className="a-header__user-menu" role="menu">
+              <div className="a-header__user-menu-name">{displayName}</div>
               {!locked ? (
                 <>
                   <Link to="/account" role="menuitem" className="a-header__user-menu-link">
