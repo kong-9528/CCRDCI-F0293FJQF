@@ -1402,6 +1402,13 @@ body,
 
 .a-table-wrap {
   overflow: auto;
+  border: none;
+  background: transparent;
+}
+
+.theme-ops .a-table-wrap {
+  border: none;
+  background: transparent;
 }
 
 .a-product-services-editor .a-table-wrap {

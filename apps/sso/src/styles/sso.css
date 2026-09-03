@@ -1210,6 +1210,82 @@ code {
   font-size: 12px;
 }
 
+/* ---------- 角色权限树（勾选） ---------- */
+.sso-field__meta {
+  margin-left: 8px;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--n-500);
+}
+
+.sso-perm-panel {
+  max-height: min(48vh, 420px);
+  overflow: auto;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--n-200);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.sso-perm-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sso-perm-tree__item {
+  margin: 0;
+}
+
+.sso-perm-tree__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  font-size: 14px;
+  color: var(--n-800);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sso-perm-tree__label:hover {
+  color: var(--n-900);
+}
+
+.sso-perm-tree__check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--p-600);
+  cursor: pointer;
+}
+
+.sso-perm-tree__check:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sso-perm-tree__text {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  line-height: 1.4;
+}
+
+.sso-perm-tree__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--n-500);
+  background: var(--n-50);
+  border: 1px solid var(--n-100);
+  border-radius: 4px;
+  padding: 0 6px;
+  line-height: 1.6;
+}
+
 /* ?? Modal?????????????????????????? ?? */
 .sso-modal-backdrop {
   position: fixed;

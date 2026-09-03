@@ -193,21 +193,9 @@ export function AccountApplicationPage({ mode }: Props) {
             <h3 className="a-form-section__title">合同信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">合同编号</span>
-                <span className="a-desc__value">{application.contractNo}</span>
-              </div>
-              <div className="a-desc__item">
                 <span className="a-desc__label">合作起止</span>
                 <span className="a-desc__value">
                   {application.contractStart} ~ {application.contractEnd}
-                </span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">合同总金额</span>
-                <span className="a-desc__value">
-                  {application.contractAmount == null
-                    ? "—"
-                    : `¥ ${application.contractAmount.toLocaleString("zh-CN")}`}
                 </span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
@@ -228,6 +216,10 @@ export function AccountApplicationPage({ mode }: Props) {
               <div className="a-desc__item">
                 <span className="a-desc__label">申请账号</span>
                 <span className="a-desc__value">{application.account}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">绑定手机号</span>
+                <span className="a-desc__value">{application.boundPhone || "—"}</span>
               </div>
             </div>
           </section>

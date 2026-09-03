@@ -154,7 +154,7 @@ export function AccountApplicationsPage({ mode }: Props) {
   };
 
   const showTabs = mode === "mine" || mode === "all";
-  const colSpan = mode === "pending" ? 8 : mode === "all" ? 9 : 8;
+  const colSpan = mode === "pending" ? 9 : mode === "all" ? 10 : 9;
 
   return (
     <div className="a-card">
@@ -250,6 +250,7 @@ export function AccountApplicationsPage({ mode }: Props) {
               <th>统一社会信用代码</th>
               <th>联系人姓名</th>
               <th>申请账号</th>
+              <th>绑定手机号</th>
               <th>开通产品</th>
               <th>{mode === "pending" ? "提交时间" : "审核时间"}</th>
               {mode === "all" ? <th>审核人</th> : null}
@@ -273,6 +274,7 @@ export function AccountApplicationsPage({ mode }: Props) {
                   <td>
                     <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
                   </td>
+                  <td>{row.boundPhone || "—"}</td>
                   <td>
                     <ProductServiceTags services={applicationProductServices(row)} />
                   </td>

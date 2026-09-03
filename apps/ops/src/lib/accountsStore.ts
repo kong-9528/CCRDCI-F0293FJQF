@@ -22,6 +22,8 @@ export type AccountApplication = {
   contractEnd: string;
   contractAmount: number | null;
   account: string;
+  /** 账号绑定手机号 */
+  boundPhone: string;
   passwordHint: string;
   submittedAt: string;
   reviewedAt?: string;
@@ -53,6 +55,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-03-31",
     contractAmount: 168000,
     account: "yuntu_tech",
+    boundPhone: "13600001234",
     passwordHint: "Yuntu#2026",
     submittedAt: "2026-08-26 10:15:00",
     requestedProducts: ["dci", "workReview"],
@@ -74,6 +77,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-04-30",
     contractAmount: 256000,
     account: "jnwc_group",
+    boundPhone: "13500005678",
     passwordHint: "Jnwc@2026!",
     submittedAt: "2026-08-27 14:32:00",
     requestedProducts: ["certificate", "info", "workReview"],
@@ -92,6 +96,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-02-28",
     contractAmount: 98000,
     account: "zhilian_sz",
+    boundPhone: "13800009988",
     passwordHint: "Zhilian8!",
     submittedAt: "2026-08-20 09:08:00",
     reviewedAt: "2026-08-21 11:20:00",
@@ -113,6 +118,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-05-31",
     contractAmount: 48000,
     account: "shujin_studio",
+    boundPhone: "13900008877",
     passwordHint: "Shujin#1",
     submittedAt: "2026-08-22 16:45:00",
     reviewedAt: "2026-08-23 10:05:00",
@@ -134,6 +140,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-06-30",
     contractAmount: 128000,
     account: "shencheng_media",
+    boundPhone: "13700006655",
     passwordHint: "ScMedia#26",
     submittedAt: "2026-08-18 11:20:00",
     reviewedAt: "2026-08-19 15:40:00",
@@ -154,6 +161,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractEnd: "2027-07-31",
     contractAmount: 76000,
     account: "yuehai_digital",
+    boundPhone: "13600007766",
     passwordHint: "Yuehai@26",
     submittedAt: "2026-08-24 09:30:00",
     reviewedAt: "2026-08-25 16:12:00",

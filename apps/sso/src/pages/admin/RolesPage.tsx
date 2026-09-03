@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import { ListPageHeader } from "@/components/ListPageHeader";
+import { PermCheckTree, getPermissionTreeForSubsystem } from "@/components/PermCheckTree";
 import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
   createRole,
   getSubsystem,
-  listPermissions,
   listRoles,
   listSubsystems,
   updateRole,
@@ -128,13 +128,8 @@ function RoleDialog({
   const [permissionIds, setPermissionIds] = useState<string[]>(role?.permissionIds ?? []);
   const [error, setError] = useState("");
 
-  const perms = useMemo(() => listPermissions(subsystemId), [subsystemId]);
-
-  const toggle = (pid: string) => {
-    setPermissionIds((prev) =>
-      prev.includes(pid) ? prev.filter((x) => x !== pid) : [...prev, pid],
-    );
-  };
+  const permTree = useMemo(() => getPermissionTreeForSubsystem(subsystemId), [subsystemId]);
+  const selected = useMemo(() => new Set(permissionIds), [permissionIds]);
 
   const submit = () => {
     setError("");
@@ -156,7 +151,12 @@ function RoleDialog({
 
   return (
     <div className="sso-modal-backdrop" role="presentation" onClick={onClose}>
-      <div className="sso-modal" role="dialog" aria-modal onClick={(e) => e.stopPropagation()}>
+      <div
+        className="sso-modal sso-modal--lg"
+        role="dialog"
+        aria-modal
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>{mode === "create" ? "新增角色" : "编辑角色"}</h3>
         <div className="sso-form">
           {mode === "create" ? (
@@ -214,25 +214,16 @@ function RoleDialog({
             </div>
           ) : null}
           <div className="sso-field">
-            <label>权限点</label>
-            <div className="sso-check-grid sso-check-grid--compact">
-              {perms.map((p) => (
-                <label key={p.id} className="sso-check">
-                  <input
-                    type="checkbox"
-                    checked={permissionIds.includes(p.id)}
-                    onChange={() => toggle(p.id)}
-                  />
-                  <span>
-                    <strong>{p.name}</strong>
-                    <small>
-                      <code>{p.code}</code>
-                      {p.description && p.description !== p.name ? ` · ${p.description}` : ""}
-                    </small>
-                  </span>
-                </label>
-              ))}
-              {!perms.length ? <div className="sso-hint">该系统暂无权限点</div> : null}
+            <label>
+              权限点
+              <span className="sso-field__meta">已选 {permissionIds.length}</span>
+            </label>
+            <div className="sso-perm-panel">
+              <PermCheckTree
+                nodes={permTree}
+                selected={selected}
+                onChange={(next) => setPermissionIds([...next])}
+              />
             </div>
           </div>
           {error ? <div className="sso-error">{error}</div> : null}
