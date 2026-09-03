@@ -2,8 +2,8 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
 const ADMIN_LINKS = [
-  { to: "/admin/org", label: "组织结构", perm: "sso.org" },
   { to: "/admin/users", label: "用户管理", perm: "sso.users" },
+  { to: "/admin/org", label: "组织结构", perm: "sso.org" },
   { to: "/admin/roles", label: "角色管理", perm: "sso.roles" },
   { to: "/admin/permissions", label: "权限目录", perm: "sso.perms" },
   { to: "/admin/subsystems", label: "子系统管理", perm: "sso.subsystems" },

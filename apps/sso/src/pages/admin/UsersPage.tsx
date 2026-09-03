@@ -4,16 +4,41 @@ import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
-  formatRoleBindingSummary,
   getOrgPathLabel,
+  getRole,
   getSubsystem,
-  getUserRoleIds,
-  getUserSubsystems,
   listRoles,
   listUsers,
+  type SsoUser,
 } from "@/lib/rbacStore";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
+
+/** 子系统单元格：每行一个子系统，格式 系统名(角色1,角色2) */
+function formatUserSubsystemsCell(user: SsoUser): string[] {
+  const bySys = new Map<string, string[]>();
+  for (const binding of user.roleBindings) {
+    const role = getRole(binding.roleId);
+    if (!role) continue;
+    const list = bySys.get(role.subsystemId) ?? [];
+    if (!list.includes(role.name)) list.push(role.name);
+    bySys.set(role.subsystemId, list);
+  }
+
+  const sysIds = [...bySys.keys()].sort((a, b) => {
+    const sa = getSubsystem(a);
+    const sb = getSubsystem(b);
+    return (sa?.sort ?? 999) - (sb?.sort ?? 999) || (sa?.name ?? "").localeCompare(sb?.name ?? "");
+  });
+
+  if (!sysIds.length) return [];
+
+  return sysIds.map((sysId) => {
+    const name = getSubsystem(sysId)?.name ?? sysId;
+    const roles = bySys.get(sysId) ?? [];
+    return `${name}(${roles.join(",")})`;
+  });
+}
 
 export function UsersPage() {
   return (
@@ -50,16 +75,14 @@ function UsersPageInner() {
               <th>用户名</th>
               <th>显示名</th>
               <th>归属部门</th>
-              <th>角色履职</th>
               <th>状态</th>
-              <th>已开通子系统</th>
+              <th>子系统</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {pager.pageItems.map((u) => {
-              const sys = getUserSubsystems(u);
-              const roleTip = u.roleBindings.map(formatRoleBindingSummary).join("\n");
+              const sysLines = formatUserSubsystemsCell(u);
               return (
                 <tr key={u.id}>
                   <td>
@@ -69,19 +92,24 @@ function UsersPageInner() {
                   <td className="sso-cell-ellipsis" title={getOrgPathLabel(u.orgUnitId)}>
                     {getOrgPathLabel(u.orgUnitId)}
                   </td>
-                  <td className="sso-cell-ellipsis" title={roleTip}>
-                    {u.roleBindings.length
-                      ? `${getUserRoleIds(u).length} 个角色 · ${formatRoleBindingSummary(u.roleBindings[0])}${
-                          u.roleBindings.length > 1 ? " 等" : ""
-                        }`
-                      : "—"}
-                  </td>
                   <td>
                     <span className={`sso-tag${u.status === "active" ? " is-ok" : ""}`}>
                       {u.status === "active" ? "启用" : "停用"}
                     </span>
                   </td>
-                  <td>{sys.length ? sys.map((s) => s.name).join("、") : "—"}</td>
+                  <td title={sysLines.join("\n")}>
+                    {sysLines.length ? (
+                      <div className="sso-sys-lines">
+                        {sysLines.map((line) => (
+                          <div key={line} className="sso-sys-lines__item">
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td>
                     {can("sso.users.write") ? (
                       <Link to={`/admin/users/${u.id}`} className="sso-text-link">
@@ -96,7 +124,7 @@ function UsersPageInner() {
             })}
             {!pager.total ? (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={6}>
                   <div className="sso-empty">暂无用户</div>
                 </td>
               </tr>

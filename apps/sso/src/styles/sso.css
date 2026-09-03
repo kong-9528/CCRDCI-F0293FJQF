@@ -432,6 +432,21 @@ code {
   line-height: 1.3;
 }
 
+.sso-back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--p-700);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.sso-back-link:hover {
+  color: var(--p-500);
+}
+
 .sso-list-desc {
   margin: 6px 0 0;
   font-size: 13px;
@@ -732,6 +747,18 @@ code {
   max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sso-sys-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.sso-sys-lines__item {
   white-space: nowrap;
 }
 

@@ -180,6 +180,9 @@ function UserEditInner() {
     <div className="sso-narrow sso-narrow--wide">
       <header className="sso-list-head">
         <div className="sso-list-head__main">
+          <Link to="/admin/users" className="sso-back-link">
+            ← 返回用户列表
+          </Link>
           <h1 className="sso-list-title">{isCreate ? "新增用户" : "编辑用户"}</h1>
           <p className="sso-list-desc">
             用户有唯一归属部门；每个勾选的角色再配置履职部门（可多选，默认同归属）。可选部门限于你账号角色身份的管辖范围。
