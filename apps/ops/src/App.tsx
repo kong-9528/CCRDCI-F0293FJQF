@@ -2,9 +2,6 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { OpsLayout } from "@/layouts/OpsLayout";
 import { ContentManagePage } from "@/pages/content/ContentManagePage";
 import { ArticleEditPage } from "@/pages/content/ArticleEditPage";
-import { ConsoleHelpArticleEditPage } from "@/pages/content/ConsoleHelpArticleEditPage";
-import { ConsoleHelpManagePage } from "@/pages/content/ConsoleHelpManagePage";
-import { FaqManagePage } from "@/pages/content/FaqManagePage";
 import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { PortalHomeEditPage } from "@/pages/content/PortalHomeEditPage";
 import { PortalHomeManagePage } from "@/pages/content/PortalHomeManagePage";
@@ -30,7 +27,12 @@ import { UsersPage } from "@/pages/system/UsersPage";
 
 function RedirectGuideArticleEdit() {
   const { id } = useParams();
-  return <Navigate to={`/content/guide/articles/${id}/edit`} replace />;
+  return <Navigate to={`/content/center/articles/${id}/edit?channel=portal_guide`} replace />;
+}
+
+function RedirectConsoleHelpArticleEdit() {
+  const { id } = useParams();
+  return <Navigate to={`/content/center/articles/${id}/edit?channel=console_help`} replace />;
 }
 
 export function App() {
@@ -58,24 +60,36 @@ export function App() {
         <Route path="/content/home" element={<PortalHomeManagePage />} />
         <Route path="/content/home/:id/edit" element={<PortalHomeEditPage />} />
         <Route path="/content/portal" element={<PortalContentPage />} />
-        <Route path="/content/guide" element={<ContentManagePage />} />
-        <Route path="/content/guide/articles/new" element={<ArticleEditPage />} />
-        <Route path="/content/guide/articles/:id/edit" element={<ArticleEditPage />} />
-        <Route path="/content/console-help" element={<ConsoleHelpManagePage />} />
+        <Route path="/content/center" element={<ContentManagePage />} />
+        <Route path="/content/center/articles/new" element={<ArticleEditPage />} />
+        <Route path="/content/center/articles/:id/edit" element={<ArticleEditPage />} />
+        <Route path="/content/guide" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
+        <Route
+          path="/content/guide/articles/new"
+          element={<Navigate to="/content/center/articles/new?channel=portal_guide" replace />}
+        />
+        <Route path="/content/guide/articles/:id/edit" element={<RedirectGuideArticleEdit />} />
+        <Route
+          path="/content/console-help"
+          element={<Navigate to="/content/center?channel=console_help" replace />}
+        />
         <Route
           path="/content/console-help/articles/new"
-          element={<ConsoleHelpArticleEditPage />}
+          element={<Navigate to="/content/center/articles/new?channel=console_help" replace />}
         />
         <Route
           path="/content/console-help/articles/:id/edit"
-          element={<ConsoleHelpArticleEditPage />}
+          element={<RedirectConsoleHelpArticleEdit />}
         />
-        <Route path="/content/hc" element={<Navigate to="/content/guide" replace />} />
-        <Route path="/content/hc/articles/new" element={<Navigate to="/content/guide/articles/new" replace />} />
+        <Route path="/content/hc" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
+        <Route
+          path="/content/hc/articles/new"
+          element={<Navigate to="/content/center/articles/new?channel=portal_guide" replace />}
+        />
         <Route path="/content/hc/articles/:id/edit" element={<RedirectGuideArticleEdit />} />
-        <Route path="/content/catalogs" element={<Navigate to="/content/guide" replace />} />
-        <Route path="/content/articles" element={<Navigate to="/content/guide" replace />} />
-        <Route path="/content/faqs" element={<FaqManagePage />} />
+        <Route path="/content/catalogs" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
+        <Route path="/content/articles" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
+        <Route path="/content/faqs" element={<Navigate to="/content/center?channel=portal_faq" replace />} />
         <Route path="/system/roles" element={<RolesPage />} />
         <Route path="/system/users" element={<UsersPage />} />
         <Route path="/system/api-services" element={<ApiServicesPage />} />

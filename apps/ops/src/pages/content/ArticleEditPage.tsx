@@ -1,7 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RichTextEditor } from "@/components/RichTextEditor";
-import { useContentStore } from "@/lib/contentStore";
+import {
+  CONTENT_CHANNEL_LABEL,
+  CONTENT_CHANNELS,
+  getArticleById,
+  useContentStore,
+  type ContentChannel,
+} from "@/lib/contentStore";
+import { CONTENT_CENTER_PATH } from "@/pages/content/ContentManagePage";
 
 type FormState = {
   title: string;
@@ -19,19 +26,31 @@ const EMPTY_FORM: FormState = {
   body: "",
 };
 
-const LIST_PATH = "/content/guide";
+function parseChannel(raw: string | null): ContentChannel {
+  if (raw && (CONTENT_CHANNELS as string[]).includes(raw)) {
+    return raw as ContentChannel;
+  }
+  return "portal_guide";
+}
 
 export function ArticleEditPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const store = useContentStore();
   const isCreate = !id;
+  const channelFromQuery = parseChannel(searchParams.get("channel"));
 
-  const article = useMemo(() => {
-    if (!id) return null;
-    return store.articles.find((a) => a.id === id && !a.deleted) ?? null;
-  }, [id, store.articles]);
+  const [channel, setChannel] = useState<ContentChannel>(channelFromQuery);
+  const store = useContentStore(channel);
+  const article = id ? getArticleById(id) : null;
+
+  useEffect(() => {
+    if (article?.channel) setChannel(article.channel);
+    else if (isCreate) setChannel(channelFromQuery);
+  }, [article?.channel, isCreate, channelFromQuery]);
+
+  const isFaq = channel === "portal_faq";
+  const listPath = `${CONTENT_CENTER_PATH}?channel=${channel}`;
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
@@ -57,13 +76,23 @@ export function ArticleEditPage() {
         body: article.body,
       });
       setReady(true);
+    } else {
+      setReady(true);
     }
   }, [isCreate, article, searchParams]);
+
+  const headTitle = isFaq
+    ? isCreate
+      ? "新增常见问题"
+      : "编辑常见问题"
+    : isCreate
+      ? "新增文章"
+      : "编辑文章";
 
   if (!ready) {
     return (
       <div className="a-card">
-        <div className="a-card__head">编辑指南文章</div>
+        <div className="a-card__head">{headTitle}</div>
         <div className="a-card__body">
           <div className="a-empty">加载中…</div>
         </div>
@@ -74,11 +103,11 @@ export function ArticleEditPage() {
   if (!isCreate && !article) {
     return (
       <div className="a-card">
-        <div className="a-card__head">编辑指南文章</div>
+        <div className="a-card__head">{headTitle}</div>
         <div className="a-card__body">
-          <div className="a-empty">文章不存在或已删除</div>
+          <div className="a-empty">内容不存在或已删除</div>
           <div className="a-form-actions" style={{ marginTop: 16 }}>
-            <button type="button" className="a-btn" onClick={() => navigate(LIST_PATH)}>
+            <button type="button" className="a-btn" onClick={() => navigate(listPath)}>
               返回列表
             </button>
           </div>
@@ -89,7 +118,7 @@ export function ArticleEditPage() {
 
   const submit = () => {
     if (!form.title.trim()) {
-      setError("请填写文章标题");
+      setError(isFaq ? "请填写问题" : "请填写文章标题");
       return;
     }
     const weight = Number(form.weight);
@@ -109,16 +138,19 @@ export function ArticleEditPage() {
     } else if (article) {
       store.updateArticle(article.id, payload);
     }
-    navigate(LIST_PATH);
+    navigate(listPath);
   };
 
   return (
     <div className="a-stack">
       <div className="a-card">
         <div className="a-card__head">
-          {isCreate ? "新增指南文章" : "编辑指南文章"}
+          {headTitle}
           <div className="a-card__extra">
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(LIST_PATH)}>
+            <span className="a-tag a-tag--cyan" style={{ marginRight: 8 }}>
+              {CONTENT_CHANNEL_LABEL[channel]}
+            </span>
+            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(listPath)}>
               返回
             </button>
           </div>
@@ -126,7 +158,8 @@ export function ArticleEditPage() {
         <div className="a-card__body a-stack">
           {isCreate ? (
             <p className="a-field__hint" style={{ margin: 0 }}>
-              新增文章默认为隐藏，需手动「显示」后才会在门户接入指南展示。
+              新增内容默认为隐藏，需在列表中手动「显示」后才会在前台展示。
+              {isFaq ? " 标题为问题，正文为回答（支持富文本）。" : ""}
             </p>
           ) : null}
 
@@ -134,7 +167,7 @@ export function ArticleEditPage() {
             <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-form a-form--grid">
               <div className="a-field">
-                <span className="a-field__label">所属指南目录</span>
+                <span className="a-field__label">所属目录</span>
                 <select
                   className="a-select"
                   value={form.catalogId}
@@ -150,12 +183,13 @@ export function ArticleEditPage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  文章标题 <span className="a-req">*</span>
+                  {isFaq ? "问题" : "文章标题"} <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
                   value={form.title}
                   onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                  placeholder={isFaq ? "请输入问题" : "请输入标题"}
                 />
               </div>
               <div className="a-field">
@@ -173,23 +207,25 @@ export function ArticleEditPage() {
                 />
                 <div className="a-field__hint">数值越小越靠前</div>
               </div>
-              <div className="a-field a-field--wide">
-                <span className="a-field__label">摘要</span>
-                <input
-                  className="a-input"
-                  value={form.summary}
-                  onChange={(e) => setForm((p) => ({ ...p, summary: e.target.value }))}
-                />
-              </div>
+              {!isFaq ? (
+                <div className="a-field a-field--wide">
+                  <span className="a-field__label">摘要</span>
+                  <input
+                    className="a-input"
+                    value={form.summary}
+                    onChange={(e) => setForm((p) => ({ ...p, summary: e.target.value }))}
+                  />
+                </div>
+              ) : null}
             </div>
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">正文</h3>
+            <h3 className="a-form-section__title">{isFaq ? "回答" : "正文"}</h3>
             <RichTextEditor
               value={form.body}
               onChange={(body) => setForm((p) => ({ ...p, body }))}
-              placeholder="请输入正文内容，支持图文混排"
+              placeholder={isFaq ? "请输入回答内容，支持图文混排" : "请输入正文内容，支持图文混排"}
               minHeight={400}
             />
           </section>
@@ -197,7 +233,7 @@ export function ArticleEditPage() {
           {error ? <div className="a-form-error">{error}</div> : null}
 
           <div className="a-form-actions">
-            <button type="button" className="a-btn" onClick={() => navigate(LIST_PATH)}>
+            <button type="button" className="a-btn" onClick={() => navigate(listPath)}>
               取消
             </button>
             <button type="button" className="a-btn a-btn--primary" onClick={submit}>

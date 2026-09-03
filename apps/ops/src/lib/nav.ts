@@ -45,9 +45,7 @@ export const OPS_NAV: NavGroup[] = [
     items: [
       { to: "/content/portal", label: "门户首页管理", ready: true },
       { to: "/content/home", label: "门户内容管理", ready: true },
-      { to: "/content/guide", label: "门户接入指南管理", ready: true },
-      { to: "/content/console-help", label: "控制台帮助中心管理", ready: true },
-      { to: "/content/faqs", label: "FAQ管理", ready: true },
+      { to: "/content/center", label: "技术服务中心内容管理", ready: true },
     ],
   },
   {
@@ -69,12 +67,15 @@ export function findNavLabel(pathname: string): string {
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";
   if (/^\/customers\/[^/]+\/contracts$/.test(pathname)) return "合同管理";
   if (/^\/customers\/[^/]+$/.test(pathname)) return "客户详情";
+  if (pathname === "/content/center/articles/new") return "新增内容";
+  if (/^\/content\/center\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑内容";
   if (pathname === "/content/guide/articles/new") return "新增指南文章";
   if (/^\/content\/guide\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑指南文章";
   if (pathname === "/content/console-help/articles/new") return "新增文章";
   if (/^\/content\/console-help\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";
   if (/^\/content\/home\/[^/]+\/edit$/.test(pathname)) return "门户内容编辑";
   if (pathname === "/content/portal") return "门户首页管理";
+  if (pathname === "/content/center") return "技术服务中心内容管理";
   if (pathname === "/system/api-services/new") return "新增接口";
   if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";
   if (pathname === "/products/verify") return "版权核验产品";

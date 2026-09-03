@@ -786,31 +786,75 @@ export const INTEGRATION_GUIDE: HelpGuideNode[] = [
 /** @deprecated 使用 INTEGRATION_GUIDE */
 export const HELP_GUIDE = INTEGRATION_GUIDE;
 
-export const HELP_FAQ: HelpFaqItem[] = [
+/**
+ * 门户常见问题：运营侧以「目录 + 文章」配置；
+ * 前台按树序平铺文章（标题=问题，正文=回答 HTML）。
+ */
+export const PORTAL_FAQ_TREE: HelpGuideNode[] = [
   {
-    id: "faq-register",
-    question: "如何注册账号？",
-    answerHtml: `<p>点击导航「注册/登录」打开登录弹窗，再选择「注册账号」。需填写唯一账号名、8–12 位密码、唯一手机号，并完成图形验证码与短信验证；勾选用户协议与隐私协议后方可注册。产品权限仍需线下签约后开通。</p>`,
+    type: "folder",
+    id: "faq-folder-account",
+    title: "账号相关",
+    children: [
+      {
+        type: "article",
+        id: "faq-register",
+        title: "如何注册账号？",
+        html: `<p>点击导航「注册/登录」打开登录弹窗，再选择「注册账号」。需填写唯一账号名、8–12 位密码、唯一手机号，并完成图形验证码与短信验证；勾选用户协议与隐私协议后方可注册。产品权限仍需线下签约后开通。</p>`,
+      },
+      {
+        type: "article",
+        id: "faq-password",
+        title: "忘记密码如何找回？",
+        html: `<p>在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定手机号发送短信验证码以校验身份。</p>`,
+      },
+    ],
   },
   {
-    id: "faq-quota",
-    question: "额度不足怎么办？",
-    answerHtml: `<p>调用将返回额度不足提示。请联系客户经理按合同约定追加额度，运营在后台完成加额后即可继续使用。</p>`,
-  },
-  {
-    id: "faq-password",
-    question: "忘记密码如何找回？",
-    answerHtml: `<p>在登录弹窗点击「忘记密码」，进入找回流程。系统将向账号绑定手机号发送短信验证码以校验身份。</p>`,
-  },
-  {
-    id: "faq-products",
-    question: "两类服务分别包含哪些产品？",
-    answerHtml: `
+    type: "folder",
+    id: "faq-folder-usage",
+    title: "使用与额度",
+    children: [
+      {
+        type: "article",
+        id: "faq-quota",
+        title: "额度不足怎么办？",
+        html: `<p>调用将返回额度不足提示。请联系客户经理按合同约定追加额度，运营在后台完成加额后即可继续使用。</p>`,
+      },
+      {
+        type: "article",
+        id: "faq-products",
+        title: "两类服务分别包含哪些产品？",
+        html: `
       <p><strong>版权核验服务：</strong>DCI核验、版权登记信息核验、版权登记证书核验。</p>
       <p><strong>智能辅助审核服务：</strong>内容安全审核、作品登记查重、疑似侵权审核。</p>
     `,
+      },
+    ],
   },
 ];
+
+/** 按目录+文章综合顺序平铺 FAQ 文章 */
+export function flattenFaqItems(nodes: HelpGuideNode[]): HelpFaqItem[] {
+  const out: HelpFaqItem[] = [];
+  const walk = (list: HelpGuideNode[]) => {
+    for (const node of list) {
+      if (node.type === "article") {
+        out.push({
+          id: node.id,
+          question: node.title,
+          answerHtml: node.html,
+        });
+      } else {
+        walk(node.children);
+      }
+    }
+  };
+  walk(nodes);
+  return out;
+}
+
+export const HELP_FAQ: HelpFaqItem[] = flattenFaqItems(PORTAL_FAQ_TREE);
 
 export function findHelpArticle(
   nodes: HelpGuideNode[],

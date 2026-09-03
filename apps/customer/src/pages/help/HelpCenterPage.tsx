@@ -1,141 +1,159 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
-  HELP_NAV,
-  getHelpSection,
-  type HelpBlock,
-  type HelpFaqItem,
-  type HelpSectionId,
+  CONSOLE_HELP,
+  collectConsoleFolderIds,
+  findConsoleHelpArticle,
+  firstConsoleHelpArticleId,
+  type ConsoleHelpNode,
 } from "@/lib/help";
 
-function isHelpSectionId(v: string | null): v is HelpSectionId {
-  return HELP_NAV.some((n) => n.id === v);
+function HelpTree({
+  nodes,
+  activeId,
+  expanded,
+  onToggleFolder,
+  onSelectArticle,
+}: {
+  nodes: ConsoleHelpNode[];
+  activeId: string | null;
+  expanded: Record<string, boolean>;
+  onToggleFolder: (id: string) => void;
+  onSelectArticle: (id: string) => void;
+}) {
+  return (
+    <ul className="c-help-tree">
+      {nodes.map((node) => {
+        if (node.type === "folder") {
+          const open = expanded[node.id] ?? true;
+          return (
+            <li key={node.id} className="c-help-tree__node c-help-tree__node--folder">
+              <button
+                type="button"
+                className={`c-help-tree__folder${open ? " is-open" : ""}`}
+                aria-expanded={open}
+                onClick={() => onToggleFolder(node.id)}
+              >
+                <span className="c-help-tree__chevron" aria-hidden>
+                  {open ? "▾" : "▸"}
+                </span>
+                <span>{node.title}</span>
+              </button>
+              {open ? (
+                <div className="c-help-tree__folder-body">
+                  <HelpTree
+                    nodes={node.children}
+                    activeId={activeId}
+                    expanded={expanded}
+                    onToggleFolder={onToggleFolder}
+                    onSelectArticle={onSelectArticle}
+                  />
+                </div>
+              ) : null}
+            </li>
+          );
+        }
+
+        return (
+          <li key={node.id} className="c-help-tree__node">
+            <button
+              type="button"
+              className={`c-help-tree__article${activeId === node.id ? " is-active" : ""}`}
+              onClick={() => onSelectArticle(node.id)}
+            >
+              {node.title}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function HelpRichTextLinked({ html }: { html: string }) {
+  const parts = useMemo(() => {
+    const re = /<a\s+href="(\/[^"]+)"[^>]*>(.*?)<\/a>/gi;
+    const nodes: ReactNode[] = [];
+    let last = 0;
+    let m: RegExpExecArray | null;
+    let key = 0;
+    const src = html;
+    while ((m = re.exec(src))) {
+      if (m.index > last) {
+        nodes.push(
+          <span key={`h-${key++}`} dangerouslySetInnerHTML={{ __html: src.slice(last, m.index) }} />,
+        );
+      }
+      nodes.push(
+        <Link key={`l-${key++}`} to={m[1]} className="c-help-inline-link">
+          <span dangerouslySetInnerHTML={{ __html: m[2] }} />
+        </Link>,
+      );
+      last = m.index + m[0].length;
+    }
+    if (last < src.length) {
+      nodes.push(
+        <span key={`h-${key++}`} dangerouslySetInnerHTML={{ __html: src.slice(last) }} />,
+      );
+    }
+    return nodes;
+  }, [html]);
+
+  return <div className="c-help-richtext">{parts}</div>;
 }
 
 export function HelpCenterPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const fromQuery = searchParams.get("section");
-  const [active, setActive] = useState<HelpSectionId>(
-    isHelpSectionId(fromQuery) ? fromQuery : "quickstart",
-  );
-  const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const defaultId = firstConsoleHelpArticleId(CONSOLE_HELP) ?? "ch-quickstart";
+  const fromQuery = searchParams.get("article");
+  const [activeId, setActiveId] = useState(fromQuery || defaultId);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const id of collectConsoleFolderIds(CONSOLE_HELP)) init[id] = true;
+    return init;
+  });
 
   useEffect(() => {
-    if (isHelpSectionId(fromQuery)) setActive(fromQuery);
-    else if (!fromQuery) setActive("quickstart");
-  }, [fromQuery]);
+    if (fromQuery && findConsoleHelpArticle(CONSOLE_HELP, fromQuery)) {
+      setActiveId(fromQuery);
+    } else if (!fromQuery) {
+      setActiveId(defaultId);
+    }
+  }, [fromQuery, defaultId]);
 
-  const section = getHelpSection(active);
+  const article = useMemo(
+    () => findConsoleHelpArticle(CONSOLE_HELP, activeId),
+    [activeId],
+  );
 
-  const select = (id: HelpSectionId) => {
-    setActive(id);
-    setOpenFaq(null);
-    setSearchParams(id === "quickstart" ? {} : { section: id }, { replace: true });
+  const select = (id: string) => {
+    setActiveId(id);
+    setSearchParams(id === defaultId ? {} : { article: id }, { replace: true });
   };
 
   return (
     <div className="c-help-layout">
       <aside className="c-help-sidebar" aria-label="帮助目录">
-        {HELP_NAV.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`c-help-nav__item${active === item.id ? " is-active" : ""}`}
-            onClick={() => select(item.id)}
-          >
-            {item.title}
-          </button>
-        ))}
+        <HelpTree
+          nodes={CONSOLE_HELP}
+          activeId={activeId}
+          expanded={expanded}
+          onToggleFolder={(id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))}
+          onSelectArticle={select}
+        />
       </aside>
       <article className="a-card c-help-content">
         <div className="a-card__body">
-          <h2 className="c-help-content__title">{section.title}</h2>
-          {section.blocks.map((block, i) => (
-            <HelpBlockView
-              key={`${section.id}-${i}`}
-              block={block}
-              openFaq={openFaq}
-              onToggleFaq={(id) => setOpenFaq((cur) => (cur === id ? null : id))}
-            />
-          ))}
+          {article ? (
+            <>
+              <h2 className="c-help-content__title">{article.title}</h2>
+              <HelpRichTextLinked html={article.html} />
+            </>
+          ) : (
+            <div className="a-empty">未找到该文章</div>
+          )}
         </div>
       </article>
-    </div>
-  );
-}
-
-function HelpBlockView({
-  block,
-  openFaq,
-  onToggleFaq,
-}: {
-  block: HelpBlock;
-  openFaq: string | null;
-  onToggleFaq: (id: string) => void;
-}) {
-  const location = useLocation();
-  if (block.type === "p") {
-    return <p className="c-help-p">{block.text}</p>;
-  }
-  if (block.type === "h3") {
-    return <h3 className="c-help-h3">{block.text}</h3>;
-  }
-  if (block.type === "ul") {
-    return (
-      <ul className="c-help-ul">
-        {block.items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    );
-  }
-  if (block.type === "link") {
-    const toApiDoc = block.to.startsWith("/api-docs");
-    return (
-      <p className="c-help-link-row">
-        <Link
-          to={block.to}
-          state={toApiDoc ? { from: `${location.pathname}${location.search}` } : undefined}
-          className="a-btn a-btn--text a-btn--sm"
-        >
-          {block.label} →
-        </Link>
-        {block.hint ? <span className="a-field__hint">{block.hint}</span> : null}
-      </p>
-    );
-  }
-  return (
-    <div className="c-help-faq">
-      {block.items.map((item) => (
-        <FaqItem
-          key={item.id}
-          item={item}
-          open={openFaq === item.id}
-          onToggle={() => onToggleFaq(item.id)}
-        />
-      ))}
-    </div>
-  );
-}
-
-function FaqItem({
-  item,
-  open,
-  onToggle,
-}: {
-  item: HelpFaqItem;
-  open: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className={`c-help-faq__item${open ? " is-open" : ""}`}>
-      <button type="button" className="c-help-faq__q" onClick={onToggle} aria-expanded={open}>
-        <span>{item.question}</span>
-        <span className="c-help-faq__chevron" aria-hidden>
-          {open ? "−" : "+"}
-        </span>
-      </button>
-      {open ? <div className="c-help-faq__a">{item.answer}</div> : null}
     </div>
   );
 }

@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
+  CONTENT_CHANNEL_LABEL,
+  CONTENT_CHANNELS,
   VISIBILITY_LABEL,
   useContentStore,
+  type ContentChannel,
   type HelpArticle,
   type HelpCatalog,
   type Visibility,
 } from "@/lib/contentStore";
+
+export const CONTENT_CENTER_PATH = "/content/center";
 
 type CatalogForm = { name: string; parentId: string; weight: string };
 
@@ -17,11 +22,20 @@ type Filters = { keyword: string; type: "" | "catalog" | "article"; status: stri
 
 const EMPTY_FILTERS: Filters = { keyword: "", type: "", status: "" };
 
-const LIST_PATH = "/content/guide";
+function parseChannel(raw: string | null): ContentChannel {
+  if (raw && (CONTENT_CHANNELS as string[]).includes(raw)) {
+    return raw as ContentChannel;
+  }
+  return "portal_guide";
+}
 
 export function ContentManagePage() {
   const navigate = useNavigate();
-  const store = useContentStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const channel = parseChannel(searchParams.get("channel"));
+  const store = useContentStore(channel);
+  const isFaq = channel === "portal_faq";
+
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
   const [applied, setApplied] = useState<Filters>(EMPTY_FILTERS);
 
@@ -39,6 +53,16 @@ export function ContentManagePage() {
     () => store.catalogSelectOptions(editingCatalog?.id),
     [store, editingCatalog],
   );
+
+  const catalogTypeLabel = "目录";
+  const articleTypeLabel = isFaq ? "文章（问题）" : "文章";
+  const channelLabel = CONTENT_CHANNEL_LABEL[channel];
+
+  const setChannel = (next: ContentChannel) => {
+    setSearchParams({ channel: next }, { replace: true });
+    setDraft(EMPTY_FILTERS);
+    setApplied(EMPTY_FILTERS);
+  };
 
   const rows = useMemo(() => {
     const kw = applied.keyword.trim().toLowerCase();
@@ -80,13 +104,16 @@ export function ContentManagePage() {
     setCatalogDialog("edit");
   };
 
+  const articleListBase = `${CONTENT_CENTER_PATH}/articles`;
+
   const openCreateArticle = (catalogId = "") => {
-    const qs = catalogId ? `?catalogId=${encodeURIComponent(catalogId)}` : "";
-    navigate(`${LIST_PATH}/articles/new${qs}`);
+    const qs = new URLSearchParams({ channel });
+    if (catalogId) qs.set("catalogId", catalogId);
+    navigate(`${articleListBase}/new?${qs.toString()}`);
   };
 
   const openEditArticle = (row: HelpArticle) => {
-    navigate(`${LIST_PATH}/articles/${row.id}/edit`);
+    navigate(`${articleListBase}/${row.id}/edit?channel=${channel}`);
   };
 
   const submitCatalog = () => {
@@ -119,11 +146,29 @@ export function ContentManagePage() {
       <div className="a-card">
         <div className="a-toolbar">
           <div className="a-field">
+            <span className="a-field__label">
+              栏目 <span className="a-req">*</span>
+            </span>
+            <select
+              className="a-select"
+              value={channel}
+              onChange={(e) => setChannel(e.target.value as ContentChannel)}
+            >
+              {CONTENT_CHANNELS.map((c) => (
+                <option key={c} value={c}>
+                  {CONTENT_CHANNEL_LABEL[c]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="a-field">
             <span className="a-field__label">名称</span>
             <input
               className="a-input"
               style={{ minWidth: 200 }}
-              placeholder="指南目录 / 文章标题或正文"
+              placeholder={
+                isFaq ? "目录 / 问题标题或回答" : "目录 / 文章标题或正文"
+              }
               value={draft.keyword}
               onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
             />
@@ -141,8 +186,8 @@ export function ContentManagePage() {
               }
             >
               <option value="">全部</option>
-              <option value="catalog">指南目录</option>
-              <option value="article">指南文章</option>
+              <option value="catalog">{catalogTypeLabel}</option>
+              <option value="article">{articleTypeLabel}</option>
             </select>
           </div>
           <div className="a-field">
@@ -179,16 +224,24 @@ export function ContentManagePage() {
             className="a-btn a-btn--primary"
             onClick={() => openCreateCatalog()}
           >
-            新增指南目录
+            新增目录
           </button>
           <button
             type="button"
             className="a-btn a-btn--primary"
             onClick={() => openCreateArticle()}
           >
-            新增指南文章
+            {isFaq ? "新增问题" : "新增文章"}
           </button>
         </div>
+
+        {isFaq ? (
+          <div className="a-card__body" style={{ paddingBottom: 0 }}>
+            <p className="a-field__hint" style={{ margin: "0 0 8px" }}>
+              门户常见问题支持目录层级；前台按目录+文章综合顺序<strong>平铺</strong>展示。文章标题为问题，正文为回答（富文本）。
+            </p>
+          </div>
+        ) : null}
 
         <div className="a-card__body a-card__body--flush">
           <table className="a-table">
@@ -222,7 +275,7 @@ export function ContentManagePage() {
                             {c.name}
                           </span>
                         </td>
-                        <td>指南目录</td>
+                        <td>{catalogTypeLabel}</td>
                         <td className="num">{c.weight}</td>
                         <td>
                           <span
@@ -263,14 +316,14 @@ export function ContentManagePage() {
                               className="a-btn a-btn--text a-btn--sm"
                               onClick={() => openCreateCatalog(c.id)}
                             >
-                              新增指南目录
+                              新增子目录
                             </button>
                             <button
                               type="button"
                               className="a-btn a-btn--text a-btn--sm"
                               onClick={() => openCreateArticle(c.id)}
                             >
-                              新增指南文章
+                              {isFaq ? "新增问题" : "新增文章"}
                             </button>
                           </div>
                         </td>
@@ -287,7 +340,7 @@ export function ContentManagePage() {
                           {a.title}
                         </span>
                       </td>
-                        <td>指南文章</td>
+                      <td>{articleTypeLabel}</td>
                       <td className="num">{a.weight}</td>
                       <td>
                         <span
@@ -347,7 +400,7 @@ export function ContentManagePage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="a-modal__title">
-              {catalogDialog === "create" ? "新增指南目录" : "编辑指南目录"}
+              {catalogDialog === "create" ? "新增目录" : "编辑目录"}
             </h3>
             <div className="a-form a-form--modal a-form--stack">
               <div className="a-field a-field--stack">
@@ -409,10 +462,10 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmDeleteCatalog)}
-        title="确认删除指南目录"
+        title="确认删除目录"
         description={
           confirmDeleteCatalog
-            ? `确定删除指南目录「${confirmDeleteCatalog.name}」吗？名下有子目录或文章时不可删除。`
+            ? `确定删除目录「${confirmDeleteCatalog.name}」吗？名下有子目录或文章时不可删除。`
             : ""
         }
         confirmText="删除"
@@ -428,10 +481,10 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmDeleteArticle)}
-        title="确认删除指南文章"
+        title={isFaq ? "确认删除问题" : "确认删除文章"}
         description={
           confirmDeleteArticle
-            ? `删除后后台列表不再展示，门户接入指南亦不可访问（软删除）。确定删除「${confirmDeleteArticle.title}」吗？`
+            ? `删除后后台列表不再展示，「${channelLabel}」前台亦不可访问。确定删除「${confirmDeleteArticle.title}」吗？`
             : ""
         }
         confirmText="删除"
@@ -446,12 +499,12 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmVisCatalog)}
-        title={confirmVisCatalog?.status === "visible" ? "确认隐藏指南目录" : "确认显示指南目录"}
+        title={confirmVisCatalog?.status === "visible" ? "确认隐藏目录" : "确认显示目录"}
         description={
           confirmVisCatalog
             ? confirmVisCatalog.status === "visible"
-              ? `隐藏后，门户接入指南将不可见该目录及其下属文章。确定隐藏「${confirmVisCatalog.name}」吗？`
-              : `确定重新显示指南目录「${confirmVisCatalog.name}」吗？`
+              ? `隐藏后，「${channelLabel}」将不可见该目录及其下属内容。确定隐藏「${confirmVisCatalog.name}」吗？`
+              : `确定重新显示目录「${confirmVisCatalog.name}」吗？`
             : ""
         }
         confirmText={confirmVisCatalog?.status === "visible" ? "隐藏" : "显示"}
@@ -469,12 +522,20 @@ export function ContentManagePage() {
 
       <ConfirmDialog
         open={Boolean(confirmVisArticle)}
-        title={confirmVisArticle?.status === "visible" ? "确认隐藏指南文章" : "确认显示指南文章"}
+        title={
+          confirmVisArticle?.status === "visible"
+            ? isFaq
+              ? "确认隐藏问题"
+              : "确认隐藏文章"
+            : isFaq
+              ? "确认显示问题"
+              : "确认显示文章"
+        }
         description={
           confirmVisArticle
             ? confirmVisArticle.status === "visible"
-              ? `隐藏后门户接入指南将不再展示「${confirmVisArticle.title}」，确定继续吗？`
-              : `显示后「${confirmVisArticle.title}」将对门户用户可见，确定继续吗？`
+              ? `隐藏后「${channelLabel}」将不再展示「${confirmVisArticle.title}」，确定继续吗？`
+              : `显示后「${confirmVisArticle.title}」将对用户可见，确定继续吗？`
             : ""
         }
         confirmText={confirmVisArticle?.status === "visible" ? "隐藏" : "显示"}

@@ -145,8 +145,19 @@ export const PERMISSION_TREE: PermNode[] = [
         ],
       },
       {
+        id: "content.center",
+        label: "技术服务中心内容管理",
+        children: [
+          { id: "content.center.createCatalog", label: "新增目录按钮" },
+          { id: "content.center.createArticle", label: "新增文章/问题按钮" },
+          { id: "content.center.edit", label: "编辑按钮" },
+          { id: "content.center.delete", label: "删除按钮" },
+          { id: "content.center.visibility", label: "显示/隐藏按钮" },
+        ],
+      },
+      {
         id: "content.catalogs",
-        label: "目录管理页",
+        label: "目录管理页（兼容）",
         children: [
           { id: "content.catalogs.create", label: "新增目录按钮" },
           { id: "content.catalogs.edit", label: "编辑按钮" },
@@ -155,7 +166,7 @@ export const PERMISSION_TREE: PermNode[] = [
       },
       {
         id: "content.articles",
-        label: "文章管理页",
+        label: "文章管理页（兼容）",
         children: [
           { id: "content.articles.create", label: "新增文章按钮" },
           { id: "content.articles.edit", label: "编辑按钮" },
@@ -164,7 +175,7 @@ export const PERMISSION_TREE: PermNode[] = [
       },
       {
         id: "content.faqs",
-        label: "问题管理页",
+        label: "问题管理页（兼容）",
         children: [
           { id: "content.faqs.create", label: "新增问题按钮" },
           { id: "content.faqs.edit", label: "编辑按钮" },
@@ -290,6 +301,12 @@ let roles: Role[] = [
       "content.portal.edit",
       "content.portal.delete",
       "content.portal.visibility",
+      "content.center",
+      "content.center.createCatalog",
+      "content.center.createArticle",
+      "content.center.edit",
+      "content.center.delete",
+      "content.center.visibility",
       "content.catalogs",
       "content.catalogs.create",
       "content.catalogs.edit",
