@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { PLATFORM_NAME } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "隐私保护",
+  title: "隐私协议",
 };
 
 export default function PrivacyPage() {
   return (
     <div className="p-page">
       <div className="p-container p-page__prose">
-        <h1 className="p-h1">隐私保护</h1>
+        <h1 className="p-h1">隐私协议</h1>
         <p>
-          {PLATFORM_NAME}重视企业客户与用户的信息安全。我们仅在提供服务、履行合同与合规要求所必需的范围内处理相关信息。
+          {PLATFORM_NAME}重视企业客户与用户的信息安全。我们仅在提供服务、履行合同与合规要求所必需的范围内处理相关信息。注册与登录时收集的账号名、手机号等用于身份认证与账号安全。
         </p>
         <h2>我们收集的信息</h2>
         <p>

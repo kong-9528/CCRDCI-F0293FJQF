@@ -18,6 +18,7 @@ export function LoginModal({ open, onClose }: Props) {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [smsCode, setSmsCode] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ export function LoginModal({ open, onClose }: Props) {
     setInfo("");
     setPassword("");
     setSmsCode("");
+    setAgreed(false);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -76,6 +78,10 @@ export function LoginModal({ open, onClose }: Props) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agreed) {
+      setError("请先阅读并勾选用户协议与隐私协议");
+      return;
+    }
     setLoading(true);
     setError("");
     const result =
@@ -106,7 +112,7 @@ export function LoginModal({ open, onClose }: Props) {
           登录
         </h2>
         <p className="p-modal__desc">
-          支持用户名密码或手机短信验证码登录。演示密码：demo123；演示短信码：123456
+          支持用户名密码或手机短信验证码登录。演示账号 demo / demo123456，手机 13800001234
         </p>
 
         <div className="p-login-tabs" role="tablist">
@@ -130,7 +136,7 @@ export function LoginModal({ open, onClose }: Props) {
           </button>
         </div>
 
-        <form onSubmit={submit}>
+        <form onSubmit={(e) => void submit(e)}>
           {mode === "password" ? (
             <>
               <div className="p-field">
@@ -195,11 +201,34 @@ export function LoginModal({ open, onClose }: Props) {
               </div>
             </>
           )}
+
+          <label className="p-agree p-agree--compact">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <span>
+              已同意{" "}
+              <Link href="/legal/privacy" target="_blank" onClick={(e) => e.stopPropagation()}>
+                隐私协议
+              </Link>
+              、
+              <Link href="/legal/terms" target="_blank" onClick={(e) => e.stopPropagation()}>
+                用户协议
+              </Link>
+            </span>
+          </label>
+
           {info ? <div className="p-field__hint">{info}</div> : null}
           {error ? <div className="p-field__error">{error}</div> : null}
+
           <div className="p-modal__footer-links">
             <Link href="/forgot-password" onClick={onClose}>
               忘记密码？
+            </Link>
+            <Link href="/register" onClick={onClose}>
+              注册账号
             </Link>
           </div>
           <button type="submit" className="p-btn p-btn--primary p-btn--block" disabled={loading}>

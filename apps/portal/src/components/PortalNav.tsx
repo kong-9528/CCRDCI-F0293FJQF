@@ -45,6 +45,18 @@ export function PortalNav() {
     }
   }, [pathname]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("login") === "1") {
+      setLoginOpen(true);
+      params.delete("login");
+      const qs = params.toString();
+      const next = `${pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+      window.history.replaceState(null, "", next || pathname);
+    }
+  }, [pathname]);
+
   const goSection = (sectionId: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (pathname === "/") {
@@ -116,10 +128,18 @@ export function PortalNav() {
                           <div className="p-nav__user-meta-role">企业账号</div>
                         </div>
                       </div>
+                      <Link
+                        href="/account/phone"
+                        role="menuitem"
+                        className="p-nav__user-menu-item"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        换绑手机号
+                      </Link>
                       <button
                         type="button"
                         role="menuitem"
-                        className="p-nav__user-menu-item"
+                        className="p-nav__user-menu-item is-danger"
                         onClick={() => {
                           setUserMenuOpen(false);
                           logout();
@@ -138,7 +158,7 @@ export function PortalNav() {
                 style={{ height: 40, padding: "0 20px", fontSize: 14 }}
                 onClick={() => setLoginOpen(true)}
               >
-                登录
+                注册/登录
               </button>
             )}
           </div>

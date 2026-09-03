@@ -9,13 +9,21 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  authenticatePassword,
+  authenticateSms,
+  findByUsername,
+  maskPhone,
+  sendSmsCode,
+  type PortalAccount,
+} from "@/lib/accountStore";
 
 const STORAGE_KEY = "ctp.portal.auth";
-const DEMO_SMS_CODE = "123456";
 
 export type PortalUser = {
   username: string;
   displayName: string;
+  phone?: string;
 };
 
 type AuthContextValue = {
@@ -32,24 +40,19 @@ type AuthContextValue = {
   sendLoginSmsCode: (
     phone: string,
   ) => Promise<{ ok: true; demoCode?: string } | { ok: false; message: string }>;
+  loginAfterRegister: (account: PortalAccount) => void;
+  refreshUserPhone: (phone: string) => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** 前端模拟登录：任意非空账号 + 密码 demo123；或手机号 + 短信验证码 123456 */
-const MOCK_PASSWORD = "demo123";
-
-let loginSmsCode: string | null = null;
-let loginSmsPhone: string | null = null;
-let loginSmsExpiresAt = 0;
-
-function normalizePhone(phone: string) {
-  return phone.replace(/[\s-]/g, "");
-}
-
-function isValidMobile(phone: string) {
-  return /^1\d{10}$/.test(normalizePhone(phone));
+function toUser(account: PortalAccount): PortalUser {
+  return {
+    username: account.username,
+    displayName: account.username,
+    phone: account.phone,
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -59,7 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setUser(JSON.parse(raw) as PortalUser);
+      if (raw) {
+        const parsed = JSON.parse(raw) as PortalUser;
+        const latest = findByUsername(parsed.username);
+        if (latest) {
+          const next = toUser(latest);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+          setUser(next);
+        } else {
+          setUser(parsed);
+        }
+      }
     } catch {
       /* ignore */
     }
@@ -73,57 +86,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (username: string, password: string) => {
     await new Promise((r) => setTimeout(r, 400));
-    if (!username.trim() || !password) {
-      return { ok: false as const, message: "请输入用户名和密码" };
-    }
-    if (password !== MOCK_PASSWORD) {
-      return { ok: false as const, message: "用户名或密码错误" };
-    }
-    persistUser({
-      username: username.trim(),
-      displayName: username.trim(),
-    });
+    const result = authenticatePassword(username, password);
+    if (!result.ok) return result;
+    persistUser(toUser(result.account));
     return { ok: true as const };
   }, []);
 
   const sendLoginSmsCode = useCallback(async (phone: string) => {
     await new Promise((r) => setTimeout(r, 280));
-    if (!isValidMobile(phone)) {
-      return { ok: false as const, message: "请输入正确的手机号" };
-    }
-    loginSmsPhone = normalizePhone(phone);
-    loginSmsCode = DEMO_SMS_CODE;
-    loginSmsExpiresAt = Date.now() + 10 * 60_000;
-    return { ok: true as const, demoCode: DEMO_SMS_CODE };
+    const result = sendSmsCode(phone, "login");
+    if (!result.ok) return { ok: false as const, message: result.message };
+    return { ok: true as const, demoCode: result.demoCode };
   }, []);
 
   const loginWithSms = useCallback(async (phone: string, code: string) => {
     await new Promise((r) => setTimeout(r, 400));
-    if (!isValidMobile(phone)) {
-      return { ok: false as const, message: "请输入正确的手机号" };
-    }
-    if (!code.trim()) {
-      return { ok: false as const, message: "请输入短信验证码" };
-    }
-    if (
-      !loginSmsCode ||
-      !loginSmsPhone ||
-      Date.now() > loginSmsExpiresAt ||
-      normalizePhone(phone) !== loginSmsPhone
-    ) {
-      return { ok: false as const, message: "请先获取短信验证码" };
-    }
-    if (code.trim() !== loginSmsCode) {
-      return { ok: false as const, message: "验证码不正确" };
-    }
-    const digits = normalizePhone(phone);
-    persistUser({
-      username: digits,
-      displayName: `${digits.slice(0, 3)}****${digits.slice(-4)}`,
-    });
-    loginSmsCode = null;
-    loginSmsPhone = null;
+    const result = authenticateSms(phone, code);
+    if (!result.ok) return result;
+    persistUser(toUser(result.account));
     return { ok: true as const };
+  }, []);
+
+  const loginAfterRegister = useCallback((account: PortalAccount) => {
+    persistUser(toUser(account));
+  }, []);
+
+  const refreshUserPhone = useCallback((phone: string) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, phone };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   const logout = useCallback(() => {
@@ -132,8 +126,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, ready, login, loginWithSms, sendLoginSmsCode, logout }),
-    [user, ready, login, loginWithSms, sendLoginSmsCode, logout],
+    () => ({
+      user,
+      ready,
+      login,
+      loginWithSms,
+      sendLoginSmsCode,
+      loginAfterRegister,
+      refreshUserPhone,
+      logout,
+    }),
+    [
+      user,
+      ready,
+      login,
+      loginWithSms,
+      sendLoginSmsCode,
+      loginAfterRegister,
+      refreshUserPhone,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -144,3 +156,5 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+export { maskPhone };

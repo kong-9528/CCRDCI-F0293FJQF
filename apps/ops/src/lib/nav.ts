@@ -43,6 +43,7 @@ export const OPS_NAV: NavGroup[] = [
   {
     title: "DCI技术服务平台门户",
     items: [
+      { to: "/content/portal", label: "门户首页管理", ready: true },
       { to: "/content/home", label: "门户内容管理", ready: true },
       { to: "/content/guide", label: "门户接入指南管理", ready: true },
       { to: "/content/console-help", label: "控制台帮助中心管理", ready: true },
