@@ -7,7 +7,7 @@ export type InviteCode = {
   code: string;
   remark: string;
   status: InviteCodeStatus;
-  /** 已使用时关联的机构/企业名称 */
+  /** 已使用时关联的机构名称 */
   companyName?: string;
   createdAt: string;
   updatedAt: string;

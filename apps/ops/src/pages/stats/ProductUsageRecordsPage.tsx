@@ -586,7 +586,7 @@ export function ProductUsageRecordsPage() {
             {tab === "dci" ? (
               <tr>
                 <th>客户账号</th>
-                <th>机构/企业名称</th>
+                <th>机构名称</th>
                 <th>核验时间</th>
                 <th>DCI码</th>
                 <th>软件/作品/数据汇编作品名称</th>
@@ -599,7 +599,7 @@ export function ProductUsageRecordsPage() {
             {tab === "info" ? (
               <tr>
                 <th>客户账号</th>
-                <th>机构/企业名称</th>
+                <th>机构名称</th>
                 <th>核验时间</th>
                 <th>作品类型</th>
                 <th>登记号</th>
@@ -613,7 +613,7 @@ export function ProductUsageRecordsPage() {
             {tab === "certificate" ? (
               <tr>
                 <th>客户账号</th>
-                <th>机构/企业名称</th>
+                <th>机构名称</th>
                 <th>核验时间</th>
                 <th>证书文件</th>
                 <th>方式</th>
@@ -624,7 +624,7 @@ export function ProductUsageRecordsPage() {
             {tab === "workReview" ? (
               <tr>
                 <th>客户账号</th>
-                <th>机构/企业名称</th>
+                <th>机构名称</th>
                 <th>提交时间</th>
                 <th>流水号</th>
                 <th>审核类型</th>

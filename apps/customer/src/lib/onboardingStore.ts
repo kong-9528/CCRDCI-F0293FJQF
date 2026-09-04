@@ -173,11 +173,11 @@ export function isValidMobile(phone: string) {
 }
 
 export function validateOnboardingForm(form: OnboardingFormInput): string | null {
-  if (!form.companyName.trim()) return "请填写机构/企业名称";
+  if (!form.companyName.trim()) return "请填写机构名称";
   if (!form.contactName.trim()) return "请填写联系人姓名";
   if (!form.contactPhone.trim()) return "请填写联系人手机号";
   if (!isValidMobile(form.contactPhone)) return "联系人手机号格式不正确";
-  if (!form.address.trim()) return "请填写机构/企业地址";
+  if (!form.address.trim()) return "请填写联系地址";
   if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
     return "统一社会信用代码格式不正确";
   }

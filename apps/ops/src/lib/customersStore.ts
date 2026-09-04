@@ -100,7 +100,7 @@ export function createCustomer(
     summary: "创建客户账号",
     changes: [
       { field: "账号", before: "—", after: row.account },
-      { field: "机构/企业名称", before: "—", after: row.companyName },
+      { field: "机构名称", before: "—", after: row.companyName },
       {
         field: "开通产品",
         before: "—",

@@ -170,10 +170,10 @@ export function ApplyOnboardingPage() {
       {viewApp ? (
         <div className="a-stack">
           <section className="a-form-section">
-            <h3 className="a-form-section__title">机构/企业信息</h3>
+            <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">机构/企业名称</span>
+                <span className="a-desc__label">机构名称</span>
                 <span className="a-desc__value">{viewApp.companyName}</span>
               </div>
               <div className="a-desc__item">
@@ -181,7 +181,7 @@ export function ApplyOnboardingPage() {
                 <span className="a-desc__value">{viewApp.creditCode || "—"}</span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">机构/企业地址</span>
+                <span className="a-desc__label">联系地址</span>
                 <span className="a-desc__value">{viewApp.address || "—"}</span>
               </div>
             </div>
@@ -244,14 +244,14 @@ export function ApplyOnboardingPage() {
       {editing ? (
         <div className="a-stack">
           <section className="a-form-section">
-            <h3 className="a-form-section__title">机构/企业信息</h3>
+            <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-form-grid">
-              <Field label="机构/企业名称" required>
+              <Field label="机构名称" required>
                 <input
                   className="a-input"
                   value={form.companyName}
                   onChange={(e) => set("companyName", e.target.value)}
-                  placeholder="请输入机构/企业名称"
+                  placeholder="请输入机构名称"
                 />
               </Field>
               <Field label="统一社会信用代码">
@@ -262,12 +262,12 @@ export function ApplyOnboardingPage() {
                   placeholder="选填，企业请填写"
                 />
               </Field>
-              <Field label="机构/企业地址" required>
+              <Field label="联系地址" required>
                 <input
                   className="a-input"
                   value={form.address}
                   onChange={(e) => set("address", e.target.value)}
-                  placeholder="请输入机构/企业地址"
+                  placeholder="请输入联系地址"
                 />
               </Field>
             </div>

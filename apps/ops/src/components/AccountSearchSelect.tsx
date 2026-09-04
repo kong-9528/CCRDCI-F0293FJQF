@@ -7,7 +7,7 @@ type Props = {
   placeholder?: string;
 };
 
-/** 客户账号可搜索下拉：从机构/企业名称、账号模糊匹配，范围=运营后台已通过客户账号 */
+/** 客户账号可搜索下拉：从机构名称、账号模糊匹配，范围=运营后台已通过客户账号 */
 export function AccountSearchSelect({
   value,
   onChange,
@@ -72,7 +72,7 @@ export function AccountSearchSelect({
             <input
               ref={searchRef}
               className="a-input"
-              placeholder="输入机构/企业名称或账号搜索"
+              placeholder="输入机构名称或账号搜索"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onClick={(e) => e.stopPropagation()}

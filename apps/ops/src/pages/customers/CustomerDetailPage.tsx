@@ -115,7 +115,7 @@ export function CustomerDetailPage() {
                   </span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">机构/企业名称</span>
+                  <span className="a-desc__label">机构名称</span>
                   <span className="a-desc__value">{customer.companyName}</span>
                 </div>
                 <div className="a-desc__item">
@@ -123,7 +123,7 @@ export function CustomerDetailPage() {
                   <span className="a-desc__value">{customer.creditCode || "—"}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">机构/企业地址</span>
+                  <span className="a-desc__label">联系地址</span>
                   <span className="a-desc__value">{customer.address || "—"}</span>
                 </div>
                 <div className="a-desc__item">

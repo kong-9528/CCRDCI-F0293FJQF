@@ -84,7 +84,7 @@ export function CustomerCreatePage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  机构/企业名称 <span className="a-req">*</span>
+                  机构名称 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"
@@ -103,7 +103,7 @@ export function CustomerCreatePage() {
                 />
               </div>
               <div className="a-field a-field--wide">
-                <span className="a-field__label">机构/企业地址</span>
+                <span className="a-field__label">联系地址</span>
                 <input
                   className="a-input"
                   style={{ minWidth: 360 }}

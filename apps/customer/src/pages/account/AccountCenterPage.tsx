@@ -109,11 +109,11 @@ export function AccountCenterPage() {
           <>
             <section className="a-form-section">
               <h3 className="a-form-section__title">
-                机构/企业基本信息 <span className="a-field__hint">（只读）</span>
+                基本信息 <span className="a-field__hint">（只读）</span>
               </h3>
               <div className="a-desc">
                 <div className="a-desc__item">
-                  <span className="a-desc__label">机构/企业名称</span>
+                  <span className="a-desc__label">机构名称</span>
                   <span className="a-desc__value">{profile.companyName}</span>
                 </div>
                 <div className="a-desc__item">
@@ -121,7 +121,7 @@ export function AccountCenterPage() {
                   <span className="a-desc__value">{profile.creditCode || "—"}</span>
                 </div>
                 <div className="a-desc__item a-desc__item--wide">
-                  <span className="a-desc__label">机构/企业地址</span>
+                  <span className="a-desc__label">联系地址</span>
                   <span className="a-desc__value">{profile.address || "—"}</span>
                 </div>
               </div>

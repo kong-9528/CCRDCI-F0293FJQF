@@ -219,7 +219,7 @@ export function validateCustomerForm(
   if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
     return "统一社会信用代码格式不正确";
   }
-  if (!form.companyName.trim()) return "请填写机构/企业名称";
+  if (!form.companyName.trim()) return "请填写机构名称";
   if (!form.contactName.trim()) return "请填写联系人姓名";
   if (!form.contactPhone.trim()) return "请填写联系人手机号";
   const phone = form.contactPhone.replace(/[\s-]/g, "");
@@ -334,7 +334,7 @@ export function diffCustomer(
 
   push("联系人姓名", before.contactName, after.contactName);
   push("联系人手机号", before.contactPhone, after.contactPhone);
-  push("机构/企业地址", before.address, after.address);
+  push("联系地址", before.address, after.address);
   push(
     "合同总金额",
     before.contractAmount == null ? "" : String(before.contractAmount),

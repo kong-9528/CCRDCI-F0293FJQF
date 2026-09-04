@@ -71,7 +71,7 @@ export function ReviewUsageDetailDrawer({ open, record, onClose, onToast }: Prop
             </dd>
           </div>
           <div className="c-cert-detail__row">
-            <dt>机构/企业名称</dt>
+            <dt>机构名称</dt>
             <dd>{record.companyName}</dd>
           </div>
           <div className="c-cert-detail__row">

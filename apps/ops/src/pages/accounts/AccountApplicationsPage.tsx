@@ -213,11 +213,11 @@ export function AccountApplicationsPage({ mode }: Props) {
 
       <div className="a-toolbar">
         <div className="a-field">
-          <span className="a-field__label">机构/企业名称</span>
+          <span className="a-field__label">机构名称</span>
           <input
             className="a-input"
             style={{ minWidth: 220 }}
-            placeholder="请输入机构/企业名称"
+            placeholder="请输入机构名称"
             value={draft.company}
             onChange={(e) => setFilter("company", e.target.value)}
           />
@@ -289,7 +289,7 @@ export function AccountApplicationsPage({ mode }: Props) {
         <table className="a-table a-table--accounts">
           <thead>
             <tr>
-              <th>机构/企业名称</th>
+              <th>机构名称</th>
               {mode !== "pending" ? <th>统一社会信用代码</th> : null}
               <th>联系人姓名</th>
               <th>申请账号</th>

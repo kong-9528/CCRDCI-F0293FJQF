@@ -162,7 +162,7 @@ export function AccountApplicationPage({ mode }: Props) {
             <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">机构/企业名称</span>
+                <span className="a-desc__label">机构名称</span>
                 <span className="a-desc__value">{application.companyName}</span>
               </div>
               <div className="a-desc__item">
@@ -170,7 +170,7 @@ export function AccountApplicationPage({ mode }: Props) {
                 <span className="a-desc__value">{application.creditCode || "—"}</span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">机构/企业地址</span>
+                <span className="a-desc__label">联系地址</span>
                 <span className="a-desc__value">{application.address || "—"}</span>
               </div>
               <div className="a-desc__item">

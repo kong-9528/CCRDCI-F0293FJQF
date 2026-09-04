@@ -140,7 +140,7 @@ export function InviteCodesPage() {
                 <th>邀请码</th>
                 <th>备注</th>
                 <th>状态</th>
-                <th>机构/企业名称</th>
+                <th>机构名称</th>
                 <th className="a-table__col-actions">操作</th>
               </tr>
             </thead>

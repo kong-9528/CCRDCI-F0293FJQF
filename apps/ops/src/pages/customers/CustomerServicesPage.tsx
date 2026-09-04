@@ -179,7 +179,7 @@ export function CustomerServicesPage() {
               <thead>
                 <tr>
                   <th>账号</th>
-                  <th>机构/企业名称</th>
+                  <th>机构名称</th>
                   <th>联系人姓名</th>
                   <th>产品</th>
                   <th>授权总量</th>

@@ -110,7 +110,7 @@ export function CustomerEditPage() {
                 />
               </div>
               <div className="a-field">
-                <span className="a-field__label">机构/企业名称</span>
+                <span className="a-field__label">机构名称</span>
                 <input
                   className="a-input"
                   style={{ minWidth: 240 }}
@@ -123,7 +123,7 @@ export function CustomerEditPage() {
                 <input className="a-input" value={form.creditCode} disabled />
               </div>
               <div className="a-field a-field--wide">
-                <span className="a-field__label">机构/企业地址</span>
+                <span className="a-field__label">联系地址</span>
                 <input
                   className="a-input"
                   style={{ minWidth: 360 }}

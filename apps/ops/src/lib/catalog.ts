@@ -744,7 +744,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     summary: "创建客户账号",
     changes: [
       { field: "账号", before: "—", after: "acme_corp" },
-      { field: "机构/企业名称", before: "—", after: "艾克米文化传媒有限公司" },
+      { field: "机构名称", before: "—", after: "艾克米文化传媒有限公司" },
     ],
     operator: "运营管理员",
     at: "2026-01-02 10:00:00",
@@ -796,7 +796,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     summary: "审核开通创建客户",
     changes: [
       { field: "账号", before: "—", after: "ocean_music" },
-      { field: "机构/企业名称", before: "—", after: "瀚海音乐文化有限公司" },
+      { field: "机构名称", before: "—", after: "瀚海音乐文化有限公司" },
     ],
     operator: "运营管理员",
     at: "2026-08-10 10:05:40",
