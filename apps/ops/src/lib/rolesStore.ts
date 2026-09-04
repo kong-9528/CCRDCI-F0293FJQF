@@ -113,6 +113,7 @@ export const PERMISSION_TREE: PermNode[] = [
       { id: "stats.customers", label: "客户使用统计页" },
       { id: "stats.products", label: "产品使用统计页" },
       { id: "stats.accountProducts", label: "账号产品使用统计页" },
+      { id: "stats.usageRecords", label: "产品使用记录页" },
     ],
   },
   {
@@ -320,6 +321,7 @@ let roles: Role[] = [
       "stats.customers",
       "stats.products",
       "stats.accountProducts",
+      "stats.usageRecords",
       "content",
       "content.portal",
       "content.portal.create",
@@ -357,6 +359,7 @@ let roles: Role[] = [
       "stats.customers",
       "stats.products",
       "stats.accountProducts",
+      "stats.usageRecords",
       "system",
       "system.opLogs",
     ],

@@ -19,6 +19,7 @@ import { ProductManagePage } from "@/pages/products/ProductManagePage";
 import { CustomerStatsPage } from "@/pages/stats/CustomerStatsPage";
 import { AccountProductStatsPage } from "@/pages/stats/AccountProductStatsPage";
 import { ProductStatsPage } from "@/pages/stats/ProductStatsPage";
+import { ProductUsageRecordsPage } from "@/pages/stats/ProductUsageRecordsPage";
 import { ApiEndpointEditPage } from "@/pages/system/ApiEndpointEditPage";
 import { ApiServicesPage } from "@/pages/system/ApiServicesPage";
 import { OpLogsPage } from "@/pages/system/OpLogsPage";
@@ -61,6 +62,7 @@ export function App() {
         <Route path="/stats/customers" element={<CustomerStatsPage />} />
         <Route path="/stats/products" element={<ProductStatsPage />} />
         <Route path="/stats/account-products" element={<AccountProductStatsPage />} />
+        <Route path="/stats/usage-records" element={<ProductUsageRecordsPage />} />
         <Route path="/content/home" element={<PortalHomeManagePage />} />
         <Route path="/content/home/:id/edit" element={<PortalHomeEditPage />} />
         <Route path="/content/portal" element={<PortalContentPage />} />

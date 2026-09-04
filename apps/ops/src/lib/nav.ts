@@ -54,6 +54,7 @@ export const OPS_NAV: NavGroup[] = [
       { to: "/stats/customers", label: "客户使用统计", ready: true },
       { to: "/stats/products", label: "产品使用统计", ready: true },
       { to: "/stats/account-products", label: "账号产品使用统计", ready: true },
+      { to: "/stats/usage-records", label: "产品使用记录", ready: true },
     ],
   },
   {
