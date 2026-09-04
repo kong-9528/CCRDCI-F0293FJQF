@@ -35,7 +35,7 @@ export type UsageChannel = "web" | "api";
 export const BUSINESS_TYPE_OPTIONS = [
   { code: "software" as const, label: "软件" },
   { code: "work" as const, label: "作品" },
-  { code: "dataset" as const, label: "数据集" },
+  { code: "dataset" as const, label: "数据汇编作品" },
 ];
 
 export const USAGE_CHANNEL_OPTIONS = [

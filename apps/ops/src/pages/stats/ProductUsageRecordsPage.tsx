@@ -369,7 +369,7 @@ export function ProductUsageRecordsPage() {
               <option value="">全部</option>
               <option value="software">软件</option>
               <option value="work">作品</option>
-              <option value="dataset">数据集</option>
+              <option value="dataset">数据汇编作品</option>
             </select>
           </div>
           <div className="a-field">
@@ -589,7 +589,7 @@ export function ProductUsageRecordsPage() {
                 <th>机构/企业名称</th>
                 <th>核验时间</th>
                 <th>DCI码</th>
-                <th>软件/作品/数据集名称</th>
+                <th>软件/作品/数据汇编作品名称</th>
                 <th>著作权人</th>
                 <th>方式</th>
                 <th>结果</th>

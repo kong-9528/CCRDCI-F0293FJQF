@@ -11,7 +11,7 @@ export type DciVerifyInput = {
   dciCode: string;
   /** 著作权人（与名称至少填一项） */
   owner: string;
-  /** 作品名称 / 软件名称 / 数据集名称（统一展示为软件/作品/数据集名称） */
+  /** 作品名称 / 软件名称 / 数据汇编作品名称（统一展示为软件/作品/数据汇编作品名称） */
   name: string;
 };
 
@@ -28,7 +28,7 @@ export type DciVerifyResult = {
   channel: DciChannel;
   /** 提交的著作权人 */
   queryOwner: string;
-  /** 提交的名称（作品/软件/数据集） */
+  /** 提交的名称（作品/软件/数据汇编作品） */
   queryName: string;
   /** 失败时不一致的字段 */
   mismatches?: DciMismatchField[];
@@ -53,7 +53,7 @@ export type DciVerifyResult = {
 export const WORK_TYPE_LABEL: Record<DciWorkType, string> = {
   software: "软件",
   work: "作品",
-  dataset: "数据集",
+  dataset: "数据汇编作品",
 };
 
 export const STATUS_LABEL: Record<DciVerifyStatus, string> = {
@@ -71,7 +71,7 @@ export const CHANNEL_LABEL: Record<DciChannel, string> = {
   api: "API",
 };
 
-export const DCI_NAME_LABEL = "软件/作品/数据集名称";
+export const DCI_NAME_LABEL = "软件/作品/数据汇编作品名称";
 
 export const MISMATCH_FIELD_LABEL: Record<DciMismatchField, string> = {
   owner: "著作权人",
@@ -312,7 +312,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
   },
   "DCI-DSDEMO0001": {
     workType: "dataset",
-    name: "演示数据集",
+    name: "演示数据汇编作品",
     owner: "演示著作权人",
     source: "内部生产",
     scale: "10万条 / 2GB",

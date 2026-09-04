@@ -80,7 +80,7 @@ export function productListPath(category: ProductCategory): string {
 export const BUSINESS_LINE_LABEL: Record<BusinessLine, string> = {
   software: "软件",
   work: "作品",
-  dataset: "数据集",
+  dataset: "数据汇编作品",
 };
 
 export const BUSINESS_LINE_OPTIONS: BusinessLine[] = ["software", "work", "dataset"];

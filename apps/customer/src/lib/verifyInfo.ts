@@ -34,7 +34,7 @@ export type InfoVerifyResult = {
 export const INFO_WORK_TYPE_LABEL: Record<InfoWorkType, string> = {
   software: "软件",
   work: "作品",
-  dataset: "数据集",
+  dataset: "数据汇编作品",
 };
 
 export const INFO_STATUS_LABEL: Record<InfoVerifyStatus, string> = {
@@ -66,7 +66,7 @@ export const PAGE_SIZES = [10, 20, 30, 50] as const;
 export function infoNameLabel(workType: InfoWorkType): string {
   if (workType === "software") return "软件名称";
   if (workType === "work") return "作品名称";
-  return "数据集名称";
+  return "数据汇编作品名称";
 }
 
 function daysAgo(n: number) {
@@ -112,7 +112,7 @@ const REGISTRY: Record<string, RegistryItem> = {
   },
   "2024SJ001234": {
     workType: "dataset",
-    name: "用户行为数据集",
+    name: "用户行为数据汇编作品",
     owner: "北京华信科技",
   },
   "2023SR009876": {
@@ -219,13 +219,13 @@ const SEED: Omit<InfoVerifyResult, "id">[] = [
     verifyCode: "I2145500000106",
     workType: "dataset",
     regNo: "2024SJ001234",
-    name: "用户行为数据集",
+    name: "用户行为数据汇编作品",
     owner: "北京华信科技",
     status: "match",
     verifiedAt: daysAgo(6),
     channel: "API",
     snapshot: {
-      name: "用户行为数据集",
+      name: "用户行为数据汇编作品",
       owner: "北京华信科技",
     },
   },
@@ -534,7 +534,7 @@ export function downloadInfoBatchTemplate(workType: InfoWorkType) {
   const samples: Record<InfoWorkType, [string, string, string]> = {
     software: ["2024SR001234", "北京华信科技", "华信OA系统"],
     work: ["2024ZP001234", "北京华信科技", "春江水暖图"],
-    dataset: ["2024SJ001234", "北京华信科技", "用户行为数据集"],
+    dataset: ["2024SJ001234", "北京华信科技", "用户行为数据汇编作品"],
   };
   const sample = samples[workType].map(escapeCsvCell).join(",");
   const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {

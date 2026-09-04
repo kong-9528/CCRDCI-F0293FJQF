@@ -108,10 +108,10 @@ export const REVIEW_STATUS_LABEL = {
 export const INFO_WORK_TYPE_LABEL = {
   software: "软件",
   work: "作品",
-  dataset: "数据集",
+  dataset: "数据汇编作品",
 } as const;
 
-export const DCI_NAME_LABEL = "软件/作品/数据集名称";
+export const DCI_NAME_LABEL = "软件/作品/数据汇编作品名称";
 
 export const CERT_MISMATCH_LABEL: Record<CertMismatchField, string> = {
   certNo: "证书编号不一致",
@@ -211,7 +211,7 @@ export function infoSubmittedFieldRows(result: InfoUsageRecord) {
           ? "软件名称"
           : result.workType === "work"
             ? "作品名称"
-            : "数据集名称",
+            : "数据汇编作品名称",
       value: result.name || "—",
       field: "name" as const,
     },
@@ -360,7 +360,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     status: "fail",
     detailStatus: "mismatch",
     mismatches: ["name"],
-    message: "数据集名称不一致",
+    message: "数据汇编作品名称不一致",
   },
   {
     id: "info-4",
