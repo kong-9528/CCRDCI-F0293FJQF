@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AddServiceDialog } from "@/components/AddServiceDialog";
 import { EditServiceDialog } from "@/components/EditServiceDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconDisable, IconEdit, IconEnable } from "@/components/icons/UiIcons";
 import {
   CONFIGURABLE_PRODUCTS,
   SERVICE_STATUS_LABEL,
@@ -221,20 +223,15 @@ export function CustomerServicesPage() {
                       <td>{row.service.endDate}</td>
                       <td>
                         <div className="a-actions">
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
-                            onClick={() => setEditRow(row)}
-                          >
+                          <TableAction icon={<IconEdit />} onClick={() => setEditRow(row)}>
                             编辑
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={row.service.stopped ? <IconEnable /> : <IconDisable />}
                             onClick={() => setConfirmRow(row)}
                           >
                             {row.service.stopped ? "恢复" : "停止"}
-                          </button>
+                          </TableAction>
                         </div>
                       </td>
                     </tr>

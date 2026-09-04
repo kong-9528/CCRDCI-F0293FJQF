@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   getApiDocProduct,
+  resolveRequestParamsText,
+  resolveResponseFieldsText,
   subscribeApiCatalog,
   type ApiErrorCode,
-  type ApiParam,
 } from "@/lib/apiDocs";
 import { copyText } from "@/lib/keys";
 
@@ -92,6 +93,8 @@ export function ApiDocProductPage() {
   }
 
   const api = doc.apis[activeApi] ?? doc.apis[0];
+  const requestText = resolveRequestParamsText(api);
+  const responseText = resolveResponseFieldsText(api);
 
   const onCopyPath = async () => {
     const ok = await copyText(api.path);
@@ -101,6 +104,57 @@ export function ApiDocProductPage() {
     }
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1000);
+  };
+
+  const onDownloadDoc = () => {
+    const file = api.docFile;
+    if (!file) {
+      showToast("该接口暂无文档文件");
+      return;
+    }
+    if (file.url) {
+      const a = document.createElement("a");
+      a.href = file.url;
+      a.download = file.name;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast("开始下载");
+      return;
+    }
+    // 演示：无真实文件时，用接口配置内容生成可下载文本
+    const body = [
+      `# ${api.apiName}`,
+      ``,
+      `接口路径：${api.method} ${api.path}`,
+      `版本：${api.version}`,
+      api.description ? `说明：${api.description}` : "",
+      ``,
+      `## 请求参数`,
+      requestText || "（无）",
+      ``,
+      `## 响应字段`,
+      responseText || "（无）",
+      ``,
+      `## 示例请求`,
+      api.exampleRequest || "（无）",
+      ``,
+      `## 示例响应`,
+      api.exampleResponse || "（无）",
+    ]
+      .filter((line) => line !== undefined)
+      .join("\n");
+    const blob = new Blob([body], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name.replace(/\.[^.]+$/, "") + ".txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("开始下载");
   };
 
   return (
@@ -127,7 +181,18 @@ export function ApiDocProductPage() {
             ))}
           </nav>
           <div className="c-apidoc-main">
-            <h2 className="c-apidoc-main__title">{api.apiName}</h2>
+            <div className="c-apidoc-main__head">
+              <h2 className="c-apidoc-main__title">{api.apiName}</h2>
+              {api.docFile ? (
+                <button
+                  type="button"
+                  className="a-btn a-btn--sm a-btn--primary c-apidoc-download"
+                  onClick={onDownloadDoc}
+                >
+                  下载接口文档
+                </button>
+              ) : null}
+            </div>
             <div className="c-apidoc-endpoint">
               <span
                 className={`c-apidoc-method${api.method === "GET" ? " is-get" : ""}`}
@@ -145,18 +210,23 @@ export function ApiDocProductPage() {
               <span className="a-tag a-tag--muted">
                 <code>{api.apiCode}</code>
               </span>
+              {api.docFile ? (
+                <span className="a-tag a-tag--muted" title={api.docFile.name}>
+                  文档 {api.docFile.name}
+                </span>
+              ) : null}
             </div>
             {api.description ? <p className="c-apidoc-desc">{api.description}</p> : null}
-            <ParamTable
-              title="公共鉴权参数"
-              hint="以下公共参数需要随每次请求一并传递，用于身份认证和请求标识。"
-              rows={api.commonParams}
+            <TextDocSection
+              title="请求参数"
+              hint="以下内容来自运营后台接口配置。"
+              content={requestText}
             />
-            <ParamTable title="Path 参数" rows={api.pathParams} />
-            <ParamTable title="Query 参数" rows={api.queryParams} />
-            <ParamTable title="Header 参数" rows={api.headerParams} />
-            <ParamTable title="Body 参数" rows={api.bodyParams} />
-            <ParamTable title="返回参数" rows={api.responseParams} />
+            <TextDocSection
+              title="响应字段"
+              hint="以下内容来自运营后台接口配置。"
+              content={responseText}
+            />
             <ErrorCodeTable rows={api.errorCodes} />
             <ExampleBlock title="示例请求" content={api.exampleRequest} />
             <ExampleBlock title="示例响应" content={api.exampleResponse} />
@@ -167,63 +237,21 @@ export function ApiDocProductPage() {
   );
 }
 
-function hasExtraColumns(rows: ApiParam[]) {
-  return rows.some((r) => r.defaultValue || r.validation || r.example);
-}
-
-function ParamTable({
+function TextDocSection({
   title,
   hint,
-  rows,
+  content,
 }: {
   title: string;
   hint?: string;
-  rows: ApiParam[];
+  content: string;
 }) {
-  if (rows.length === 0) return null;
-  const showExtra = hasExtraColumns(rows);
+  if (!content.trim()) return null;
   return (
     <section className="c-apidoc-section">
       <h3 className="c-apidoc-section__title">{title}</h3>
       {hint ? <p className="c-apidoc-section__hint">{hint}</p> : null}
-      <div className="a-table-wrap">
-        <table className="a-table">
-          <thead>
-            <tr>
-              <th>参数名</th>
-              <th>类型</th>
-              <th>必填</th>
-              <th>说明</th>
-              {showExtra ? (
-                <>
-                  <th>默认值</th>
-                  <th>校验</th>
-                  <th>示例</th>
-                </>
-              ) : null}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.name}>
-                <td>
-                  <code>{row.name}</code>
-                </td>
-                <td>{row.type}</td>
-                <td>{row.required ? "是" : "否"}</td>
-                <td>{row.desc}</td>
-                {showExtra ? (
-                  <>
-                    <td>{row.defaultValue || "—"}</td>
-                    <td>{row.validation || "—"}</td>
-                    <td>{row.example || "—"}</td>
-                  </>
-                ) : null}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <pre className="c-apidoc-fields">{content}</pre>
     </section>
   );
 }

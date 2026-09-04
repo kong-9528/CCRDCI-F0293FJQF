@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconEdit, IconShield, IconTrash } from "@/components/icons/UiIcons";
 import {
   PERMISSION_TREE,
   ROLE_STATUS_LABEL,
@@ -188,24 +190,20 @@ export function RolesPage() {
                     </td>
                     <td>
                       <div className="a-actions">
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
+                        <TableAction
+                          icon={<IconEdit />}
                           onClick={() => openEdit(role)}
                           disabled={role.builtin}
                         >
                           编辑
-                        </button>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => openPerms(role)}
-                        >
+                        </TableAction>
+                        <TableAction icon={<IconShield />} onClick={() => openPerms(role)}>
                           权限
-                        </button>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
+                        </TableAction>
+                        <TableAction
+                          icon={<IconTrash />}
+                          danger
+                          disabled={role.builtin}
                           onClick={() => {
                             if (role.userCount > 0) {
                               window.alert(
@@ -215,10 +213,9 @@ export function RolesPage() {
                             }
                             setConfirmDelete(role);
                           }}
-                          disabled={role.builtin}
                         >
                           删除
-                        </button>
+                        </TableAction>
                       </div>
                     </td>
                   </tr>

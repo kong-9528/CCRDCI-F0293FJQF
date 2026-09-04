@@ -1,21 +1,18 @@
 import {
   API_DOC_PRODUCTS_META,
-  AUTH_HEADER_PARAMS,
   getDocProductMeta,
   listOnlineByProduct,
+  resolveRequestParamsText,
+  resolveResponseFieldsText,
   subscribeApiCatalog,
-  type ApiEndpoint as CatalogEndpoint,
+  type ApiEndpoint,
   type ApiErrorCode,
   type ApiParam,
   type ApiServiceTab,
 } from "@ctp/api-catalog";
 
-export type { ApiErrorCode, ApiParam };
-
-export type ApiEndpoint = CatalogEndpoint & {
-  /** 文档固定鉴权说明（合并进展示） */
-  commonParams: ApiParam[];
-};
+export type { ApiEndpoint, ApiErrorCode, ApiParam };
+export { resolveRequestParamsText, resolveResponseFieldsText };
 
 export type ApiDocProduct = {
   id: string;
@@ -26,16 +23,9 @@ export type ApiDocProduct = {
   apis: ApiEndpoint[];
 };
 
-function toDocEndpoint(ep: CatalogEndpoint): ApiEndpoint {
-  return {
-    ...ep,
-    commonParams: AUTH_HEADER_PARAMS,
-  };
-}
-
 export function getApiDocProducts(): ApiDocProduct[] {
   return API_DOC_PRODUCTS_META.map((meta) => {
-    const apis = listOnlineByProduct(meta.productCode).map(toDocEndpoint);
+    const apis = listOnlineByProduct(meta.productCode);
     return {
       id: meta.id,
       productCode: meta.productCode,
@@ -55,7 +45,7 @@ export function getApiDocProductsForOverview(): ApiDocProduct[] {
     name: meta.name,
     summary: meta.summary,
     category: meta.category,
-    apis: listOnlineByProduct(meta.productCode).map(toDocEndpoint),
+    apis: listOnlineByProduct(meta.productCode),
   }));
 }
 
@@ -76,7 +66,7 @@ export function getApiDocProduct(id: string): ApiDocProduct | undefined {
     name: meta.name,
     summary: meta.summary,
     category: meta.category,
-    apis: listOnlineByProduct(meta.productCode).map(toDocEndpoint),
+    apis: listOnlineByProduct(meta.productCode),
   };
 }
 

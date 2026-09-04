@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconDisable, IconEdit, IconEnable, IconTrash } from "@/components/icons/UiIcons";
 import {
   AUDIT_PRODUCT_KEY_LABEL,
   AUDIT_PRODUCT_KEYS,
@@ -239,27 +241,22 @@ function HeroPanel({
                   <td>{row.updatedAt}</td>
                   <td>
                     <div className="a-actions">
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
-                        onClick={() => openEdit(row)}
-                      >
+                      <TableAction icon={<IconEdit />} onClick={() => openEdit(row)}>
                         编辑
-                      </button>
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
+                      </TableAction>
+                      <TableAction
+                        icon={row.status === "visible" ? <IconDisable /> : <IconEnable />}
                         onClick={() => setConfirmVis(row)}
                       >
                         {row.status === "visible" ? "隐藏" : "显示"}
-                      </button>
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
+                      </TableAction>
+                      <TableAction
+                        icon={<IconTrash />}
+                        danger
                         onClick={() => setConfirmDelete(row)}
                       >
                         删除
-                      </button>
+                      </TableAction>
                     </div>
                   </td>
                 </tr>
@@ -615,27 +612,22 @@ function ShowcasePanel({
                   </td>
                   <td>
                     <div className="a-actions">
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
-                        onClick={() => openEdit(row)}
-                      >
+                      <TableAction icon={<IconEdit />} onClick={() => openEdit(row)}>
                         编辑
-                      </button>
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
+                      </TableAction>
+                      <TableAction
+                        icon={row.status === "visible" ? <IconDisable /> : <IconEnable />}
                         onClick={() => setConfirmVis(row)}
                       >
                         {row.status === "visible" ? "隐藏" : "显示"}
-                      </button>
-                      <button
-                        type="button"
-                        className="a-btn a-btn--text a-btn--sm"
+                      </TableAction>
+                      <TableAction
+                        icon={<IconTrash />}
+                        danger
                         onClick={() => setConfirmDelete(row)}
                       >
                         删除
-                      </button>
+                      </TableAction>
                     </div>
                   </td>
                 </tr>

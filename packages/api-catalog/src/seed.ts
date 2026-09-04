@@ -60,6 +60,43 @@ function exampleOk(data: Record<string, unknown>) {
   return JSON.stringify({ code: 0, message: "ok", data, requestId: "req_demo_001" }, null, 2);
 }
 
+function formatParamLines(title: string, rows: ApiParam[]) {
+  if (!rows.length) return "";
+  const lines = rows.map((row) => {
+    const req = row.required ? "必填" : "可选";
+    const bits = [`${row.name}`, `(${row.type}, ${req})`];
+    if (row.desc) bits.push(`: ${row.desc}`);
+    return `- ${bits.join(" ")}`;
+  });
+  return `【${title}】\n${lines.join("\n")}`;
+}
+
+function deriveRequestParamsText(input: {
+  requestParamsText?: string;
+  pathParams: ApiParam[];
+  queryParams: ApiParam[];
+  headerParams: ApiParam[];
+  bodyParams: ApiParam[];
+}) {
+  if (input.requestParamsText?.trim()) return input.requestParamsText;
+  return [
+    formatParamLines("Path", input.pathParams),
+    formatParamLines("Query", input.queryParams),
+    formatParamLines("Header", input.headerParams),
+    formatParamLines("Body", input.bodyParams),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function deriveResponseFieldsText(input: {
+  responseFieldsText?: string;
+  responseParams: ApiParam[];
+}) {
+  if (input.responseFieldsText?.trim()) return input.responseFieldsText;
+  return formatParamLines("响应字段", input.responseParams).replace(/^【响应字段】\n/, "") || "";
+}
+
 type SeedInput = {
   id: string;
   apiCode: string;
@@ -71,6 +108,10 @@ type SeedInput = {
   owner?: string;
   version?: string;
   status?: ApiOnlineStatus;
+  createdAt?: string;
+  docFile?: ApiEndpoint["docFile"];
+  requestParamsText?: string;
+  responseFieldsText?: string;
   pathParams?: ApiParam[];
   queryParams?: ApiParam[];
   headerParams?: ApiParam[];
@@ -99,6 +140,10 @@ function ep(input: SeedInput): ApiEndpoint {
           2,
         ));
 
+  const pathParams = input.pathParams ?? [];
+  const headerParams = input.headerParams ?? [];
+  const responseParams = input.responseParams ?? STANDARD_RESPONSE;
+
   return {
     id: input.id,
     apiCode: input.apiCode,
@@ -110,11 +155,24 @@ function ep(input: SeedInput): ApiEndpoint {
     productCode: input.productCode,
     owner: input.owner ?? "平台运营",
     status: input.status ?? "online",
-    pathParams: input.pathParams ?? [],
+    createdAt: input.createdAt ?? "2026-03-01 10:00:00",
+    docFile: input.docFile ?? null,
+    requestParamsText: deriveRequestParamsText({
+      requestParamsText: input.requestParamsText,
+      pathParams,
+      queryParams: query,
+      headerParams,
+      bodyParams: body,
+    }),
+    responseFieldsText: deriveResponseFieldsText({
+      responseFieldsText: input.responseFieldsText,
+      responseParams,
+    }),
+    pathParams,
     queryParams: query,
-    headerParams: input.headerParams ?? [],
+    headerParams,
     bodyParams: body,
-    responseParams: input.responseParams ?? STANDARD_RESPONSE,
+    responseParams,
     errorCodes: input.errorCodes ?? STANDARD_ERRORS,
     exampleRequest,
     exampleResponse: input.exampleResponse ?? exampleOk({ result: "pass" }),
@@ -133,6 +191,12 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "POST",
       productCode: "dci",
       description: "提交 DCI 编码进行真伪与权属核验。",
+      createdAt: "2026-03-12 10:15:00",
+      docFile: {
+        id: "doc-dci-single",
+        name: "DCI编码核验接口文档.pdf",
+        size: 420_000,
+      },
       bodyParams: [p("dciCode", "string", true, "待核验 DCI 编码", { example: "DCI-2026-0001", validation: "非空" })],
       exampleResponse: exampleOk({ dciCode: "DCI-2026-0001", valid: true, owner: "示例公司" }),
     }),
@@ -299,14 +363,14 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       ],
     }),
 
-    // —— 安全 ——
+    // —— 作品智能辅助审核（含原安全 / 查重 / 侵权能力） ——
     ep({
       id: "safety-text",
       apiCode: "safety_text",
       apiName: "文本审核",
       path: "/v1/review/safety/text",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "对文本内容进行安全审核。",
       bodyParams: [
         p("content", "string", true, "待审核文本"),
@@ -319,7 +383,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "图片审核",
       path: "/v1/review/safety/image",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "对图片进行安全审核。",
       bodyParams: [
         p("imageUrl", "string", true, "图片 URL"),
@@ -332,7 +396,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "视频审核",
       path: "/v1/review/safety/video",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "异步视频安全审核。",
       bodyParams: [
         p("videoUrl", "string", true, "视频 URL"),
@@ -345,7 +409,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "批量审核",
       path: "/v1/review/safety/batch",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "批量提交审核任务。",
       bodyParams: [
         p("items", "array", true, "批量审核条目"),
@@ -358,7 +422,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "审核结果查询",
       path: "/v1/review/safety/result",
       method: "GET",
-      productCode: "safety",
+      productCode: "workReview",
       description: "按任务 ID 查询审核结果。",
       queryParams: [p("taskId", "string", true, "审核任务 ID")],
     }),
@@ -368,7 +432,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "自定义规则配置",
       path: "/v1/review/safety/rule",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "配置自定义审核规则。",
       bodyParams: [
         p("ruleName", "string", true, "规则名称"),
@@ -382,7 +446,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "审核回调通知",
       path: "/v1/review/safety/notify",
       method: "POST",
-      productCode: "safety",
+      productCode: "workReview",
       description: "平台向客户推送审核结果（文档说明用）。",
       bodyParams: [
         p("taskId", "string", true, "任务 ID"),
@@ -398,7 +462,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "文本查重",
       path: "/v1/review/dedup/text",
       method: "POST",
-      productCode: "duplicate",
+      productCode: "workReview",
       description: "对文本作品进行登记查重。",
       bodyParams: [
         p("content", "string", true, "待查重文本"),
@@ -411,7 +475,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "图片查重",
       path: "/v1/review/dedup/image",
       method: "POST",
-      productCode: "duplicate",
+      productCode: "workReview",
       description: "对图片作品进行相似度查重。",
       bodyParams: [
         p("imageUrl", "string", true, "图片 URL"),
@@ -424,7 +488,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "相似度报告生成",
       path: "/v1/review/dedup/report",
       method: "GET",
-      productCode: "duplicate",
+      productCode: "workReview",
       description: "查询查重任务相似度报告。",
       queryParams: [p("taskId", "string", true, "查重任务 ID")],
     }),
@@ -436,7 +500,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "侵权检测",
       path: "/v1/review/infringe/detect",
       method: "POST",
-      productCode: "infringement",
+      productCode: "workReview",
       description: "检测目标内容是否疑似侵权。",
       status: "offline",
       bodyParams: [
@@ -450,7 +514,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "相似度分析",
       path: "/v1/review/infringe/similarity",
       method: "POST",
-      productCode: "infringement",
+      productCode: "workReview",
       description: "对比原创与疑似侵权内容相似度。",
       bodyParams: [
         p("sourceContent", "string", true, "原创内容"),
@@ -463,7 +527,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "风险报告生成",
       path: "/v1/review/infringe/report",
       method: "GET",
-      productCode: "infringement",
+      productCode: "workReview",
       description: "查询侵权分析风险报告。",
       queryParams: [p("taskId", "string", true, "分析任务 ID")],
     }),
@@ -473,7 +537,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       apiName: "侵权证据固定",
       path: "/v1/review/infringe/evidence",
       method: "POST",
-      productCode: "infringement",
+      productCode: "workReview",
       description: "固定侵权相关证据。",
       status: "offline",
       bodyParams: [

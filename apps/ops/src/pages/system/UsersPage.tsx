@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconDisable, IconEdit, IconEnable, IconTrash } from "@/components/icons/UiIcons";
 import { useRolesStore } from "@/lib/rolesStore";
 import {
   USER_STATUS_LABEL,
@@ -127,25 +129,24 @@ export function UsersPage() {
                       </td>
                       <td>
                         <div className="a-actions">
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          <TableAction
+                            icon={<IconEdit />}
                             onClick={() => openEdit(user)}
                             disabled={user.builtin}
                           >
                             编辑
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={user.status === "enabled" ? <IconDisable /> : <IconEnable />}
                             onClick={() => setConfirmStatus(user)}
                             disabled={user.builtin || isSelf}
                           >
                             {user.status === "enabled" ? "停用" : "启用"}
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={<IconTrash />}
+                            danger
+                            disabled={user.builtin || isSelf}
                             onClick={() => {
                               if (isSelf) {
                                 window.alert("不能删除当前登录账号");
@@ -157,10 +158,9 @@ export function UsersPage() {
                               }
                               setConfirmDelete(user);
                             }}
-                            disabled={user.builtin || isSelf}
                           >
                             删除
-                          </button>
+                          </TableAction>
                         </div>
                       </td>
                     </tr>

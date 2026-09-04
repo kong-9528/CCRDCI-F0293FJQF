@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconEdit, IconTrash } from "@/components/icons/UiIcons";
 import {
   generateInviteCode,
   INVITE_CODE_STATUS_LABEL,
@@ -170,20 +172,16 @@ export function InviteCodesPage() {
                     <td>
                       {row.status === "unused" ? (
                         <div className="a-actions a-actions--nowrap">
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
-                            onClick={() => openEdit(row)}
-                          >
+                          <TableAction icon={<IconEdit />} onClick={() => openEdit(row)}>
                             编辑
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={<IconTrash />}
+                            danger
                             onClick={() => setConfirmDelete(row)}
                           >
                             删除
-                          </button>
+                          </TableAction>
                         </div>
                       ) : (
                         "—"

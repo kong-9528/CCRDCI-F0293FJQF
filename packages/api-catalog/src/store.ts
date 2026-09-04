@@ -65,6 +65,10 @@ function newId(apiCode: string) {
   return id;
 }
 
+function nowStamp() {
+  return new Date().toISOString().slice(0, 19).replace("T", " ");
+}
+
 export function createApiEndpoint(input: ApiEndpointInput): ApiEndpoint {
   const apiCode = input.apiCode.trim();
   if (!apiCode) throw new Error("apiCode 不能为空");
@@ -84,6 +88,10 @@ export function createApiEndpoint(input: ApiEndpointInput): ApiEndpoint {
     description: input.description.trim(),
     owner: input.owner.trim(),
     status: input.status ?? "offline",
+    createdAt: input.createdAt ?? nowStamp(),
+    docFile: input.docFile ?? null,
+    requestParamsText: input.requestParamsText ?? "",
+    responseFieldsText: input.responseFieldsText ?? "",
     pathParams: input.pathParams ?? [],
     queryParams: input.queryParams ?? [],
     headerParams: input.headerParams ?? [],
@@ -109,11 +117,13 @@ export function updateApiEndpoint(id: string, patch: ApiEndpointUpdate): ApiEndp
     ...prev,
     ...patch,
     apiCode: prev.apiCode,
+    createdAt: prev.createdAt,
     apiName: patch.apiName !== undefined ? patch.apiName.trim() : prev.apiName,
     path: patch.path !== undefined ? patch.path.trim() : prev.path,
     version: patch.version !== undefined ? patch.version.trim() || "v1" : prev.version,
     description: patch.description !== undefined ? patch.description.trim() : prev.description,
     owner: patch.owner !== undefined ? patch.owner.trim() : prev.owner,
+    docFile: patch.docFile !== undefined ? patch.docFile : prev.docFile,
   };
   endpoints = endpoints.map((e, i) => (i === idx ? next : e));
   emit();
@@ -122,6 +132,13 @@ export function updateApiEndpoint(id: string, patch: ApiEndpointUpdate): ApiEndp
 
 export function setApiEndpointStatus(id: string, status: ApiOnlineStatus) {
   endpoints = endpoints.map((e) => (e.id === id ? { ...e, status } : e));
+  emit();
+}
+
+export function deleteApiEndpoint(id: string) {
+  const exists = endpoints.some((e) => e.id === id);
+  if (!exists) throw new Error("接口不存在");
+  endpoints = endpoints.filter((e) => e.id !== id);
   emit();
 }
 

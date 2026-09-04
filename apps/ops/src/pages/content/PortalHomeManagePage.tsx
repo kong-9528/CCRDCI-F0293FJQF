@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import { IconEdit, IconPublish, IconWithdraw } from "@/components/icons/UiIcons";
 import {
   PORTAL_HOME_STATUS_LABEL,
   activeRegionTexts,
@@ -203,29 +205,26 @@ export function PortalHomeManagePage() {
                     <td style={{ whiteSpace: "nowrap" }}>
                       <div className="a-actions" style={{ flexWrap: "nowrap" }}>
                         {row.status === "published" ? (
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          <TableAction
+                            icon={<IconWithdraw />}
                             onClick={() => setConfirmWithdraw(row)}
                           >
                             撤回
-                          </button>
+                          </TableAction>
                         ) : (
                           <>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            <TableAction
+                              icon={<IconEdit />}
                               onClick={() => navigate(`/content/home/${row.id}/edit`)}
                             >
                               编辑
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            </TableAction>
+                            <TableAction
+                              icon={<IconPublish />}
                               onClick={() => setConfirmPublish(row)}
                             >
                               发布
-                            </button>
+                            </TableAction>
                           </>
                         )}
                       </div>

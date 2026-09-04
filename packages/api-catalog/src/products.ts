@@ -1,5 +1,6 @@
 import type { ApiDocProductMeta, ApiServiceTab, ProductCode } from "./types";
 
+/** 控制台 API 文档 / ops 接口服务：4 个产品 */
 export const API_DOC_PRODUCTS_META: ApiDocProductMeta[] = [
   {
     id: "dci",
@@ -16,31 +17,17 @@ export const API_DOC_PRODUCTS_META: ApiDocProductMeta[] = [
     category: "verify",
   },
   {
-    id: "cert",
+    id: "certificate",
     productCode: "certificate",
     name: "版权登记证书核验接口",
     summary: "证书真伪验证 · 证书下载 · 批量核验",
     category: "verify",
   },
   {
-    id: "safety",
-    productCode: "safety",
-    name: "内容安全审核接口",
-    summary: "文本审核 · 图片审核 · 视频审核 · 批量审核",
-    category: "audit",
-  },
-  {
-    id: "dedup",
-    productCode: "duplicate",
-    name: "作品登记查重接口",
-    summary: "文本查重 · 图片查重 · 相似度报告",
-    category: "audit",
-  },
-  {
-    id: "infringe",
-    productCode: "infringement",
-    name: "疑似侵权审核接口",
-    summary: "侵权检测 · 相似度分析 · 风险报告生成",
+    id: "workReview",
+    productCode: "workReview",
+    name: "作品智能辅助审核接口",
+    summary: "内容安全 · 登记查重 · 疑似侵权审核",
     category: "audit",
   },
 ];
@@ -49,9 +36,7 @@ export const PRODUCT_NAME: Record<ProductCode, string> = {
   dci: "DCI核验",
   info: "版权登记信息核验",
   certificate: "版权登记证书核验",
-  safety: "内容安全审核",
-  duplicate: "作品登记查重",
-  infringement: "疑似侵权审核",
+  workReview: "作品智能辅助审核",
 };
 
 export const API_TAB_LABEL: Record<ApiServiceTab, string> = {
@@ -60,15 +45,21 @@ export const API_TAB_LABEL: Record<ApiServiceTab, string> = {
 };
 
 export const API_STATUS_LABEL: Record<"online" | "offline", string> = {
-  online: "上线",
-  offline: "下线",
+  online: "已上架",
+  offline: "已下架",
 };
 
-/** 文档 URL 别名 → 产品文档 id */
+/**
+ * 文档 URL 别名 → 产品文档 id
+ * 兼容历史路由：/api-docs/cert、/api-docs/safety 等
+ */
 export const PRODUCT_DOC_ALIASES: Record<string, string> = {
-  certificate: "cert",
-  duplicate: "dedup",
-  infringement: "infringe",
+  cert: "certificate",
+  safety: "workReview",
+  dedup: "workReview",
+  duplicate: "workReview",
+  infringe: "workReview",
+  infringement: "workReview",
 };
 
 export function resolveDocProductId(id: string): string {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AccountProductConfigPanel } from "@/components/AccountProductConfigPanel";
 import { ContractFileList } from "@/components/ContractFileList";
+import { MaskedPhone } from "@/components/MaskedPhone";
 import {
   APPLICATION_STATUS_LABEL,
   useAccountsStore,
@@ -158,7 +159,7 @@ export function AccountApplicationPage({ mode }: Props) {
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">机构/企业信息</h3>
+            <h3 className="a-form-section__title">基本信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
                 <span className="a-desc__label">机构/企业名称</span>
@@ -172,26 +173,6 @@ export function AccountApplicationPage({ mode }: Props) {
                 <span className="a-desc__label">机构/企业地址</span>
                 <span className="a-desc__value">{application.address || "—"}</span>
               </div>
-            </div>
-          </section>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">联系信息</h3>
-            <div className="a-desc">
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人姓名</span>
-                <span className="a-desc__value">{application.contactName}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人手机号</span>
-                <span className="a-desc__value">{application.contactPhone}</span>
-              </div>
-            </div>
-          </section>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">合同信息</h3>
-            <div className="a-desc">
               <div className="a-desc__item">
                 <span className="a-desc__label">合作起止</span>
                 <span className="a-desc__value">
@@ -211,15 +192,27 @@ export function AccountApplicationPage({ mode }: Props) {
           </section>
 
           <section className="a-form-section">
+            <h3 className="a-form-section__title">联系信息</h3>
+            <div className="a-desc">
+              <div className="a-desc__item">
+                <span className="a-desc__label">联系人姓名</span>
+                <span className="a-desc__value">{application.contactName}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">联系人手机号</span>
+                <span className="a-desc__value">
+                  <MaskedPhone phone={application.contactPhone} />
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section className="a-form-section">
             <h3 className="a-form-section__title">登录账号</h3>
             <div className="a-desc">
               <div className="a-desc__item">
                 <span className="a-desc__label">申请账号</span>
                 <span className="a-desc__value">{application.account}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">绑定手机号</span>
-                <span className="a-desc__value">{application.boundPhone || "—"}</span>
               </div>
             </div>
           </section>
@@ -257,7 +250,7 @@ export function AccountApplicationPage({ mode }: Props) {
               {decision === "approve" ? (
                 <div className="a-stack">
                   <div className="a-field__hint">
-                    审核通过后，将自动创建客户账号并开通以下配置。
+                    审核通过后将创建客户账号。产品配置为可选项：可在此开通产品，也可通过后在「编辑产品服务」中配置。
                   </div>
                   <AccountProductConfigPanel
                     value={productConfig}
@@ -291,7 +284,7 @@ export function AccountApplicationPage({ mode }: Props) {
           {!readOnly ? (
             <div className="a-inline-actions">
               <button type="button" className="a-btn a-btn--primary" onClick={submit}>
-                {decision === "approve" ? "确认通过并开通" : "确认拒绝"}
+                {decision === "approve" ? "确认通过" : "确认拒绝"}
               </button>
               <button type="button" className="a-btn" onClick={() => navigate(listBackPath)}>
                 取消

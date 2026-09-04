@@ -213,10 +213,10 @@ export function approveApplication(
   if (!app) return { ok: false, error: "申请记录不存在" };
   if (app.status !== "pending") return { ok: false, error: "该申请已处理，无法重复审核" };
 
-  const validationError = validateProductConfig(config);
+  const validationError = validateProductConfig(config, { allowEmpty: true });
   if (validationError) return { ok: false, error: validationError };
 
-  const products = parseProductServices(config.productRows);
+  const products = parseProductServices(config.productRows, { allowEmpty: true });
   if (!products.ok) return { ok: false, error: products.error };
 
   if (isAccountTaken(app.account)) {

@@ -1,72 +1,73 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { normalizeProductCode, type ProductCode as CatalogProductCode } from "@/lib/catalog";
+import { ApiDocUploadModal } from "@/components/ApiDocUploadModal";
+import { IconPdf } from "@/components/icons/UiIcons";
 import {
   PRODUCT_CODES,
   PRODUCT_NAME,
   useApiServicesStore,
+  type ApiDocFile,
   type ApiEndpoint,
-  type ApiErrorCode,
   type ApiParam,
-  type ApiServiceTab,
   type HttpMethod,
   type ProductCode,
 } from "@/lib/apiServicesStore";
 
 type FormState = {
-  apiCode: string;
   apiName: string;
   path: string;
   method: HttpMethod;
   version: string;
   description: string;
   productCode: ProductCode;
-  owner: string;
-  pathParams: ApiParam[];
-  queryParams: ApiParam[];
-  headerParams: ApiParam[];
-  bodyParams: ApiParam[];
-  responseParams: ApiParam[];
-  errorCodes: ApiErrorCode[];
+  docFile: ApiDocFile | null;
+  requestParamsText: string;
+  responseFieldsText: string;
   exampleRequest: string;
   exampleResponse: string;
 };
 
 const METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE"];
 
-function emptyParam(): ApiParam {
-  return { name: "", type: "string", required: false, desc: "" };
+function formatParamLines(title: string, rows: ApiParam[]) {
+  if (!rows.length) return "";
+  const lines = rows.map((p) => {
+    const req = p.required ? "必填" : "可选";
+    const bits = [`${p.name}`, `(${p.type}, ${req})`];
+    if (p.desc) bits.push(`: ${p.desc}`);
+    return `- ${bits.join(" ")}`;
+  });
+  return `【${title}】\n${lines.join("\n")}`;
 }
 
-function emptyError(): ApiErrorCode {
-  return { code: "", desc: "" };
+function buildRequestParamsText(ep: ApiEndpoint) {
+  if (ep.requestParamsText?.trim()) return ep.requestParamsText;
+  return [
+    formatParamLines("Path", ep.pathParams),
+    formatParamLines("Query", ep.queryParams),
+    formatParamLines("Header", ep.headerParams),
+    formatParamLines("Body", ep.bodyParams),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function buildResponseFieldsText(ep: ApiEndpoint) {
+  if (ep.responseFieldsText?.trim()) return ep.responseFieldsText;
+  return formatParamLines("响应字段", ep.responseParams).replace(/^【响应字段】\n/, "") || "";
 }
 
 function emptyForm(productCode: ProductCode = "dci"): FormState {
   return {
-    apiCode: "",
     apiName: "",
     path: "",
     method: "POST",
     version: "v1",
     description: "",
     productCode,
-    owner: "",
-    pathParams: [],
-    queryParams: [],
-    headerParams: [],
-    bodyParams: [],
-    responseParams: [
-      { name: "code", type: "number", required: true, desc: "业务状态码，0 表示成功" },
-      { name: "message", type: "string", required: true, desc: "提示信息" },
-      { name: "data", type: "object", required: false, desc: "业务数据" },
-      { name: "requestId", type: "string", required: true, desc: "请求追踪 ID" },
-    ],
-    errorCodes: [
-      { code: "0", desc: "成功" },
-      { code: "40001", desc: "参数错误" },
-      { code: "40101", desc: "鉴权失败" },
-    ],
+    docFile: null,
+    requestParamsText: "",
+    responseFieldsText: "",
     exampleRequest: "",
     exampleResponse: "",
   };
@@ -74,229 +75,33 @@ function emptyForm(productCode: ProductCode = "dci"): FormState {
 
 function fromEndpoint(ep: ApiEndpoint): FormState {
   return {
-    apiCode: ep.apiCode,
     apiName: ep.apiName,
     path: ep.path,
     method: ep.method,
     version: ep.version,
     description: ep.description,
     productCode: ep.productCode,
-    owner: ep.owner,
-    pathParams: ep.pathParams.map((p) => ({ ...p })),
-    queryParams: ep.queryParams.map((p) => ({ ...p })),
-    headerParams: ep.headerParams.map((p) => ({ ...p })),
-    bodyParams: ep.bodyParams.map((p) => ({ ...p })),
-    responseParams: ep.responseParams.map((p) => ({ ...p })),
-    errorCodes: ep.errorCodes.map((e) => ({ ...e })),
+    docFile: ep.docFile ?? null,
+    requestParamsText: buildRequestParamsText(ep),
+    responseFieldsText: buildResponseFieldsText(ep),
     exampleRequest: ep.exampleRequest,
     exampleResponse: ep.exampleResponse,
   };
-}
-
-function tabForProduct(code: ProductCode): ApiServiceTab {
-  return normalizeProductCode(code as CatalogProductCode) === "workReview" ? "audit" : "verify";
 }
 
 function isProductCode(value: string | null | undefined): value is ProductCode {
   return Boolean(value && (PRODUCT_CODES as readonly string[]).includes(value));
 }
 
-function ParamEditor({
-  title,
-  rows,
-  onChange,
-}: {
-  title: string;
-  rows: ApiParam[];
-  onChange: (next: ApiParam[]) => void;
-}) {
-  const updateRow = (index: number, patch: Partial<ApiParam>) => {
-    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
-  };
-  const removeRow = (index: number) => {
-    onChange(rows.filter((_, i) => i !== index));
-  };
-
-  return (
-    <div className="a-api-params">
-      <div className="a-api-params__head">
-        <div className="a-api-params__title">{title}</div>
-        <button
-          type="button"
-          className="a-btn a-btn--sm"
-          onClick={() => onChange([...rows, emptyParam()])}
-        >
-          添加参数
-        </button>
-      </div>
-      <div className="a-table-wrap">
-        <table className="a-table a-table--compact">
-          <thead>
-            <tr>
-              <th>参数名</th>
-              <th>类型</th>
-              <th>必填</th>
-              <th>说明</th>
-              <th>默认值</th>
-              <th>校验</th>
-              <th>示例</th>
-              <th style={{ width: 72 }}>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={8}>
-                  <div className="a-empty">暂无参数，可点击「添加参数」</div>
-                </td>
-              </tr>
-            ) : (
-              rows.map((row, index) => (
-                <tr key={`param-${title}-${index}`}>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.name}
-                      onChange={(e) => updateRow(index, { name: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.type}
-                      onChange={(e) => updateRow(index, { type: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <label className="a-check">
-                      <input
-                        type="checkbox"
-                        checked={row.required}
-                        onChange={(e) => updateRow(index, { required: e.target.checked })}
-                      />
-                      必填
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.desc}
-                      onChange={(e) => updateRow(index, { desc: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.defaultValue ?? ""}
-                      onChange={(e) => updateRow(index, { defaultValue: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.validation ?? ""}
-                      onChange={(e) => updateRow(index, { validation: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.example ?? ""}
-                      onChange={(e) => updateRow(index, { example: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => removeRow(index)}
-                    >
-                      删除
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function ErrorCodeEditor({
-  rows,
-  onChange,
-}: {
-  rows: ApiErrorCode[];
-  onChange: (next: ApiErrorCode[]) => void;
-}) {
-  const updateRow = (index: number, patch: Partial<ApiErrorCode>) => {
-    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
-  };
-
-  return (
-    <div className="a-api-params">
-      <div className="a-api-params__head">
-        <div className="a-api-params__title">错误码</div>
-        <button
-          type="button"
-          className="a-btn a-btn--sm"
-          onClick={() => onChange([...rows, emptyError()])}
-        >
-          添加错误码
-        </button>
-      </div>
-      <div className="a-table-wrap">
-        <table className="a-table a-table--compact">
-          <thead>
-            <tr>
-              <th style={{ width: 160 }}>错误码</th>
-              <th>说明</th>
-              <th style={{ width: 72 }}>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={3}>
-                  <div className="a-empty">暂无错误码</div>
-                </td>
-              </tr>
-            ) : (
-              rows.map((row, index) => (
-                <tr key={`err-${index}`}>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.code}
-                      onChange={(e) => updateRow(index, { code: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="a-input a-input--sm"
-                      value={row.desc}
-                      onChange={(e) => updateRow(index, { desc: e.target.value })}
-                    />
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => onChange(rows.filter((_, i) => i !== index))}
-                    >
-                      删除
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+/** 隐藏字段：由路径自动生成接口标识 */
+function autoApiCode(path: string, productCode: ProductCode) {
+  const slug = path
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_|_$/g, "")
+    .toLowerCase();
+  return slug || `${productCode}_api_${Date.now().toString(36)}`;
 }
 
 export function ApiEndpointEditPage() {
@@ -317,6 +122,7 @@ export function ApiEndpointEditPage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(isCreate);
+  const [docModalOpen, setDocModalOpen] = useState(false);
 
   useEffect(() => {
     if (isCreate) {
@@ -331,7 +137,7 @@ export function ApiEndpointEditPage() {
     }
   }, [isCreate, endpoint, searchParams]);
 
-  const listHref = (tab: ApiServiceTab) => `/system/api-services?tab=${tab}`;
+  const listHref = "/system/api-services";
 
   if (!ready) {
     return (
@@ -351,7 +157,7 @@ export function ApiEndpointEditPage() {
         <div className="a-card__body">
           <div className="a-empty">接口不存在</div>
           <div className="a-form-actions" style={{ marginTop: 16 }}>
-            <button type="button" className="a-btn" onClick={() => navigate("/system/api-services")}>
+            <button type="button" className="a-btn" onClick={() => navigate(listHref)}>
               返回列表
             </button>
           </div>
@@ -366,10 +172,6 @@ export function ApiEndpointEditPage() {
 
   const submit = () => {
     setError(null);
-    if (!form.apiCode.trim()) {
-      setError("请填写接口标识 apiCode");
-      return;
-    }
     if (!form.apiName.trim()) {
       setError("请填写接口名称");
       return;
@@ -386,28 +188,32 @@ export function ApiEndpointEditPage() {
       setError("请选择归属产品");
       return;
     }
-    if (isCreate && store.isCodeTaken(form.apiCode)) {
-      setError(`apiCode「${form.apiCode.trim()}」已存在`);
-      return;
-    }
 
     try {
       if (isCreate) {
+        let apiCode = autoApiCode(form.path, form.productCode);
+        let n = 1;
+        while (store.isCodeTaken(apiCode)) {
+          apiCode = `${autoApiCode(form.path, form.productCode)}_${n++}`;
+        }
         store.create({
-          apiCode: form.apiCode,
+          apiCode,
           apiName: form.apiName,
           path: form.path,
           method: form.method,
           version: form.version,
           description: form.description,
           productCode: form.productCode,
-          owner: form.owner,
-          pathParams: form.pathParams,
-          queryParams: form.queryParams,
-          headerParams: form.headerParams,
-          bodyParams: form.bodyParams,
-          responseParams: form.responseParams,
-          errorCodes: form.errorCodes,
+          owner: "平台运营",
+          docFile: form.docFile,
+          requestParamsText: form.requestParamsText,
+          responseFieldsText: form.responseFieldsText,
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          bodyParams: [],
+          responseParams: [],
+          errorCodes: [],
           exampleRequest: form.exampleRequest,
           exampleResponse: form.exampleResponse,
           status: "offline",
@@ -420,91 +226,55 @@ export function ApiEndpointEditPage() {
           version: form.version,
           description: form.description,
           productCode: form.productCode,
-          owner: form.owner,
-          pathParams: form.pathParams,
-          queryParams: form.queryParams,
-          headerParams: form.headerParams,
-          bodyParams: form.bodyParams,
-          responseParams: form.responseParams,
-          errorCodes: form.errorCodes,
+          docFile: form.docFile,
+          requestParamsText: form.requestParamsText,
+          responseFieldsText: form.responseFieldsText,
           exampleRequest: form.exampleRequest,
           exampleResponse: form.exampleResponse,
         });
       }
-      navigate(listHref(tabForProduct(form.productCode)));
+      navigate(listHref);
     } catch (e) {
       setError(e instanceof Error ? e.message : "保存失败");
     }
   };
 
-  const backTab = tabForProduct(form.productCode);
-
   return (
-    <div className="a-stack">
+    <div className="a-api-edit">
       <div className="a-card">
         <div className="a-card__head">
           {isCreate ? "新增接口" : "编辑接口"}
           <div className="a-card__extra">
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(listHref(backTab))}>
-              返回
+            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(listHref)}>
+              返回列表
             </button>
           </div>
         </div>
-        <div className="a-card__body a-stack">
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">基础信息</h3>
-            <div className="a-form a-form--grid">
-              <label className="a-field">
-                <span className="a-field__label">接口标识 apiCode</span>
-                <input
-                  className="a-input"
-                  value={form.apiCode}
-                  disabled={!isCreate}
-                  onChange={(e) => setField("apiCode", e.target.value)}
-                  placeholder="唯一标识，如 dci_single"
-                />
-              </label>
-              <label className="a-field">
-                <span className="a-field__label">接口名称</span>
+
+        <div className="a-card__body a-api-edit__body">
+          <section className="a-api-edit__section">
+            <header className="a-api-edit__section-head">
+              <h3 className="a-api-edit__section-title">基础信息</h3>
+              <p className="a-api-edit__section-desc">配置接口名称、路径与归属产品</p>
+            </header>
+
+            <div className="a-api-edit__grid">
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">
+                  接口名称 <span className="a-req">*</span>
+                </span>
                 <input
                   className="a-input"
                   value={form.apiName}
                   onChange={(e) => setField("apiName", e.target.value)}
+                  placeholder="请输入接口名称"
                 />
               </label>
-              <label className="a-field">
-                <span className="a-field__label">请求路径</span>
-                <input
-                  className="a-input"
-                  value={form.path}
-                  onChange={(e) => setField("path", e.target.value)}
-                  placeholder="/v1/..."
-                />
-              </label>
-              <label className="a-field">
-                <span className="a-field__label">请求方法</span>
-                <select
-                  className="a-input"
-                  value={form.method}
-                  onChange={(e) => setField("method", e.target.value as HttpMethod)}
-                >
-                  {METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="a-field">
-                <span className="a-field__label">版本</span>
-                <input
-                  className="a-input"
-                  value={form.version}
-                  onChange={(e) => setField("version", e.target.value)}
-                />
-              </label>
-              <label className="a-field">
-                <span className="a-field__label">归属产品</span>
+
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">
+                  归属产品 <span className="a-req">*</span>
+                </span>
                 <select
                   className="a-input"
                   value={form.productCode}
@@ -517,98 +287,184 @@ export function ApiEndpointEditPage() {
                   ))}
                 </select>
               </label>
-              <label className="a-field">
-                <span className="a-field__label">负责人</span>
+
+              <label className="a-api-edit__field a-api-edit__field--span2">
+                <span className="a-api-edit__label">
+                  请求路径 <span className="a-req">*</span>
+                </span>
                 <input
-                  className="a-input"
-                  value={form.owner}
-                  onChange={(e) => setField("owner", e.target.value)}
+                  className="a-input a-api-edit__mono"
+                  value={form.path}
+                  onChange={(e) => setField("path", e.target.value)}
+                  placeholder="/v1/verify/..."
+                  spellCheck={false}
                 />
               </label>
-              <label className="a-field a-field--full">
-                <span className="a-field__label">接口说明</span>
+
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">请求方法</span>
+                <select
+                  className="a-input"
+                  value={form.method}
+                  onChange={(e) => setField("method", e.target.value as HttpMethod)}
+                >
+                  {METHODS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">版本</span>
+                <input
+                  className="a-input"
+                  value={form.version}
+                  onChange={(e) => setField("version", e.target.value)}
+                  placeholder="v1"
+                />
+              </label>
+
+              <label className="a-api-edit__field a-api-edit__field--span2">
+                <span className="a-api-edit__label">接口说明</span>
                 <textarea
                   className="a-input a-textarea"
                   rows={3}
                   value={form.description}
                   onChange={(e) => setField("description", e.target.value)}
+                  placeholder="简要说明接口用途与适用场景"
                 />
               </label>
+
+              <div className="a-api-edit__field a-api-edit__field--span2">
+                <span className="a-api-edit__label">接口文档</span>
+                <div className="a-api-edit__upload">
+                  <div className="a-api-edit__upload-main">
+                    <button
+                      type="button"
+                      className="a-btn a-btn--sm a-btn--primary"
+                      onClick={() => setDocModalOpen(true)}
+                    >
+                      {form.docFile ? "更新文档" : "上传文档"}
+                    </button>
+                    <span className="a-api-edit__upload-hint">
+                      支持 doc / docx / pdf / md / txt / xls / xlsx，单个文件不超过 50MB
+                    </span>
+                  </div>
+                  {form.docFile ? (
+                    <div className="a-api-edit__upload-file">
+                      <IconPdf />
+                      <span className="a-api-edit__upload-name" title={form.docFile.name}>
+                        {form.docFile.name}
+                      </span>
+                      <button
+                        type="button"
+                        className="a-btn a-btn--text a-btn--sm"
+                        onClick={() => setField("docFile", null)}
+                      >
+                        移除
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </div>
           </section>
 
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">请求参数</h3>
-            <ParamEditor
-              title="Path 参数"
-              rows={form.pathParams}
-              onChange={(next) => setField("pathParams", next)}
-            />
-            <ParamEditor
-              title="Query 参数"
-              rows={form.queryParams}
-              onChange={(next) => setField("queryParams", next)}
-            />
-            <ParamEditor
-              title="Header 参数"
-              rows={form.headerParams}
-              onChange={(next) => setField("headerParams", next)}
-            />
-            <ParamEditor
-              title="Body 参数"
-              rows={form.bodyParams}
-              onChange={(next) => setField("bodyParams", next)}
-            />
+          <section className="a-api-edit__section">
+            <header className="a-api-edit__section-head">
+              <h3 className="a-api-edit__section-title">请求参数</h3>
+              <p className="a-api-edit__section-desc">用多行文本描述 Path / Query / Header / Body 参数</p>
+            </header>
+            <label className="a-api-edit__field">
+              <span className="a-api-edit__label">参数说明</span>
+              <textarea
+                className="a-input a-textarea a-api-edit__textarea"
+                rows={12}
+                value={form.requestParamsText}
+                onChange={(e) => setField("requestParamsText", e.target.value)}
+                placeholder={
+                  "【Body】\n- dciCode (string, 必填): 待核验 DCI 编码\n- channel (string, 可选): 调用渠道"
+                }
+                spellCheck={false}
+              />
+            </label>
           </section>
 
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">响应定义</h3>
-            <ParamEditor
-              title="响应字段"
-              rows={form.responseParams}
-              onChange={(next) => setField("responseParams", next)}
-            />
-            <ErrorCodeEditor rows={form.errorCodes} onChange={(next) => setField("errorCodes", next)} />
+          <section className="a-api-edit__section">
+            <header className="a-api-edit__section-head">
+              <h3 className="a-api-edit__section-title">响应字段</h3>
+              <p className="a-api-edit__section-desc">用多行文本描述返回字段含义</p>
+            </header>
+            <label className="a-api-edit__field">
+              <span className="a-api-edit__label">字段说明</span>
+              <textarea
+                className="a-input a-textarea a-api-edit__textarea"
+                rows={10}
+                value={form.responseFieldsText}
+                onChange={(e) => setField("responseFieldsText", e.target.value)}
+                placeholder={
+                  "- code (number, 必填): 业务状态码，0 表示成功\n- message (string, 必填): 提示信息\n- data (object, 可选): 业务数据"
+                }
+                spellCheck={false}
+              />
+            </label>
           </section>
 
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">示例</h3>
-            <div className="a-form a-form--stack">
-              <label className="a-field">
-                <span className="a-field__label">示例请求（JSON）</span>
+          <section className="a-api-edit__section">
+            <header className="a-api-edit__section-head">
+              <h3 className="a-api-edit__section-title">示例</h3>
+              <p className="a-api-edit__section-desc">可选，填写 JSON 示例便于对接方参考</p>
+            </header>
+            <div className="a-api-edit__examples">
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">示例请求</span>
                 <textarea
-                  className="a-input a-textarea a-textarea--code"
-                  rows={8}
+                  className="a-input a-textarea a-textarea--code a-api-edit__textarea"
+                  rows={10}
                   value={form.exampleRequest}
                   onChange={(e) => setField("exampleRequest", e.target.value)}
                   spellCheck={false}
+                  placeholder="{}"
                 />
               </label>
-              <label className="a-field">
-                <span className="a-field__label">示例响应（JSON）</span>
+              <label className="a-api-edit__field">
+                <span className="a-api-edit__label">示例响应</span>
                 <textarea
-                  className="a-input a-textarea a-textarea--code"
-                  rows={8}
+                  className="a-input a-textarea a-textarea--code a-api-edit__textarea"
+                  rows={10}
                   value={form.exampleResponse}
                   onChange={(e) => setField("exampleResponse", e.target.value)}
                   spellCheck={false}
+                  placeholder="{}"
                 />
               </label>
             </div>
           </section>
 
           {error ? <div className="a-form-error">{error}</div> : null}
+        </div>
 
-          <div className="a-form-actions">
-            <button type="button" className="a-btn a-btn--primary" onClick={submit}>
-              保存
-            </button>
-            <Link className="a-btn" to={listHref(backTab)}>
-              取消
-            </Link>
-          </div>
+        <div className="a-api-edit__footer">
+          <button type="button" className="a-btn a-btn--primary" onClick={submit}>
+            保存
+          </button>
+          <Link className="a-btn" to={listHref}>
+            取消
+          </Link>
         </div>
       </div>
+
+      <ApiDocUploadModal
+        open={docModalOpen}
+        initialFile={form.docFile}
+        onClose={() => setDocModalOpen(false)}
+        onConfirm={(file) => {
+          setField("docFile", file);
+          setDocModalOpen(false);
+        }}
+      />
     </div>
   );
 }

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import {
   apiEndpointTitle,
   createApiEndpoint,
+  deleteApiEndpoint,
   getApiEndpointById,
   isApiCodeTaken,
+  listApiEndpoints,
   listApiEndpointsByTab,
   setApiEndpointStatus,
   subscribeApiCatalog,
@@ -12,6 +14,7 @@ import {
   API_TAB_LABEL,
   PRODUCT_CODES,
   PRODUCT_NAME,
+  type ApiDocFile,
   type ApiEndpoint,
   type ApiEndpointInput,
   type ApiEndpointUpdate,
@@ -24,6 +27,7 @@ import {
 } from "@ctp/api-catalog";
 
 export type {
+  ApiDocFile,
   ApiEndpoint as ProductApiEndpoint,
   ApiEndpoint,
   ApiErrorCode,
@@ -41,8 +45,10 @@ export {
   PRODUCT_NAME,
   apiEndpointTitle,
   createApiEndpoint,
+  deleteApiEndpoint,
   getApiEndpointById,
   isApiCodeTaken,
+  listApiEndpoints,
   setApiEndpointStatus,
   updateApiEndpoint,
 };
@@ -57,11 +63,13 @@ export function useApiServicesStore() {
     return subscribeApiCatalog(() => setTick((n) => n + 1));
   }, []);
   return {
+    list: listApiEndpoints,
     getByTab: listApiEndpointsByTab,
     getById: getApiEndpointById,
     setStatus: setApiEndpointStatus,
     create: createApiEndpoint,
     update: updateApiEndpoint,
+    remove: deleteApiEndpoint,
     isCodeTaken: isApiCodeTaken,
     titleOf: apiEndpointTitle,
   };

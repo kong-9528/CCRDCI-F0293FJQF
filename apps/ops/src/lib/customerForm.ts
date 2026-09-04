@@ -133,14 +133,19 @@ function productRowLabel(row: ProductFormRow, index: number) {
 
 export function parseProductServices(
   rows: ProductFormRow[],
+  opts?: { allowEmpty?: boolean },
 ): { ok: true; value: ProductServiceConfig[] } | { ok: false; error: string } {
-  if (rows.length === 0) {
+  const effective = opts?.allowEmpty ? rows.filter((r) => Boolean(r.product)) : rows;
+
+  if (effective.length === 0) {
+    if (opts?.allowEmpty) return { ok: true, value: [] };
     return { ok: false, error: "请至少配置一项产品服务" };
   }
+
   const seen = new Set<string>();
   const value: ProductServiceConfig[] = [];
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i];
+  for (let i = 0; i < effective.length; i++) {
+    const r = effective[i];
     const label = productRowLabel(r, i);
     if (!r.product) {
       return { ok: false, error: `${label}：请选择产品` };

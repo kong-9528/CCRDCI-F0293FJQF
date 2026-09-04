@@ -2,6 +2,14 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ProductServiceTags } from "@/components/ProductServiceTags";
+import { TableAction } from "@/components/TableAction";
+import {
+  IconContract,
+  IconDisable,
+  IconEdit,
+  IconEnable,
+  IconEye,
+} from "@/components/icons/UiIcons";
 import {
   ACCOUNT_STATUS_LABEL,
   CONFIGURABLE_PRODUCTS,
@@ -275,35 +283,31 @@ export function CustomerListPage() {
                       </td>
                       <td>
                         <div className="a-actions">
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          <TableAction
+                            icon={<IconEye />}
                             onClick={() => navigate(`/customers/${row.id}`)}
                           >
                             详情
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={<IconEdit />}
                             onClick={() => navigate(`/customers/${row.id}/edit`)}
                           >
                             编辑
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={row.status === "enabled" ? <IconDisable /> : <IconEnable />}
                             onClick={() => setConfirm(row)}
                           >
                             {row.status === "enabled" ? "停用" : "启用"}
-                          </button>
+                          </TableAction>
                           {canContracts ? (
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            <TableAction
+                              icon={<IconContract />}
                               onClick={() => navigate(`/customers/${row.id}/contracts`)}
                             >
                               合同
-                            </button>
+                            </TableAction>
                           ) : null}
                         </div>
                       </td>

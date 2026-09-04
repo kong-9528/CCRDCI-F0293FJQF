@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { TableAction } from "@/components/TableAction";
 import { ProductServiceTags } from "@/components/ProductServiceTags";
+import { IconAudit, IconEdit, IconEye } from "@/components/icons/UiIcons";
 import {
   APPLICATION_STATUS_LABEL,
   useAccountsStore,
@@ -27,7 +28,8 @@ type Filters = {
   creditCode: string;
   account: string;
   product: string;
-  reviewer: string;
+  applyFrom: string;
+  applyTo: string;
 };
 
 const EMPTY_FILTERS: Filters = {
@@ -35,7 +37,8 @@ const EMPTY_FILTERS: Filters = {
   creditCode: "",
   account: "",
   product: "",
-  reviewer: "",
+  applyFrom: "",
+  applyTo: "",
 };
 
 type ResultTab = "approved" | "rejected";
@@ -62,7 +65,21 @@ function statusTag(status: ApplicationStatus) {
   return <span className="a-tag a-tag--wn">{APPLICATION_STATUS_LABEL[status]}</span>;
 }
 
-function matchesFilters(row: AccountApplication, f: Filters, mode: AccountListMode) {
+function contractPeriodText(row: AccountApplication) {
+  if (!row.contractStart && !row.contractEnd) return "—";
+  return `${row.contractStart || "—"} ~ ${row.contractEnd || "—"}`;
+}
+
+function dayOf(ts: string) {
+  return ts.slice(0, 10);
+}
+
+function matchesFilters(
+  row: AccountApplication,
+  f: Filters,
+  filterByProduct: boolean,
+  filterByApplyTime: boolean,
+) {
   const companyQ = f.company.trim();
   if (companyQ && !row.companyName.includes(companyQ)) return false;
 
@@ -72,13 +89,14 @@ function matchesFilters(row: AccountApplication, f: Filters, mode: AccountListMo
   const accountQ = f.account.trim();
   if (accountQ && !row.account.includes(accountQ)) return false;
 
-  if (f.product && !customerHasProduct(applicationProductServices(row), f.product)) {
+  if (filterByProduct && f.product && !customerHasProduct(applicationProductServices(row), f.product)) {
     return false;
   }
 
-  if (mode === "all") {
-    const reviewerQ = f.reviewer.trim();
-    if (reviewerQ && !(row.reviewer ?? "").includes(reviewerQ)) return false;
+  if (filterByApplyTime) {
+    const day = dayOf(row.submittedAt);
+    if (f.applyFrom && day < f.applyFrom) return false;
+    if (f.applyTo && day > f.applyTo) return false;
   }
 
   return true;
@@ -98,6 +116,13 @@ export function AccountApplicationsPage({ mode }: Props) {
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
 
+  const showTabs = mode === "mine" || mode === "all";
+  const isApprovedTab = showTabs && resultTab === "approved";
+  const isRejectedTab = showTabs && resultTab === "rejected";
+  /** 待审核、不通过 tab 不展示产品筛选；仅我的/全部审核的通过 tab 保留 */
+  const showProductFilter = isApprovedTab;
+  const showApplyTimeFilter = mode === "pending" || isRejectedTab;
+
   const scoped = useMemo(() => {
     let rows = [...applications];
     if (mode === "pending") {
@@ -114,7 +139,9 @@ export function AccountApplicationsPage({ mode }: Props) {
   }, [applications, mode, me?.displayName]);
 
   const filtered = useMemo(() => {
-    let rows = scoped.filter((row) => matchesFilters(row, applied, mode));
+    let rows = scoped.filter((row) =>
+      matchesFilters(row, applied, showProductFilter, showApplyTimeFilter),
+    );
     if (mode === "mine" || mode === "all") {
       rows = rows.filter((r) => r.status === resultTab);
     }
@@ -123,7 +150,7 @@ export function AccountApplicationsPage({ mode }: Props) {
       const tb = mode === "pending" ? b.submittedAt : (b.reviewedAt ?? b.submittedAt);
       return tb.localeCompare(ta);
     });
-  }, [scoped, applied, mode, resultTab]);
+  }, [scoped, applied, mode, resultTab, showProductFilter, showApplyTimeFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -153,8 +180,13 @@ export function AccountApplicationsPage({ mode }: Props) {
     setPage(1);
   };
 
-  const showTabs = mode === "mine" || mode === "all";
-  const colSpan = mode === "pending" ? 9 : mode === "all" ? 10 : 9;
+  const colSpan = (() => {
+    if (mode === "pending") return 7;
+    if (isApprovedTab) return mode === "all" ? 9 : 8;
+    // 不通过：机构/信用代码/联系人/账号/申请时间/审核时间/不通过原因/[审核人]/状态/操作
+    if (isRejectedTab) return mode === "all" ? 10 : 9;
+    return 9;
+  })();
 
   return (
     <div className="a-card">
@@ -208,30 +240,41 @@ export function AccountApplicationsPage({ mode }: Props) {
             onChange={(e) => setFilter("account", e.target.value)}
           />
         </div>
-        <div className="a-field">
-          <span className="a-field__label">产品</span>
-          <select
-            className="a-select"
-            value={draft.product}
-            onChange={(e) => setFilter("product", e.target.value)}
-          >
-            <option value="">请选择产品</option>
-            {CONFIGURABLE_PRODUCTS.map((p) => (
-              <option key={p.code} value={p.code}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {mode === "all" ? (
+        {showProductFilter ? (
           <div className="a-field">
-            <span className="a-field__label">审核人</span>
-            <input
-              className="a-input"
-              placeholder="请输入审核人"
-              value={draft.reviewer}
-              onChange={(e) => setFilter("reviewer", e.target.value)}
-            />
+            <span className="a-field__label">产品</span>
+            <select
+              className="a-select"
+              value={draft.product}
+              onChange={(e) => setFilter("product", e.target.value)}
+            >
+              <option value="">请选择产品</option>
+              {CONFIGURABLE_PRODUCTS.map((p) => (
+                <option key={p.code} value={p.code}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        {showApplyTimeFilter ? (
+          <div className="a-field">
+            <span className="a-field__label">申请时间</span>
+            <div className="a-date-range">
+              <input
+                type="date"
+                className="a-input"
+                value={draft.applyFrom}
+                onChange={(e) => setFilter("applyFrom", e.target.value)}
+              />
+              <span>至</span>
+              <input
+                type="date"
+                className="a-input"
+                value={draft.applyTo}
+                onChange={(e) => setFilter("applyTo", e.target.value)}
+              />
+            </div>
           </div>
         ) : null}
         <button type="button" className="a-btn a-btn--primary" onClick={search}>
@@ -247,14 +290,16 @@ export function AccountApplicationsPage({ mode }: Props) {
           <thead>
             <tr>
               <th>机构/企业名称</th>
-              <th>统一社会信用代码</th>
+              {mode !== "pending" ? <th>统一社会信用代码</th> : null}
               <th>联系人姓名</th>
               <th>申请账号</th>
-              <th>绑定手机号</th>
-              <th>开通产品</th>
-              <th>{mode === "pending" ? "提交时间" : "审核时间"}</th>
+              {isApprovedTab ? <th>开通产品</th> : null}
+              {mode === "pending" || isApprovedTab ? <th>合同起止日期</th> : null}
+              {mode === "pending" || isRejectedTab ? <th>申请时间</th> : null}
+              {isRejectedTab ? <th>审核时间</th> : null}
+              {isRejectedTab ? <th>不通过原因</th> : null}
               {mode === "all" ? <th>审核人</th> : null}
-              <th>状态</th>
+              <th className="a-table__col-status">状态</th>
               <th className="a-table__col-actions">操作</th>
             </tr>
           </thead>
@@ -269,39 +314,39 @@ export function AccountApplicationsPage({ mode }: Props) {
               pageRows.map((row) => (
                 <tr key={row.id}>
                   <td>{row.companyName}</td>
-                  <td>{row.creditCode}</td>
+                  {mode !== "pending" ? <td>{row.creditCode}</td> : null}
                   <td>{row.contactName}</td>
                   <td>
                     <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
                   </td>
-                  <td>{row.boundPhone || "—"}</td>
-                  <td>
-                    <ProductServiceTags services={applicationProductServices(row)} />
-                  </td>
-                  <td>{mode === "pending" ? row.submittedAt : (row.reviewedAt ?? "—")}</td>
+                  {isApprovedTab ? (
+                    <td>
+                      <ProductServiceTags services={applicationProductServices(row)} />
+                    </td>
+                  ) : null}
+                  {mode === "pending" || isApprovedTab ? <td>{contractPeriodText(row)}</td> : null}
+                  {mode === "pending" || isRejectedTab ? <td>{row.submittedAt}</td> : null}
+                  {isRejectedTab ? <td>{row.reviewedAt ?? "—"}</td> : null}
+                  {isRejectedTab ? (
+                    <td title={row.rejectReason || undefined}>{row.rejectReason || "—"}</td>
+                  ) : null}
                   {mode === "all" ? <td>{row.reviewer ?? "—"}</td> : null}
-                  <td>{statusTag(row.status)}</td>
+                  <td className="a-table__col-status">{statusTag(row.status)}</td>
                   <td>
                     <div className="a-actions a-actions--nowrap">
                       {row.status === "pending" ? (
-                        <Link
-                          to={`/accounts/${row.id}/review`}
-                          className="a-btn a-btn--text a-btn--sm"
-                        >
+                        <TableAction icon={<IconAudit />} to={`/accounts/${row.id}/review`}>
                           审核
-                        </Link>
+                        </TableAction>
                       ) : (
                         <>
-                          <Link to={`/accounts/${row.id}`} className="a-btn a-btn--text a-btn--sm">
+                          <TableAction icon={<IconEye />} to={`/accounts/${row.id}`}>
                             查看
-                          </Link>
+                          </TableAction>
                           {row.status === "approved" ? (
-                            <Link
-                              to={`/accounts/${row.id}/edit`}
-                              className="a-btn a-btn--text a-btn--sm"
-                            >
+                            <TableAction icon={<IconEdit />} to={`/accounts/${row.id}/edit`}>
                               编辑
-                            </Link>
+                            </TableAction>
                           ) : null}
                         </>
                       )}
@@ -317,7 +362,7 @@ export function AccountApplicationsPage({ mode }: Props) {
       <div className="a-list-footer">
         <div className="a-summary">
           当前筛选结果共 <b>{filtered.length}</b> 条
-          {applied.product
+          {showProductFilter && applied.product
             ? `，已筛选产品「${productName(applied.product as ProductCode)}」`
             : ""}
         </div>

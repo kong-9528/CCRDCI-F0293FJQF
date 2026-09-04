@@ -58,8 +58,11 @@ export function customerToProductConfig(customer: CustomerAccount): ProductConfi
   };
 }
 
-export function validateProductConfig(state: ProductConfigState): string | null {
-  const products = parseProductServices(state.productRows);
+export function validateProductConfig(
+  state: ProductConfigState,
+  opts?: { allowEmpty?: boolean },
+): string | null {
+  const products = parseProductServices(state.productRows, opts);
   if (!products.ok) return products.error;
   return null;
 }

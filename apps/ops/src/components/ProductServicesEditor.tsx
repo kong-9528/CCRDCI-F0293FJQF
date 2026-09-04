@@ -3,6 +3,8 @@ import {
   ProductSubparamsRow,
   ProductVerifyOptions,
 } from "@/components/ProductVerifyOptions";
+import { TableAction } from "@/components/TableAction";
+import { IconDisable, IconEnable, IconTrash } from "@/components/icons/UiIcons";
 import {
   CONFIGURABLE_PRODUCTS,
   isVerifyProduct,
@@ -275,21 +277,20 @@ export function ProductServicesEditor({
                     <td>
                       <div className="a-actions">
                         {canRemove ? (
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          <TableAction
+                            icon={<IconTrash />}
+                            danger
                             onClick={() => remove(row.key)}
                           >
                             移除
-                          </button>
+                          </TableAction>
                         ) : locked && row.product ? (
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          <TableAction
+                            icon={row.stopped ? <IconEnable /> : <IconDisable />}
                             onClick={() => update(row.key, { stopped: !row.stopped })}
                           >
                             {row.stopped ? "恢复" : "停止"}
-                          </button>
+                          </TableAction>
                         ) : (
                           <span style={{ color: "var(--n-400)" }}>—</span>
                         )}

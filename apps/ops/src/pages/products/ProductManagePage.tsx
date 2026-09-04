@@ -7,13 +7,8 @@ import {
   useProductsStore,
   type AuditCapability,
   type ManagedProduct,
-  type ProductCategory,
   type ProductSection,
 } from "@/lib/productsStore";
-
-type Props = {
-  category: ProductCategory;
-};
 
 type PendingShelf =
   | { kind: "product"; row: ManagedProduct; next: boolean }
@@ -195,7 +190,7 @@ function shelfConfirmCopy(pending: PendingShelf) {
   };
 }
 
-export function ProductManagePage({ category }: Props) {
+export function ProductManagePage() {
   const {
     getByCategory,
     getWorkReviewProduct,
@@ -205,9 +200,10 @@ export function ProductManagePage({ category }: Props) {
   } = useProductsStore();
   const [pending, setPending] = useState<PendingShelf | null>(null);
 
-  const section =
-    PRODUCT_SECTIONS.find((item) => item.category === category) ??
-    PRODUCT_SECTIONS[0];
+  const verifySection =
+    PRODUCT_SECTIONS.find((item) => item.category === "verify") ?? PRODUCT_SECTIONS[0];
+  const auditSection =
+    PRODUCT_SECTIONS.find((item) => item.category === "audit") ?? PRODUCT_SECTIONS[1];
 
   const confirmSwitch = () => {
     if (!pending) return;
@@ -226,22 +222,19 @@ export function ProductManagePage({ category }: Props) {
 
   return (
     <div className="a-stack">
-      {category === "audit" ? (
-        <AuditShelfPanel
-          section={section}
-          product={getWorkReviewProduct()}
-          capabilities={getAuditCapabilities()}
-          onRequestShelfChange={setPending}
-        />
-      ) : (
-        <ProductSectionTable
-          section={section}
-          rows={getByCategory(category)}
-          onRequestShelfChange={(row, next) =>
-            setPending({ kind: "product", row, next })
-          }
-        />
-      )}
+      <ProductSectionTable
+        section={verifySection}
+        rows={getByCategory("verify")}
+        onRequestShelfChange={(row, next) =>
+          setPending({ kind: "product", row, next })
+        }
+      />
+      <AuditShelfPanel
+        section={auditSection}
+        product={getWorkReviewProduct()}
+        capabilities={getAuditCapabilities()}
+        onRequestShelfChange={setPending}
+      />
 
       <ConfirmDialog
         open={Boolean(pending)}

@@ -9,10 +9,8 @@ import {
 const PRODUCT_MARK: Record<string, string> = {
   dci: "DCI",
   info: "INF",
-  cert: "CRT",
-  safety: "SAF",
-  dedup: "DUP",
-  infringe: "IRR",
+  certificate: "CRT",
+  workReview: "REV",
 };
 
 const CATEGORY_LABEL: Record<"verify" | "audit", string> = {

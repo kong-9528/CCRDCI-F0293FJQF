@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { AccountSearchSelect } from "@/components/AccountSearchSelect";
+import { TableAction } from "@/components/TableAction";
+import { IconEye } from "@/components/icons/UiIcons";
 import { CertUsageDetailDrawer } from "@/components/usage/CertUsageDetailDrawer";
 import { DciUsageDetailDrawer } from "@/components/usage/DciUsageDetailDrawer";
 import { InfoUsageDetailDrawer } from "@/components/usage/InfoUsageDetailDrawer";
@@ -666,13 +668,9 @@ export function ProductUsageRecordsPage() {
                     </span>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => setDciDetail(r)}
-                    >
+                    <TableAction icon={<IconEye />} onClick={() => setDciDetail(r)}>
                       详情
-                    </button>
+                    </TableAction>
                   </td>
                 </tr>
               ))
@@ -697,13 +695,9 @@ export function ProductUsageRecordsPage() {
                     </span>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => setInfoDetail(r)}
-                    >
+                    <TableAction icon={<IconEye />} onClick={() => setInfoDetail(r)}>
                       详情
-                    </button>
+                    </TableAction>
                   </td>
                 </tr>
               ))
@@ -723,13 +717,9 @@ export function ProductUsageRecordsPage() {
                     </span>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => setCertDetail(r)}
-                    >
+                    <TableAction icon={<IconEye />} onClick={() => setCertDetail(r)}>
                       详情
-                    </button>
+                    </TableAction>
                   </td>
                 </tr>
               ))
@@ -760,13 +750,9 @@ export function ProductUsageRecordsPage() {
                   </td>
                   <td>{r.finishedAt ?? "—"}</td>
                   <td>
-                    <button
-                      type="button"
-                      className="a-btn a-btn--text a-btn--sm"
-                      onClick={() => setReviewDetail(r)}
-                    >
+                    <TableAction icon={<IconEye />} onClick={() => setReviewDetail(r)}>
                       {r.status === "reviewing" ? "查询结果" : "查看结果"}
-                    </button>
+                    </TableAction>
                   </td>
                 </tr>
               ))

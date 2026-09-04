@@ -140,7 +140,7 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
 export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
   safety: {
     productCode: "safety",
-    apiDocId: "safety",
+    apiDocId: "workReview",
     title: "内容安全审核",
     subtitle: "",
     intro: [
@@ -152,7 +152,7 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
   },
   duplicate: {
     productCode: "duplicate",
-    apiDocId: "dedup",
+    apiDocId: "workReview",
     title: "作品登记查重",
     subtitle: "",
     intro: [
@@ -164,7 +164,7 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
   },
   infringement: {
     productCode: "infringement",
-    apiDocId: "infringe",
+    apiDocId: "workReview",
     title: "疑似侵权审核",
     subtitle: "",
     intro: [

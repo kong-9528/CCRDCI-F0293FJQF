@@ -1,9 +1,18 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TableAction } from "@/components/TableAction";
+import {
+  IconDisable,
+  IconEdit,
+  IconEnable,
+  IconPlus,
+  IconTrash,
+} from "@/components/icons/UiIcons";
 import {
   CONTENT_CHANNEL_LABEL,
-  CONTENT_CHANNELS,
+  CONTENT_CHANNEL_OPTIONS,
+  CONTENT_CHANNEL_DEFAULT,
   VISIBILITY_LABEL,
   useContentStore,
   type ContentChannel,
@@ -23,10 +32,10 @@ type Filters = { keyword: string; type: "" | "catalog" | "article"; status: stri
 const EMPTY_FILTERS: Filters = { keyword: "", type: "", status: "" };
 
 function parseChannel(raw: string | null): ContentChannel {
-  if (raw && (CONTENT_CHANNELS as string[]).includes(raw)) {
+  if (raw && (CONTENT_CHANNEL_OPTIONS as string[]).includes(raw)) {
     return raw as ContentChannel;
   }
-  return "portal_guide";
+  return CONTENT_CHANNEL_DEFAULT;
 }
 
 export function ContentManagePage() {
@@ -154,7 +163,7 @@ export function ContentManagePage() {
               value={channel}
               onChange={(e) => setChannel(e.target.value as ContentChannel)}
             >
-              {CONTENT_CHANNELS.map((c) => (
+              {CONTENT_CHANNEL_OPTIONS.map((c) => (
                 <option key={c} value={c}>
                   {CONTENT_CHANNEL_LABEL[c]}
                 </option>
@@ -244,7 +253,7 @@ export function ContentManagePage() {
         ) : null}
 
         <div className="a-card__body a-card__body--flush">
-          <table className="a-table">
+          <table className="a-table a-table--content-center">
             <thead>
               <tr>
                 <th>名称</th>
@@ -253,7 +262,7 @@ export function ContentManagePage() {
                 <th>状态</th>
                 <th>更新时间</th>
                 <th>维护人</th>
-                <th>操作</th>
+                <th className="a-table__col-actions">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -290,41 +299,34 @@ export function ContentManagePage() {
                         <td>—</td>
                         <td>
                           <div className="a-actions">
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
-                              onClick={() => openEditCatalog(c)}
-                            >
+                            <TableAction icon={<IconEdit />} onClick={() => openEditCatalog(c)}>
                               编辑
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            </TableAction>
+                            <TableAction
+                              icon={c.status === "visible" ? <IconDisable /> : <IconEnable />}
                               onClick={() => setConfirmVisCatalog(c)}
                             >
                               {c.status === "visible" ? "隐藏" : "显示"}
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            </TableAction>
+                            <TableAction
+                              icon={<IconTrash />}
+                              danger
                               onClick={() => setConfirmDeleteCatalog(c)}
                             >
                               删除
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            </TableAction>
+                            <TableAction
+                              icon={<IconPlus />}
                               onClick={() => openCreateCatalog(c.id)}
                             >
                               新增子目录
-                            </button>
-                            <button
-                              type="button"
-                              className="a-btn a-btn--text a-btn--sm"
+                            </TableAction>
+                            <TableAction
+                              icon={<IconPlus />}
                               onClick={() => openCreateArticle(c.id)}
                             >
                               {isFaq ? "新增问题" : "新增文章"}
-                            </button>
+                            </TableAction>
                           </div>
                         </td>
                       </tr>
@@ -355,27 +357,22 @@ export function ContentManagePage() {
                       <td>{a.maintainer}</td>
                       <td>
                         <div className="a-actions">
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
-                            onClick={() => openEditArticle(a)}
-                          >
+                          <TableAction icon={<IconEdit />} onClick={() => openEditArticle(a)}>
                             编辑
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={a.status === "visible" ? <IconDisable /> : <IconEnable />}
                             onClick={() => setConfirmVisArticle(a)}
                           >
                             {a.status === "visible" ? "隐藏" : "显示"}
-                          </button>
-                          <button
-                            type="button"
-                            className="a-btn a-btn--text a-btn--sm"
+                          </TableAction>
+                          <TableAction
+                            icon={<IconTrash />}
+                            danger
                             onClick={() => setConfirmDeleteArticle(a)}
                           >
                             删除
-                          </button>
+                          </TableAction>
                         </div>
                       </td>
                     </tr>

@@ -5,6 +5,8 @@ import {
   ProductSubparamsRow,
   ProductVerifyOptions,
 } from "@/components/ProductVerifyOptions";
+import { TableAction } from "@/components/TableAction";
+import { IconDisable, IconEnable } from "@/components/icons/UiIcons";
 import {
   ACCOUNT_STATUS_LABEL,
   CUSTOMER_TYPE_LABEL,
@@ -210,13 +212,12 @@ export function CustomerDetailPage() {
                             </td>
                             <td>
                               <div className="a-actions">
-                                <button
-                                  type="button"
-                                  className="a-btn a-btn--text a-btn--sm"
+                                <TableAction
+                                  icon={svc.stopped ? <IconEnable /> : <IconDisable />}
                                   onClick={() => setConfirmSvc(svc)}
                                 >
                                   {svc.stopped ? "恢复" : "停止"}
-                                </button>
+                                </TableAction>
                               </div>
                             </td>
                           </tr>,

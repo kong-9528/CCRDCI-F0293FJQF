@@ -1,4 +1,5 @@
 export type {
+  ApiDocFile,
   ApiDocProductMeta,
   ApiEndpoint,
   ApiEndpointInput,
@@ -25,9 +26,12 @@ export {
 
 export { AUTH_HEADER_PARAMS, buildSeedEndpoints } from "./seed";
 
+export { resolveRequestParamsText, resolveResponseFieldsText } from "./docsDisplay";
+
 export {
   apiEndpointTitle,
   createApiEndpoint,
+  deleteApiEndpoint,
   getApiEndpointByCode,
   getApiEndpointById,
   isApiCodeTaken,

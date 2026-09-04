@@ -15,6 +15,11 @@ export const CONTENT_CHANNELS: ContentChannel[] = [
   "portal_faq",
 ];
 
+/** 技术服务中心内容管理中可选的栏目（隐藏门户常见问题、门户接入指南） */
+export const CONTENT_CHANNEL_OPTIONS: ContentChannel[] = ["console_help"];
+
+export const CONTENT_CHANNEL_DEFAULT: ContentChannel = "console_help";
+
 export type Visibility = "visible" | "hidden";
 
 export type HelpCatalog = {

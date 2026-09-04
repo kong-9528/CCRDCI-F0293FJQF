@@ -30,11 +30,11 @@ const PERIOD_LABEL: Record<TenantContract["periodStatus"], string> = {
 const API_DOC_ID: Partial<Record<ProductCode, string>> = {
   dci: "dci",
   info: "info",
-  certificate: "cert",
-  safety: "safety",
-  duplicate: "dedup",
-  infringement: "infringe",
-  workReview: "safety",
+  certificate: "certificate",
+  safety: "workReview",
+  duplicate: "workReview",
+  infringement: "workReview",
+  workReview: "workReview",
 };
 
 function serviceStatusTag(status: (typeof MOCK_TENANT_SERVICES)[number]["status"]) {

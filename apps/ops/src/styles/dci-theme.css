@@ -454,14 +454,59 @@ body.a-admin.theme-ops {
   font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .theme-ops .a-link-action:hover {
   color: var(--p-400);
 }
 
+.theme-ops .a-link-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.theme-ops .a-link-action--danger {
+  color: var(--er-600);
+}
+
+.theme-ops .a-link-action--danger:hover {
+  color: var(--er-500);
+}
+
 .theme-ops .a-link-action + .a-link-action {
   margin-left: 12px;
+}
+
+.theme-ops .a-actions .a-link-action + .a-link-action {
+  margin-left: 0;
+}
+
+.theme-ops .a-table td .a-actions {
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 技术服务中心内容管理：操作列按钮左对齐 */
+.theme-ops .a-table--content-center th.a-table__col-actions,
+.theme-ops .a-table--content-center td:last-child {
+  text-align: left;
+}
+
+.theme-ops .a-table--content-center td:last-child .a-actions {
+  justify-content: flex-start;
+}
+
+.theme-ops .a-table td .a-btn--text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: auto;
+  min-height: 0;
+  padding: 0 6px;
+  font-size: 14px;
+  line-height: 1.5715;
 }
 
 .theme-ops .a-input,
@@ -570,18 +615,6 @@ body.a-admin.theme-ops {
 
 .theme-ops .a-table .num {
   text-align: center;
-}
-
-.theme-ops .a-table td .a-actions {
-  justify-content: center;
-}
-
-.theme-ops .a-table td .a-btn--text {
-  height: auto;
-  min-height: 0;
-  padding: 0 6px;
-  font-size: 14px;
-  line-height: 1.5715;
 }
 
 .theme-ops .a-table tbody td .a-empty {
@@ -846,6 +879,8 @@ body.a-admin.theme-ops {
 .theme-ops .a-tag {
   border-radius: 4px;
   font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .theme-ops .c-verify-panel-head__title {
