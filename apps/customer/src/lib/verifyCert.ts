@@ -59,7 +59,7 @@ export const CERT_DEFAULT_VERIFIER = "admin2";
 export const CERT_DEFAULT_DAYS = 30;
 export const CERT_EXPORT_LIMIT = 5000;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
-export const CERT_MAX_BYTES = 10 * 1024 * 1024;
+export const CERT_MAX_BYTES = 100 * 1024 * 1024;
 
 export function formatCertFailReasons(result: CertVerifyResult): string[] {
   if (result.status === "pass") return [];
@@ -219,32 +219,52 @@ export let MOCK_CERT_RECORDS: CertVerifyResult[] = SEED.map((item, i) => ({
   id: `cert-${i + 1}`,
 }));
 
-/** 模拟 OCR：根据文件名或随机选取演示数据 */
-export async function ocrCertFile(file: File): Promise<CertOcrDraft> {
-  await new Promise((r) => setTimeout(r, 600));
+export type CertSelectedFile = {
+  file: File;
+  fileName: string;
+  fileUrl: string;
+  fileKind: CertFileKind;
+};
+
+/** 选择文件后生成本地预览（尚未 OCR） */
+export function createCertSelectedFile(file: File): CertSelectedFile {
   const fileKind = detectCertFileKind(file.name);
   const fileUrl =
     fileKind === "image" ? URL.createObjectURL(file) : demoCertImage(file.name, "info");
-  const lower = file.name.toLowerCase();
-  if (lower.includes("fail") || lower.includes("invalid")) {
+  return { file, fileName: file.name, fileUrl, fileKind };
+}
+
+/** 模拟 OCR：根据文件名选取演示数据；可复用已生成的预览 URL */
+export async function ocrCertFile(
+  file: File,
+  preset?: Pick<CertSelectedFile, "fileUrl" | "fileKind" | "fileName">,
+): Promise<CertOcrDraft> {
+  await new Promise((r) => setTimeout(r, 900));
+  const fileKind = preset?.fileKind ?? detectCertFileKind(file.name);
+  const fileName = preset?.fileName ?? file.name;
+  const fileUrl =
+    preset?.fileUrl ??
+    (fileKind === "image" ? URL.createObjectURL(file) : demoCertImage(file.name, "info"));
+  const lower = fileName.toLowerCase();
+  if (lower.includes("fail") || lower.includes("invalid") || lower.includes("missing")) {
     return {
-      fileName: file.name,
+      fileName,
       fileUrl,
       fileKind,
       recognition: {
-        certTitleNo: "软著登字第00000000号",
-        workName: "无法识别作品",
-        owner: "未知",
+        certTitleNo: "软著登字第15947675号",
+        workName: "众创指购AI智能解梦分析系统",
+        owner: "厦门众创指购科技股份有限公司",
         acquireMethod: "原始取得",
         rightScope: "全部权利",
-        registerDate: "2099-01-01",
-        registerNo: "2099SR000000",
+        registerDate: "2025-07-17",
+        registerNo: "2025SR1291477",
       },
     };
   }
-  const hit = REGISTRY["2024SR001234"];
+  const hit = REGISTRY["2024SR001234"]!;
   return {
-    fileName: file.name,
+    fileName,
     fileUrl,
     fileKind,
     recognition: {
@@ -273,19 +293,40 @@ export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerify
   const hit = REGISTRY[recognition.registerNo];
   const verifyCode = nextVerifyCode();
 
-  const mismatches: CertMismatchField[] = [];
   if (!hit) {
-    mismatches.push("certNo");
-  } else {
-    if (normCompare(recognition.workName) !== normCompare(hit.workName)) {
-      mismatches.push("workName");
-    }
-    if (normCompare(recognition.owner) !== normCompare(hit.owner)) {
-      mismatches.push("owner");
-    }
+    const result: CertVerifyResult = {
+      id: `cert-${seq}`,
+      verifyCode,
+      verifier: CERT_DEFAULT_VERIFIER,
+      certNo: recognition.registerNo,
+      workName: recognition.workName,
+      owner: recognition.owner,
+      registerDate: recognition.registerDate,
+      status: "fail",
+      verifiedAt: nowStamp(),
+      channel: "WebUI",
+      fileName: draft.fileName,
+      fileUrl: draft.fileUrl,
+      fileKind: draft.fileKind,
+      recognition,
+      message: "证书不存在",
+    };
+    MOCK_CERT_RECORDS = [result, ...MOCK_CERT_RECORDS];
+    return result;
   }
 
-  const pass = Boolean(hit && mismatches.length === 0);
+  const mismatches: CertMismatchField[] = [];
+  if (normCompare(recognition.workName) !== normCompare(hit.workName)) {
+    mismatches.push("workName");
+  }
+  if (normCompare(recognition.owner) !== normCompare(hit.owner)) {
+    mismatches.push("owner");
+  }
+  if (normCompare(recognition.certTitleNo) !== normCompare(hit.certTitleNo)) {
+    mismatches.push("certNo");
+  }
+
+  const pass = mismatches.length === 0;
 
   const result: CertVerifyResult = {
     id: `cert-${seq}`,
@@ -313,6 +354,6 @@ export async function confirmCertVerify(draft: CertOcrDraft): Promise<CertVerify
 export function isCertFileAllowed(file: File): string | null {
   const okExt = /\.(pdf|jpe?g|png)$/i.test(file.name);
   if (!okExt) return "仅支持 PDF、JPG、PNG 格式";
-  if (file.size > CERT_MAX_BYTES) return "单文件不超过 10MB";
+  if (file.size > CERT_MAX_BYTES) return "请上传 100M 以内的文件";
   return null;
 }
