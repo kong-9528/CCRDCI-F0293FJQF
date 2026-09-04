@@ -1,23 +1,15 @@
-import { Outlet, Navigate, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { CustomerHeader } from "@/components/CustomerHeader";
 import { findNavLabel } from "@/lib/nav";
 import { PLATFORM_NAME } from "@/lib/catalog";
-import { useOnboardingStore } from "@/lib/onboardingStore";
 
 export function CustomerLayout() {
   const location = useLocation();
-  const { unlocked } = useOnboardingStore();
-  const locked = !unlocked;
-  const onApply = location.pathname === "/apply" || location.pathname.startsWith("/apply/");
   const pageTitle = findNavLabel(location.pathname);
 
-  if (locked && !onApply) {
-    return <Navigate to="/apply" replace />;
-  }
-
   return (
-    <div className={`a-layout a-layout--topnav${locked ? " is-locked" : ""}`}>
-      <CustomerHeader pathname={location.pathname} locked={locked} />
+    <div className="a-layout a-layout--topnav">
+      <CustomerHeader pathname={location.pathname} />
       <div className="a-layout__body">
         <div className="a-main">
           <div className="a-breadcrumb" aria-label="面包屑">

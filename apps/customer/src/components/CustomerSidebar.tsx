@@ -4,29 +4,10 @@ import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
 
 type Props = {
   collapsed: boolean;
-  locked?: boolean;
 };
 
-export function CustomerSidebar({ collapsed, locked }: Props) {
+export function CustomerSidebar({ collapsed }: Props) {
   const { pathname } = useLocation();
-
-  if (locked) {
-    return (
-      <aside className="a-sidebar">
-        <nav className="a-sidebar__nav">
-          <NavLink
-            to="/apply"
-            end
-            className={({ isActive }) => `a-menu__item${isActive ? " is-active" : ""}`}
-            title="入驻申请"
-          >
-            <NavIcon id="account" />
-            {!collapsed ? <span className="a-menu__label">入驻申请</span> : null}
-          </NavLink>
-        </nav>
-      </aside>
-    );
-  }
 
   return (
     <aside className="a-sidebar">

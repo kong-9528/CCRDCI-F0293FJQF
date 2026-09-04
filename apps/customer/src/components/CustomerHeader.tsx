@@ -4,12 +4,11 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconBell } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
-import { EXTERNAL_LOGIN_ACCOUNT, demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
+import { demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
 import { MOCK_TENANT } from "@/lib/tenant";
 
 type Props = {
   pathname: string;
-  locked?: boolean;
 };
 
 function tenantInitial(name: string) {
@@ -17,12 +16,12 @@ function tenantInitial(name: string) {
   return t ? t.slice(0, 1) : "企";
 }
 
-export function CustomerHeader({ pathname, locked }: Props) {
+export function CustomerHeader({ pathname }: Props) {
   const navigate = useNavigate();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { unlocked } = useOnboardingStore();
-  const displayName = locked ? EXTERNAL_LOGIN_ACCOUNT : MOCK_TENANT.companyName;
-  const roleLabel = locked ? "申请人" : "企业用户";
+  const displayName = MOCK_TENANT.companyName;
+  const roleLabel = "企业用户";
 
   return (
     <header className="a-header">
@@ -33,43 +32,31 @@ export function CustomerHeader({ pathname, locked }: Props) {
 
       <div className="a-header__right">
         <nav className="a-header__nav" aria-label="主导航">
-          {locked ? (
-            <NavLink
-              to="/apply"
-              end
-              className={({ isActive }) => `a-header__nav-link${isActive ? " is-active" : ""}`}
-            >
-              入驻申请
-            </NavLink>
-          ) : (
-            <>
-              {CUSTOMER_NAV.map((item) => {
-                const active = isNavItemActive(item, pathname);
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.to === "/desk"}
-                    className={`a-header__nav-link${active ? " is-active" : ""}`}
-                  >
-                    {item.label}
-                  </NavLink>
-                );
-              })}
-              <Link
-                to="/api-docs"
-                className={`a-header__nav-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
+          {CUSTOMER_NAV.map((item) => {
+            const active = isNavItemActive(item, pathname);
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/desk"}
+                className={`a-header__nav-link${active ? " is-active" : ""}`}
               >
-                API文档
-              </Link>
-              <Link
-                to="/help"
-                className={`a-header__nav-link${pathname.startsWith("/help") ? " is-active" : ""}`}
-              >
-                帮助中心
-              </Link>
-            </>
-          )}
+                {item.label}
+              </NavLink>
+            );
+          })}
+          <Link
+            to="/api-docs"
+            className={`a-header__nav-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
+          >
+            API文档
+          </Link>
+          <Link
+            to="/help"
+            className={`a-header__nav-link${pathname.startsWith("/help") ? " is-active" : ""}`}
+          >
+            帮助中心
+          </Link>
         </nav>
 
         <div className="a-header__actions">
@@ -91,33 +78,29 @@ export function CustomerHeader({ pathname, locked }: Props) {
             <div className="a-header__user-dropdown">
               <div className="a-header__user-menu" role="menu">
                 <div className="a-header__user-menu-name">{displayName}</div>
-                {!locked ? (
-                  <>
-                    <Link to="/account" role="menuitem" className="a-header__user-menu-link">
-                      账号中心
-                    </Link>
-                    <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
-                      修改密码
-                    </Link>
-                    <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
-                      API Keys
-                    </Link>
-                    {unlocked ? (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        className="a-header__user-menu-item"
-                        onClick={() => {
-                          demoResetOnboarding();
-                          navigate("/apply");
-                        }}
-                      >
-                        演示：模拟未入驻
-                      </button>
-                    ) : null}
-                    <div className="a-header__user-menu-divider" />
-                  </>
+                <Link to="/account" role="menuitem" className="a-header__user-menu-link">
+                  账号中心
+                </Link>
+                <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
+                  修改密码
+                </Link>
+                <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
+                  API Keys
+                </Link>
+                {unlocked ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="a-header__user-menu-item"
+                    onClick={() => {
+                      demoResetOnboarding();
+                      navigate("/desk");
+                    }}
+                  >
+                    演示：模拟未入驻
+                  </button>
                 ) : null}
+                <div className="a-header__user-menu-divider" />
                 <button
                   type="button"
                   role="menuitem"

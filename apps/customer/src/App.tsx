@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
-import { ApplyOnboardingPage } from "@/pages/apply/ApplyOnboardingPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -15,10 +14,9 @@ import { SafetyReviewPage } from "@/pages/review/SafetyReviewPage";
 import { DciVerifyPage } from "@/pages/verify/DciVerifyPage";
 import { InfoVerifyPage } from "@/pages/verify/InfoVerifyPage";
 import { CertVerifyPage } from "@/pages/verify/CertVerifyPage";
-import { isConsoleUnlocked } from "@/lib/onboardingStore";
 
 function DefaultRedirect() {
-  return <Navigate to={isConsoleUnlocked() ? "/desk" : "/apply"} replace />;
+  return <Navigate to="/desk" replace />;
 }
 
 export function App() {
@@ -26,7 +24,8 @@ export function App() {
     <Routes>
       <Route element={<CustomerLayout />}>
         <Route index element={<DefaultRedirect />} />
-        <Route path="/apply" element={<ApplyOnboardingPage />} />
+        <Route path="/apply" element={<Navigate to="/desk" replace />} />
+        <Route path="/apply/*" element={<Navigate to="/desk" replace />} />
         <Route path="/desk" element={<DeskPage />} />
         {/* 原工作台保留，不在侧栏暴露 */}
         <Route path="/dashboard" element={<DashboardPage />} />
