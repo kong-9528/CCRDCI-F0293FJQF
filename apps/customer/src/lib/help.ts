@@ -32,10 +32,10 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
           <p>欢迎使用 DCI®技术服务中心。本文档将帮助您快速了解平台功能并完成 API 接入。</p>
           <h3>第一步：获取 API 密钥</h3>
           <p>登录工作台后，点击右上角头像，进入「API Keys」页面创建密钥。SecretKey 仅在创建成功时展示一次，请立即保存。</p>
-          <p><a href="/keys">前往 API Keys →</a></p>
+          <p><a href="/api/keys">前往 API Keys →</a></p>
           <h3>第二步：阅读 API 文档</h3>
           <p>每个核验 / 审核服务页面均提供对应的 API 文档入口，包含请求参数、返回格式、错误码等详细信息。也可在「API文档」中浏览全部接口。</p>
-          <p><a href="/api-docs">打开 API 文档总览 →</a></p>
+          <p><a href="/api/docs">打开 API 文档总览 →</a></p>
           <h3>第三步：调用接口</h3>
           <p>使用您的密钥调用接口，每次调用将消耗对应的配额。可在工作台查看实时调用量和剩余配额。</p>
           <p><a href="/desk">返回工作台 →</a></p>
@@ -61,7 +61,7 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
             <li>Content-Type：application/json 或 multipart/form-data</li>
           </ul>
           <p>完整参数与错误码请参阅各产品 API 文档。</p>
-          <p><a href="/api-docs">浏览 API 文档 →</a></p>
+          <p><a href="/api/docs">浏览 API 文档 →</a></p>
         `,
       },
       {
@@ -75,7 +75,7 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
             <li>发现泄露请立即在工作台吊销并重新创建</li>
             <li>密钥与租户及已开通产品绑定</li>
           </ul>
-          <p><a href="/keys">管理 API Keys →</a></p>
+          <p><a href="/api/keys">管理 API Keys →</a></p>
         `,
       },
       {

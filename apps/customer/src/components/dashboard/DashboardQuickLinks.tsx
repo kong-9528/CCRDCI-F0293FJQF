@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { PRODUCTS, productName, type ProductCode } from "@/lib/catalog";
 
 const QUICK_EXTRAS = [
-  { label: "API 文档", to: "/api-docs", desc: "接口说明与示例" },
-  { label: "API Keys", to: "/keys", desc: "AccessKey / SecretKey" },
+  { label: "API 文档", to: "/api/docs", desc: "接口说明与示例" },
+  { label: "API Keys", to: "/api/keys", desc: "AccessKey / SecretKey" },
   { label: "帮助中心", to: "/help", desc: "接入指南与 FAQ" },
 ] as const;
 

@@ -196,7 +196,7 @@ export function AccountCenterPage() {
                   <div className="c-service-card__actions">
                     {serviceStatusTag(svc.status)}
                     <Link
-                      to={`/api-docs/${docId}`}
+                      to={`/api/docs/${docId}`}
                       state={{ from: `${location.pathname}${location.search}` }}
                       className="a-btn a-btn--text a-btn--sm"
                     >

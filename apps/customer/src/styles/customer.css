@@ -2,7 +2,7 @@
 @import "@ctp/styles/admin.css";
 @import "./dci-theme.css";
 
-/* 客户台滚动骨架（视觉由 dci-theme.css 接管） */
+/* ??????????? dci-theme.css ??? */
 html,
 body,
 #root {
@@ -10,7 +10,7 @@ body,
   overflow: hidden;
 }
 
-/* 侧栏与右侧主区各自独立垂直滚动 */
+/* ??????????????? */
 .a-layout {
   height: 100%;
   min-height: 0;
@@ -170,7 +170,7 @@ body,
   transform: rotate(180deg);
 }
 
-/* 悬浮展开：dropdown 含透明桥接区，避免从头像移到菜单时断开 */
+/* ?????dropdown ??????????????????? */
 .a-header__user-dropdown {
   position: absolute;
   right: 0;
@@ -663,7 +663,7 @@ body,
   max-height: 420px;
 }
 
-/* ---------- 新工作台 /desk ---------- */
+/* ---------- ???? /desk ---------- */
 .c-desk-hero {
   position: relative;
   overflow: hidden;
@@ -830,7 +830,7 @@ body,
   }
 }
 
-/* ---------- 工作台首页 ---------- */
+/* ---------- ????? ---------- */
 .c-dashboard {
   gap: var(--ad-sp-3);
 }
@@ -1256,7 +1256,7 @@ body,
   color: var(--n-500);
 }
 
-/* ---------- 分段 Tab（核验页 / 账号中心等共用） ---------- */
+/* ---------- ?? Tab???? / ???????? ---------- */
 .c-verify-page .a-tabs,
 .c-verify-tabs,
 .c-seg-tabs {
@@ -1438,7 +1438,7 @@ body,
   background: var(--p-50);
 }
 
-/* 证书缩略图 */
+/* ????? */
 .c-cert-thumb {
   display: inline-flex;
   position: relative;
@@ -1520,7 +1520,7 @@ body,
   background: var(--n-50);
 }
 
-/* ---------- 右侧抽屉 ---------- */
+/* ---------- ???? ---------- */
 .c-drawer-root {
   position: fixed;
   inset: 0;
@@ -1600,7 +1600,7 @@ body,
   to { transform: none; opacity: 1; }
 }
 
-/* ---------- 证书核验详情抽屉内容 ---------- */
+/* ---------- ?????????? ---------- */
 .c-cert-detail__preview {
   padding: 16px 20px 8px;
 }
@@ -1901,7 +1901,7 @@ body,
   flex-shrink: 0;
 }
 
-/* 固定标签列宽 + 输入框 flex 拉伸，右缘齐平 */
+/* ?????? + ??? flex ??????? */
 .c-cert-confirm__fields {
   display: flex;
   flex-direction: column;
@@ -1959,7 +1959,7 @@ body,
   color: var(--n-400);
 }
 
-/* 核验页提交区：上传 / 文件卡 / 结果一律铺满板块 */
+/* ????????? / ??? / ???????? */
 .c-verify-page .a-card__body.a-stack {
   align-items: stretch;
 }
@@ -2094,7 +2094,7 @@ body,
   color: var(--n-500);
 }
 
-/* ---------- 智能辅助审核页 ---------- */
+/* ---------- ??????? ---------- */
 .c-review-intro {
   border-left: 3px solid var(--p-600);
   background: color-mix(in srgb, var(--p-50) 65%, var(--n-0));
@@ -2302,7 +2302,7 @@ body,
   line-height: 1.6;
 }
 
-/* ---------- 账号中心 ---------- */
+/* ---------- ???? ---------- */
 .c-account-page .c-seg-tabs {
   margin: 12px 16px 0;
 }
@@ -2567,7 +2567,7 @@ body,
   background: var(--p-50);
 }
 
-/* ---------- API 文档 ---------- */
+/* ---------- API ?? ---------- */
 .c-apidoc-page {
   gap: var(--ad-sp-3);
 }
@@ -2777,7 +2777,7 @@ body,
 .c-apidoc-detail {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 @media (max-width: 768px) {
@@ -2789,6 +2789,8 @@ body,
 .c-apidoc-nav {
   width: 200px;
   flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
   padding: 8px;
   border-radius: var(--ad-radius-sm);
   background: var(--n-50);
@@ -2797,6 +2799,7 @@ body,
 @media (max-width: 768px) {
   .c-apidoc-nav {
     width: 100%;
+    align-self: auto;
   }
 }
 
@@ -2829,6 +2832,7 @@ body,
 .c-apidoc-main {
   flex: 1;
   min-width: 0;
+  align-self: stretch;
 }
 
 .c-apidoc-main__head {
@@ -2942,11 +2946,11 @@ body,
   line-height: 1.6;
 }
 
-/* ---------- 帮助中心 ---------- */
+/* ---------- ???? ---------- */
 .c-help-layout {
   display: flex;
   gap: var(--ad-sp-3);
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 @media (max-width: 768px) {
@@ -2958,21 +2962,19 @@ body,
 .c-help-sidebar {
   width: 240px;
   flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
   padding: var(--ad-sp-2);
   border: 1px solid var(--n-200);
   border-radius: var(--ad-radius);
   background: var(--n-0);
-  position: sticky;
-  top: 12px;
-  max-height: calc(100vh - 80px);
   overflow: auto;
 }
 
 @media (max-width: 768px) {
   .c-help-sidebar {
     width: 100%;
-    position: static;
-    max-height: none;
+    align-self: auto;
   }
 }
 
@@ -3044,6 +3046,13 @@ body,
 .c-help-content {
   flex: 1;
   min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-help-content > .a-card__body {
+  flex: 1;
 }
 
 .c-help-content__title {
@@ -3088,4 +3097,79 @@ body,
 .c-help-inline-link:hover {
   color: var(--a-600, var(--p-500));
   text-decoration: underline;
+}
+
+/* ---------- API ???? ---------- */
+.c-api-manage {
+  display: flex;
+  gap: var(--ad-sp-3);
+  align-items: stretch;
+  min-height: 360px;
+}
+
+@media (max-width: 768px) {
+  .c-api-manage {
+    flex-direction: column;
+  }
+}
+
+.c-api-manage__side {
+  width: 200px;
+  flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  padding: var(--ad-sp-2);
+  border: 1px solid var(--n-200);
+  border-radius: var(--ad-radius);
+  background: var(--n-0);
+  overflow: auto;
+}
+
+@media (max-width: 768px) {
+  .c-api-manage__side {
+    width: 100%;
+    align-self: auto;
+  }
+}
+
+.c-api-manage__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.c-api-manage__link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--ad-radius-sm, 6px);
+  color: var(--n-700);
+  text-decoration: none;
+  font-size: var(--ad-fs-body);
+  line-height: 1.4;
+}
+
+.c-api-manage__link:hover {
+  background: var(--n-50);
+  color: var(--n-900);
+}
+
+.c-api-manage__link.is-active {
+  background: var(--p-50, #e8f4fc);
+  color: var(--p-700, #005a96);
+  font-weight: 600;
+}
+
+.c-api-manage__main {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-api-manage__main > .a-card,
+.c-api-manage__main > .a-stack,
+.c-api-manage__main > .c-apidoc-page {
+  flex: 1;
+  width: 100%;
 }

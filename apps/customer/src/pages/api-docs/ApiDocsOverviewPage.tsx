@@ -40,7 +40,7 @@ export function ApiDocsOverviewPage() {
           return (
             <Link
               key={prod.id}
-              to={`/api-docs/${prod.id}`}
+              to={`/api/docs/${prod.id}`}
               state={{ from: `${location.pathname}${location.search}` }}
               className={`c-apidoc-card${empty ? " is-empty" : ""}`}
               style={{ ["--card-i" as string]: index }}

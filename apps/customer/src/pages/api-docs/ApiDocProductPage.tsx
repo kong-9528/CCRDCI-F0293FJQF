@@ -57,7 +57,7 @@ export function ApiDocProductPage() {
       navigate(-1);
       return;
     }
-    navigate("/api-docs");
+    navigate("/api/docs");
   };
 
   if (!doc) {

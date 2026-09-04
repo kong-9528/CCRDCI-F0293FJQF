@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
+import { ApiManageLayout } from "@/layouts/ApiManageLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
@@ -19,6 +20,11 @@ function DefaultRedirect() {
   return <Navigate to="/desk" replace />;
 }
 
+function ApiDocsLegacyRedirect() {
+  const { productId = "" } = useParams();
+  return <Navigate to={`/api/docs/${productId}`} replace />;
+}
+
 export function App() {
   return (
     <Routes>
@@ -35,13 +41,21 @@ export function App() {
         <Route path="/review/safety" element={<SafetyReviewPage />} />
         <Route path="/review/duplicate" element={<DuplicateReviewPage />} />
         <Route path="/review/infringement" element={<InfringementReviewPage />} />
-        <Route path="/keys" element={<KeysPage />} />
         <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route path="/account" element={<AccountCenterPage />} />
-        <Route path="/api-docs" element={<ApiDocsOverviewPage />} />
-        <Route path="/api-docs/:productId" element={<ApiDocProductPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
+
+        <Route path="/api" element={<ApiManageLayout />}>
+          <Route index element={<Navigate to="keys" replace />} />
+          <Route path="keys" element={<KeysPage />} />
+          <Route path="docs" element={<ApiDocsOverviewPage />} />
+          <Route path="docs/:productId" element={<ApiDocProductPage />} />
+        </Route>
+
         {/* 旧路由重定向 */}
+        <Route path="/keys" element={<Navigate to="/api/keys" replace />} />
+        <Route path="/api-docs" element={<Navigate to="/api/docs" replace />} />
+        <Route path="/api-docs/:productId" element={<ApiDocsLegacyRedirect />} />
         <Route path="/audit" element={<Navigate to="/review/safety" replace />} />
         <Route path="/account/*" element={<Navigate to="/account" replace />} />
         <Route path="/analytics" element={<Navigate to="/desk" replace />} />

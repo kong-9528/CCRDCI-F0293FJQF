@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconBell } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
-import { demoResetOnboarding, useOnboardingStore } from "@/lib/onboardingStore";
 import { MOCK_TENANT } from "@/lib/tenant";
 
 type Props = {
@@ -17,11 +16,10 @@ function tenantInitial(name: string) {
 }
 
 export function CustomerHeader({ pathname }: Props) {
-  const navigate = useNavigate();
   const [logoutConfirm, setLogoutConfirm] = useState(false);
-  const { unlocked } = useOnboardingStore();
   const displayName = MOCK_TENANT.companyName;
   const roleLabel = "企业用户";
+  const apiActive = pathname === "/api" || pathname.startsWith("/api/");
 
   return (
     <header className="a-header">
@@ -45,11 +43,8 @@ export function CustomerHeader({ pathname }: Props) {
               </NavLink>
             );
           })}
-          <Link
-            to="/api-docs"
-            className={`a-header__nav-link${pathname.startsWith("/api-docs") ? " is-active" : ""}`}
-          >
-            API文档
+          <Link to="/api" className={`a-header__nav-link${apiActive ? " is-active" : ""}`}>
+            API管理
           </Link>
           <Link
             to="/help"
@@ -78,29 +73,6 @@ export function CustomerHeader({ pathname }: Props) {
             <div className="a-header__user-dropdown">
               <div className="a-header__user-menu" role="menu">
                 <div className="a-header__user-menu-name">{displayName}</div>
-                <Link to="/account" role="menuitem" className="a-header__user-menu-link">
-                  账号中心
-                </Link>
-                <Link to="/account/password" role="menuitem" className="a-header__user-menu-link">
-                  修改密码
-                </Link>
-                <Link to="/keys" role="menuitem" className="a-header__user-menu-link">
-                  API Keys
-                </Link>
-                {unlocked ? (
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="a-header__user-menu-item"
-                    onClick={() => {
-                      demoResetOnboarding();
-                      navigate("/desk");
-                    }}
-                  >
-                    演示：模拟未入驻
-                  </button>
-                ) : null}
-                <div className="a-header__user-menu-divider" />
                 <button
                   type="button"
                   role="menuitem"
