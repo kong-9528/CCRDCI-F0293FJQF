@@ -30,15 +30,16 @@
   --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", "Consolas", "IBM Plex Mono", ui-monospace, monospace;
 
-  --ad-fs-body: 14px;
-  --ad-fs-sm: 13px;
-  --ad-fs-h1: 16px;
-  --ad-fs-h2: 15px;
-  --ad-ctrl-sm: 28px;
-  --ad-ctrl-md: 32px;
-  --ad-ctrl-lg: 36px;
-  --ad-table-row-h: 44px;
-  --ad-header-h: 64px;
+  /* 字号折中：介于原 14/13/16/15 与过小的 13/12/15/14 之间 */
+  --ad-fs-body: 13.5px;
+  --ad-fs-sm: 12.5px;
+  --ad-fs-h1: 15.5px;
+  --ad-fs-h2: 14.5px;
+  --ad-ctrl-sm: 27px;
+  --ad-ctrl-md: 31px;
+  --ad-ctrl-lg: 35px;
+  --ad-table-row-h: 42px;
+  --ad-header-h: 60px;
   --ad-sidebar-w: 220px;
   --ad-sidebar-w-min: 64px;
   --ad-radius: 10px;
@@ -102,7 +103,7 @@ body.a-admin.theme-customer {
   align-items: center;
   gap: 8px;
   padding: 16px 24px 0;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: var(--n-500);
   line-height: 1.4;
 }
@@ -198,7 +199,7 @@ body.a-admin.theme-customer {
   padding: 0 12px;
   border-radius: 6px;
   color: var(--n-700);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   line-height: 36px;
   text-decoration: none;
   white-space: nowrap;
@@ -315,12 +316,12 @@ body.a-admin.theme-customer {
   justify-content: center;
   background: var(--p-50);
   color: var(--p-600);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   font-weight: 600;
 }
 
 .theme-customer .a-header__user-role {
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: var(--n-700);
   max-width: 120px;
   overflow: hidden;
@@ -365,7 +366,7 @@ body.a-admin.theme-customer {
   min-height: 48px;
   padding: 12px 20px;
   border-bottom: 1px solid var(--n-100);
-  font-size: 15px;
+  font-size: var(--ad-fs-h2);
   font-weight: 600;
   color: var(--n-800);
 }
@@ -375,10 +376,10 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .a-btn {
-  height: 32px;
+  height: var(--ad-ctrl-md);
   border-radius: 6px;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-customer .a-btn svg {
@@ -434,7 +435,7 @@ body.a-admin.theme-customer {
   background: none;
   color: var(--p-600);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -449,10 +450,10 @@ body.a-admin.theme-customer {
 
 .theme-customer .a-input,
 .theme-customer .a-select {
-  height: 32px;
+  height: var(--ad-ctrl-md);
   border-radius: 4px;
   border-color: var(--n-300);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-customer .a-input:focus,
@@ -483,7 +484,7 @@ body.a-admin.theme-customer {
   margin: 0;
   white-space: nowrap;
   color: var(--n-700);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-customer .a-toolbar__right {
@@ -493,7 +494,7 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .a-table {
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-customer .a-table thead th {
@@ -578,7 +579,7 @@ body.a-admin.theme-customer {
   position: relative;
   z-index: 1;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   opacity: 0.92;
 }
 
@@ -615,7 +616,7 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-chart__title {
-  font-size: 15px;
+  font-size: var(--ad-fs-h2);
   font-weight: 600;
 }
 
@@ -641,7 +642,7 @@ body.a-admin.theme-customer {
 .theme-customer .c-desk-hero__lead {
   margin: 0 0 16px;
   color: var(--n-500);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-customer .c-desk-hero__stats {
@@ -682,7 +683,7 @@ body.a-admin.theme-customer {
 .theme-customer .c-desk-stat__label {
   display: block;
   margin-top: 6px;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -799,7 +800,7 @@ body.a-admin.theme-customer {
   background: var(--wn-100);
   border: 1px solid color-mix(in srgb, var(--wn-500) 35%, transparent);
   color: var(--wn-700);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   line-height: 1.6;
 }
 
@@ -820,7 +821,7 @@ body.a-admin.theme-customer {
 
 .theme-customer .a-code-cell .a-link-action {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
 }
 
 .theme-customer .a-layout__body > .a-sidebar {
@@ -861,7 +862,7 @@ body.a-admin.theme-customer {
   border-radius: 8px;
   background: transparent;
   color: var(--n-700);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -899,7 +900,7 @@ body.a-admin.theme-customer {
 
 .theme-customer .c-section-guide__desc {
   margin: 6px 0 0;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: var(--n-500);
   line-height: 1.5;
 }

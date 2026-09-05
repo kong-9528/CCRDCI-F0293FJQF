@@ -30,15 +30,16 @@
   --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", "Consolas", "IBM Plex Mono", ui-monospace, monospace;
 
-  --ad-fs-body: 14px;
-  --ad-fs-sm: 13px;
-  --ad-fs-h1: 16px;
-  --ad-fs-h2: 15px;
-  --ad-ctrl-sm: 28px;
-  --ad-ctrl-md: 32px;
-  --ad-ctrl-lg: 36px;
-  --ad-table-row-h: 44px;
-  --ad-header-h: 64px;
+  /* 字号折中：介于原 14/13/16/15 与过小的 13/12/15/14 之间 */
+  --ad-fs-body: 13.5px;
+  --ad-fs-sm: 12.5px;
+  --ad-fs-h1: 15.5px;
+  --ad-fs-h2: 14.5px;
+  --ad-ctrl-sm: 27px;
+  --ad-ctrl-md: 31px;
+  --ad-ctrl-lg: 35px;
+  --ad-table-row-h: 42px;
+  --ad-header-h: 60px;
   --ad-sidebar-w: 220px;
   --ad-sidebar-w-min: 64px;
   --ad-radius: 6px;
@@ -119,7 +120,7 @@ body.a-admin.theme-ops {
   border-left: none;
   color: var(--n-700);
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-ops .a-menu__item:hover {
@@ -163,7 +164,7 @@ body.a-admin.theme-ops {
   align-items: center;
   gap: 8px;
   padding: 12px 20px 0;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: var(--n-500);
   line-height: 1.4;
 }
@@ -293,7 +294,7 @@ body.a-admin.theme-ops {
   padding: 0 10px;
   border-radius: 4px;
   color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   text-decoration: none;
 }
 
@@ -333,12 +334,12 @@ body.a-admin.theme-ops {
   justify-content: center;
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   font-weight: 600;
 }
 
 .theme-ops .a-header__user-role {
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -382,7 +383,7 @@ body.a-admin.theme-ops {
   min-height: 48px;
   padding: 12px 20px;
   border-bottom: 1px solid var(--n-100);
-  font-size: 15px;
+  font-size: var(--ad-fs-h2);
   font-weight: 600;
   color: var(--n-800);
 }
@@ -392,10 +393,10 @@ body.a-admin.theme-ops {
 }
 
 .theme-ops .a-btn {
-  height: 32px;
+  height: var(--ad-ctrl-md);
   border-radius: 4px;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-ops .a-btn svg {
@@ -451,7 +452,7 @@ body.a-admin.theme-ops {
   background: none;
   color: var(--p-600);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
@@ -505,16 +506,16 @@ body.a-admin.theme-ops {
   height: auto;
   min-height: 0;
   padding: 0 6px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   line-height: 1.5715;
 }
 
 .theme-ops .a-input,
 .theme-ops .a-select {
-  height: 32px;
+  height: var(--ad-ctrl-md);
   border-radius: 4px;
   border-color: var(--n-300);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-ops .a-input:focus,
@@ -545,7 +546,7 @@ body.a-admin.theme-ops {
   margin: 0;
   white-space: nowrap;
   color: var(--n-800);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   font-weight: 600;
 }
 
@@ -559,7 +560,7 @@ body.a-admin.theme-ops {
 .theme-ops .a-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   line-height: 1.5715;
   background: #fff;
   border: 1px solid var(--n-200);
@@ -699,7 +700,7 @@ body.a-admin.theme-ops {
   position: relative;
   z-index: 1;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
   opacity: 0.92;
 }
 
@@ -736,7 +737,7 @@ body.a-admin.theme-ops {
 }
 
 .theme-ops .c-chart__title {
-  font-size: 15px;
+  font-size: var(--ad-fs-h2);
   font-weight: 600;
 }
 
@@ -762,7 +763,7 @@ body.a-admin.theme-ops {
 .theme-ops .c-desk-hero__lead {
   margin: 0 0 16px;
   color: var(--n-500);
-  font-size: 14px;
+  font-size: var(--ad-fs-body);
 }
 
 .theme-ops .c-desk-hero__stats {
@@ -803,7 +804,7 @@ body.a-admin.theme-ops {
 .theme-ops .c-desk-stat__label {
   display: block;
   margin-top: 6px;
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -922,7 +923,7 @@ body.a-admin.theme-ops {
   background: var(--wn-100);
   border: 1px solid color-mix(in srgb, var(--wn-500) 35%, transparent);
   color: var(--wn-700);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
   line-height: 1.6;
 }
 
@@ -943,7 +944,7 @@ body.a-admin.theme-ops {
 
 .theme-ops .a-code-cell .a-link-action {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--ad-fs-sm);
 }
 
 .theme-ops .a-layout__body > .a-sidebar {
