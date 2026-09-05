@@ -7,10 +7,12 @@
     "dev:ops": "pnpm --filter @ctp/ops dev",
     "dev:customer": "pnpm --filter @ctp/customer dev",
     "dev:sso": "pnpm --filter @ctp/sso dev",
+    "dev:ucenter": "pnpm --filter @ctp/ucenter dev",
     "build:portal": "pnpm --filter @ctp/portal build",
     "build:ops": "pnpm --filter @ctp/ops build",
     "build:customer": "pnpm --filter @ctp/customer build",
     "build:sso": "pnpm --filter @ctp/sso build",
+    "build:ucenter": "pnpm --filter @ctp/ucenter build",
     "lint": "pnpm -r lint"
   },
   "engines": {
