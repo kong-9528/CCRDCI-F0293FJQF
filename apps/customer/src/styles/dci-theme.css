@@ -343,6 +343,11 @@ body.a-admin.theme-customer {
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   color: var(--n-800);
+  min-width: 228px;
+}
+
+.theme-customer .a-header__user-menu-org {
+  color: var(--n-500);
 }
 
 .theme-customer .a-header__user-menu-name {

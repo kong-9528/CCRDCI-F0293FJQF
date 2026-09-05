@@ -42,7 +42,7 @@
   --ad-header-h: 60px;
   --ad-sidebar-w: 220px;
   --ad-sidebar-w-min: 64px;
-  --ad-radius: 6px;
+  --ad-radius: 8px;
   --ad-radius-sm: 4px;
   --ad-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02);
   --ad-sp-1: 4px;
@@ -52,9 +52,9 @@
 
   --c-header: #0075c1;
   --c-header-hover: rgba(255, 255, 255, 0.12);
-  /* 模块页：白底，不再使用灰色画布 */
-  --c-page: #ffffff;
-  --c-card-shadow: none;
+  /* 模块页：浅灰画布 + 白色圆角卡片 */
+  --c-page: #f0f2f5;
+  --c-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.04);
   --c-card-border: 1px solid #e8e8e8;
 }
 
@@ -181,6 +181,19 @@ body.a-admin.theme-ops {
 .theme-ops .a-content {
   padding: 12px 20px 20px;
   gap: 16px;
+  background: transparent;
+}
+
+.theme-ops .a-stack {
+  gap: 16px;
+}
+
+/* 独立工具条（未包在 card 内时）也呈现白卡片 */
+.theme-ops .a-content > .a-toolbar {
+  border: var(--c-card-border);
+  border-radius: var(--ad-radius);
+  box-shadow: var(--c-card-shadow);
+  border-bottom: var(--c-card-border);
 }
 
 /* ===== 顶栏 ===== */
@@ -377,6 +390,7 @@ body.a-admin.theme-ops {
   border-radius: var(--ad-radius);
   box-shadow: var(--c-card-shadow);
   background: #fff;
+  overflow: hidden;
 }
 
 .theme-ops .a-card__head {

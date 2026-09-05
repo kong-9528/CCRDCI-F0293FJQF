@@ -175,7 +175,7 @@ body,
   position: absolute;
   right: 0;
   top: 100%;
-  min-width: 148px;
+  min-width: 220px;
   padding-top: 6px;
   opacity: 0;
   visibility: hidden;
@@ -204,8 +204,30 @@ body,
   box-shadow: var(--ad-shadow-1);
 }
 
+.a-header__user-menu-head {
+  padding: 10px 12px 8px;
+}
+
+.a-header__user-menu-user {
+  font-size: var(--ad-fs-body);
+  font-weight: 600;
+  color: var(--n-900);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.a-header__user-menu-org {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--n-500);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
 .a-header__user-menu-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
   margin: 0;
   padding: 8px 10px;
@@ -220,22 +242,51 @@ body,
 }
 
 .a-header__user-menu-item:hover {
-  background: var(--er-100);
-  color: var(--er-700);
+  background: var(--n-50);
+  color: var(--n-900);
+}
+
+.a-header__user-menu-item--logout {
+  color: var(--er-600, #cf1322);
+}
+
+.a-header__user-menu-item--logout:hover {
+  background: var(--er-100, #fff1f0);
+  color: var(--er-700, #a8071a);
 }
 
 .a-header__user-menu-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 8px 10px;
   border-radius: var(--ad-radius-sm);
   color: var(--n-700);
   font-size: var(--ad-fs-sm);
   text-decoration: none;
+  line-height: 1.4;
 }
 
 .a-header__user-menu-link:hover {
   background: var(--n-50);
   color: var(--n-900);
+}
+
+.a-header__user-menu-link--with-note {
+  align-items: flex-start;
+}
+
+.a-header__user-menu-note {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--n-400);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.a-header__user-menu-link.is-current .a-header__user-menu-note {
+  color: var(--p-600);
 }
 
 .a-header__user-menu-divider {
@@ -3219,11 +3270,11 @@ body,
   line-height: 1.6;
 }
 
-/* ---------- ???? ---------- */
+/* ---------- 帮助中心 ---------- */
 .c-help-layout {
   display: flex;
   gap: var(--ad-sp-3);
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 @media (max-width: 768px) {
@@ -3235,7 +3286,7 @@ body,
 .c-help-sidebar {
   width: 240px;
   flex-shrink: 0;
-  align-self: stretch;
+  align-self: flex-start;
   box-sizing: border-box;
   padding: var(--ad-sp-2);
   border: 1px solid var(--n-200);
@@ -3319,13 +3370,13 @@ body,
 .c-help-content {
   flex: 1;
   min-width: 0;
-  align-self: stretch;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
 }
 
 .c-help-content > .a-card__body {
-  flex: 1;
+  flex: 0 1 auto;
 }
 
 .c-help-content__title {
@@ -3372,12 +3423,11 @@ body,
   text-decoration: underline;
 }
 
-/* ---------- API ???? ---------- */
+/* ---------- API 管理 ---------- */
 .c-api-manage {
   display: flex;
   gap: var(--ad-sp-3);
-  align-items: stretch;
-  min-height: 360px;
+  align-items: flex-start;
 }
 
 @media (max-width: 768px) {
@@ -3389,13 +3439,13 @@ body,
 .c-api-manage__side {
   width: 200px;
   flex-shrink: 0;
-  align-self: stretch;
+  align-self: flex-start;
   box-sizing: border-box;
   padding: var(--ad-sp-2);
   border: 1px solid var(--n-200);
   border-radius: var(--ad-radius);
   background: var(--n-0);
-  overflow: auto;
+  overflow: visible;
 }
 
 @media (max-width: 768px) {
@@ -3435,14 +3485,15 @@ body,
 .c-api-manage__main {
   flex: 1;
   min-width: 0;
-  align-self: stretch;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
+  gap: var(--ad-sp-3);
 }
 
 .c-api-manage__main > .a-card,
 .c-api-manage__main > .a-stack,
 .c-api-manage__main > .c-apidoc-page {
-  flex: 1;
+  flex: 0 1 auto;
   width: 100%;
 }

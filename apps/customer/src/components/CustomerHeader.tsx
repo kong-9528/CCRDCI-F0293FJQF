@@ -4,22 +4,44 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconBell, IconEnterprise } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
-import { MOCK_TENANT } from "@/lib/tenant";
+import { MOCK_SESSION, MOCK_TENANT, PORTAL_LINKS } from "@/lib/tenant";
 
 type Props = {
   pathname: string;
 };
 
-function tenantInitial(name: string) {
+function userInitial(name: string) {
   const t = name.trim();
-  return t ? t.slice(0, 1) : "企";
+  return t ? t.slice(0, 1).toUpperCase() : "U";
+}
+
+function LogoutIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14 16l4-4-4-4M18 12H9"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
 export function CustomerHeader({ pathname }: Props) {
   const [logoutConfirm, setLogoutConfirm] = useState(false);
-  const displayName = MOCK_TENANT.companyName;
-  const roleLabel = "企业用户";
+  const username = MOCK_SESSION.username;
+  const companyName = MOCK_TENANT.companyName;
+  const isDciCenter = MOCK_SESSION.isDciRegistryCenter;
   const apiActive = pathname === "/api" || pathname.startsWith("/api/");
+  const onTechDesk = pathname === "/desk" || pathname === "/" || pathname.startsWith("/desk");
 
   return (
     <header className="a-header">
@@ -70,9 +92,11 @@ export function CustomerHeader({ pathname }: Props) {
 
           <div className="a-header__user">
             <button type="button" className="a-header__user-btn" aria-haspopup="menu">
-              <span className="a-header__avatar">{tenantInitial(displayName)}</span>
+              <span className="a-header__avatar">{userInitial(username)}</span>
               <span className="a-header__user-meta">
-                <span className="a-header__user-role">{roleLabel}</span>
+                <span className="a-header__user-role" title={username}>
+                  {username}
+                </span>
               </span>
               <span className="a-header__chevron" aria-hidden>
                 ▾
@@ -80,13 +104,57 @@ export function CustomerHeader({ pathname }: Props) {
             </button>
             <div className="a-header__user-dropdown">
               <div className="a-header__user-menu" role="menu">
-                <div className="a-header__user-menu-name">{displayName}</div>
+                <div className="a-header__user-menu-head">
+                  <div className="a-header__user-menu-user">{username}</div>
+                  <div className="a-header__user-menu-org">{companyName}</div>
+                </div>
+                <div className="a-header__user-menu-divider" />
+                <a
+                  href={PORTAL_LINKS.accountCenter}
+                  target="_blank"
+                  rel="noreferrer"
+                  role="menuitem"
+                  className="a-header__user-menu-link"
+                >
+                  账号中心
+                </a>
+                {isDciCenter ? (
+                  <a
+                    href={PORTAL_LINKS.dciRegistryWorkbench}
+                    target="_blank"
+                    rel="noreferrer"
+                    role="menuitem"
+                    className="a-header__user-menu-link"
+                  >
+                    DCI注册中心工作台
+                  </a>
+                ) : (
+                  <a
+                    href={PORTAL_LINKS.applyDciRegistry}
+                    target="_blank"
+                    rel="noreferrer"
+                    role="menuitem"
+                    className="a-header__user-menu-link"
+                  >
+                    申请成为DCI注册中心
+                  </a>
+                )}
+                <Link
+                  to="/desk"
+                  role="menuitem"
+                  className={`a-header__user-menu-link a-header__user-menu-link--with-note${onTechDesk ? " is-current" : ""}`}
+                >
+                  <span>技术服务中心工作台</span>
+                  <span className="a-header__user-menu-note">当前平台</span>
+                </Link>
+                <div className="a-header__user-menu-divider" />
                 <button
                   type="button"
                   role="menuitem"
-                  className="a-header__user-menu-item"
+                  className="a-header__user-menu-item a-header__user-menu-item--logout"
                   onClick={() => setLogoutConfirm(true)}
                 >
+                  <LogoutIcon />
                   退出登录
                 </button>
               </div>

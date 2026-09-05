@@ -66,9 +66,9 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
         show: series.length > 0,
         bottom: 0,
         left: "center",
-        icon: "roundRect",
-        itemWidth: 12,
-        itemHeight: 8,
+        icon: "emptyCircle",
+        itemWidth: 10,
+        itemHeight: 10,
         itemGap: dense ? 12 : 16,
         selectedMode: true,
         inactiveColor: "#B8C0CC",
@@ -111,41 +111,29 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
         type: "line",
         data: s.values,
         smooth: 0.25,
-        showSymbol: labels.length <= 10,
+        showSymbol: true,
+        // 实心圆 + 白填充 + 彩色描边，才能稳定做出「空心圆」效果
+        // （emptyCircle 的 color 即描边色，设为 #fff 会变成看不见的白边）
         symbol: "circle",
-        symbolSize: 6,
+        symbolSize: dense ? 8 : 9,
         sampling: "lttb",
-        lineStyle: { width: 2.5, color: s.color },
+        lineStyle: { width: 2, color: s.color },
         itemStyle: {
-          color: s.color,
-          borderColor: "#fff",
+          color: "#ffffff",
+          borderColor: s.color,
           borderWidth: 2,
         },
         emphasis: {
           focus: "series",
           scale: true,
           itemStyle: {
-            borderWidth: 2,
-            shadowBlur: 8,
-            shadowColor: "rgba(84,112,198,0.35)",
+            color: "#ffffff",
+            borderColor: s.color,
+            borderWidth: 2.5,
+            shadowBlur: 6,
+            shadowColor: "rgba(0, 0, 0, 0.12)",
           },
         },
-        areaStyle:
-          series.length === 1
-            ? {
-                color: {
-                  type: "linear",
-                  x: 0,
-                  y: 0,
-                  x2: 0,
-                  y2: 1,
-                  colorStops: [
-                    { offset: 0, color: hexToRgba(s.color, 0.28) },
-                    { offset: 1, color: hexToRgba(s.color, 0.02) },
-                  ],
-                },
-              }
-            : undefined,
       })),
     };
   }, [labels, series, unit, dense]);
@@ -165,20 +153,4 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
       />
     </div>
   );
-}
-
-function hexToRgba(hex: string, alpha: number) {
-  const h = hex.replace("#", "");
-  const full =
-    h.length === 3
-      ? h
-          .split("")
-          .map((c) => c + c)
-          .join("")
-      : h;
-  const n = Number.parseInt(full, 16);
-  const r = (n >> 16) & 255;
-  const g = (n >> 8) & 255;
-  const b = n & 255;
-  return `rgba(${r},${g},${b},${alpha})`;
 }

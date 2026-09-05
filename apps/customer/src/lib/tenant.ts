@@ -35,6 +35,21 @@ export const MOCK_TENANT: TenantProfile = {
   address: "北京市海淀区中关村大街1号",
 };
 
+/** 控制台登录会话（演示） */
+export const MOCK_SESSION = {
+  /** 登录用户名（顶栏展示） */
+  username: "lisi",
+  /** 是否已是 DCI 注册中心（决定下拉菜单文案与跳转） */
+  isDciRegistryCenter: true,
+};
+
+/** 外链门户（账号中心 / DCI 注册中心等） */
+export const PORTAL_LINKS = {
+  accountCenter: "https://app-ck03sng4kykh.appmiaoda.com/account",
+  dciRegistryWorkbench: "https://app-ck03sng4kykh.appmiaoda.com/dashboard/home",
+  applyDciRegistry: "https://app-ck03sng4kykh.appmiaoda.com/apply",
+} as const;
+
 export const MOCK_TENANT_SERVICES: TenantService[] = [
   {
     product: "dci",
