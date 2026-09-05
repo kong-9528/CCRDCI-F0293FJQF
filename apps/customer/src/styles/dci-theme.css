@@ -245,6 +245,15 @@ body.a-admin.theme-customer {
   color: var(--p-600);
 }
 
+.theme-customer .a-header__icon-btn.is-active {
+  background: var(--c-header-hover);
+  color: var(--p-600);
+}
+
+.theme-customer a.a-header__icon-btn {
+  text-decoration: none;
+}
+
 .theme-customer .a-header__bell {
   position: relative;
 }

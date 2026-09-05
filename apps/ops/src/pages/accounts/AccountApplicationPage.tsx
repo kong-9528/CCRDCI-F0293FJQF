@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { AccountProductConfigPanel } from "@/components/AccountProductConfigPanel";
+import { AuditHistoryModal } from "@/components/AuditHistoryModal";
 import { ContractFileList } from "@/components/ContractFileList";
+import { IconBack, IconHistory } from "@/components/icons/UiIcons";
 import { MaskedPhone } from "@/components/MaskedPhone";
 import {
   APPLICATION_STATUS_LABEL,
@@ -41,6 +43,7 @@ export function AccountApplicationPage({ mode }: Props) {
   const [productConfig, setProductConfig] = useState<ProductConfigState>(() => emptyProductConfig());
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     if (!application) return;
@@ -48,6 +51,7 @@ export function AccountApplicationPage({ mode }: Props) {
     setProductConfig(defaultProductConfigForApplication(application));
     setRejectReason("");
     setError(null);
+    setHistoryOpen(false);
   }, [application]);
 
   if (!application) {
@@ -103,148 +107,126 @@ export function AccountApplicationPage({ mode }: Props) {
   };
 
   return (
-    <div className="a-stack">
-      <div className="a-card">
-        <div className="a-card__head">
-          {pageTitle} · {application.companyName}
-          <div className="a-card__extra a-inline-actions">
-            {readOnly && application.status === "approved" && application.customerId ? (
-              <Link
-                to={`/accounts/${application.id}/edit`}
-                className="a-btn a-btn--sm a-btn--primary"
-              >
-                编辑产品服务
-              </Link>
-            ) : null}
-            <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(listBackPath)}>
-              返回列表
-            </button>
+    <div className="a-stack o-app-review">
+      <div className="o-app-review__toolbar">
+        <button type="button" className="a-btn a-btn--sm o-app-review__back" onClick={() => navigate(listBackPath)}>
+          <IconBack size={14} />
+          返回
+        </button>
+        <h1 className="o-app-review__title">
+          {pageTitle}
+          {readOnly && application.status === "approved" && application.customerId ? (
+            <Link
+              to={`/accounts/${application.id}/edit`}
+              className="a-btn a-btn--sm a-btn--primary"
+              style={{ marginLeft: 12 }}
+            >
+              编辑产品服务
+            </Link>
+          ) : null}
+        </h1>
+      </div>
+
+      <section className="a-card o-app-review-panel">
+        <div className="o-app-review-panel__head">申请信息</div>
+        <div className="a-card__body">
+          <div className="a-desc o-app-review-desc">
+            <div className="a-desc__item">
+              <span className="a-desc__label">机构名称</span>
+              <span className="a-desc__value">{application.companyName}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">统一社会信用代码</span>
+              <span className="a-desc__value">{application.creditCode || "—"}</span>
+            </div>
+            <div className="a-desc__item a-desc__item--wide">
+              <span className="a-desc__label">联系地址</span>
+              <span className="a-desc__value">{application.address || "—"}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">合同开始日期</span>
+              <span className="a-desc__value">{application.contractStart || "—"}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">合同结束日期</span>
+              <span className="a-desc__value">{application.contractEnd || "—"}</span>
+            </div>
+            <div className="a-desc__item a-desc__item--wide">
+              <span className="a-desc__label">合同附件</span>
+              <span className="a-desc__value">
+                <ContractFileList
+                  files={application.contractFiles}
+                  canDownload={canDownloadContract}
+                />
+              </span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">联系人</span>
+              <span className="a-desc__value">{application.contactName}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">手机号</span>
+              <span className="a-desc__value">
+                <MaskedPhone phone={application.contactPhone} />
+              </span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">申请账号</span>
+              <span className="a-desc__value">{application.account}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">申请时间</span>
+              <span className="a-desc__value">{application.submittedAt}</span>
+            </div>
           </div>
         </div>
+      </section>
+
+      <section className="a-card o-app-review-panel">
+        <div className="o-app-review-panel__head">
+          <span>审核</span>
+          <button
+            type="button"
+            className="o-app-review-panel__link"
+            onClick={() => setHistoryOpen(true)}
+          >
+            <IconHistory size={14} />
+            审核记录
+          </button>
+        </div>
         <div className="a-card__body a-stack">
-          <p className="a-field__hint" style={{ margin: 0 }}>
-            客户申请开通技术服务中心平台账号，请核对资料后处理。
-          </p>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">申请状态</h3>
-            <div className="a-desc">
-              <div className="a-desc__item">
-                <span className="a-desc__label">当前状态</span>
-                <span className="a-desc__value">{statusTag(application.status)}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">提交时间</span>
-                <span className="a-desc__value">{application.submittedAt}</span>
-              </div>
-              {application.reviewedAt ? (
-                <>
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">审核时间</span>
-                    <span className="a-desc__value">{application.reviewedAt}</span>
-                  </div>
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">审核人</span>
-                    <span className="a-desc__value">{application.reviewer ?? "—"}</span>
-                  </div>
-                </>
-              ) : null}
-              {application.rejectReason ? (
-                <div className="a-desc__item a-desc__item--wide">
-                  <span className="a-desc__label">拒绝原因</span>
-                  <span className="a-desc__value">{application.rejectReason}</span>
-                </div>
-              ) : null}
-            </div>
-          </section>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">基本信息</h3>
-            <div className="a-desc">
-              <div className="a-desc__item">
-                <span className="a-desc__label">机构名称</span>
-                <span className="a-desc__value">{application.companyName}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">统一社会信用代码</span>
-                <span className="a-desc__value">{application.creditCode || "—"}</span>
-              </div>
-              <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">联系地址</span>
-                <span className="a-desc__value">{application.address || "—"}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">合作起止</span>
-                <span className="a-desc__value">
-                  {application.contractStart} ~ {application.contractEnd}
-                </span>
-              </div>
-              <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">合同附件</span>
-                <span className="a-desc__value">
-                  <ContractFileList
-                    files={application.contractFiles}
-                    canDownload={canDownloadContract}
-                  />
-                </span>
-              </div>
-            </div>
-          </section>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">联系信息</h3>
-            <div className="a-desc">
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人姓名</span>
-                <span className="a-desc__value">{application.contactName}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人手机号</span>
-                <span className="a-desc__value">
-                  <MaskedPhone phone={application.contactPhone} />
-                </span>
-              </div>
-            </div>
-          </section>
-
-          <section className="a-form-section">
-            <h3 className="a-form-section__title">登录账号</h3>
-            <div className="a-desc">
-              <div className="a-desc__item">
-                <span className="a-desc__label">申请账号</span>
-                <span className="a-desc__value">{application.account}</span>
-              </div>
-            </div>
-          </section>
-
           {!readOnly ? (
-            <section className="a-form-section">
-              <h3 className="a-form-section__title">审核处理</h3>
-              <div className="a-inline-actions" style={{ marginBottom: 12 }}>
-                <label className="a-radio">
-                  <input
-                    type="radio"
-                    name="reviewDecision"
-                    checked={decision === "approve"}
-                    onChange={() => {
-                      setDecision("approve");
-                      setError(null);
-                    }}
-                  />
-                  审核通过
-                </label>
-                <label className="a-radio">
-                  <input
-                    type="radio"
-                    name="reviewDecision"
-                    checked={decision === "reject"}
-                    onChange={() => {
-                      setDecision("reject");
-                      setError(null);
-                    }}
-                  />
-                  审核拒绝
-                </label>
+            <>
+              <div className="a-field a-field--stack">
+                <span className="a-field__label">
+                  审核结果 <span className="a-req">*</span>
+                </span>
+                <div className="a-inline-actions">
+                  <label className="a-radio">
+                    <input
+                      type="radio"
+                      name="reviewDecision"
+                      checked={decision === "approve"}
+                      onChange={() => {
+                        setDecision("approve");
+                        setError(null);
+                      }}
+                    />
+                    审核通过
+                  </label>
+                  <label className="a-radio">
+                    <input
+                      type="radio"
+                      name="reviewDecision"
+                      checked={decision === "reject"}
+                      onChange={() => {
+                        setDecision("reject");
+                        setError(null);
+                      }}
+                    />
+                    不通过
+                  </label>
+                </div>
               </div>
 
               {decision === "approve" ? (
@@ -265,34 +247,60 @@ export function AccountApplicationPage({ mode }: Props) {
               ) : (
                 <div className="a-field a-field--stack">
                   <span className="a-field__label">
-                    拒绝原因 <span className="a-req">*</span>
+                    不通过原因 <span className="a-req">*</span>
                   </span>
                   <textarea
                     className="a-textarea"
                     rows={4}
-                    placeholder="请填写拒绝原因，将反馈给客户"
+                    placeholder="请输入不通过原因"
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                   />
                 </div>
               )}
-            </section>
-          ) : null}
 
-          {error ? <div className="a-form-error">{error}</div> : null}
+              {error ? <div className="a-form-error">{error}</div> : null}
 
-          {!readOnly ? (
-            <div className="a-inline-actions">
-              <button type="button" className="a-btn a-btn--primary" onClick={submit}>
-                {decision === "approve" ? "确认通过" : "确认拒绝"}
-              </button>
-              <button type="button" className="a-btn" onClick={() => navigate(listBackPath)}>
-                取消
-              </button>
+              <div className="o-app-review__actions">
+                <button type="button" className="a-btn a-btn--primary" onClick={submit}>
+                  确定
+                </button>
+                <button type="button" className="a-btn" onClick={() => navigate(listBackPath)}>
+                  关闭
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="a-desc o-app-review-desc">
+              <div className="a-desc__item">
+                <span className="a-desc__label">审核结果</span>
+                <span className="a-desc__value">{statusTag(application.status)}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">审核人</span>
+                <span className="a-desc__value">{application.reviewer ?? "—"}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">审核时间</span>
+                <span className="a-desc__value">{application.reviewedAt ?? "—"}</span>
+              </div>
+              {application.rejectReason ? (
+                <div className="a-desc__item a-desc__item--wide">
+                  <span className="a-desc__label">不通过原因</span>
+                  <span className="a-desc__value o-audit-hist-reject">{application.rejectReason}</span>
+                </div>
+              ) : null}
             </div>
-          ) : null}
+          )}
         </div>
-      </div>
+      </section>
+
+      <AuditHistoryModal
+        open={historyOpen}
+        applicationId={application.id}
+        canDownloadContract={canDownloadContract}
+        onClose={() => setHistoryOpen(false)}
+      />
     </div>
   );
 }

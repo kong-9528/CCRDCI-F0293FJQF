@@ -2302,7 +2302,7 @@ body,
   line-height: 1.6;
 }
 
-/* ---------- ???? ---------- */
+/* ---------- 机构信息 ---------- */
 .c-account-page .c-seg-tabs {
   margin: 12px 16px 0;
 }
@@ -2313,6 +2313,279 @@ body,
   justify-content: space-between;
   gap: var(--ad-sp-2);
   flex-wrap: wrap;
+}
+
+.c-account-section-head__main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.c-account-status-hint {
+  margin: 10px 0 0;
+}
+
+.c-account-edit-page__head {
+  display: flex;
+  align-items: center;
+}
+
+.c-account-edit-page__title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.c-account-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.c-account-edit-grid__full {
+  grid-column: 1 / -1;
+}
+
+.c-account-file--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .c-account-edit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 描述列表：标签与值同行，双列紧凑排布，避免宽屏散落 */
+.c-account-page .c-account-desc {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  max-width: 960px;
+  border: 1px solid var(--n-200);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.c-account-page .c-account-desc .a-desc__item {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: start;
+  gap: 0;
+  min-height: 40px;
+  margin: 0;
+  border-bottom: 1px solid var(--n-100);
+  border-right: 1px solid var(--n-100);
+}
+
+.c-account-page .c-account-desc .a-desc__item:nth-child(2n) {
+  border-right: none;
+}
+
+.c-account-page .c-account-desc .a-desc__item--wide {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+.c-account-page .c-account-desc .a-desc__item--wide:last-child,
+.c-account-page .c-account-desc .a-desc__item:nth-last-child(1):not(.a-desc__item--wide),
+.c-account-page .c-account-desc .a-desc__item:nth-last-child(2):not(.a-desc__item--wide) {
+  border-bottom: none;
+}
+
+.c-account-page .c-account-desc .a-desc__label {
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #fafafa;
+  color: var(--n-600);
+  font-weight: 400;
+  white-space: nowrap;
+  border-right: 1px solid var(--n-100);
+}
+
+.c-account-page .c-account-desc .a-desc__value {
+  box-sizing: border-box;
+  padding: 10px 14px;
+  color: var(--n-900);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .c-account-page .c-account-desc {
+    grid-template-columns: 1fr;
+  }
+
+  .c-account-page .c-account-desc .a-desc__item {
+    border-right: none;
+  }
+}
+
+.c-account-files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+}
+
+.c-account-file {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--n-50, #f5f5f5);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.c-account-file:hover {
+  background: var(--n-100, #f0f0f0);
+}
+
+.c-account-file__name {
+  color: var(--p-600);
+  font-weight: 500;
+}
+
+.c-account-file__size {
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
+}
+
+/* —— 历史申请记录 —— */
+.c-apply-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.c-apply-history-card {
+  border: 1px solid var(--n-200, #e8e8e8);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px 18px 8px;
+}
+
+.c-apply-history-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--n-100, #f0f0f0);
+}
+
+.c-apply-history-card__time {
+  color: var(--n-600);
+  font-size: var(--ad-fs-sm);
+}
+
+.c-apply-history-block {
+  margin-bottom: 16px;
+}
+
+.c-apply-history-block__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-900);
+}
+
+.c-apply-history-block__icon {
+  display: inline-flex;
+  color: var(--p-600, #1677ff);
+}
+
+.c-apply-history-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 20px;
+}
+
+.c-apply-history-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.c-apply-history-field--full {
+  grid-column: 1 / -1;
+}
+
+.c-apply-history-field__label {
+  color: var(--n-500);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.c-apply-history-field__value {
+  color: var(--n-900);
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.c-apply-history-files {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.c-apply-history-file {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.c-apply-history-file__name {
+  color: var(--p-600);
+  font-weight: 500;
+}
+
+.c-apply-history-file__size {
+  color: var(--n-500);
+  font-size: var(--ad-fs-sm);
+}
+
+.c-apply-history-reject {
+  margin: 12px 0 0;
+  color: var(--er-600, #cf1322);
+  font-size: var(--ad-fs-sm);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .c-apply-history-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .c-apply-history-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .c-password-page__intro {

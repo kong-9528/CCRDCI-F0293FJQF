@@ -24,7 +24,7 @@ export type TenantContract = {
   endDate: string;
   amount: number;
   periodStatus: "active" | "pending" | "expired";
-  files: { id: string; name: string }[];
+  files: { id: string; name: string; size?: number }[];
 };
 
 export const MOCK_TENANT: TenantProfile = {
@@ -79,8 +79,8 @@ export const MOCK_TENANT_CONTRACTS: TenantContract[] = [
     amount: 280000,
     periodStatus: "active",
     files: [
-      { id: "f1", name: "服务合同.pdf" },
-      { id: "f2", name: "补充协议.pdf" },
+      { id: "f1", name: "服务合同.pdf", size: 1_150_000 },
+      { id: "f2", name: "补充协议.pdf", size: 420_000 },
     ],
   },
 ];

@@ -1,309 +1,312 @@
-import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { Modal } from "@/components/Modal";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Tabs } from "@/components/Tabs";
-import { productName, type ProductCode } from "@/lib/catalog";
+import { useAccountStore } from "@/lib/accountStore";
 import {
-  MOCK_TENANT,
-  MOCK_TENANT_CONTRACTS,
-  MOCK_TENANT_SERVICES,
-  type TenantContract,
-  type TenantProfile,
-} from "@/lib/tenant";
+  APPLY_HISTORY_STATUS_LABEL,
+  type ApplyHistoryRecord,
+  type ApplyHistoryStatus,
+} from "@/lib/applyHistory";
 
-type TabKey = "info" | "services" | "contracts";
-
-type ContactForm = Pick<TenantProfile, "contactName" | "contactPhone">;
+type TabKey = "info" | "history";
 
 const TAB_ITEMS = [
-  { key: "info" as const, label: "机构信息" },
-  { key: "services" as const, label: "我的服务" },
-  { key: "contracts" as const, label: "合同记录" },
+  { key: "info" as const, label: "基本信息" },
+  { key: "history" as const, label: "历史申请记录" },
 ];
 
-const PERIOD_LABEL: Record<TenantContract["periodStatus"], string> = {
-  active: "生效中",
-  pending: "未开始",
-  expired: "已到期",
-};
-
-const API_DOC_ID: Partial<Record<ProductCode, string>> = {
-  dci: "dci",
-  info: "info",
-  certificate: "certificate",
-  safety: "workReview",
-  duplicate: "workReview",
-  infringement: "workReview",
-  workReview: "workReview",
-};
-
-function serviceStatusTag(status: (typeof MOCK_TENANT_SERVICES)[number]["status"]) {
-  if (status === "stopped") return <span className="a-tag a-tag--muted">已停用</span>;
-  if (status === "expiring") return <span className="a-tag a-tag--wn">即将到期</span>;
-  return <span className="a-tag a-tag--ok">正常使用</span>;
+function formatFileSize(bytes?: number) {
+  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function periodTag(status: TenantContract["periodStatus"]) {
-  if (status === "active") return <span className="a-tag a-tag--ok">{PERIOD_LABEL[status]}</span>;
-  if (status === "pending") return <span className="a-tag a-tag--wn">{PERIOD_LABEL[status]}</span>;
-  return <span className="a-tag a-tag--muted">{PERIOD_LABEL[status]}</span>;
+function historyStatusTag(status: ApplyHistoryStatus) {
+  const label = APPLY_HISTORY_STATUS_LABEL[status];
+  if (status === "approved") return <span className="a-tag a-tag--ok">{label}</span>;
+  if (status === "rejected") return <span className="a-tag a-tag--er">{label}</span>;
+  if (status === "pending") return <span className="a-tag a-tag--wn">{label}</span>;
+  return <span className="a-tag a-tag--muted">{label}</span>;
 }
 
-function validateContact(form: ContactForm): string | null {
-  if (!form.contactName.trim()) return "请填写联系人姓名";
-  if (!form.contactPhone.trim()) return "请填写联系人手机号";
-  if (!/^1\d{10}$/.test(form.contactPhone.replace(/[\s-]/g, ""))) {
-    return "联系人手机号格式不正确";
-  }
-  return null;
+function ApplyHistoryCard({
+  record,
+  onPreviewFile,
+}: {
+  record: ApplyHistoryRecord;
+  onPreviewFile: (name: string) => void;
+}) {
+  return (
+    <article className="c-apply-history-card">
+      <header className="c-apply-history-card__head">
+        <span className="c-apply-history-card__time">提交时间 {record.submittedAt}</span>
+        {historyStatusTag(record.status)}
+      </header>
+
+      <section className="c-apply-history-block">
+        <h4 className="c-apply-history-block__title">
+          <span className="c-apply-history-block__icon" aria-hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M3 21h18M5 21V8.5L12 4l7 4.5V21M9 21v-4h6v4"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          基本信息
+        </h4>
+        <div className="c-apply-history-grid">
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">机构名称</span>
+            <span className="c-apply-history-field__value">{record.companyName}</span>
+          </div>
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">统一社会信用代码</span>
+            <span className="c-apply-history-field__value">{record.creditCode || "—"}</span>
+          </div>
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">联系地址</span>
+            <span className="c-apply-history-field__value">{record.address || "—"}</span>
+          </div>
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">合同开始日期</span>
+            <span className="c-apply-history-field__value">{record.contractStart || "—"}</span>
+          </div>
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">合同结束日期</span>
+            <span className="c-apply-history-field__value">{record.contractEnd || "—"}</span>
+          </div>
+          <div className="c-apply-history-field c-apply-history-field--full">
+            <span className="c-apply-history-field__label">合同附件</span>
+            <div className="c-apply-history-files">
+              {record.contractFiles.length === 0 ? (
+                <span className="c-apply-history-field__value">—</span>
+              ) : (
+                record.contractFiles.map((f) => {
+                  const sizeText = formatFileSize(f.size);
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      className="c-apply-history-file"
+                      onClick={() => onPreviewFile(f.name)}
+                    >
+                      <span className="c-apply-history-file__name">{f.name}</span>
+                      {sizeText ? (
+                        <span className="c-apply-history-file__size">（{sizeText}）</span>
+                      ) : null}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="c-apply-history-block">
+        <h4 className="c-apply-history-block__title">
+          <span className="c-apply-history-block__icon" aria-hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.75" />
+              <path
+                d="M5 19.5c1.2-3 3.5-4.5 7-4.5s5.8 1.5 7 4.5"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+          联系人信息
+        </h4>
+        <div className="c-apply-history-grid">
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">联系人</span>
+            <span className="c-apply-history-field__value">{record.contactName}</span>
+          </div>
+          <div className="c-apply-history-field">
+            <span className="c-apply-history-field__label">手机号</span>
+            <span className="c-apply-history-field__value">{record.contactPhone}</span>
+          </div>
+        </div>
+        {record.status === "rejected" && record.rejectReason ? (
+          <p className="c-apply-history-reject">不通过原因：{record.rejectReason}</p>
+        ) : null}
+      </section>
+    </article>
+  );
 }
 
 export function AccountCenterPage() {
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { profile, contract, history, applyStatus, withdrawAccountApplication } = useAccountStore();
   const [tab, setTab] = useState<TabKey>("info");
-  const [profile, setProfile] = useState<TenantProfile>(() => ({ ...MOCK_TENANT }));
-  const [editOpen, setEditOpen] = useState(false);
-  const [draft, setDraft] = useState<ContactForm>({
-    contactName: MOCK_TENANT.contactName,
-    contactPhone: MOCK_TENANT.contactPhone,
-  });
-  const [error, setError] = useState<string | null>(null);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const isPending = applyStatus === "pending";
+  const currentRejectReason = useMemo(() => {
+    if (applyStatus !== "rejected") return undefined;
+    return history.find((r) => r.status === "rejected")?.rejectReason;
+  }, [applyStatus, history]);
 
   const showToast = (msg: string) => {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2200);
   };
 
-  const openEdit = () => {
-    setDraft({
-      contactName: profile.contactName,
-      contactPhone: profile.contactPhone,
-    });
-    setError(null);
-    setEditOpen(true);
-  };
-
-  const saveContact = () => {
-    const err = validateContact(draft);
-    if (err) {
-      setError(err);
+  const confirmWithdraw = () => {
+    const res = withdrawAccountApplication();
+    setWithdrawOpen(false);
+    if (!res.ok) {
+      showToast(res.error);
       return;
     }
-    setProfile((p) => ({
-      ...p,
-      contactName: draft.contactName.trim(),
-      contactPhone: draft.contactPhone.replace(/[\s-]/g, "").trim(),
-    }));
-    setEditOpen(false);
-    showToast("联系信息已更新");
+    showToast("已撤回申请，可修改资料后重新提交");
   };
 
   return (
     <div className="a-card c-account-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
-      <div className="a-card__head">账号中心</div>
+      <div className="a-card__head">机构信息</div>
       <Tabs items={TAB_ITEMS} active={tab} onChange={setTab} className="c-seg-tabs" />
       <div className="a-card__body a-stack">
         {tab === "info" ? (
-          <>
-            <section className="a-form-section">
-              <h3 className="a-form-section__title">
-                基本信息 <span className="a-field__hint">（只读）</span>
-              </h3>
-              <div className="a-desc">
-                <div className="a-desc__item">
-                  <span className="a-desc__label">机构名称</span>
-                  <span className="a-desc__value">{profile.companyName}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">统一社会信用代码</span>
-                  <span className="a-desc__value">{profile.creditCode || "—"}</span>
-                </div>
-                <div className="a-desc__item a-desc__item--wide">
-                  <span className="a-desc__label">联系地址</span>
-                  <span className="a-desc__value">{profile.address || "—"}</span>
-                </div>
-              </div>
-            </section>
-            <section className="a-form-section">
-              <div className="c-account-section-head">
+          <section className="a-form-section">
+            <div className="c-account-section-head">
+              <div className="c-account-section-head__main">
                 <h3 className="a-form-section__title" style={{ margin: 0 }}>
-                  联系信息{" "}
-                  <span className="a-field__hint">（可编辑，修改后保存立即生效）</span>
+                  基本信息
                 </h3>
-                <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={openEdit}>
+                {historyStatusTag(applyStatus)}
+              </div>
+              {isPending ? (
+                <button
+                  type="button"
+                  className="a-btn a-btn--sm"
+                  onClick={() => setWithdrawOpen(true)}
+                >
+                  撤回申请
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="a-btn a-btn--primary a-btn--sm"
+                  onClick={() => navigate("/account/edit")}
+                >
                   编辑
                 </button>
-              </div>
-              <div className="a-desc" style={{ marginTop: 12 }}>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">联系人</span>
-                  <span className="a-desc__value">{profile.contactName}</span>
-                </div>
-                <div className="a-desc__item">
-                  <span className="a-desc__label">联系人手机号</span>
-                  <span className="a-desc__value">{profile.contactPhone}</span>
-                </div>
-              </div>
-            </section>
-            <section className="a-form-section">
-              <div className="c-account-section-head">
-                <h3 className="a-form-section__title" style={{ margin: 0 }}>
-                  账号安全
-                </h3>
-                <Link to="/account/password" className="a-btn a-btn--primary a-btn--sm">
-                  修改密码
-                </Link>
-              </div>
-              <p className="a-field__hint" style={{ marginTop: 8 }}>
-                修改密码需验证当前密码与绑定手机短信验证码，成功后其他设备会话将自动下线。
+              )}
+            </div>
+
+            {isPending ? (
+              <p className="a-field__hint c-account-status-hint">
+                申请审核中，资料暂不可修改。如需调整，请先撤回申请。
               </p>
-            </section>
-          </>
-        ) : null}
+            ) : null}
+            {applyStatus === "rejected" && currentRejectReason ? (
+              <p className="c-apply-history-reject c-account-status-hint">
+                不通过原因：{currentRejectReason}
+              </p>
+            ) : null}
+            {applyStatus === "withdrawn" ? (
+              <p className="a-field__hint c-account-status-hint">
+                申请已撤回，修改资料并保存后将重新提交审核。
+              </p>
+            ) : null}
 
-        {tab === "services" ? (
-          <div className="a-stack">
-            {MOCK_TENANT_SERVICES.map((svc) => {
-              const pct =
-                svc.quotaTotal && svc.quotaTotal > 0
-                  ? Math.min(100, Math.round((svc.usedCount / svc.quotaTotal) * 100))
-                  : 0;
-              const docId = API_DOC_ID[svc.product] ?? svc.product;
-              return (
-                <div
-                  key={svc.product}
-                  className={`c-service-card${svc.status === "stopped" ? " is-stopped" : ""}`}
-                >
-                  <div className="c-service-card__main">
-                    <div className="c-service-card__name">{productName(svc.product)}</div>
-                    <div className="c-service-card__meta">
-                      开通时间：{svc.openedAt} | 到期时间：{svc.expireAt}
-                      {svc.quotaTotal != null
-                        ? ` | 配额：${svc.usedCount.toLocaleString()} / ${svc.quotaTotal.toLocaleString()}`
-                        : " | 配额：不限量"}
-                    </div>
-                    {svc.quotaTotal != null ? (
-                      <div className="c-service-card__bar">
-                        <div
-                          className={`c-service-card__fill${svc.status === "expiring" ? " is-warn" : ""}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="c-service-card__actions">
-                    {serviceStatusTag(svc.status)}
-                    <Link
-                      to={`/api/docs/${docId}`}
-                      state={{ from: `${location.pathname}${location.search}` }}
-                      className="a-btn a-btn--text a-btn--sm"
-                    >
-                      API文档
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {tab === "contracts" ? (
-          <div className="a-stack">
-            {MOCK_TENANT_CONTRACTS.map((c) => (
-              <div key={c.id} className="c-contract-card">
-                <div className="c-contract-card__head">
-                  <span className="c-contract-card__no">{c.contractNo}</span>
-                  {periodTag(c.periodStatus)}
-                </div>
-                <div className="a-desc" style={{ marginTop: 12 }}>
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">合作起止日期</span>
-                    <span className="a-desc__value">
-                      {c.startDate} ~ {c.endDate}
-                    </span>
-                  </div>
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">合同金额</span>
-                    <span className="a-desc__value">
-                      ¥ {c.amount.toLocaleString("zh-CN", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-                <div className="c-contract-files">
-                  {c.files.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      className="c-contract-file"
-                      onClick={() => showToast(`演示：预览 ${f.name}`)}
-                      title={f.name}
-                    >
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        aria-hidden
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                      </svg>
-                      <span>{f.name}</span>
-                    </button>
-                  ))}
-                </div>
+            <div className="a-desc c-account-desc" style={{ marginTop: 12 }}>
+              <div className="a-desc__item">
+                <span className="a-desc__label">机构名称</span>
+                <span className="a-desc__value">{profile.companyName}</span>
               </div>
-            ))}
+              <div className="a-desc__item">
+                <span className="a-desc__label">统一社会信用代码</span>
+                <span className="a-desc__value">{profile.creditCode || "—"}</span>
+              </div>
+              <div className="a-desc__item a-desc__item--wide">
+                <span className="a-desc__label">联系地址</span>
+                <span className="a-desc__value">{profile.address || "—"}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">合同开始日期</span>
+                <span className="a-desc__value">{contract.startDate || "—"}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">合同结束日期</span>
+                <span className="a-desc__value">{contract.endDate || "—"}</span>
+              </div>
+              <div className="a-desc__item a-desc__item--wide">
+                <span className="a-desc__label">合同附件</span>
+                <span className="a-desc__value">
+                  {contract.files.length ? (
+                    <div className="c-account-files">
+                      {contract.files.map((f) => {
+                        const sizeText = formatFileSize(f.size);
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            className="c-account-file"
+                            onClick={() => showToast(`演示：预览 ${f.name}`)}
+                            title={f.name}
+                          >
+                            <span className="c-account-file__name">{f.name}</span>
+                            {sizeText ? (
+                              <span className="c-account-file__size">（{sizeText}）</span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">联系人</span>
+                <span className="a-desc__value">{profile.contactName}</span>
+              </div>
+              <div className="a-desc__item">
+                <span className="a-desc__label">联系人手机号</span>
+                <span className="a-desc__value">{profile.contactPhone}</span>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "history" ? (
+          <div className="c-apply-history-list">
+            {history.length === 0 ? (
+              <div className="a-empty">暂无历史申请记录</div>
+            ) : (
+              history.map((record) => (
+                <ApplyHistoryCard
+                  key={record.id}
+                  record={record}
+                  onPreviewFile={(name) => showToast(`演示：预览 ${name}`)}
+                />
+              ))
+            )}
           </div>
         ) : null}
       </div>
 
-      <Modal
-        open={editOpen}
-        title="编辑联系信息"
-        onClose={() => setEditOpen(false)}
-        footer={
-          <>
-            <button type="button" className="a-btn" onClick={() => setEditOpen(false)}>
-              取消
-            </button>
-            <button type="button" className="a-btn a-btn--primary" onClick={saveContact}>
-              保存
-            </button>
-          </>
-        }
-      >
-        <div className="a-stack">
-          <div className="a-field a-field--stack">
-            <label className="a-field__label" htmlFor="contact-name">
-              联系人姓名 <span className="c-required">*</span>
-            </label>
-            <input
-              id="contact-name"
-              className="a-input"
-              value={draft.contactName}
-              onChange={(e) => setDraft((d) => ({ ...d, contactName: e.target.value }))}
-            />
-          </div>
-          <div className="a-field a-field--stack">
-            <label className="a-field__label" htmlFor="contact-phone">
-              联系人手机号 <span className="c-required">*</span>
-            </label>
-            <input
-              id="contact-phone"
-              className="a-input"
-              inputMode="tel"
-              value={draft.contactPhone}
-              onChange={(e) => setDraft((d) => ({ ...d, contactPhone: e.target.value }))}
-            />
-          </div>
-          {error ? <span className="a-field__error">{error}</span> : null}
-        </div>
-      </Modal>
+      <ConfirmDialog
+        open={withdrawOpen}
+        title="撤回申请"
+        description="撤回后本次申请将标记为已撤回，资料会保留，您可修改后再重新提交。确定撤回吗？"
+        confirmText="撤回申请"
+        danger
+        onConfirm={confirmWithdraw}
+        onCancel={() => setWithdrawOpen(false)}
+      />
     </div>
   );
 }

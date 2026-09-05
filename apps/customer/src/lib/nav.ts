@@ -35,7 +35,8 @@ const NAV_LABELS: Record<string, string> = {
   "/api/keys": "API Keys",
   "/api/docs": "API文档",
   "/keys": "API Keys",
-  "/account": "账号中心",
+  "/account": "机构信息",
+  "/account/edit": "编辑机构信息",
   "/account/password": "修改密码",
   "/api-docs": "API文档",
   "/help": "帮助中心",
@@ -49,6 +50,8 @@ export function findNavLabel(pathname: string): string {
   if (pathname.startsWith("/api-docs")) return "API文档";
   if (pathname === "/apply" || pathname.startsWith("/apply/")) return "入驻申请";
   if (pathname.startsWith("/review")) return "作品智能辅助审核";
+  if (pathname === "/account/edit") return "编辑机构信息";
+  if (pathname === "/account/password") return "修改密码";
   for (const [path, label] of Object.entries(NAV_LABELS)) {
     if (pathname === path || pathname.startsWith(`${path}/`)) return label;
   }

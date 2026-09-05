@@ -80,6 +80,36 @@ export function IconBell({ className, size = 16 }: IconProps) {
   );
 }
 
+/** 企业账户：基本信息 / 合同信息（证照卡意象） */
+export function IconEnterprise({ className, size = 20 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect
+        x="2.5"
+        y="5"
+        width="19"
+        height="14"
+        rx="2.25"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <circle cx="8.75" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.75" />
+      <path
+        d="M5.25 16.5c.85-1.5 2.15-2.25 3.5-2.25s2.65.75 3.5 2.25"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14.25 9.25h5M14.25 12.25h5M14.25 15.25h3.25"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function IconMenu({ className, size = 18 }: IconProps) {
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>

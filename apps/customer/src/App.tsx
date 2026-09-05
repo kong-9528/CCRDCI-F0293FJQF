@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { ApiManageLayout } from "@/layouts/ApiManageLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
+import { AccountEditPage } from "@/pages/account/AccountEditPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
@@ -42,6 +43,7 @@ export function App() {
         <Route path="/review/duplicate" element={<DuplicateReviewPage />} />
         <Route path="/review/infringement" element={<InfringementReviewPage />} />
         <Route path="/account/password" element={<ChangePasswordPage />} />
+        <Route path="/account/edit" element={<AccountEditPage />} />
         <Route path="/account" element={<AccountCenterPage />} />
         <Route path="/help" element={<HelpCenterPage />} />
 

@@ -2,7 +2,7 @@
 @import "@ctp/styles/admin.css";
 @import "./dci-theme.css";
 
-/* 运营后台：滚动骨架 + 功能样式（视觉由 dci-theme.css 接管） */
+/* ????????? + ???????? dci-theme.css ??? */
 *,
 *::before,
 *::after {
@@ -121,7 +121,7 @@ body,
   background: transparent;
 }
 
-/* ===== 运营后台功能样式 ===== */
+/* ===== ???????? ===== */
 
 .a-sidebar__logo {
   gap: var(--ad-sp-2);
@@ -210,7 +210,7 @@ body,
   transform: rotate(180deg);
 }
 
-/* 悬浮展开：dropdown 含透明桥接区，避免从头像移到菜单时断开 */
+/* ?????dropdown ??????????????????? */
 .a-header__user-dropdown {
   position: absolute;
   right: 0;
@@ -607,7 +607,7 @@ body,
   font-size: 19px;
 }
 
-/* ---------- 客户使用统计：表盘概览 ---------- */
+/* ---------- ??????????? ---------- */
 .a-stats-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -632,7 +632,7 @@ body,
   box-shadow: 0 10px 24px rgba(9, 109, 217, 0.22);
 }
 
-/* 天际蓝 / 靛蓝 — 纯渐变，无装饰图形 */
+/* ??? / ?? ? ????????? */
 .a-stats-duo--accounts {
   background: linear-gradient(90deg, #40a9ff 0%, #096dd9 100%);
 }
@@ -708,7 +708,7 @@ body,
   line-height: 1.35;
 }
 
-/* 统计概览：单行指标条（无分组标题） */
+/* ????????????????? */
 .a-stats-strip {
   border-radius: 12px;
   overflow: hidden;
@@ -804,7 +804,7 @@ body,
   padding-top: var(--ad-sp-3);
 }
 
-/* ---------- 产品使用统计：分产品表盘 ---------- */
+/* ---------- ???????????? ---------- */
 .a-product-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -831,7 +831,7 @@ body,
   box-shadow: 0 10px 24px rgba(29, 57, 196, 0.22);
 }
 
-/* 三色纯渐变：天际蓝 / 紫罗兰 / 靛蓝 */
+/* ????????? / ??? / ?? */
 .a-product-board__card--tone-0 {
   background: linear-gradient(90deg, #40a9ff 0%, #096dd9 100%);
 }
@@ -1032,7 +1032,7 @@ body,
   display: inline-block;
   font-size: var(--ad-fs-sm);
   color: var(--n-600);
-  /* 固定占位，避免「支持 / 不支持」切换时开关左右跳动 */
+  /* ?????????? / ????????????? */
   min-width: 3.75em;
   text-align: left;
   white-space: nowrap;
@@ -1328,7 +1328,7 @@ body,
   line-height: 1.6;
 }
 
-/* 产品新增/编辑：左标签右对齐 + 右控件左对齐（单列） */
+/* ????/????????? + ?????????? */
 .a-product-form {
   display: flex;
   flex-direction: column;
@@ -1544,12 +1544,12 @@ body,
   }
 }
 
-/* 统计页顶部指标：无外层卡片，与下方卡片左右对齐 */
+/* ??????????????????????? */
 .a-stats-overview {
   width: 100%;
 }
 
-/* 账号×产品双维度统计 */
+/* ??�??????? */
 .a-stats-ap-filters {
   align-items: center;
   gap: var(--ad-sp-3);
@@ -1922,7 +1922,7 @@ body,
 }
 
 .a-shelf-tree__name--child::before {
-  content: "└ ";
+  content: "? ";
   color: var(--n-400);
   font-weight: 400;
 }
@@ -1947,7 +1947,7 @@ body,
   font: inherit;
 }
 
-/* 分段式页签：接口服务设置 / 操作日志 */
+/* ???????????? / ???? */
 .a-tabs--segment {
   display: inline-flex;
   align-items: center;
@@ -1993,7 +1993,7 @@ body,
     0 0 0 1px color-mix(in srgb, var(--p-200) 55%, transparent);
 }
 
-/* 产品使用统计：紧凑左对齐页签 */
+/* ?????????????? */
 .a-stats-products__tabs {
   margin: 0;
   align-self: flex-start;
@@ -2011,7 +2011,7 @@ body,
   white-space: nowrap;
 }
 
-/* ---------- 接口服务设置：产品>接口折叠列表 ---------- */
+/* ---------- ?????????>?????? ---------- */
 .a-api-list {
   display: flex;
   flex-direction: column;
@@ -2402,7 +2402,7 @@ body,
   margin-top: 12px;
 }
 
-/* ---------- 接口新增/编辑页 ---------- */
+/* ---------- ????/??? ---------- */
 .a-api-edit {
   max-width: 960px;
 }
@@ -2556,7 +2556,7 @@ body,
   }
 }
 
-/* ---------- 角色权限树 ---------- */
+/* ---------- ????? ---------- */
 .a-perm-panel {
   max-height: min(52vh, 420px);
   overflow: auto;
@@ -2604,7 +2604,7 @@ body,
   cursor: not-allowed;
 }
 
-/* ---------- 首页：总览 + 分产品概况（艺术化 KPI） ---------- */
+/* ---------- ????? + ????????? KPI? ---------- */
 .a-dash-panel {
   overflow: hidden;
   position: relative;
@@ -2965,7 +2965,7 @@ body,
   }
 }
 
-/* ---------- 门户首页管理 ---------- */
+/* ---------- ?????? ---------- */
 .a-muted {
   color: var(--n-500);
   font-size: var(--ad-fs-sm);
@@ -3048,7 +3048,7 @@ body,
   max-width: min(420px, calc(100vw - 32px));
 }
 
-/* ---------- 富文本编辑器 ---------- */
+/* ---------- ?????? ---------- */
 .a-richtext {
   border: 1px solid var(--n-300);
   border-radius: var(--ad-radius-sm);
@@ -3134,7 +3134,7 @@ body,
   text-decoration: underline;
 }
 
-/* ---------- 可搜索下拉（新增产品服务） ---------- */
+/* ---------- ????????????? ---------- */
 .a-combobox {
   position: relative;
   width: 100%;
@@ -3274,7 +3274,7 @@ body,
   color: var(--wn-600);
 }
 
-/* ---------- 合同管理 ---------- */
+/* ---------- ???? ---------- */
 .a-contract-list {
   display: flex;
   flex-direction: column;
@@ -3309,7 +3309,7 @@ body,
   grid-column: 1 / -1;
 }
 
-/* ===== 手风琴侧栏（对齐截图：目录展开收起） ===== */
+/* ===== ?????????????????? ===== */
 .theme-ops .a-sidebar {
   background: #f7f8fa;
   padding: 0 0 16px;
@@ -3341,7 +3341,7 @@ body,
   color: var(--p-600);
 }
 
-/* 截图风格：当前模块实心蓝底高亮 */
+/* ??????????????? */
 .theme-ops .a-menu__item.is-active {
   background: var(--p-600);
   color: #fff;
@@ -3423,7 +3423,7 @@ body,
   flex-direction: column;
 }
 
-/* 子模块：无图标，文字与目录文字左对齐 */
+/* ?????????????????? */
 .theme-ops .a-menu__item--sub {
   height: 44px;
   padding-left: 48px;
@@ -3477,7 +3477,7 @@ body,
   color: #fff;
 }
 
-/* 模块主体：白底；面包屑底部分割线 */
+/* ???????????????? */
 .theme-ops .a-main {
   background: #fff;
 }
@@ -3511,7 +3511,7 @@ body,
   gap: 16px;
 }
 
-/* 列表/筛选：去掉圆角卡片外框，直接铺在白底上 */
+/* ??/??????????????????? */
 .theme-ops .a-content .a-card {
   border: none;
   border-radius: 0;
@@ -3560,7 +3560,7 @@ body,
   background: transparent;
 }
 
-/* ---------- 右侧详情抽屉 ---------- */
+/* ---------- ?????? ---------- */
 .c-drawer-root {
   position: fixed;
   inset: 0;
@@ -3860,7 +3860,7 @@ body,
 
 
 
-/* ---------- �ֻ���������ʾ ---------- */
+/* ---------- ???????????? ---------- */
 .a-masked-phone {
   display: inline-flex;
   align-items: center;
@@ -3894,4 +3894,206 @@ body,
   font-size: 12px;
   color: var(--n-500, #6b7280);
   font-variant-numeric: tabular-nums;
+}
+
+/* account application review page */
+.o-app-review__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.o-app-review__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.o-app-review__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--n-900);
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.o-app-review-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--n-50, #f7f8fa);
+  border-bottom: 1px solid var(--n-100, #eef0f3);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-800);
+}
+
+.o-app-review-panel__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--p-600, #1677ff);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.o-app-review-panel__link:hover {
+  color: var(--p-700, #0958d9);
+}
+
+.o-app-review-desc {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--n-200, #e8e8e8);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.o-app-review-desc .a-desc__item {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: start;
+  margin: 0;
+  border-right: 1px solid var(--n-200, #e8e8e8);
+  border-bottom: 1px solid var(--n-200, #e8e8e8);
+}
+
+.o-app-review-desc .a-desc__item:nth-child(2n) {
+  border-right: none;
+}
+
+.o-app-review-desc .a-desc__item--wide {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+.o-app-review-desc .a-desc__label {
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #fafafa;
+  color: var(--n-600);
+  font-size: 13px;
+}
+
+.o-app-review-desc .a-desc__value {
+  box-sizing: border-box;
+  padding: 10px 14px;
+  color: var(--n-900);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.o-app-review__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+@media (max-width: 720px) {
+  .o-app-review-desc {
+    grid-template-columns: 1fr;
+  }
+
+  .o-app-review-desc .a-desc__item {
+    border-right: none;
+  }
+}
+
+/* audit history modal */
+.o-audit-hist-modal__body {
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  background: var(--n-50, #f5f6f8);
+  margin: 0 -4px;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.o-audit-hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.o-audit-hist-card {
+  background: #fff;
+  border: 1px solid var(--n-200, #e8e8e8);
+  border-radius: 8px;
+  padding: 14px 16px 10px;
+}
+
+.o-audit-hist-card__head {
+  margin: 0 0 14px;
+  color: var(--p-600, #1677ff);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.o-audit-hist-section {
+  margin-bottom: 14px;
+}
+
+.o-audit-hist-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding-left: 10px;
+  border-left: 3px solid var(--p-600, #1677ff);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-900);
+  line-height: 1.2;
+}
+
+.o-audit-hist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.o-audit-hist-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.o-audit-hist-field--full {
+  grid-column: 1 / -1;
+}
+
+.o-audit-hist-field__label {
+  color: var(--n-500);
+  flex-shrink: 0;
+}
+
+.o-audit-hist-field__value {
+  color: var(--n-900);
+  word-break: break-word;
+}
+
+.o-audit-hist-reject {
+  color: var(--er-600, #cf1322);
+}
+
+@media (max-width: 640px) {
+  .o-audit-hist-grid {
+    grid-template-columns: 1fr;
+  }
 }

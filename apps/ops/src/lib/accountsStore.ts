@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import { finalizeAuditHistory } from "@/lib/auditHistoryStore";
 import type { ContractFile, ProductCode } from "@/lib/catalog";
 import { createCustomer, isAccountTaken } from "@/lib/customersStore";
 import { parseProductServices, type ProductFormRow } from "@/lib/customerForm";
@@ -253,17 +254,19 @@ export function approveApplication(
     status: "enabled",
   });
 
+  const reviewer = currentReviewerName();
   applications = applications.map((row) =>
     row.id === id
       ? {
           ...row,
           status: "approved",
           reviewedAt: stamp,
-          reviewer: currentReviewerName(),
+          reviewer,
           customerId: customer.id,
         }
       : row,
   );
+  finalizeAuditHistory(id, "approved", { reviewedAt: stamp, reviewer });
   emit();
   return { ok: true, customerId: customer.id };
 }
@@ -279,17 +282,24 @@ export function rejectApplication(
   const trimmed = reason.trim();
   if (!trimmed) return { ok: false, error: "请填写拒绝原因" };
 
+  const stamp = nowStamp();
+  const reviewer = currentReviewerName();
   applications = applications.map((row) =>
     row.id === id
       ? {
           ...row,
           status: "rejected",
-          reviewedAt: nowStamp(),
-          reviewer: currentReviewerName(),
+          reviewedAt: stamp,
+          reviewer,
           rejectReason: trimmed,
         }
       : row,
   );
+  finalizeAuditHistory(id, "rejected", {
+    reviewedAt: stamp,
+    reviewer,
+    rejectReason: trimmed,
+  });
   emit();
   return { ok: true };
 }
