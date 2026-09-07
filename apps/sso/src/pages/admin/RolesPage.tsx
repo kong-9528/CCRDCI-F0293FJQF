@@ -27,10 +27,27 @@ export function RolesPage() {
 function RolesPageInner() {
   useRbacTick();
   const { can } = useAuth();
-  const roles = listRoles();
-  const pager = useClientPagination(roles);
+  const [draft, setDraft] = useState({ keyword: "", subsystemId: "", status: "" as "" | EntityStatus });
+  const [applied, setApplied] = useState(draft);
   const [editing, setEditing] = useState<Role | null>(null);
   const [creating, setCreating] = useState(false);
+
+  const filtered = useMemo(() => {
+    const q = applied.keyword.trim().toLowerCase();
+    return listRoles().filter((r) => {
+      if (applied.subsystemId && r.subsystemId !== applied.subsystemId) return false;
+      if (applied.status && r.status !== applied.status) return false;
+      if (!q) return true;
+      const sysName = getSubsystem(r.subsystemId)?.name ?? "";
+      return (
+        r.code.toLowerCase().includes(q) ||
+        r.name.toLowerCase().includes(q) ||
+        sysName.toLowerCase().includes(q)
+      );
+    });
+  }, [applied]);
+
+  const pager = useClientPagination(filtered);
 
   return (
     <div className="sso-admin">
@@ -45,6 +62,69 @@ function RolesPageInner() {
           ) : null
         }
       />
+
+      <div className="sso-filters">
+        <label className="sso-filters__item">
+          <span>关键词</span>
+          <input
+            className="sso-input"
+            value={draft.keyword}
+            onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
+            placeholder="编码 / 名称"
+          />
+        </label>
+        <label className="sso-filters__item">
+          <span>所属系统</span>
+          <select
+            className="sso-select"
+            value={draft.subsystemId}
+            onChange={(e) => setDraft((p) => ({ ...p, subsystemId: e.target.value }))}
+          >
+            <option value="">全部</option>
+            {listSubsystems(true).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="sso-filters__item">
+          <span>状态</span>
+          <select
+            className="sso-select"
+            value={draft.status}
+            onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value as "" | EntityStatus }))}
+          >
+            <option value="">全部</option>
+            <option value="active">启用</option>
+            <option value="disabled">停用</option>
+          </select>
+        </label>
+        <div className="sso-filters__actions">
+          <button
+            type="button"
+            className="sso-btn sso-btn--primary"
+            onClick={() => {
+              setApplied(draft);
+              pager.resetPage();
+            }}
+          >
+            查询
+          </button>
+          <button
+            type="button"
+            className="sso-btn sso-btn--outline"
+            onClick={() => {
+              const empty = { keyword: "", subsystemId: "", status: "" as const };
+              setDraft(empty);
+              setApplied(empty);
+              pager.resetPage();
+            }}
+          >
+            重置
+          </button>
+        </div>
+      </div>
 
       <div className="sso-card sso-card--flush">
         <table className="sso-table">

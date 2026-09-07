@@ -8,7 +8,7 @@ export function LauncherPage() {
   if (!can("sso.launcher")) {
     return (
       <div className="sso-card">
-        <div className="sso-empty">当前账号无权访问应用入口，请联系管理员。</div>
+        <div className="sso-empty">当前账号无权访问首页，请联系管理员。</div>
       </div>
     );
   }
@@ -28,12 +28,16 @@ export function LauncherPage() {
     <div className="sso-launcher">
       <ListPageHeader
         title={`你好，${user?.displayName ?? ""}`}
-        description={`已开通 ${subsystems.length} 个业务系统。点击卡片进入对应子系统，权限由统一账号下的多系统角色决定。`}
+        description={
+          subsystems.length
+            ? `已开通 ${subsystems.length} 个业务系统（本平台「用户统一认证系统」不在此展示）。点击卡片进入对应子系统。`
+            : "暂未开通其他业务系统。本平台入口不在首页展示。"
+        }
       />
 
       {subsystems.length === 0 ? (
         <div className="sso-card">
-          <div className="sso-empty">暂未开通任何业务子系统，请联系管理员分配角色。</div>
+          <div className="sso-empty">暂未开通 DCI管理中心运营后台或 DCI®技术服务中心运营后台，请联系管理员分配角色。</div>
         </div>
       ) : (
         <div className="sso-app-grid">
@@ -50,7 +54,6 @@ export function LauncherPage() {
               >
                 <div className="sso-app-card__body">
                   <h2>{sys.name}</h2>
-                  <p>{sys.description}</p>
                   {roles.length ? (
                     <div className="sso-app-card__tags">
                       {roles.map((r) => (

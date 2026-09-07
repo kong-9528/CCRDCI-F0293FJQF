@@ -1,5 +1,5 @@
 /**
- * 与 apps/ops/src/lib/rolesStore.ts 对齐的「技术服务中心」权限树与内置角色。
+ * 与 apps/ops/src/lib/rolesStore.ts 对齐的「DCI管理中心」权限树与内置角色。
  * 权限编码与 ops 的 permissionId 保持一致，便于后续联调。
  */
 
@@ -206,31 +206,46 @@ export function collectOpsPermissionIds(nodes: OpsPermNode[] = OPS_PERMISSION_TR
   return out;
 }
 
+export type OpsMenuType = "directory" | "menu" | "button";
+
 export type FlattenedOpsPermission = {
   id: string;
   code: string;
   name: string;
   description: string;
+  parentId: string | null;
+  menuType: OpsMenuType;
+  sort: number;
 };
+
+function inferOpsMenuType(node: OpsPermNode): OpsMenuType {
+  if (!node.children?.length) return "button";
+  const allLeaves = node.children.every((c) => !c.children?.length);
+  return allLeaves ? "menu" : "directory";
+}
 
 /** 扁平化为 SSO Permission 种子（id/code 与 ops permissionId 一致） */
 export function flattenOpsPermissions(
   nodes: OpsPermNode[] = OPS_PERMISSION_TREE,
   trail: string[] = [],
+  parentId: string | null = null,
 ): FlattenedOpsPermission[] {
   const out: FlattenedOpsPermission[] = [];
-  for (const n of nodes) {
+  nodes.forEach((n, index) => {
     const path = [...trail, n.label];
     out.push({
       id: n.id,
       code: n.id,
       name: n.label,
       description: path.join(" / "),
+      parentId,
+      menuType: inferOpsMenuType(n),
+      sort: (index + 1) * 10,
     });
     if (n.children?.length) {
-      out.push(...flattenOpsPermissions(n.children, path));
+      out.push(...flattenOpsPermissions(n.children, path, n.id));
     }
-  }
+  });
   return out;
 }
 

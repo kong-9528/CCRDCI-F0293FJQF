@@ -4,7 +4,8 @@
  * - User.username：全集团唯一身份（可与入职邮箱同值，但 SSO 侧只存统一用户名）
  * - Role 归属某一子系统（含 SSO 平台本身 subsystemId = "sso"）
  * - 用户可绑定多个子系统下的多个角色 → 开通多系统权限
- * - 技术服务中心（ops）权限树 / 角色 / 演示用户与 apps/ops 对齐
+ * - 演示仅 mock 3 个子系统：用户统一认证系统 / DCI管理中心 / DCI®技术服务中心
+ * - DCI管理中心（ops）权限树 / 角色与 apps/ops 对齐；首页不展示本平台入口
  */
 
 import {
@@ -16,6 +17,9 @@ import {
 export type EntityStatus = "active" | "disabled";
 
 export { OPS_SUBSYSTEM_ID };
+
+/** DCI®技术服务中心（客户控制台 apps/customer） */
+export const CUSTOMER_SUBSYSTEM_ID = "sys-customer";
 
 export type Subsystem = {
   id: string;
@@ -29,8 +33,11 @@ export type Subsystem = {
   sort: number;
 };
 
+export type MenuType = "directory" | "menu" | "button";
+
 export type Permission = {
   id: string;
+  /** 权限标识（按钮必填；菜单作页面标识；目录可填分组编码） */
   code: string;
   name: string;
   /** 所属子系统；sso = 本平台权限 */
@@ -38,6 +45,21 @@ export type Permission = {
   description: string;
   /** 关联的该子系统 API 接口（可多选） */
   apiIds: string[];
+  menuType: MenuType;
+  parentId: string | null;
+  /** 路由路径（目录 / 菜单） */
+  routePath: string;
+  /** 页面组件（菜单） */
+  component: string;
+  sort: number;
+  /** 显示状态 */
+  visible: boolean;
+};
+
+export const MENU_TYPE_LABEL: Record<MenuType, string> = {
+  directory: "目录",
+  menu: "菜单",
+  button: "按钮",
 };
 
 export type Role = {
@@ -124,105 +146,302 @@ let subsystems: Subsystem[] = [
   {
     id: SSO_SUBSYSTEM_ID,
     code: "sso",
-    name: "统一身份认证平台",
-    description: "集团 SSO 本身：入口门户与身份权限管理",
+    name: "用户统一认证系统",
+    description: "本平台：统一登录入口与身份、组织、角色、菜单权限管理",
     entryUrl: "",
-    accent: "#0B62B8",
+    accent: "#0f3786",
     status: "active",
     sort: 0,
   },
   {
     id: OPS_SUBSYSTEM_ID,
     code: "ops",
-    name: "技术服务中心",
-    description: "运营后台：客户、产品上架、内容与系统管理",
+    name: "DCI管理中心运营后台",
+    description: "运营管理后台：客户、合同、产品上架、内容与系统配置",
     entryUrl: "http://localhost:3001",
     accent: "#0B62B8",
-    status: "active",
-    sort: 5,
-  },
-  {
-    id: "sys-oa",
-    code: "oa",
-    name: "协同办公 OA",
-    description: "审批、公文、日程与组织通讯录",
-    entryUrl: "https://www.ccopyright.com",
-    accent: "#00B8C6",
     status: "active",
     sort: 10,
   },
   {
-    id: "sys-hr",
-    code: "hr",
-    name: "人力资源 HR",
-    description: "组织人事、考勤与员工自助",
-    entryUrl: "https://www.ccopyright.com",
-    accent: "#0B62B8",
+    id: CUSTOMER_SUBSYSTEM_ID,
+    code: "customer",
+    name: "DCI®技术服务中心运营后台",
+    description: "客户控制台：核验服务、API 接入、用量与帮助中心",
+    entryUrl: "http://localhost:3002",
+    accent: "#0075c1",
     status: "active",
     sort: 20,
-  },
-  {
-    id: "sys-erp",
-    code: "erp",
-    name: "经营管控 ERP",
-    description: "财务、采购与经营报表",
-    entryUrl: "https://www.ccopyright.com",
-    accent: "#004281",
-    status: "active",
-    sort: 30,
-  },
-  {
-    id: "sys-crm",
-    code: "crm",
-    name: "客户关系 CRM",
-    description: "客户档案、商机与合同跟进",
-    entryUrl: "http://localhost:3000",
-    accent: "#0096A3",
-    status: "active",
-    sort: 40,
   },
 ];
 
 const opsPermissions: Permission[] = flattenOpsPermissions().map((p) => ({
-  ...p,
+  id: p.id,
+  code: p.code,
+  name: p.name,
+  description: p.description,
   subsystemId: OPS_SUBSYSTEM_ID,
   apiIds: [] as string[],
+  menuType: p.menuType,
+  parentId: p.parentId,
+  routePath: p.menuType === "button" ? "" : `/${p.code.replace(/\./g, "/")}`,
+  component: p.menuType === "menu" ? `ops/${p.code.replace(/\./g, "/")}/index` : "",
+  sort: p.sort,
+  visible: true,
 }));
 
+function ssoPerm(
+  partial: Omit<Permission, "subsystemId" | "visible" | "description" | "routePath" | "component" | "apiIds"> &
+    Partial<Pick<Permission, "description" | "routePath" | "component" | "apiIds" | "visible">>,
+): Permission {
+  return {
+    description: "",
+    routePath: "",
+    component: "",
+    apiIds: [],
+    visible: true,
+    subsystemId: SSO_SUBSYSTEM_ID,
+    ...partial,
+  };
+}
+
 let permissions: Permission[] = [
-  // SSO 平台
-  { id: "p-sso-launcher", code: "sso.launcher", name: "访问应用入口", subsystemId: SSO_SUBSYSTEM_ID, description: "登录后查看已开通子系统", apiIds: ["api-sso-me", "api-sso-launcher"] },
-  { id: "p-sso-password", code: "sso.password", name: "修改本人密码", subsystemId: SSO_SUBSYSTEM_ID, description: "原密码校验后修改密码", apiIds: ["api-sso-password"] },
-  { id: "p-sso-users", code: "sso.users", name: "用户管理", subsystemId: SSO_SUBSYSTEM_ID, description: "查看与维护 SSO 用户", apiIds: ["api-sso-users-list", "api-sso-users-get"] },
-  { id: "p-sso-users-write", code: "sso.users.write", name: "用户编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "新增/编辑用户及角色绑定", apiIds: ["api-sso-users-create", "api-sso-users-update"] },
-  { id: "p-sso-roles", code: "sso.roles", name: "角色管理", subsystemId: SSO_SUBSYSTEM_ID, description: "查看与维护角色", apiIds: ["api-sso-roles-list"] },
-  { id: "p-sso-roles-write", code: "sso.roles.write", name: "角色编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "新增/编辑角色及权限", apiIds: ["api-sso-roles-create", "api-sso-roles-update"] },
-  { id: "p-sso-perms", code: "sso.perms", name: "权限目录", subsystemId: SSO_SUBSYSTEM_ID, description: "查看权限点定义", apiIds: ["api-sso-perms-list"] },
-  { id: "p-sso-perms-write", code: "sso.perms.write", name: "权限编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "维护权限点及关联接口", apiIds: ["api-sso-perms-create", "api-sso-perms-update"] },
-  { id: "p-sso-subsystems", code: "sso.subsystems", name: "子系统管理", subsystemId: SSO_SUBSYSTEM_ID, description: "维护可接入子系统", apiIds: ["api-sso-sys-list"] },
-  { id: "p-sso-subsystems-write", code: "sso.subsystems.write", name: "子系统编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "新增/编辑子系统", apiIds: ["api-sso-sys-create", "api-sso-sys-update"] },
-  { id: "p-sso-org", code: "sso.org", name: "组织管理", subsystemId: SSO_SUBSYSTEM_ID, description: "查看组织结构", apiIds: ["api-sso-org-list"] },
-  { id: "p-sso-org-write", code: "sso.org.write", name: "组织编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "维护组织树节点", apiIds: ["api-sso-org-create", "api-sso-org-update"] },
-  { id: "p-sso-apis", code: "sso.apis", name: "接口管理", subsystemId: SSO_SUBSYSTEM_ID, description: "查看子系统 API 清单", apiIds: ["api-sso-apis-list"] },
-  { id: "p-sso-apis-write", code: "sso.apis.write", name: "接口编辑", subsystemId: SSO_SUBSYSTEM_ID, description: "维护 API 接口定义", apiIds: ["api-sso-apis-create", "api-sso-apis-update"] },
-  // 技术服务中心（与 ops 权限树对齐）
+  // —— 用户统一认证系统：目录 / 菜单 / 按钮 ——
+  ssoPerm({
+    id: "p-sso-dir-workspace",
+    code: "sso.dir.workspace",
+    name: "工作台",
+    menuType: "directory",
+    parentId: null,
+    routePath: "/",
+    sort: 10,
+    description: "门户与个人入口",
+  }),
+  ssoPerm({
+    id: "p-sso-launcher",
+    code: "sso.launcher",
+    name: "首页",
+    menuType: "menu",
+    parentId: "p-sso-dir-workspace",
+    routePath: "/",
+    component: "pages/LauncherPage",
+    sort: 10,
+    description: "登录后查看已开通子系统",
+    apiIds: ["api-sso-me", "api-sso-launcher"],
+  }),
+  ssoPerm({
+    id: "p-sso-password",
+    code: "sso.password",
+    name: "修改密码",
+    menuType: "menu",
+    parentId: "p-sso-dir-workspace",
+    routePath: "account/password",
+    component: "pages/ChangePasswordPage",
+    sort: 20,
+    description: "原密码校验后修改密码",
+    apiIds: ["api-sso-password"],
+  }),
+  ssoPerm({
+    id: "p-sso-dir-system",
+    code: "sso.dir.system",
+    name: "系统管理",
+    menuType: "directory",
+    parentId: null,
+    routePath: "/admin",
+    sort: 20,
+    description: "身份、组织与权限配置",
+  }),
+  ssoPerm({
+    id: "p-sso-users",
+    code: "sso.users",
+    name: "用户管理",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "users",
+    component: "pages/admin/UsersPage",
+    sort: 10,
+    description: "查看与维护 SSO 用户",
+    apiIds: ["api-sso-users-list", "api-sso-users-get"],
+  }),
+  ssoPerm({
+    id: "p-sso-users-write",
+    code: "sso.users.write",
+    name: "用户编辑",
+    menuType: "button",
+    parentId: "p-sso-users",
+    sort: 10,
+    description: "新增/编辑用户及角色绑定",
+    apiIds: ["api-sso-users-create", "api-sso-users-update"],
+  }),
+  ssoPerm({
+    id: "p-sso-org",
+    code: "sso.org",
+    name: "组织结构",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "org",
+    component: "pages/admin/OrgPage",
+    sort: 20,
+    description: "查看组织结构",
+    apiIds: ["api-sso-org-list"],
+  }),
+  ssoPerm({
+    id: "p-sso-org-write",
+    code: "sso.org.write",
+    name: "组织编辑",
+    menuType: "button",
+    parentId: "p-sso-org",
+    sort: 10,
+    description: "维护组织树节点",
+    apiIds: ["api-sso-org-create", "api-sso-org-update"],
+  }),
+  ssoPerm({
+    id: "p-sso-roles",
+    code: "sso.roles",
+    name: "角色管理",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "roles",
+    component: "pages/admin/RolesPage",
+    sort: 30,
+    description: "查看与维护角色",
+    apiIds: ["api-sso-roles-list"],
+  }),
+  ssoPerm({
+    id: "p-sso-roles-write",
+    code: "sso.roles.write",
+    name: "角色编辑",
+    menuType: "button",
+    parentId: "p-sso-roles",
+    sort: 10,
+    description: "新增/编辑角色及权限",
+    apiIds: ["api-sso-roles-create", "api-sso-roles-update"],
+  }),
+  ssoPerm({
+    id: "p-sso-perms",
+    code: "sso.perms",
+    name: "菜单管理",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "permissions",
+    component: "pages/admin/PermissionsPage",
+    sort: 40,
+    description: "查看菜单与权限点定义",
+    apiIds: ["api-sso-perms-list"],
+  }),
+  ssoPerm({
+    id: "p-sso-perms-write",
+    code: "sso.perms.write",
+    name: "菜单编辑",
+    menuType: "button",
+    parentId: "p-sso-perms",
+    sort: 10,
+    description: "维护菜单权限点及关联接口",
+    apiIds: ["api-sso-perms-create", "api-sso-perms-update"],
+  }),
+  ssoPerm({
+    id: "p-sso-subsystems",
+    code: "sso.subsystems",
+    name: "子系统管理",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "subsystems",
+    component: "pages/admin/SubsystemsPage",
+    sort: 50,
+    description: "维护可接入子系统",
+    apiIds: ["api-sso-sys-list"],
+  }),
+  ssoPerm({
+    id: "p-sso-subsystems-write",
+    code: "sso.subsystems.write",
+    name: "子系统编辑",
+    menuType: "button",
+    parentId: "p-sso-subsystems",
+    sort: 10,
+    description: "新增/编辑子系统",
+    apiIds: ["api-sso-sys-create", "api-sso-sys-update"],
+  }),
+  ssoPerm({
+    id: "p-sso-apis",
+    code: "sso.apis",
+    name: "接口管理",
+    menuType: "menu",
+    parentId: "p-sso-dir-system",
+    routePath: "apis",
+    component: "pages/admin/ApisPage",
+    sort: 60,
+    description: "查看子系统 API 清单",
+    apiIds: ["api-sso-apis-list"],
+  }),
+  ssoPerm({
+    id: "p-sso-apis-write",
+    code: "sso.apis.write",
+    name: "接口编辑",
+    menuType: "button",
+    parentId: "p-sso-apis",
+    sort: 10,
+    description: "维护 API 接口定义",
+    apiIds: ["api-sso-apis-create", "api-sso-apis-update"],
+  }),
+  // DCI管理中心（与 ops 权限树对齐）
   ...opsPermissions,
-  // OA
-  { id: "p-oa-home", code: "oa.home", name: "OA 工作台", subsystemId: "sys-oa", description: "进入 OA", apiIds: ["api-oa-home"] },
-  { id: "p-oa-approve", code: "oa.approve", name: "审批办理", subsystemId: "sys-oa", description: "处理审批单据", apiIds: ["api-oa-tasks", "api-oa-approve"] },
-  { id: "p-oa-admin", code: "oa.admin", name: "OA 管理", subsystemId: "sys-oa", description: "OA 后台配置", apiIds: [] },
-  // HR
-  { id: "p-hr-home", code: "hr.home", name: "HR 工作台", subsystemId: "sys-hr", description: "进入 HR", apiIds: [] },
-  { id: "p-hr-self", code: "hr.self", name: "员工自助", subsystemId: "sys-hr", description: "查看个人人事信息", apiIds: [] },
-  { id: "p-hr-admin", code: "hr.admin", name: "人事管理", subsystemId: "sys-hr", description: "组织人事管理", apiIds: [] },
-  // ERP
-  { id: "p-erp-home", code: "erp.home", name: "ERP 工作台", subsystemId: "sys-erp", description: "进入 ERP", apiIds: [] },
-  { id: "p-erp-report", code: "erp.report", name: "经营报表", subsystemId: "sys-erp", description: "查看经营报表", apiIds: [] },
-  { id: "p-erp-finance", code: "erp.finance", name: "财务操作", subsystemId: "sys-erp", description: "财务模块操作", apiIds: [] },
-  // CRM
-  { id: "p-crm-home", code: "crm.home", name: "CRM 工作台", subsystemId: "sys-crm", description: "进入 CRM", apiIds: [] },
-  { id: "p-crm-lead", code: "crm.lead", name: "商机管理", subsystemId: "sys-crm", description: "维护商机", apiIds: [] },
-  { id: "p-crm-admin", code: "crm.admin", name: "CRM 管理", subsystemId: "sys-crm", description: "CRM 后台", apiIds: [] },
+  // DCI®技术服务中心
+  {
+    id: "p-tsc-dir-console",
+    code: "tsc.dir.console",
+    name: "客户控制台",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "技术服务中心入口",
+    apiIds: [],
+    menuType: "directory",
+    parentId: null,
+    routePath: "/",
+    component: "",
+    sort: 10,
+    visible: true,
+  },
+  {
+    id: "p-tsc-home",
+    code: "tsc.home",
+    name: "控制台首页",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "进入客户控制台",
+    apiIds: ["api-tsc-home"],
+    menuType: "menu",
+    parentId: "p-tsc-dir-console",
+    routePath: "/",
+    component: "pages/HomePage",
+    sort: 10,
+    visible: true,
+  },
+  {
+    id: "p-tsc-verify",
+    code: "tsc.verify",
+    name: "核验服务",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "使用 DCI / 信息 / 证书核验",
+    apiIds: ["api-tsc-verify"],
+    menuType: "menu",
+    parentId: "p-tsc-dir-console",
+    routePath: "verify/dci",
+    component: "pages/verify/DciVerifyPage",
+    sort: 20,
+    visible: true,
+  },
+  {
+    id: "p-tsc-api",
+    code: "tsc.api",
+    name: "API 接入",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "查看接口文档与密钥",
+    apiIds: [],
+    menuType: "menu",
+    parentId: "p-tsc-dir-console",
+    routePath: "api-docs",
+    component: "pages/api-docs/ApiDocsOverviewPage",
+    sort: 30,
+    visible: true,
+  },
 ];
 
 let orgUnits: OrgUnit[] = [
@@ -257,7 +476,7 @@ let orgUnits: OrgUnit[] = [
     leaderName: "王经理",
     sort: 10,
     status: "active",
-    description: "技术服务中心运营",
+    description: "DCI管理中心运营",
   },
   {
     id: "org-ops-content",
@@ -449,10 +668,10 @@ let apiEndpoints: ApiEndpoint[] = [
     id: "api-sso-perms-list",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.perms.list",
-    name: "权限目录",
+    name: "菜单管理",
     method: "GET",
     path: "/api/v1/permissions",
-    tags: "权限",
+    tags: "菜单",
     sort: 30,
   }),
   api({
@@ -575,7 +794,7 @@ let apiEndpoints: ApiEndpoint[] = [
     path: "/api/v1/customers",
     tags: "客户",
     sort: 1,
-    summary: "技术服务中心客户账号列表",
+    summary: "DCI管理中心客户账号列表",
   }),
   api({
     id: "api-ops-customers-create",
@@ -598,35 +817,24 @@ let apiEndpoints: ApiEndpoint[] = [
     sort: 10,
   }),
   api({
-    id: "api-oa-home",
-    subsystemId: "sys-oa",
-    code: "oa.home.get",
-    name: "OA 工作台",
+    id: "api-tsc-home",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    code: "tsc.home.get",
+    name: "控制台首页",
     method: "GET",
-    path: "/api/v1/oa/desk",
+    path: "/api/v1/console/home",
     tags: "工作台",
     sort: 1,
   }),
   api({
-    id: "api-oa-tasks",
-    subsystemId: "sys-oa",
-    code: "oa.tasks.list",
-    name: "待办审批",
-    method: "GET",
-    path: "/api/v1/oa/tasks",
-    tags: "审批",
-    sort: 2,
-  }),
-  api({
-    id: "api-oa-approve",
-    subsystemId: "sys-oa",
-    code: "oa.tasks.approve",
-    name: "提交审批意见",
+    id: "api-tsc-verify",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    code: "tsc.verify.submit",
+    name: "提交核验",
     method: "POST",
-    path: "/api/v1/oa/tasks/{id}/approve",
-    tags: "审批",
-    sort: 3,
-    requestExample: '{\n  "action": "pass",\n  "comment": "同意"\n}',
+    path: "/api/v1/verify/dci",
+    tags: "核验",
+    sort: 2,
   }),
 ];
 
@@ -646,6 +854,8 @@ let roles: Role[] = [
     subsystemId: SSO_SUBSYSTEM_ID,
     description: "管理用户、角色、权限与子系统",
     permissionIds: [
+      "p-sso-dir-workspace",
+      "p-sso-dir-system",
       "p-sso-launcher",
       "p-sso-password",
       "p-sso-users",
@@ -672,7 +882,7 @@ let roles: Role[] = [
     permissionIds: ["p-sso-launcher", "p-sso-password"],
     status: "active",
   },
-  // 技术服务中心（与 ops rolesStore 对齐）
+  // DCI管理中心（与 ops rolesStore 对齐）
   ...OPS_SEED_ROLES.map((r) => ({
     id: r.id,
     code: r.code,
@@ -683,57 +893,21 @@ let roles: Role[] = [
     status: "active" as const,
   })),
   {
-    id: "r-oa-user",
-    code: "oa_user",
-    name: "OA 普通用户",
-    subsystemId: "sys-oa",
-    description: "办公与审批",
-    permissionIds: ["p-oa-home", "p-oa-approve"],
+    id: "r-tsc-user",
+    code: "tsc_user",
+    name: "技术服务中心用户",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "使用核验与查看文档",
+    permissionIds: ["p-tsc-dir-console", "p-tsc-home", "p-tsc-verify", "p-tsc-api"],
     status: "active",
   },
   {
-    id: "r-oa-admin",
-    code: "oa_admin",
-    name: "OA 管理员",
-    subsystemId: "sys-oa",
-    description: "OA 全权限",
-    permissionIds: ["p-oa-home", "p-oa-approve", "p-oa-admin"],
-    status: "active",
-  },
-  {
-    id: "r-hr-user",
-    code: "hr_user",
-    name: "HR 员工",
-    subsystemId: "sys-hr",
-    description: "员工自助",
-    permissionIds: ["p-hr-home", "p-hr-self"],
-    status: "active",
-  },
-  {
-    id: "r-hr-admin",
-    code: "hr_admin",
-    name: "HR 管理员",
-    subsystemId: "sys-hr",
-    description: "人事管理",
-    permissionIds: ["p-hr-home", "p-hr-self", "p-hr-admin"],
-    status: "active",
-  },
-  {
-    id: "r-erp-user",
-    code: "erp_user",
-    name: "ERP 只读",
-    subsystemId: "sys-erp",
-    description: "查看报表",
-    permissionIds: ["p-erp-home", "p-erp-report"],
-    status: "active",
-  },
-  {
-    id: "r-crm-user",
-    code: "crm_user",
-    name: "CRM 销售",
-    subsystemId: "sys-crm",
-    description: "商机跟进",
-    permissionIds: ["p-crm-home", "p-crm-lead"],
+    id: "r-tsc-admin",
+    code: "tsc_admin",
+    name: "技术服务中心管理员",
+    subsystemId: CUSTOMER_SUBSYSTEM_ID,
+    description: "控制台全权限（演示）",
+    permissionIds: ["p-tsc-dir-console", "p-tsc-home", "p-tsc-verify", "p-tsc-api"],
     status: "active",
   },
 ];
@@ -749,10 +923,7 @@ let users: SsoUser[] = [
     roleBindings: [
       { roleId: "r-sso-admin", orgUnitIds: ["org-root"] },
       { roleId: "role-super", orgUnitIds: ["org-ops"] },
-      { roleId: "r-oa-admin", orgUnitIds: ["org-root"] },
-      { roleId: "r-hr-admin", orgUnitIds: ["org-root"] },
-      { roleId: "r-erp-user", orgUnitIds: ["org-it"] },
-      { roleId: "r-crm-user", orgUnitIds: ["org-it"] },
+      { roleId: "r-tsc-admin", orgUnitIds: ["org-root"] },
     ],
     createdAt: "2026-01-01 10:00:00",
     updatedAt: "2026-01-01 10:00:00",
@@ -808,8 +979,7 @@ let users: SsoUser[] = [
     orgUnitId: "org-tech",
     roleBindings: [
       { roleId: "r-sso-user", orgUnitIds: ["org-tech"] },
-      { roleId: "r-oa-user", orgUnitIds: ["org-tech"] },
-      { roleId: "r-hr-user", orgUnitIds: ["org-root"] },
+      { roleId: "r-tsc-user", orgUnitIds: ["org-tech"] },
     ],
     createdAt: "2026-02-01 09:00:00",
     updatedAt: "2026-02-01 09:00:00",
@@ -823,8 +993,8 @@ let users: SsoUser[] = [
     orgUnitId: "org-it",
     roleBindings: [
       { roleId: "r-sso-user", orgUnitIds: ["org-it"] },
-      { roleId: "r-crm-user", orgUnitIds: ["org-it"] },
-      { roleId: "r-erp-user", orgUnitIds: ["org-root"] },
+      { roleId: "r-tsc-user", orgUnitIds: ["org-it"] },
+      { roleId: "role-viewer", orgUnitIds: ["org-ops"] },
     ],
     createdAt: "2026-02-10 11:00:00",
     updatedAt: "2026-02-10 11:00:00",
@@ -859,7 +1029,34 @@ export function listPermissions(subsystemId?: string) {
   return permissions
     .filter((p) => !subsystemId || p.subsystemId === subsystemId)
     .slice()
-    .sort((a, b) => a.code.localeCompare(b.code));
+    .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name) || a.code.localeCompare(b.code));
+}
+
+export function getPermission(id: string) {
+  return permissions.find((p) => p.id === id) ?? null;
+}
+
+export type PermissionTreeNode = Permission & { children: PermissionTreeNode[] };
+
+export function buildPermissionTree(subsystemId?: string): PermissionTreeNode[] {
+  const list = listPermissions(subsystemId);
+  const map = new Map<string, PermissionTreeNode>();
+  for (const p of list) map.set(p.id, { ...p, children: [] });
+  const roots: PermissionTreeNode[] = [];
+  for (const p of list) {
+    const node = map.get(p.id)!;
+    if (p.parentId && map.has(p.parentId)) {
+      map.get(p.parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  const sortRec = (nodes: PermissionTreeNode[]) => {
+    nodes.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+    nodes.forEach((n) => sortRec(n.children));
+  };
+  sortRec(roots);
+  return roots;
 }
 
 export function listRoles(subsystemId?: string) {
@@ -1163,26 +1360,53 @@ export function createPermission(input: {
   subsystemId: string;
   description: string;
   apiIds?: string[];
-}): { ok: true } | { ok: false; message: string } {
+  menuType: MenuType;
+  parentId?: string | null;
+  routePath?: string;
+  component?: string;
+  sort?: number;
+  visible?: boolean;
+}): { ok: true; id: string } | { ok: false; message: string } {
   const code = input.code.trim();
-  if (!code) return { ok: false, message: "请填写权限编码" };
-  if (permissions.some((p) => p.code === code)) return { ok: false, message: "权限编码已存在" };
+  if (!code) return { ok: false, message: "请填写权限标识" };
+  if (permissions.some((p) => p.code === code)) return { ok: false, message: "权限标识已存在" };
   if (!getSubsystem(input.subsystemId)) return { ok: false, message: "子系统不存在" };
+  if (!input.name.trim()) return { ok: false, message: "请填写菜单名称" };
+  const parentId = input.parentId || null;
+  if (parentId) {
+    const parent = getPermission(parentId);
+    if (!parent) return { ok: false, message: "父级菜单不存在" };
+    if (parent.subsystemId !== input.subsystemId) return { ok: false, message: "父级须属于同一子系统" };
+    if (parent.menuType === "button") return { ok: false, message: "按钮下不可再挂子级" };
+  }
+  if (input.menuType === "directory" || input.menuType === "menu") {
+    if (!input.routePath?.trim()) return { ok: false, message: "请填写路由路径" };
+  }
+  if (input.menuType === "menu" && !input.component?.trim()) {
+    return { ok: false, message: "请填写页面组件" };
+  }
   const apiIds = sanitizeApiIds(input.subsystemId, input.apiIds ?? []);
   permSeq += 1;
+  const id = `p-${permSeq}`;
   permissions = [
     {
-      id: `p-${permSeq}`,
+      id,
       code,
       name: input.name.trim(),
       subsystemId: input.subsystemId,
       description: input.description.trim(),
       apiIds,
+      menuType: input.menuType,
+      parentId,
+      routePath: input.menuType === "button" ? "" : (input.routePath ?? "").trim(),
+      component: input.menuType === "menu" ? (input.component ?? "").trim() : "",
+      sort: Number(input.sort) || 0,
+      visible: input.visible !== false,
     },
     ...permissions,
   ];
   emit();
-  return { ok: true };
+  return { ok: true, id };
 }
 
 export function updatePermission(
@@ -1191,21 +1415,89 @@ export function updatePermission(
     name: string;
     description: string;
     apiIds: string[];
+    menuType?: MenuType;
+    parentId?: string | null;
+    routePath?: string;
+    component?: string;
+    sort?: number;
+    visible?: boolean;
+    code?: string;
   },
 ): { ok: true } | { ok: false; message: string } {
   const perm = permissions.find((p) => p.id === id);
   if (!perm) return { ok: false, message: "权限不存在" };
+  const menuType = input.menuType ?? perm.menuType;
+  const parentId = input.parentId === undefined ? perm.parentId : input.parentId || null;
+  if (parentId === id) return { ok: false, message: "不能将自身设为父级" };
+  if (parentId) {
+    const parent = getPermission(parentId);
+    if (!parent) return { ok: false, message: "父级菜单不存在" };
+    if (parent.subsystemId !== perm.subsystemId) return { ok: false, message: "父级须属于同一子系统" };
+    if (parent.menuType === "button") return { ok: false, message: "按钮下不可再挂子级" };
+    // 防止成环
+    let walk: string | null = parentId;
+    const guard = new Set<string>();
+    while (walk) {
+      if (walk === id) return { ok: false, message: "不能将子节点设为父级" };
+      if (guard.has(walk)) break;
+      guard.add(walk);
+      walk = getPermission(walk)?.parentId ?? null;
+    }
+  }
+  if (!input.name.trim()) return { ok: false, message: "请填写菜单名称" };
+  if (menuType === "directory" || menuType === "menu") {
+    if (!(input.routePath ?? perm.routePath).trim()) return { ok: false, message: "请填写路由路径" };
+  }
+  if (menuType === "menu" && !(input.component ?? perm.component).trim()) {
+    return { ok: false, message: "请填写页面组件" };
+  }
+  let code = perm.code;
+  if (input.code !== undefined) {
+    const next = input.code.trim();
+    if (!next) return { ok: false, message: "请填写权限标识" };
+    if (permissions.some((p) => p.code === next && p.id !== id)) {
+      return { ok: false, message: "权限标识已存在" };
+    }
+    code = next;
+  }
   const apiIds = sanitizeApiIds(perm.subsystemId, input.apiIds);
   permissions = permissions.map((p) =>
     p.id === id
       ? {
           ...p,
+          code,
           name: input.name.trim(),
           description: input.description.trim(),
           apiIds,
+          menuType,
+          parentId,
+          routePath: menuType === "button" ? "" : (input.routePath ?? p.routePath).trim(),
+          component: menuType === "menu" ? (input.component ?? p.component).trim() : "",
+          sort: input.sort !== undefined ? Number(input.sort) || 0 : p.sort,
+          visible: input.visible !== undefined ? input.visible : p.visible,
         }
       : p,
   );
+  emit();
+  return { ok: true };
+}
+
+export function deletePermission(id: string): { ok: true } | { ok: false; message: string } {
+  const perm = getPermission(id);
+  if (!perm) return { ok: false, message: "权限不存在" };
+  const toRemove = new Set<string>();
+  const walk = (pid: string) => {
+    toRemove.add(pid);
+    for (const c of permissions) {
+      if (c.parentId === pid) walk(c.id);
+    }
+  };
+  walk(id);
+  permissions = permissions.filter((p) => !toRemove.has(p.id));
+  roles = roles.map((r) => ({
+    ...r,
+    permissionIds: r.permissionIds.filter((pid) => !toRemove.has(pid)),
+  }));
   emit();
   return { ok: true };
 }

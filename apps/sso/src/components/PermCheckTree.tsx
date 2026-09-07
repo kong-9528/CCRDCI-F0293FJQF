@@ -1,28 +1,23 @@
 import {
-  buildPermissionTreeFromFlat,
   checkboxState,
   togglePermissionNode,
   type PermTreeNode,
 } from "@/lib/permTree";
-import { OPS_PERMISSION_TREE, OPS_SUBSYSTEM_ID, type OpsPermNode } from "@/lib/opsPermissionSeed";
-import { listPermissions, type Permission } from "@/lib/rbacStore";
-
-/** ops 权限树节点 id 即编码，补上 code 字段便于展示 */
-function withOpsCodes(nodes: OpsPermNode[]): PermTreeNode[] {
-  return nodes.map((n) => ({
-    id: n.id,
-    label: n.label,
-    code: n.id,
-    children: n.children?.length ? withOpsCodes(n.children) : undefined,
-  }));
-}
+import { buildPermissionTree, type Permission } from "@/lib/rbacStore";
 
 export function getPermissionTreeForSubsystem(subsystemId: string): PermTreeNode[] {
-  if (subsystemId === OPS_SUBSYSTEM_ID) {
-    return withOpsCodes(OPS_PERMISSION_TREE);
-  }
-  const perms = listPermissions(subsystemId);
-  return buildPermissionTreeFromFlat(perms);
+  return toPermTreeNodes(buildPermissionTree(subsystemId));
+}
+
+function toPermTreeNodes(
+  nodes: ReturnType<typeof buildPermissionTree>,
+): PermTreeNode[] {
+  return nodes.map((n) => ({
+    id: n.id,
+    label: n.name,
+    code: n.code,
+    children: n.children.length ? toPermTreeNodes(n.children) : undefined,
+  }));
 }
 
 type Props = {
@@ -93,5 +88,14 @@ export function PermCheckTree({
 
 /** 兼容：从扁平列表快速构建（测试/调试用） */
 export function buildTreeFromPermissions(perms: Permission[]): PermTreeNode[] {
-  return buildPermissionTreeFromFlat(perms);
+  type N = Permission & { children: N[] };
+  const map = new Map<string, N>();
+  for (const p of perms) map.set(p.id, { ...p, children: [] });
+  const roots: N[] = [];
+  for (const p of perms) {
+    const node = map.get(p.id)!;
+    if (p.parentId && map.has(p.parentId)) map.get(p.parentId)!.children.push(node);
+    else roots.push(node);
+  }
+  return toPermTreeNodes(roots);
 }

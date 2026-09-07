@@ -31,17 +31,35 @@ export function ApisPage() {
 function ApisPageInner() {
   useRbacTick();
   const { can } = useAuth();
-  const [filterSys, setFilterSys] = useState("");
+  const [draft, setDraft] = useState({
+    keyword: "",
+    subsystemId: "",
+    status: "" as "" | EntityStatus,
+  });
+  const [applied, setApplied] = useState(draft);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiEndpoint | null>(null);
-  const apis = useMemo(() => listApis(filterSys || undefined), [filterSys]);
+
+  const apis = useMemo(() => {
+    const q = applied.keyword.trim().toLowerCase();
+    return listApis(applied.subsystemId || undefined).filter((a) => {
+      if (applied.status && a.status !== applied.status) return false;
+      if (!q) return true;
+      return (
+        a.code.toLowerCase().includes(q) ||
+        a.name.toLowerCase().includes(q) ||
+        a.path.toLowerCase().includes(q) ||
+        a.method.toLowerCase().includes(q)
+      );
+    });
+  }, [applied]);
   const pager = useClientPagination(apis);
 
   return (
     <div className="sso-admin">
       <ListPageHeader
         title="接口管理"
-        description="维护各子系统 API 清单，并可关联权限目录中的权限点。"
+        description="维护各子系统 API 清单，并可关联菜单管理中的权限点。"
         actions={
           can("sso.apis.write") ? (
             <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
@@ -51,22 +69,67 @@ function ApisPageInner() {
         }
       />
 
-      <div className="sso-toolbar">
-        <select
-          className="sso-select"
-          value={filterSys}
-          onChange={(e) => {
-            setFilterSys(e.target.value);
-            pager.resetPage();
-          }}
-        >
-          <option value="">全部子系统</option>
-          {listSubsystems(true).map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+      <div className="sso-filters">
+        <label className="sso-filters__item">
+          <span>关键词</span>
+          <input
+            className="sso-input"
+            value={draft.keyword}
+            onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
+            placeholder="路径 / 编码 / 名称"
+          />
+        </label>
+        <label className="sso-filters__item">
+          <span>所属系统</span>
+          <select
+            className="sso-select"
+            value={draft.subsystemId}
+            onChange={(e) => setDraft((p) => ({ ...p, subsystemId: e.target.value }))}
+          >
+            <option value="">全部子系统</option>
+            {listSubsystems(true).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="sso-filters__item">
+          <span>状态</span>
+          <select
+            className="sso-select"
+            value={draft.status}
+            onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value as "" | EntityStatus }))}
+          >
+            <option value="">全部</option>
+            <option value="active">启用</option>
+            <option value="disabled">停用</option>
+          </select>
+        </label>
+        <div className="sso-filters__actions">
+          <button
+            type="button"
+            className="sso-btn sso-btn--primary"
+            onClick={() => {
+              setApplied(draft);
+              pager.resetPage();
+            }}
+          >
+            查询
+          </button>
+          <button
+            type="button"
+            className="sso-btn sso-btn--outline"
+            onClick={() => {
+              const empty = { keyword: "", subsystemId: "", status: "" as const };
+              setDraft(empty);
+              setApplied(empty);
+              pager.resetPage();
+            }}
+          >
+            重置
+          </button>
+        </div>
       </div>
 
       <div className="sso-card sso-card--flush">
@@ -341,7 +404,7 @@ function ApiDialog({
 
           <section className="sso-api-dialog__perms">
             <div className="sso-api-dialog__section-head">
-              <h4 className="sso-api-dialog__section-title">关联的权限目录</h4>
+              <h4 className="sso-api-dialog__section-title">关联的菜单权限</h4>
               <span className="sso-hint">
                 已选 {permissionIds.length}
                 {permKeyword.trim()
@@ -394,7 +457,7 @@ function ApiDialog({
                 <div className="sso-hint">无匹配权限点，请调整关键词。</div>
               )
             ) : (
-              <div className="sso-hint">该子系统暂无权限点，请先在「权限目录」中维护。</div>
+              <div className="sso-hint">该子系统暂无权限点，请先在「菜单管理」中维护。</div>
             )}
           </section>
 

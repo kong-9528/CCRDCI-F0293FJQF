@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ListPageHeader } from "@/components/ListPageHeader";
 import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
@@ -25,10 +25,25 @@ export function SubsystemsPage() {
 function SubsystemsPageInner() {
   useRbacTick();
   const { can } = useAuth();
-  const systems = listSubsystems(true);
-  const pager = useClientPagination(systems);
+  const [draft, setDraft] = useState({ keyword: "", status: "" as "" | EntityStatus });
+  const [applied, setApplied] = useState(draft);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Subsystem | null>(null);
+
+  const filtered = useMemo(() => {
+    const q = applied.keyword.trim().toLowerCase();
+    return listSubsystems(true).filter((s) => {
+      if (applied.status && s.status !== applied.status) return false;
+      if (!q) return true;
+      return (
+        s.code.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q) ||
+        (s.entryUrl ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [applied]);
+
+  const pager = useClientPagination(filtered);
 
   return (
     <div className="sso-admin">
@@ -43,6 +58,54 @@ function SubsystemsPageInner() {
           ) : null
         }
       />
+
+      <div className="sso-filters">
+        <label className="sso-filters__item">
+          <span>关键词</span>
+          <input
+            className="sso-input"
+            value={draft.keyword}
+            onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
+            placeholder="编码 / 名称 / 入口"
+          />
+        </label>
+        <label className="sso-filters__item">
+          <span>状态</span>
+          <select
+            className="sso-select"
+            value={draft.status}
+            onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value as "" | EntityStatus }))}
+          >
+            <option value="">全部</option>
+            <option value="active">启用</option>
+            <option value="disabled">停用</option>
+          </select>
+        </label>
+        <div className="sso-filters__actions">
+          <button
+            type="button"
+            className="sso-btn sso-btn--primary"
+            onClick={() => {
+              setApplied(draft);
+              pager.resetPage();
+            }}
+          >
+            查询
+          </button>
+          <button
+            type="button"
+            className="sso-btn sso-btn--outline"
+            onClick={() => {
+              const empty = { keyword: "", status: "" as const };
+              setDraft(empty);
+              setApplied(empty);
+              pager.resetPage();
+            }}
+          >
+            重置
+          </button>
+        </div>
+      </div>
 
       <div className="sso-card sso-card--flush">
         <table className="sso-table">
