@@ -45,6 +45,8 @@ export type ApiEndpoint = {
   status: ApiOnlineStatus;
   /** 创建时间 YYYY-MM-DD HH:mm:ss */
   createdAt: string;
+  /** 最近更新时间 YYYY-MM-DD HH:mm:ss */
+  updatedAt: string;
   /** 接口文档文件 */
   docFile?: ApiDocFile | null;
   /** 请求参数说明（多行文本，运营台编辑用） */
@@ -61,9 +63,10 @@ export type ApiEndpoint = {
   exampleResponse: string;
 };
 
-export type ApiEndpointInput = Omit<ApiEndpoint, "id" | "status" | "createdAt"> & {
+export type ApiEndpointInput = Omit<ApiEndpoint, "id" | "status" | "createdAt" | "updatedAt"> & {
   status?: ApiOnlineStatus;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ApiEndpointUpdate = Partial<Omit<ApiEndpoint, "id" | "apiCode" | "createdAt">> & {

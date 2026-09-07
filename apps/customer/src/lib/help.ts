@@ -31,8 +31,8 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
         html: `
           <p>欢迎使用 DCI®技术服务中心。本文档将帮助您快速了解平台功能并完成 API 接入。</p>
           <h3>第一步：获取 API 密钥</h3>
-          <p>登录工作台后，点击右上角头像，进入「API Keys」页面创建密钥。SecretKey 仅在创建成功时展示一次，请立即保存。</p>
-          <p><a href="/api/keys">前往 API Keys →</a></p>
+          <p>登录工作台后，进入「API管理 → API key管理」创建密钥。每个注册中心仅可创建一个 API key；创建后 AK 固定不变，可随时显示/复制 SK、DEK，并通过编辑重新生成 SK / DEK。</p>
+          <p><a href="/api/keys">前往 API key管理 →</a></p>
           <h3>第二步：阅读 API 文档</h3>
           <p>每个核验 / 审核服务页面均提供对应的 API 文档入口，包含请求参数、返回格式、错误码等详细信息。也可在「API文档」中浏览全部接口。</p>
           <p><a href="/api/docs">打开 API 文档总览 →</a></p>
@@ -67,15 +67,15 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
       {
         type: "article",
         id: "ch-keys",
-        title: "API Keys",
+        title: "API key管理",
         html: `
-          <p>完整密钥仅在创建时展示一次，请妥善保存。勿将 SecretKey 写入前端公开代码。</p>
+          <p>每个注册中心仅允许创建一个 API key。创建后不可删除；AK 永久不变，如需轮换请编辑并重新生成 SK / DEK。</p>
           <ul>
-            <li>可为不同环境创建多把密钥并分别吊销</li>
-            <li>发现泄露请立即在工作台吊销并重新创建</li>
-            <li>密钥与租户及已开通产品绑定</li>
+            <li>请妥善保管 AK、SK、DEK，勿写入前端公开代码</li>
+            <li>泄露后请及时通过「编辑」重新生成 SK / DEK，并同步更新调用方配置</li>
+            <li>详情页默认脱敏展示 SK / DEK，可点击「显示密钥」查看明文</li>
           </ul>
-          <p><a href="/api/keys">管理 API Keys →</a></p>
+          <p><a href="/api/keys">管理 API key →</a></p>
         `,
       },
       {

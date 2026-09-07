@@ -3,7 +3,7 @@ import { PRODUCTS, productName, type ProductCode } from "@/lib/catalog";
 
 const QUICK_EXTRAS = [
   { label: "API 文档", to: "/api/docs", desc: "接口说明与示例" },
-  { label: "API Keys", to: "/api/keys", desc: "AccessKey / SecretKey" },
+  { label: "API key管理", to: "/api/keys", desc: "AK / SK / DEK" },
   { label: "帮助中心", to: "/help", desc: "接入指南与 FAQ" },
 ] as const;
 

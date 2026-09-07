@@ -9,10 +9,35 @@ import type {
   ProductCode,
 } from "./types";
 
-let endpoints: ApiEndpoint[] = buildSeedEndpoints();
+const STORAGE_KEY = "ctp.api-catalog.v1";
+
+function loadEndpoints(): ApiEndpoint[] {
+  if (typeof window === "undefined") return buildSeedEndpoints();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return buildSeedEndpoints();
+    const list = JSON.parse(raw) as ApiEndpoint[];
+    if (!Array.isArray(list) || list.length === 0) return buildSeedEndpoints();
+    return list;
+  } catch {
+    return buildSeedEndpoints();
+  }
+}
+
+function persist(list: ApiEndpoint[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch {
+    /* ignore quota */
+  }
+}
+
+let endpoints: ApiEndpoint[] = loadEndpoints();
 const listeners = new Set<() => void>();
 
 function emit() {
+  persist(endpoints);
   listeners.forEach((fn) => fn());
 }
 
@@ -40,7 +65,9 @@ export function listApiEndpointsByProduct(productCode: ProductCode): ApiEndpoint
 }
 
 export function listOnlineByProduct(productCode: ProductCode): ApiEndpoint[] {
-  return listApiEndpointsByProduct(productCode).filter((e) => e.status === "online");
+  return listApiEndpointsByProduct(productCode)
+    .filter((e) => e.status === "online")
+    .sort((a, b) => (b.updatedAt || b.createdAt).localeCompare(a.updatedAt || a.createdAt));
 }
 
 export function listApiEndpointsByTab(tab: ApiServiceTab): ApiEndpoint[] {
@@ -78,6 +105,7 @@ export function createApiEndpoint(input: ApiEndpointInput): ApiEndpoint {
   if (!input.path.startsWith("/")) {
     throw new Error("path 须以 / 开头");
   }
+  const stamp = nowStamp();
   const created: ApiEndpoint = {
     ...input,
     id: newId(apiCode),
@@ -88,7 +116,8 @@ export function createApiEndpoint(input: ApiEndpointInput): ApiEndpoint {
     description: input.description.trim(),
     owner: input.owner.trim(),
     status: input.status ?? "offline",
-    createdAt: input.createdAt ?? nowStamp(),
+    createdAt: input.createdAt ?? stamp,
+    updatedAt: input.updatedAt ?? input.createdAt ?? stamp,
     docFile: input.docFile ?? null,
     requestParamsText: input.requestParamsText ?? "",
     responseFieldsText: input.responseFieldsText ?? "",
@@ -118,6 +147,7 @@ export function updateApiEndpoint(id: string, patch: ApiEndpointUpdate): ApiEndp
     ...patch,
     apiCode: prev.apiCode,
     createdAt: prev.createdAt,
+    updatedAt: patch.updatedAt ?? nowStamp(),
     apiName: patch.apiName !== undefined ? patch.apiName.trim() : prev.apiName,
     path: patch.path !== undefined ? patch.path.trim() : prev.path,
     version: patch.version !== undefined ? patch.version.trim() || "v1" : prev.version,
@@ -131,7 +161,10 @@ export function updateApiEndpoint(id: string, patch: ApiEndpointUpdate): ApiEndp
 }
 
 export function setApiEndpointStatus(id: string, status: ApiOnlineStatus) {
-  endpoints = endpoints.map((e) => (e.id === id ? { ...e, status } : e));
+  const stamp = nowStamp();
+  endpoints = endpoints.map((e) =>
+    e.id === id ? { ...e, status, updatedAt: stamp } : e,
+  );
   emit();
 }
 

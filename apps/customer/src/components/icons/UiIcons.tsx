@@ -143,3 +143,89 @@ export function IconCopy({ className, size = 14 }: IconProps) {
     </svg>
   );
 }
+
+export function IconPlus({ className, size = 14 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconEdit({ className, size = 14 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 20h4l10.5-10.5a2.12 2.12 0 0 0-3-3L5 17v3Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path d="M13.5 6.5l3 3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function IconEyeOff({ className, size = 14 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M3 3l18 18M10.6 10.6A3 3 0 0 0 12 15a3 3 0 0 0 2.4-4.4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9.9 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.4 17.4 0 0 1-4.1 4.6M6.1 6.1A17.5 17.5 0 0 0 2 12s3.5 7 10 7c1.3 0 2.5-.2 3.6-.6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** 魔法棒：重新生成密钥 */
+export function IconWand({ className, size = 16 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M15 4V2M15 16v-2M8 9H6M22 9h-2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <path d="M18.5 5.5l-1 1M11.5 12.5l-1 1" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <path
+        d="M4.5 20.5 14 11l2.5 2.5L7 23"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M14 11l1.8-4.2L20 5l-1.8 4.2L14 11Z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** 盾牌打勾：API key 卡片标识 */
+export function IconShieldCheck({ className, size = 20 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3 5 6.2v5.3c0 4.2 2.8 8.1 7 9.5 4.2-1.4 7-5.3 7-9.5V6.2L12 3Z"
+        fill="currentColor"
+        opacity="0.12"
+      />
+      <path
+        d="M12 3 5 6.2v5.3c0 4.2 2.8 8.1 7 9.5 4.2-1.4 7-5.3 7-9.5V6.2L12 3Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m9.2 12.1 1.9 1.9 3.8-3.9"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

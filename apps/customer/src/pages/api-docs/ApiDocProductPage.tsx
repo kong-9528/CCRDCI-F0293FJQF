@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
+  collectRequestParams,
   getApiDocProduct,
-  resolveRequestParamsText,
-  resolveResponseFieldsText,
   subscribeApiCatalog,
-  type ApiErrorCode,
+  type ApiParam,
 } from "@/lib/apiDocs";
 import { copyText } from "@/lib/keys";
 
@@ -13,6 +12,11 @@ type LocationState = {
   from?: string;
 };
 
+/**
+ * 与 ops「新增/编辑接口」弹窗字段对齐：
+ * 接口名称、请求方式、请求地址、接口描述、请求参数、返回参数、调用/响应示例、接口文档
+ * 不展示后台未维护的字段（如错误码、版本号等）
+ */
 export function ApiDocProductPage() {
   const { productId = "" } = useParams();
   const [searchParams] = useSearchParams();
@@ -93,8 +97,8 @@ export function ApiDocProductPage() {
   }
 
   const api = doc.apis[activeApi] ?? doc.apis[0];
-  const requestText = resolveRequestParamsText(api);
-  const responseText = resolveResponseFieldsText(api);
+  const requestParams = collectRequestParams(api);
+  const responseParams = api.responseParams ?? [];
 
   const onCopyPath = async () => {
     const ok = await copyText(api.path);
@@ -123,24 +127,37 @@ export function ApiDocProductPage() {
       showToast("开始下载");
       return;
     }
-    // 演示：无真实文件时，用接口配置内容生成可下载文本
     const body = [
       `# ${api.apiName}`,
       ``,
-      `接口路径：${api.method} ${api.path}`,
-      `版本：${api.version}`,
-      api.description ? `说明：${api.description}` : "",
+      `请求方式：${api.method}`,
+      `请求地址：${api.path}`,
+      api.description ? `接口描述：${api.description}` : "",
       ``,
       `## 请求参数`,
-      requestText || "（无）",
+      requestParams.length
+        ? requestParams
+            .map(
+              (p) =>
+                `- ${p.name} (${p.type}, ${p.required ? "必填" : "可选"})${p.desc ? `: ${p.desc}` : ""}`,
+            )
+            .join("\n")
+        : "（无）",
       ``,
-      `## 响应字段`,
-      responseText || "（无）",
+      `## 返回参数`,
+      responseParams.length
+        ? responseParams
+            .map(
+              (p) =>
+                `- ${p.name} (${p.type}, ${p.required ? "必填" : "可选"})${p.desc ? `: ${p.desc}` : ""}`,
+            )
+            .join("\n")
+        : "（无）",
       ``,
-      `## 示例请求`,
+      `## 调用示例`,
       api.exampleRequest || "（无）",
       ``,
-      `## 示例响应`,
+      `## 响应示例`,
       api.exampleResponse || "（无）",
     ]
       .filter((line) => line !== undefined)
@@ -188,48 +205,65 @@ export function ApiDocProductPage() {
                   type="button"
                   className="a-btn a-btn--sm a-btn--primary c-apidoc-download"
                   onClick={onDownloadDoc}
+                  title={api.docFile.name}
                 >
                   下载接口文档
                 </button>
               ) : null}
             </div>
-            <div className="c-apidoc-endpoint">
-              <span
-                className={`c-apidoc-method${api.method === "GET" ? " is-get" : ""}`}
-              >
-                {api.method}
-              </span>
-              <code className="c-apidoc-path">{api.path}</code>
-              <button type="button" className="a-btn a-btn--text a-btn--sm" onClick={onCopyPath}>
-                {copied ? "已复制" : "复制"}
-              </button>
-            </div>
-            <div className="c-apidoc-meta">
-              <span className="a-tag a-tag--cyan">版本 {api.version}</span>
-              {api.owner ? <span className="a-tag a-tag--muted">负责人 {api.owner}</span> : null}
-              <span className="a-tag a-tag--muted">
-                <code>{api.apiCode}</code>
-              </span>
-              {api.docFile ? (
-                <span className="a-tag a-tag--muted" title={api.docFile.name}>
-                  文档 {api.docFile.name}
+
+            <section className="c-apidoc-section">
+              <h3 className="c-apidoc-section__title">请求方式</h3>
+              <div className="c-apidoc-endpoint">
+                <span className={`c-apidoc-method${api.method === "GET" ? " is-get" : ""}`}>
+                  {api.method}
                 </span>
-              ) : null}
-            </div>
-            {api.description ? <p className="c-apidoc-desc">{api.description}</p> : null}
-            <TextDocSection
-              title="请求参数"
-              hint="以下内容来自运营后台接口配置。"
-              content={requestText}
-            />
-            <TextDocSection
-              title="响应字段"
-              hint="以下内容来自运营后台接口配置。"
-              content={responseText}
-            />
-            <ErrorCodeTable rows={api.errorCodes} />
-            <ExampleBlock title="示例请求" content={api.exampleRequest} />
-            <ExampleBlock title="示例响应" content={api.exampleResponse} />
+              </div>
+            </section>
+
+            <section className="c-apidoc-section">
+              <h3 className="c-apidoc-section__title">请求地址</h3>
+              <div className="c-apidoc-endpoint">
+                <code className="c-apidoc-path">{api.path}</code>
+                <button type="button" className="a-btn a-btn--text a-btn--sm" onClick={onCopyPath}>
+                  {copied ? "已复制" : "复制"}
+                </button>
+              </div>
+            </section>
+
+            <section className="c-apidoc-section">
+              <h3 className="c-apidoc-section__title">接口描述</h3>
+              {api.description.trim() ? (
+                <p className="c-apidoc-desc">{api.description}</p>
+              ) : (
+                <p className="c-apidoc-section__empty">暂无接口描述</p>
+              )}
+            </section>
+
+            <ParamTable title="请求参数" rows={requestParams} />
+            <ParamTable title="返回参数" rows={responseParams} />
+
+            <section className="c-apidoc-section">
+              <h3 className="c-apidoc-section__title">调用/响应示例</h3>
+              <div className="c-apidoc-examples">
+                <div className="c-apidoc-examples__item">
+                  <div className="c-apidoc-examples__label">调用示例</div>
+                  {api.exampleRequest.trim() ? (
+                    <pre className="c-apidoc-example">{api.exampleRequest}</pre>
+                  ) : (
+                    <p className="c-apidoc-section__empty">暂无调用示例</p>
+                  )}
+                </div>
+                <div className="c-apidoc-examples__item">
+                  <div className="c-apidoc-examples__label">响应示例</div>
+                  {api.exampleResponse.trim() ? (
+                    <pre className="c-apidoc-example">{api.exampleResponse}</pre>
+                  ) : (
+                    <p className="c-apidoc-section__empty">暂无响应示例</p>
+                  )}
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
@@ -237,60 +271,38 @@ export function ApiDocProductPage() {
   );
 }
 
-function TextDocSection({
-  title,
-  hint,
-  content,
-}: {
-  title: string;
-  hint?: string;
-  content: string;
-}) {
-  if (!content.trim()) return null;
+function ParamTable({ title, rows }: { title: string; rows: ApiParam[] }) {
   return (
     <section className="c-apidoc-section">
       <h3 className="c-apidoc-section__title">{title}</h3>
-      {hint ? <p className="c-apidoc-section__hint">{hint}</p> : null}
-      <pre className="c-apidoc-fields">{content}</pre>
-    </section>
-  );
-}
-
-function ErrorCodeTable({ rows }: { rows: ApiErrorCode[] }) {
-  if (rows.length === 0) return null;
-  return (
-    <section className="c-apidoc-section">
-      <h3 className="c-apidoc-section__title">错误码</h3>
-      <div className="a-table-wrap">
-        <table className="a-table">
-          <thead>
-            <tr>
-              <th style={{ width: 140 }}>错误码</th>
-              <th>说明</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.code}>
-                <td>
-                  <code>{row.code}</code>
-                </td>
-                <td>{row.desc}</td>
+      {rows.length === 0 ? (
+        <p className="c-apidoc-section__empty">暂无{title}</p>
+      ) : (
+        <div className="a-table-wrap">
+          <table className="a-table a-table--compact">
+            <thead>
+              <tr>
+                <th>参数名</th>
+                <th style={{ width: 120 }}>类型</th>
+                <th style={{ width: 88 }}>必填</th>
+                <th>说明</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-function ExampleBlock({ title, content }: { title: string; content: string }) {
-  if (!content.trim()) return null;
-  return (
-    <section className="c-apidoc-section">
-      <h3 className="c-apidoc-section__title">{title}</h3>
-      <pre className="c-apidoc-example">{content}</pre>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={`${title}-${row.name}-${index}`}>
+                  <td>
+                    <code>{row.name}</code>
+                  </td>
+                  <td>{row.type}</td>
+                  <td>{row.required ? "是" : "否"}</td>
+                  <td>{row.desc || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }

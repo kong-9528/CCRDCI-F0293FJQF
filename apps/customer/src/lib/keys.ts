@@ -1,25 +1,19 @@
-export type ApiKeyStatus = "enabled" | "disabled";
-
-/** 列表中持久化的密钥记录（不含 SecretKey） */
 export type ApiKeyRecord = {
   id: string;
-  accessKeyId: string;
-  status: ApiKeyStatus;
+  ak: string;
+  sk: string;
+  dek: string;
+  /** 展示用：2026/9/7 17:08:36 */
   createdAt: string;
-  lastUsedAt: string | null;
-  lastUsedService: string | null;
-  description: string;
-};
-
-/** 创建或重置时短暂返回，仅用于一次性展示 */
-export type CreatedApiKey = ApiKeyRecord & {
-  secretKey: string;
+  updatedAt: string;
 };
 
 export const MAX_API_KEYS = 1;
 
-function randomHex(len: number) {
-  const chars = "0123456789abcdef";
+const STORAGE_KEY = "ctp.customer.apiKey.v1";
+
+function randomAlnum(len: number) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let out = "";
   for (let i = 0; i < len; i++) {
     out += chars[Math.floor(Math.random() * chars.length)];
@@ -27,45 +21,90 @@ function randomHex(len: number) {
   return out;
 }
 
-function formatNow() {
-  const now = new Date();
-  return now.toISOString().slice(0, 19).replace("T", " ");
+/** 与截图一致：2026/9/7 17:08:36（月日不补零） */
+export function formatKeyTimestamp(date = new Date()) {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
+  return `${y}/${m}/${d} ${hh}:${mm}:${ss}`;
 }
 
-function generateKeyPair() {
+export function generateAk() {
+  return `AK${randomAlnum(32)}`;
+}
+
+export function generateSk() {
+  return `SK${randomAlnum(32)}`;
+}
+
+export function generateDek() {
+  return `DEK${randomAlnum(32)}`;
+}
+
+export function createApiKeyDraft(): Pick<ApiKeyRecord, "ak" | "sk" | "dek"> {
   return {
-    accessKeyId: `ak_live_${randomHex(16)}`,
-    secretKey: `sk_live_${randomHex(32)}`,
+    ak: generateAk(),
+    sk: generateSk(),
+    dek: generateDek(),
   };
 }
 
-export function createApiKey(description: string): CreatedApiKey {
-  const { accessKeyId, secretKey } = generateKeyPair();
+export function createApiKeyFromDraft(draft: Pick<ApiKeyRecord, "ak" | "sk" | "dek">): ApiKeyRecord {
+  const stamp = formatKeyTimestamp();
   return {
-    id: `key_${randomHex(8)}`,
-    accessKeyId,
-    secretKey,
-    status: "enabled",
-    createdAt: formatNow(),
-    lastUsedAt: null,
-    lastUsedService: null,
-    description: description.trim(),
+    id: `key_${randomAlnum(8)}`,
+    ak: draft.ak,
+    sk: draft.sk,
+    dek: draft.dek,
+    createdAt: stamp,
+    updatedAt: stamp,
   };
 }
 
-/** 重置密钥对：AccessKey ID 与 SecretKey 均更新，旧密钥立即失效 */
-export function resetApiKey(record: ApiKeyRecord): CreatedApiKey {
-  const { accessKeyId, secretKey } = generateKeyPair();
+/** 仅重置 SK / DEK，AK 不变 */
+export function regenerateSecrets(
+  record: ApiKeyRecord,
+  next: { sk: string; dek: string },
+): ApiKeyRecord {
   return {
     ...record,
-    accessKeyId,
-    secretKey,
-    status: "enabled",
+    sk: next.sk,
+    dek: next.dek,
+    updatedAt: formatKeyTimestamp(),
   };
 }
 
-export function setApiKeyStatus(record: ApiKeyRecord, status: ApiKeyStatus): ApiKeyRecord {
-  return { ...record, status };
+/** SK / DEK 默认脱敏：前缀可见 + 星号 */
+export function maskSecret(value: string, visible = 8) {
+  if (value.length <= visible) return value;
+  return `${value.slice(0, visible)}${"*".repeat(Math.max(24, value.length - visible))}`;
+}
+
+export function loadStoredApiKey(): ApiKeyRecord | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ApiKeyRecord;
+    if (!parsed?.id || !parsed.ak || !parsed.sk || !parsed.dek) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function saveStoredApiKey(record: ApiKeyRecord | null) {
+  try {
+    if (!record) {
+      localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    // ignore quota / private mode
+  }
 }
 
 export async function copyText(text: string): Promise<boolean> {

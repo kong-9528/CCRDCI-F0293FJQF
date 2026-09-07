@@ -1,5 +1,6 @@
 import {
   API_DOC_PRODUCTS_META,
+  collectRequestParams,
   getDocProductMeta,
   listOnlineByProduct,
   resolveRequestParamsText,
@@ -12,7 +13,7 @@ import {
 } from "@ctp/api-catalog";
 
 export type { ApiEndpoint, ApiErrorCode, ApiParam };
-export { resolveRequestParamsText, resolveResponseFieldsText };
+export { collectRequestParams, resolveRequestParamsText, resolveResponseFieldsText };
 
 export type ApiDocProduct = {
   id: string;

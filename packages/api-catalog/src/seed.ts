@@ -109,6 +109,7 @@ type SeedInput = {
   version?: string;
   status?: ApiOnlineStatus;
   createdAt?: string;
+  updatedAt?: string;
   docFile?: ApiEndpoint["docFile"];
   requestParamsText?: string;
   responseFieldsText?: string;
@@ -156,6 +157,7 @@ function ep(input: SeedInput): ApiEndpoint {
     owner: input.owner ?? "平台运营",
     status: input.status ?? "online",
     createdAt: input.createdAt ?? "2026-03-01 10:00:00",
+    updatedAt: input.updatedAt ?? input.createdAt ?? "2026-03-01 10:00:00",
     docFile: input.docFile ?? null,
     requestParamsText: deriveRequestParamsText({
       requestParamsText: input.requestParamsText,
@@ -192,6 +194,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       productCode: "dci",
       description: "提交 DCI 编码进行真伪与权属核验。",
       createdAt: "2026-03-12 10:15:00",
+      updatedAt: "2026-03-20 14:30:00",
       docFile: {
         id: "doc-dci-single",
         name: "DCI编码核验接口文档.pdf",
@@ -208,6 +211,8 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "GET",
       productCode: "dci",
       description: "按 DCI 编码查询权属信息。",
+      createdAt: "2026-03-10 09:00:00",
+      updatedAt: "2026-03-18 11:20:00",
       queryParams: [p("dciCode", "string", true, "DCI 编码", { example: "DCI-2026-0001" })],
     }),
     ep({
@@ -218,6 +223,8 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "GET",
       productCode: "dci",
       description: "验证与 DCI 关联的证书真伪。",
+      createdAt: "2026-03-08 09:00:00",
+      updatedAt: "2026-03-15 16:00:00",
       queryParams: [p("certNo", "string", true, "证书编号", { example: "CERT-2026-001" })],
     }),
     ep({
@@ -228,6 +235,8 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "GET",
       productCode: "dci",
       description: "查询 DCI 对应作品详情。",
+      createdAt: "2026-03-05 09:00:00",
+      updatedAt: "2026-03-12 10:00:00",
       queryParams: [p("dciCode", "string", true, "DCI 编码")],
     }),
     ep({
@@ -238,6 +247,8 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "POST",
       productCode: "dci",
       description: "批量提交 DCI 编码核验，支持回调。",
+      createdAt: "2026-03-14 09:00:00",
+      updatedAt: "2026-03-22 09:45:00",
       bodyParams: [
         p("items", "array", true, "批量条目，每项含 dciCode", { example: '[{"dciCode":"DCI-2026-0001"}]' }),
         p("callbackUrl", "string", false, "异步回调地址（可选）"),
@@ -251,6 +262,8 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       method: "POST",
       productCode: "dci",
       description: "平台向客户回调地址推送核验结果（文档说明用）。",
+      createdAt: "2026-03-01 09:00:00",
+      updatedAt: "2026-03-09 08:30:00",
       bodyParams: [
         p("dciCode", "string", true, "DCI 编码"),
         p("result", "string", true, "核验结果"),

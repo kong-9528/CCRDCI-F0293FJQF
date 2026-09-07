@@ -1,17 +1,12 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ApiDocUploadModal } from "@/components/ApiDocUploadModal";
+import {
+  ApiEndpointFormModal,
+  type ApiEndpointFormValues,
+} from "@/components/ApiEndpointFormModal";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TableAction } from "@/components/TableAction";
-import {
-  IconEdit,
-  IconEnable,
-  IconOffline,
-  IconPdf,
-  IconPlus,
-  IconTrash,
-  IconUpload,
-} from "@/components/icons/UiIcons";
+import { IconEdit, IconEnable, IconOffline, IconPdf, IconPlus } from "@/components/icons/UiIcons";
+import { paramsToText } from "@ctp/api-catalog";
 import {
   API_STATUS_LABEL,
   PRODUCT_CODES,
@@ -50,6 +45,20 @@ function matchesFilters(row: ApiEndpoint, f: Filters) {
   return true;
 }
 
+function autoApiCode(path: string, productCode: ProductCode) {
+  const slug = path
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/[^a-zA-Z0-9]+/g, "_")
+    .replace(/^_|_$/g, "")
+    .toLowerCase();
+  return slug || `${productCode}_api_${Date.now().toString(36)}`;
+}
+
+function isProductCode(value: string): value is ProductCode {
+  return (PRODUCT_CODES as readonly string[]).includes(value);
+}
+
 export function ApiServicesPage() {
   const store = useApiServicesStore();
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
@@ -57,9 +66,10 @@ export function ApiServicesPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<ApiEndpoint | null>(null);
   const [confirmShelf, setConfirmShelf] = useState<ApiEndpoint | null>(null);
-  const [uploadTarget, setUploadTarget] = useState<ApiEndpoint | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [editing, setEditing] = useState<ApiEndpoint | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const allRows = store.list();
@@ -67,8 +77,11 @@ export function ApiServicesPage() {
   const filtered = useMemo(() => {
     return allRows
       .filter((row) => matchesFilters(row, applied))
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      .sort((a, b) => (b.updatedAt || b.createdAt).localeCompare(a.updatedAt || a.createdAt));
   }, [allRows, applied]);
+
+  const defaultProduct: ProductCode =
+    applied.product && isProductCode(applied.product) ? applied.product : "dci";
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -102,6 +115,88 @@ export function ApiServicesPage() {
     const next = row.status === "online" ? "offline" : "online";
     store.setStatus(row.id, next);
     showToast(next === "online" ? "已上架" : "已下架");
+  };
+
+  const openCreate = () => {
+    setFormMode("create");
+    setEditing(null);
+    setFormOpen(true);
+  };
+
+  const openEdit = (row: ApiEndpoint) => {
+    if (row.status === "online") {
+      showToast("仅下架状态的接口可编辑");
+      return;
+    }
+    setFormMode("edit");
+    setEditing(row);
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditing(null);
+  };
+
+  const handleFormSubmit = (values: ApiEndpointFormValues) => {
+    try {
+      if (formMode === "create") {
+        let apiCode = autoApiCode(values.path, values.productCode);
+        let n = 1;
+        while (store.isCodeTaken(apiCode)) {
+          apiCode = `${autoApiCode(values.path, values.productCode)}_${n++}`;
+        }
+        store.create({
+          apiCode,
+          apiName: values.apiName,
+          path: values.path,
+          method: values.method,
+          version: "v1",
+          description: values.description,
+          productCode: values.productCode,
+          owner: "平台运营",
+          docFile: values.docFile,
+          requestParamsText: paramsToText(values.requestParams),
+          responseFieldsText: paramsToText(values.responseParams),
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          bodyParams: values.requestParams,
+          responseParams: values.responseParams,
+          errorCodes: [],
+          exampleRequest: values.exampleRequest,
+          exampleResponse: values.exampleResponse,
+          status: "offline",
+        });
+        showToast("接口已新增");
+      } else if (editing) {
+        if (editing.status === "online") {
+          showToast("仅下架状态的接口可编辑");
+          return;
+        }
+        store.update(editing.id, {
+          apiName: values.apiName,
+          path: values.path,
+          method: values.method,
+          description: values.description,
+          productCode: values.productCode,
+          docFile: values.docFile,
+          requestParamsText: paramsToText(values.requestParams),
+          responseFieldsText: paramsToText(values.responseParams),
+          pathParams: [],
+          queryParams: [],
+          headerParams: [],
+          bodyParams: values.requestParams,
+          responseParams: values.responseParams,
+          exampleRequest: values.exampleRequest,
+          exampleResponse: values.exampleResponse,
+        });
+        showToast("接口已更新");
+      }
+      closeForm();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "保存失败");
+    }
   };
 
   return (
@@ -164,10 +259,10 @@ export function ApiServicesPage() {
       </div>
 
       <div className="a-toolbar a-toolbar--secondary">
-        <Link className="a-btn a-btn--primary a-btn--sm" to="/system/api-services/new">
+        <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={openCreate}>
           <IconPlus size={14} />
           新增
-        </Link>
+        </button>
       </div>
 
       <div className="a-card__body a-card__body--flush">
@@ -241,28 +336,17 @@ export function ApiServicesPage() {
                     <td style={{ whiteSpace: "nowrap" }}>{row.createdAt}</td>
                     <td>
                       <div className="a-actions a-actions--nowrap">
-                        <TableAction
-                          icon={<IconEdit />}
-                          to={`/system/api-services/${row.id}/edit`}
-                        >
-                          编辑
-                        </TableAction>
+                        {!online ? (
+                          <TableAction icon={<IconEdit />} onClick={() => openEdit(row)}>
+                            编辑
+                          </TableAction>
+                        ) : null}
                         <TableAction
                           icon={online ? <IconOffline /> : <IconEnable />}
                           danger={online}
                           onClick={() => setConfirmShelf(row)}
                         >
                           {online ? "下架" : "上架"}
-                        </TableAction>
-                        <TableAction icon={<IconUpload />} onClick={() => setUploadTarget(row)}>
-                          {row.docFile ? "更新文档" : "上传文档"}
-                        </TableAction>
-                        <TableAction
-                          icon={<IconTrash />}
-                          danger
-                          onClick={() => setConfirmDelete(row)}
-                        >
-                          删除
                         </TableAction>
                       </div>
                     </td>
@@ -350,17 +434,13 @@ export function ApiServicesPage() {
         </div>
       </div>
 
-      <ApiDocUploadModal
-        open={Boolean(uploadTarget)}
-        initialFile={uploadTarget?.docFile ?? null}
-        onClose={() => setUploadTarget(null)}
-        onConfirm={(file) => {
-          if (!uploadTarget) return;
-          const wasUpdate = Boolean(uploadTarget.docFile);
-          store.update(uploadTarget.id, { docFile: file });
-          setUploadTarget(null);
-          showToast(wasUpdate ? "接口文档已更新" : "接口文档已上传");
-        }}
+      <ApiEndpointFormModal
+        open={formOpen}
+        mode={formMode}
+        initial={editing}
+        defaultProduct={defaultProduct}
+        onClose={closeForm}
+        onSubmit={handleFormSubmit}
       />
 
       <ConfirmDialog
@@ -385,26 +465,6 @@ export function ApiServicesPage() {
         onConfirm={() => {
           if (confirmShelf) applyShelf(confirmShelf);
           setConfirmShelf(null);
-        }}
-      />
-
-      <ConfirmDialog
-        open={Boolean(confirmDelete)}
-        title="删除接口"
-        description={
-          confirmDelete
-            ? `确认删除接口「${confirmDelete.apiName}」吗？删除后不可恢复。`
-            : ""
-        }
-        confirmText="删除"
-        danger
-        onCancel={() => setConfirmDelete(null)}
-        onConfirm={() => {
-          if (confirmDelete) {
-            store.remove(confirmDelete.id);
-            showToast("接口已删除");
-          }
-          setConfirmDelete(null);
         }}
       />
     </div>

@@ -26,7 +26,12 @@ export {
 
 export { AUTH_HEADER_PARAMS, buildSeedEndpoints } from "./seed";
 
-export { resolveRequestParamsText, resolveResponseFieldsText } from "./docsDisplay";
+export {
+  collectRequestParams,
+  paramsToText,
+  resolveRequestParamsText,
+  resolveResponseFieldsText,
+} from "./docsDisplay";
 
 export {
   apiEndpointTitle,

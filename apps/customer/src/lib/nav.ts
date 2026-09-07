@@ -32,9 +32,9 @@ const NAV_LABELS: Record<string, string> = {
   "/review/duplicate": "作品智能辅助审核",
   "/review/infringement": "作品智能辅助审核",
   "/api": "API管理",
-  "/api/keys": "API Keys",
+  "/api/keys": "API key管理",
   "/api/docs": "API文档",
-  "/keys": "API Keys",
+  "/keys": "API key管理",
   "/account": "机构信息",
   "/account/edit": "编辑机构信息",
   "/account/password": "修改密码",
@@ -45,7 +45,7 @@ const NAV_LABELS: Record<string, string> = {
 
 export function findNavLabel(pathname: string): string {
   if (pathname === "/" || pathname === "/desk") return "工作台";
-  if (pathname === "/api" || pathname === "/api/keys") return "API Keys";
+  if (pathname === "/api" || pathname === "/api/keys") return "API key管理";
   if (pathname.startsWith("/api/docs")) return "API文档";
   if (pathname.startsWith("/api-docs")) return "API文档";
   if (pathname === "/apply" || pathname.startsWith("/apply/")) return "入驻申请";

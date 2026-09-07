@@ -108,8 +108,6 @@ export function findNavLabel(pathname: string): string {
   if (pathname === "/content/home") return "门户内容管理";
   if (/^\/content\/home\/[^/]+\/edit$/.test(pathname)) return "门户内容编辑";
   if (pathname === "/content/center") return "技术服务中心内容管理";
-  if (pathname === "/system/api-services/new") return "新增接口";
-  if (/^\/system\/api-services\/[^/]+\/edit$/.test(pathname)) return "编辑接口";
   if (pathname === "/products/verify" || pathname === "/products/audit" || pathname === "/products") {
     return "产品上架管理";
   }
