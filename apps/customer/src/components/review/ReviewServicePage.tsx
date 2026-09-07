@@ -53,6 +53,8 @@ function recordStatusTag(status: ReviewRecordStatus) {
 
 export function ReviewServicePage({ product }: Props) {
   const cfg = REVIEW_SERVICES[product];
+  /** 内容安全审核：暂时隐藏审核记录「查看/查询结果」入口 */
+  const showResultEntry = product !== "safety";
   const serviceStatus = getReviewServiceStatus(product);
   const quota = getReviewQuota(product);
   const stopped = serviceStatus === "stopped";
@@ -297,7 +299,7 @@ export function ReviewServicePage({ product }: Props) {
                     <th>审核类型</th>
                     <th>状态</th>
                     <th>完成时间</th>
-                    <th>操作</th>
+                    {showResultEntry ? <th>操作</th> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -320,16 +322,18 @@ export function ReviewServicePage({ product }: Props) {
                       <td>{row.apiName}</td>
                       <td>{recordStatusTag(row.status)}</td>
                       <td>{row.finishedAt ?? "—"}</td>
-                      <td style={{ whiteSpace: "nowrap" }}>
-                        <button
-                          type="button"
-                          className="a-link-action"
-                          onClick={() => queryResult(row.taskId, row.status)}
-                        >
-                          <IconEye />
-                          {row.status === "reviewing" ? "查询结果" : "查看结果"}
-                        </button>
-                      </td>
+                      {showResultEntry ? (
+                        <td style={{ whiteSpace: "nowrap" }}>
+                          <button
+                            type="button"
+                            className="a-link-action"
+                            onClick={() => queryResult(row.taskId, row.status)}
+                          >
+                            <IconEye />
+                            {row.status === "reviewing" ? "查询结果" : "查看结果"}
+                          </button>
+                        </td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>
