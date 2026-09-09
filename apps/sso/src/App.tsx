@@ -9,6 +9,8 @@ import { RolesPage } from "@/pages/admin/RolesPage";
 import { OrgPage } from "@/pages/admin/OrgPage";
 import { ApisPage } from "@/pages/admin/ApisPage";
 import { SubsystemsPage } from "@/pages/admin/SubsystemsPage";
+import { PortalUserDetailPage } from "@/pages/admin/PortalUserDetailPage";
+import { PortalUsersPage } from "@/pages/admin/PortalUsersPage";
 import { UserEditPage } from "@/pages/admin/UserEditPage";
 import { UsersPage } from "@/pages/admin/UsersPage";
 
@@ -29,6 +31,8 @@ export function App() {
         <Route path="/admin/users" element={<UsersPage />} />
         <Route path="/admin/users/new" element={<UserEditPage />} />
         <Route path="/admin/users/:id" element={<UserEditPage />} />
+        <Route path="/admin/portal-users" element={<PortalUsersPage />} />
+        <Route path="/admin/portal-users/:id" element={<PortalUserDetailPage />} />
         <Route path="/admin/roles" element={<RolesPage />} />
         <Route path="/admin/permissions" element={<PermissionsPage />} />
         <Route path="/admin/subsystems" element={<SubsystemsPage />} />

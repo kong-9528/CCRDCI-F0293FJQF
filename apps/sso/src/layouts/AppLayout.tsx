@@ -20,6 +20,10 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ to: "/", label: "首页", perm: "sso.launcher", end: true }],
   },
   {
+    title: "门户用户管理",
+    items: [{ to: "/admin/portal-users", label: "门户用户列表", perm: "sso.portal.users" }],
+  },
+  {
     title: "系统管理",
     items: [
       { to: "/admin/users", label: "用户管理", perm: "sso.users" },
@@ -35,6 +39,8 @@ const NAV_GROUPS: NavGroup[] = [
 const TITLE_MAP: { match: (path: string) => boolean; title: string }[] = [
   { match: (p) => p === "/", title: "首页" },
   { match: (p) => p.startsWith("/account/password"), title: "修改密码" },
+  { match: (p) => /^\/admin\/portal-users\/[^/]+/.test(p), title: "门户用户详情" },
+  { match: (p) => p.startsWith("/admin/portal-users"), title: "门户用户列表" },
   { match: (p) => p.startsWith("/admin/users"), title: "用户管理" },
   { match: (p) => p.startsWith("/admin/org"), title: "组织结构" },
   { match: (p) => p.startsWith("/admin/roles"), title: "角色管理" },
@@ -48,6 +54,7 @@ function pageTitle(pathname: string) {
 }
 
 function crumbParent(pathname: string) {
+  if (pathname.startsWith("/admin/portal-users")) return "门户用户管理";
   if (pathname.startsWith("/admin/")) return "系统管理";
   return "统一认证";
 }
@@ -62,8 +69,11 @@ export function AppLayout() {
   const { user, can, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  /** 目录展开状态：默认展开「系统管理」 */
-  const [openDirs, setOpenDirs] = useState<Record<string, boolean>>({ 系统管理: true });
+  /** 目录展开状态：默认展开业务目录 */
+  const [openDirs, setOpenDirs] = useState<Record<string, boolean>>({
+    门户用户管理: true,
+    系统管理: true,
+  });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
