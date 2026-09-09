@@ -238,7 +238,7 @@ let permissions: Permission[] = [
     name: "首页",
     menuType: "menu",
     parentId: "p-sso-dir-workspace",
-    routePath: "/",
+    routePath: "/home",
     component: "pages/LauncherPage",
     sort: 10,
     description: "登录后查看已开通子系统",

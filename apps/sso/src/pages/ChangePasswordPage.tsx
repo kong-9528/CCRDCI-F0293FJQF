@@ -86,7 +86,7 @@ function ChangePasswordForm() {
           {error ? <div className="sso-error">{error}</div> : null}
           {ok ? <div className="sso-success">密码已更新</div> : null}
           <div className="sso-form-actions">
-            <Link to="/" className="sso-btn sso-btn--ghost">
+            <Link to="/home" className="sso-btn sso-btn--ghost">
               返回
             </Link>
             <button type="submit" className="sso-btn sso-btn--primary">

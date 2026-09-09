@@ -10,12 +10,15 @@ export function LoginPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("return_url") || "";
-  const from = (location.state as { from?: string } | null)?.from || "/";
+  const from = (location.state as { from?: string } | null)?.from || "/home";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const homeTarget = (target: string) =>
+    target === "/login" || target === "/" ? "/home" : target;
 
   if (ready && user) {
     if (returnUrl && isAllowedReturnUrl(returnUrl)) {
@@ -28,7 +31,7 @@ export function LoginPage() {
         </div>
       );
     }
-    return <Navigate to={from === "/login" ? "/" : from} replace />;
+    return <Navigate to={homeTarget(from)} replace />;
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -53,7 +56,7 @@ export function LoginPage() {
         return;
       }
     }
-    navigate(from === "/login" ? "/" : from, { replace: true });
+    navigate(homeTarget(from), { replace: true });
   };
 
   return (

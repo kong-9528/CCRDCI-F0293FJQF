@@ -17,7 +17,7 @@ type NavGroup = {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    items: [{ to: "/", label: "首页", perm: "sso.launcher", end: true }],
+    items: [{ to: "/home", label: "首页", perm: "sso.launcher", end: true }],
   },
   {
     title: "门户用户管理",
@@ -37,7 +37,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const TITLE_MAP: { match: (path: string) => boolean; title: string }[] = [
-  { match: (p) => p === "/", title: "首页" },
+  { match: (p) => p === "/home", title: "首页" },
   { match: (p) => p.startsWith("/account/password"), title: "修改密码" },
   { match: (p) => /^\/admin\/portal-users\/[^/]+/.test(p), title: "门户用户详情" },
   { match: (p) => p.startsWith("/admin/portal-users"), title: "门户用户列表" },
@@ -124,7 +124,7 @@ export function AppLayout() {
     <div className="sso-shell sso-shell--rbac">
       <aside className="sso-sider" aria-label="侧栏导航">
         <div className="sso-sider__brand">
-          <Link to="/" className="sso-brand">
+          <Link to="/home" className="sso-brand">
             <span className="sso-brand__mark" aria-hidden />
             <span>
               <strong>用户统一认证系统</strong>

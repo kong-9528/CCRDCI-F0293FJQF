@@ -18,6 +18,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route
         element={
           <RequireAuth>
@@ -25,7 +26,7 @@ export function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<LauncherPage />} />
+        <Route path="/home" element={<LauncherPage />} />
         <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route path="/admin/org" element={<OrgPage />} />
         <Route path="/admin/users" element={<UsersPage />} />
@@ -38,7 +39,7 @@ export function App() {
         <Route path="/admin/subsystems" element={<SubsystemsPage />} />
         <Route path="/admin/apis" element={<ApisPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
