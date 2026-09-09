@@ -1,18 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Switch } from "@/components/Switch";
 import {
-  PRODUCT_SECTIONS,
   WORK_REVIEW_SHELF_PRODUCT_NAME,
   useProductsStore,
-  type AuditCapability,
   type ManagedProduct,
-  type ProductSection,
 } from "@/lib/productsStore";
-
-type PendingShelf =
-  | { kind: "product"; row: ManagedProduct; next: boolean }
-  | { kind: "capability"; row: AuditCapability; next: boolean };
 
 function StatusSwitchCell({
   labelOn,
@@ -35,213 +28,81 @@ function StatusSwitchCell({
   );
 }
 
-function ProductSectionTable({
-  section,
-  rows,
-  onRequestShelfChange,
-}: {
-  section: ProductSection;
-  rows: ManagedProduct[];
-  onRequestShelfChange: (row: ManagedProduct, next: boolean) => void;
-}) {
-  return (
-    <div className="a-card">
-      <div className="a-card__head">{section.title}</div>
-      <div className="a-card__body a-card__body--flush">
-        <table className="a-table">
-          <thead>
-            <tr>
-              <th>产品名称</th>
-              <th>上线状态</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={2}>
-                  <div className="a-empty">暂无产品</div>
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => {
-                const online = row.shelfStatus === "online";
-                return (
-                  <tr key={row.code}>
-                    <td>{row.name}</td>
-                    <td>
-                      <StatusSwitchCell
-                        labelOn="上线"
-                        labelOff="下线"
-                        checked={online}
-                        ariaLabel={`${row.name} ${online ? "下线" : "上线"}`}
-                        onChange={(next) => onRequestShelfChange(row, next)}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function AuditShelfPanel({
-  section,
-  product,
-  capabilities,
-  onRequestShelfChange,
-}: {
-  section: ProductSection;
-  product: ManagedProduct | undefined;
-  capabilities: AuditCapability[];
-  onRequestShelfChange: (pending: PendingShelf) => void;
-}) {
-  if (!product) {
-    return (
-      <div className="a-card">
-        <div className="a-card__head">{section.title}</div>
-        <div className="a-card__body">
-          <div className="a-empty">未找到作品智能辅助审核产品配置</div>
-        </div>
-      </div>
-    );
-  }
-
-  const productOnline = product.shelfStatus === "online";
-
-  return (
-    <div className="a-card">
-      <div className="a-card__head">{section.title}</div>
-      <div className="a-card__body a-card__body--flush">
-        <table className="a-table a-table--shelf-tree">
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>上线状态</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="a-shelf-tree__product">
-              <td>
-                <span className="a-shelf-tree__name">{WORK_REVIEW_SHELF_PRODUCT_NAME}</span>
-              </td>
-              <td>
-                <StatusSwitchCell
-                  labelOn="上架"
-                  labelOff="下架"
-                  checked={productOnline}
-                  ariaLabel={`${WORK_REVIEW_SHELF_PRODUCT_NAME} ${productOnline ? "下架" : "上架"}`}
-                  onChange={(next) =>
-                    onRequestShelfChange({ kind: "product", row: product, next })
-                  }
-                />
-              </td>
-            </tr>
-            {capabilities.map((cap) => {
-              const online = cap.shelfStatus === "online";
-              return (
-                <tr key={cap.code} className="a-shelf-tree__child">
-                  <td>
-                    <span className="a-shelf-tree__name a-shelf-tree__name--child">
-                      {cap.name}
-                    </span>
-                  </td>
-                  <td>
-                    <StatusSwitchCell
-                      labelOn="上架"
-                      labelOff="下架"
-                      checked={online}
-                      ariaLabel={`${cap.name} ${online ? "下架" : "上架"}`}
-                      onChange={(next) =>
-                        onRequestShelfChange({ kind: "capability", row: cap, next })
-                      }
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function shelfConfirmCopy(pending: PendingShelf) {
-  const name =
-    pending.kind === "product" ? WORK_REVIEW_SHELF_PRODUCT_NAME : pending.row.name;
-  const level = pending.kind === "product" ? "产品" : "能力";
-  if (pending.next) {
-    return {
-      title: `确认上架${level}`,
-      description: `确定将${level}「${name}」设为上架吗？上架后客户可使用该${level}。`,
-      confirmText: "上架",
-      danger: false,
-    };
-  }
-  return {
-    title: `确认下架${level}`,
-    description: `确定将${level}「${name}」设为下架吗？下架后客户将无法使用该${level}。`,
-    confirmText: "下架",
-    danger: true,
-  };
+function displayName(row: ManagedProduct) {
+  return row.code === "workReview" ? WORK_REVIEW_SHELF_PRODUCT_NAME : row.name;
 }
 
 export function ProductManagePage() {
-  const {
-    getByCategory,
-    getWorkReviewProduct,
-    getAuditCapabilities,
-    setShelfStatus,
-    setAuditCapabilityShelfStatus,
-  } = useProductsStore();
-  const [pending, setPending] = useState<PendingShelf | null>(null);
+  const { getByCategory, getWorkReviewProduct, setShelfStatus } = useProductsStore();
+  const [pending, setPending] = useState<{ row: ManagedProduct; next: boolean } | null>(null);
 
-  const verifySection =
-    PRODUCT_SECTIONS.find((item) => item.category === "verify") ?? PRODUCT_SECTIONS[0];
-  const auditSection =
-    PRODUCT_SECTIONS.find((item) => item.category === "audit") ?? PRODUCT_SECTIONS[1];
+  const rows = useMemo(() => {
+    const verify = getByCategory("verify");
+    const workReview = getWorkReviewProduct();
+    return workReview ? [...verify, workReview] : verify;
+  }, [getByCategory, getWorkReviewProduct]);
 
   const confirmSwitch = () => {
     if (!pending) return;
-    if (pending.kind === "product") {
-      setShelfStatus(pending.row.code, pending.next ? "online" : "offline");
-    } else {
-      setAuditCapabilityShelfStatus(
-        pending.row.code,
-        pending.next ? "online" : "offline",
-      );
-    }
+    setShelfStatus(pending.row.code, pending.next ? "online" : "offline");
     setPending(null);
   };
 
-  const copy = pending ? shelfConfirmCopy(pending) : null;
+  const pendingName = pending ? displayName(pending.row) : "";
 
   return (
     <div className="a-stack">
-      <ProductSectionTable
-        section={verifySection}
-        rows={getByCategory("verify")}
-        onRequestShelfChange={(row, next) =>
-          setPending({ kind: "product", row, next })
-        }
-      />
-      <AuditShelfPanel
-        section={auditSection}
-        product={getWorkReviewProduct()}
-        capabilities={getAuditCapabilities()}
-        onRequestShelfChange={setPending}
-      />
+      <div className="a-card">
+        <div className="a-card__body a-card__body--flush">
+          <table className="a-table">
+            <thead>
+              <tr>
+                <th>产品名称</th>
+                <th>上线状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={2}>
+                    <div className="a-empty">暂无产品</div>
+                  </td>
+                </tr>
+              ) : (
+                rows.map((row) => {
+                  const online = row.shelfStatus === "online";
+                  const name = displayName(row);
+                  return (
+                    <tr key={row.code}>
+                      <td>{name}</td>
+                      <td>
+                        <StatusSwitchCell
+                          labelOn="上线"
+                          labelOff="下线"
+                          checked={online}
+                          ariaLabel={`${name} ${online ? "下线" : "上线"}`}
+                          onChange={(next) => setPending({ row, next })}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={Boolean(pending)}
-        title={copy?.title ?? ""}
-        description={copy?.description ?? ""}
-        confirmText={copy?.confirmText}
-        danger={copy?.danger}
+        title={pending?.next ? "确认上线产品" : "确认下线产品"}
+        description={
+          pending?.next
+            ? `确定将产品「${pendingName}」设为上线吗？上线后客户可使用该产品。`
+            : `确定将产品「${pendingName}」设为下线吗？下线后客户将无法使用该产品。`
+        }
+        confirmText={pending?.next ? "上线" : "下线"}
+        danger={pending ? !pending.next : false}
         onCancel={() => setPending(null)}
         onConfirm={confirmSwitch}
       />

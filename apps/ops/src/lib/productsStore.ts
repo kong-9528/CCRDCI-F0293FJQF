@@ -20,7 +20,7 @@ export type AuditCapability = {
   shelfStatus: ShelfStatus;
 };
 
-export const WORK_REVIEW_SHELF_PRODUCT_NAME = "作品智能辅助审核产品";
+export const WORK_REVIEW_SHELF_PRODUCT_NAME = "作品智能辅助审核";
 
 export const AUDIT_CAPABILITY_DEFS: { code: AuditCapabilityCode; name: string }[] = [
   { code: "safety", name: "内容安全审核" },
