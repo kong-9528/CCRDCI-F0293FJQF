@@ -53,7 +53,7 @@ export function UsersPage() {
             className="a-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="用户名 / 邮箱 / 完整手机号"
+            placeholder="用户名 / 完整手机号"
           />
         </label>
         <label>
