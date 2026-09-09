@@ -9,9 +9,16 @@ import {
   listPortalUsers,
   type PortalUserStatus,
 } from "@/lib/portalUserStore";
+import { usePortalTick } from "@/lib/usePortalTick";
 
 function normalizePhone(phone: string) {
   return phone.replace(/[\s-]/g, "");
+}
+
+function statusTagClass(status: PortalUserStatus) {
+  if (status === "active") return " is-ok";
+  if (status === "frozen") return " is-warn";
+  return "";
 }
 
 export function PortalUsersPage() {
@@ -23,6 +30,7 @@ export function PortalUsersPage() {
 }
 
 function PortalUsersPageInner() {
+  usePortalTick();
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState<"" | PortalUserStatus>("");
 
@@ -51,7 +59,7 @@ function PortalUsersPageInner() {
     <div className="sso-admin">
       <ListPageHeader
         title="门户用户列表"
-        description="UC 全量注册账号。手机号列表脱敏展示；完整 11 位手机号可精准搜索。"
+        description="UC 全量注册账号。手机号列表脱敏展示；完整 11 位手机号可精准搜索。冻结/解冻在详情页操作。"
       />
 
       <div className="sso-filters">
@@ -61,7 +69,7 @@ function PortalUsersPageInner() {
             className="sso-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="用户名 / 手机号"
+            placeholder="用户名 / 邮箱 / 完整手机号"
           />
         </label>
         <label className="sso-filters__item">
@@ -73,7 +81,7 @@ function PortalUsersPageInner() {
           >
             <option value="">全部</option>
             <option value="active">正常</option>
-            {/* <option value="frozen">冻结</option> */}
+            <option value="frozen">冻结</option>
             <option value="cancelled">注销</option>
           </select>
         </label>
@@ -107,7 +115,7 @@ function PortalUsersPageInner() {
                     <MaskedPhone phone={u.phone} staticOnly />
                   </td>
                   <td>
-                    <span className={`sso-tag${u.status === "active" ? " is-ok" : ""}`}>
+                    <span className={`sso-tag${statusTagClass(u.status)}`}>
                       {USER_STATUS_LABEL[u.status]}
                     </span>
                   </td>

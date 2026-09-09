@@ -20,7 +20,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [{ to: "/home", label: "首页", perm: "sso.launcher", end: true }],
   },
   {
-    title: "门户用户管理",
+    title: "门户运营管理",
     items: [{ to: "/admin/portal-users", label: "门户用户列表", perm: "sso.portal.users" }],
   },
   {
@@ -54,7 +54,7 @@ function pageTitle(pathname: string) {
 }
 
 function crumbParent(pathname: string) {
-  if (pathname.startsWith("/admin/portal-users")) return "门户用户管理";
+  if (pathname.startsWith("/admin/portal-users")) return "门户运营管理";
   if (pathname.startsWith("/admin/")) return "系统管理";
   return "统一认证";
 }
@@ -71,7 +71,7 @@ export function AppLayout() {
   const location = useLocation();
   /** 目录展开状态：默认展开业务目录 */
   const [openDirs, setOpenDirs] = useState<Record<string, boolean>>({
-    门户用户管理: true,
+    门户运营管理: true,
     系统管理: true,
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);

@@ -1086,6 +1086,11 @@ code {
   color: var(--ok-700);
 }
 
+.sso-tag.is-warn {
+  background: var(--warn-100, #fff4e5);
+  color: var(--warn-700, #b54708);
+}
+
 /* ?? Login ?? */
 .sso-login {
   position: relative;

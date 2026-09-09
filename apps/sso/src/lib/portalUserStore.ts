@@ -1,8 +1,8 @@
 /**
- * 门户（C 端）注册用户 — 与 uc-ops 演示数据对齐，供 SSO「门户用户列表」只读查看。
+ * 门户（C 端）注册用户 — 与 uc-ops 演示数据对齐，供 SSO「门户用户列表」查看与冻结/解冻。
  */
 
-export type PortalUserStatus = "active" | /* "frozen" | */ "cancelled";
+export type PortalUserStatus = "active" | "frozen" | "cancelled";
 export type RealNameStatus = "none" | "pending" | "verified" | "rejected";
 export type MembershipStatus = "none" | "applying" | "approved" | "rejected" | "disabled";
 
@@ -28,9 +28,17 @@ export type PortalUser = {
   remark: string;
 };
 
+export type PortalOpLog = {
+  id: string;
+  operator: string;
+  action: string;
+  target: string;
+  at: string;
+};
+
 export const USER_STATUS_LABEL: Record<PortalUserStatus, string> = {
   active: "正常",
-  // frozen: "冻结",
+  frozen: "冻结",
   cancelled: "注销",
 };
 
@@ -49,7 +57,22 @@ export const MEMBERSHIP_LABEL: Record<MembershipStatus, string> = {
   disabled: "已停用",
 };
 
-const users: PortalUser[] = [
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((fn) => fn());
+}
+
+export function subscribePortalUsers(fn: () => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+function stamp() {
+  return new Date().toISOString().slice(0, 19).replace("T", " ");
+}
+
+let users: PortalUser[] = [
   {
     id: "cu-1",
     username: "demo",
@@ -108,7 +131,7 @@ const users: PortalUser[] = [
     username: "bob_risk",
     phone: "13700001111",
     email: "bob@mail.com",
-    status: "active",
+    status: "frozen",
     realNameStatus: "pending",
     registerChannel: "门户注册",
     createdAt: "2026-08-20 08:05:00",
@@ -137,10 +160,60 @@ const users: PortalUser[] = [
   },
 ];
 
+let opLogs: PortalOpLog[] = [
+  {
+    id: "pol-1",
+    operator: "admin",
+    action: "冻结用户",
+    target: "bob_risk",
+    at: "2026-09-05 22:15:00",
+  },
+];
+
 export function listPortalUsers() {
-  return users.slice();
+  return users.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export function getPortalUser(id: string) {
   return users.find((u) => u.id === id) ?? null;
+}
+
+export function listPortalOpLogs() {
+  return opLogs.slice().sort((a, b) => b.at.localeCompare(a.at));
+}
+
+function appendOp(operator: string, action: string, target: string) {
+  opLogs = [
+    {
+      id: `pol-${Date.now()}`,
+      operator,
+      action,
+      target,
+      at: stamp(),
+    },
+    ...opLogs,
+  ];
+}
+
+export function freezePortalUser(id: string, operator: string) {
+  const user = users.find((u) => u.id === id);
+  if (!user) return { ok: false as const, message: "用户不存在" };
+  if (user.status === "cancelled") return { ok: false as const, message: "已注销用户不可冻结" };
+  if (user.status === "frozen") return { ok: false as const, message: "用户已处于冻结状态" };
+
+  users = users.map((u) => (u.id === id ? { ...u, status: "frozen" as const } : u));
+  appendOp(operator, "冻结用户", user.username);
+  emit();
+  return { ok: true as const };
+}
+
+export function unfreezePortalUser(id: string, operator: string) {
+  const user = users.find((u) => u.id === id);
+  if (!user) return { ok: false as const, message: "用户不存在" };
+  if (user.status !== "frozen") return { ok: false as const, message: "仅冻结用户可解冻" };
+
+  users = users.map((u) => (u.id === id ? { ...u, status: "active" as const } : u));
+  appendOp(operator, "解冻用户", user.username);
+  emit();
+  return { ok: true as const };
 }

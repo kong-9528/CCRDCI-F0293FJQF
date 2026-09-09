@@ -1,13 +1,18 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ListPageHeader } from "@/components/ListPageHeader";
 import { MaskedPhone } from "@/components/MaskedPhone";
 import { RequirePerm } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth";
 import {
   MEMBERSHIP_LABEL,
   REAL_NAME_LABEL,
   USER_STATUS_LABEL,
+  freezePortalUser,
   getPortalUser,
+  unfreezePortalUser,
 } from "@/lib/portalUserStore";
+import { usePortalTick } from "@/lib/usePortalTick";
 
 export function PortalUserDetailPage() {
   return (
@@ -18,8 +23,12 @@ export function PortalUserDetailPage() {
 }
 
 function PortalUserDetailInner() {
+  usePortalTick();
   const { id } = useParams();
+  const { user: operator, can } = useAuth();
+  const [message, setMessage] = useState("");
   const user = id ? getPortalUser(id) : null;
+  const canWrite = can("sso.portal.users.write");
 
   if (!user) {
     return (
@@ -32,6 +41,20 @@ function PortalUserDetailInner() {
     );
   }
 
+  const onFreeze = () => {
+    if (!id || !operator) return;
+    if (!window.confirm(`确认冻结用户「${user.username}」？冻结后其门户登录将受限。`)) return;
+    const result = freezePortalUser(id, operator.username);
+    setMessage(result.ok ? "已冻结该用户" : result.message);
+  };
+
+  const onUnfreeze = () => {
+    if (!id || !operator) return;
+    if (!window.confirm(`确认解冻用户「${user.username}」？`)) return;
+    const result = unfreezePortalUser(id, operator.username);
+    setMessage(result.ok ? "已解冻该用户" : result.message);
+  };
+
   return (
     <div className="sso-admin">
       <div className="sso-page-head">
@@ -39,7 +62,22 @@ function PortalUserDetailInner() {
           ← 返回列表
         </Link>
       </div>
-      <ListPageHeader title={`用户详情 · ${user.username}`} />
+      <ListPageHeader
+        title={`用户详情 · ${user.username}`}
+        actions={
+          canWrite && user.status === "active" ? (
+            <button type="button" className="sso-btn sso-btn--outline" onClick={onFreeze}>
+              冻结
+            </button>
+          ) : canWrite && user.status === "frozen" ? (
+            <button type="button" className="sso-btn sso-btn--primary" onClick={onUnfreeze}>
+              解冻
+            </button>
+          ) : null
+        }
+      />
+
+      {message ? <p className="sso-hint">{message}</p> : null}
 
       <section className="sso-card">
         <div className="sso-card__head">账号信息</div>
