@@ -61,7 +61,7 @@ function PortalUsersPageInner() {
             className="sso-input"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="用户名 / 邮箱 / 完整手机号"
+            placeholder="用户名 / 手机号"
           />
         </label>
         <label className="sso-filters__item">

@@ -4,7 +4,8 @@
  * - User.username：全集团唯一身份（可与入职邮箱同值，但 SSO 侧只存统一用户名）
  * - Role 归属某一子系统（含 SSO 平台本身 subsystemId = "sso"）
  * - 用户可绑定多个子系统下的多个角色 → 开通多系统权限
- * - 演示子系统：SSO / DCI管理中心运营后台 / DCI®技术服务中心运营后台 / C端用户中心运营后台
+ * - 演示子系统：SSO / DCI管理中心运营后台 / DCI®技术服务中心运营后台
+ *   （C端用户中心运营后台暂下线）
  * - DCI管理中心（ops）权限树 / 角色与 apps/ops 对齐；首页不展示本平台入口
  */
 
@@ -183,7 +184,8 @@ let subsystems: Subsystem[] = [
     description: "C 端注册用户运营：账号状态、安全审计、入驻关系只读汇总",
     entryUrl: "http://localhost:3005",
     accent: "#0f3786",
-    status: "active",
+    // 暂时下线：不在启动器展示；子系统管理仍可见（停用）
+    status: "disabled",
     sort: 30,
   },
 ];
