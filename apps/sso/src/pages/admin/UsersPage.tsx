@@ -84,7 +84,7 @@ function UsersPageInner() {
     <div className="sso-admin">
       <ListPageHeader
         title="用户管理"
-        description="用户名全局唯一。每位用户有唯一归属部门，并为每个角色配置履职部门（可多部门）。"
+        description="用户名全局唯一。每位用户有唯一归属部门，并可绑定各子系统角色。"
         actions={
           can("sso.users.write") ? (
             <Link to="/admin/users/new" className="sso-btn sso-btn--primary">

@@ -1,6 +1,7 @@
 import { ListPageHeader } from "@/components/ListPageHeader";
 import { useAuth } from "@/lib/auth";
 import { getRole, getUserRoleIds } from "@/lib/rbacStore";
+import { buildSubsystemEntryUrl } from "@/lib/ssoEntry";
 
 export function LauncherPage() {
   const { user, subsystems, can } = useAuth();
@@ -37,7 +38,7 @@ export function LauncherPage() {
 
       {subsystems.length === 0 ? (
         <div className="sso-card">
-          <div className="sso-empty">暂未开通 DCI管理中心运营后台或 DCI®技术服务中心运营后台，请联系管理员分配角色。</div>
+          <div className="sso-empty">暂未开通业务子系统，请联系管理员分配角色。</div>
         </div>
       ) : (
         <div className="sso-app-grid">
@@ -47,7 +48,7 @@ export function LauncherPage() {
               <a
                 key={sys.id}
                 className={`sso-app-card sso-app-card--${(i % 4) + 1}`}
-                href={sys.entryUrl || "#"}
+                href={buildSubsystemEntryUrl(sys, user)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ ["--sso-accent" as string]: sys.accent }}

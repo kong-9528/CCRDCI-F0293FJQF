@@ -6,6 +6,7 @@ import { CertUsageDetailDrawer } from "@/components/usage/CertUsageDetailDrawer"
 import { DciUsageDetailDrawer } from "@/components/usage/DciUsageDetailDrawer";
 import { InfoUsageDetailDrawer } from "@/components/usage/InfoUsageDetailDrawer";
 import { ReviewUsageDetailDrawer } from "@/components/usage/ReviewUsageDetailDrawer";
+import { REVIEW_USAGE_DETAIL_DRAWER_ENABLED } from "@/lib/usageFeatureFlags";
 import {
   CERT_STATUS_LABEL,
   DCI_STATUS_LABEL,
@@ -630,7 +631,7 @@ export function ProductUsageRecordsPage() {
                 <th>审核类型</th>
                 <th>状态</th>
                 <th>完成时间</th>
-                <th>操作</th>
+                {REVIEW_USAGE_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
               </tr>
             ) : null}
           </thead>
@@ -639,7 +640,15 @@ export function ProductUsageRecordsPage() {
               <tr>
                 <td
                   colSpan={
-                    tab === "dci" ? 9 : tab === "info" ? 10 : tab === "certificate" ? 7 : 8
+                    tab === "dci"
+                      ? 9
+                      : tab === "info"
+                        ? 10
+                        : tab === "certificate"
+                          ? 7
+                          : REVIEW_USAGE_DETAIL_DRAWER_ENABLED
+                            ? 8
+                            : 7
                   }
                 >
                   <div className="a-empty">
@@ -749,11 +758,13 @@ export function ProductUsageRecordsPage() {
                     </span>
                   </td>
                   <td>{r.finishedAt ?? "—"}</td>
-                  <td>
-                    <TableAction icon={<IconEye />} onClick={() => setReviewDetail(r)}>
-                      {r.status === "reviewing" ? "查询结果" : "查看结果"}
-                    </TableAction>
-                  </td>
+                  {REVIEW_USAGE_DETAIL_DRAWER_ENABLED ? (
+                    <td>
+                      <TableAction icon={<IconEye />} onClick={() => setReviewDetail(r)}>
+                        {r.status === "reviewing" ? "查询结果" : "查看结果"}
+                      </TableAction>
+                    </td>
+                  ) : null}
                 </tr>
               ))
             )}
@@ -855,12 +866,14 @@ export function ProductUsageRecordsPage() {
         onClose={() => setCertDetail(null)}
         onToast={showToast}
       />
-      <ReviewUsageDetailDrawer
-        open={!!reviewDetail}
-        record={reviewDetail}
-        onClose={() => setReviewDetail(null)}
-        onToast={showToast}
-      />
+      {REVIEW_USAGE_DETAIL_DRAWER_ENABLED ? (
+        <ReviewUsageDetailDrawer
+          open={!!reviewDetail}
+          record={reviewDetail}
+          onClose={() => setReviewDetail(null)}
+          onToast={showToast}
+        />
+      ) : null}
       {toast ? <div className="a-toast">{toast}</div> : null}
     </div>
   );

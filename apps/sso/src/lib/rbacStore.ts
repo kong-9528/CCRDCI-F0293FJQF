@@ -4,7 +4,7 @@
  * - User.username：全集团唯一身份（可与入职邮箱同值，但 SSO 侧只存统一用户名）
  * - Role 归属某一子系统（含 SSO 平台本身 subsystemId = "sso"）
  * - 用户可绑定多个子系统下的多个角色 → 开通多系统权限
- * - 演示仅 mock 3 个子系统：用户统一认证系统 / DCI管理中心 / DCI®技术服务中心
+ * - 演示子系统：SSO / DCI管理中心运营后台 / DCI®技术服务中心运营后台 / C端用户中心运营后台
  * - DCI管理中心（ops）权限树 / 角色与 apps/ops 对齐；首页不展示本平台入口
  */
 
@@ -20,6 +20,9 @@ export { OPS_SUBSYSTEM_ID };
 
 /** DCI®技术服务中心（客户控制台 apps/customer） */
 export const CUSTOMER_SUBSYSTEM_ID = "sys-customer";
+
+/** C端用户中心运营后台（C 端会员运营 apps/uc-ops） */
+export const UC_OPS_SUBSYSTEM_ID = "sys-uc-ops";
 
 export type Subsystem = {
   id: string;
@@ -172,6 +175,16 @@ let subsystems: Subsystem[] = [
     accent: "#0075c1",
     status: "active",
     sort: 20,
+  },
+  {
+    id: UC_OPS_SUBSYSTEM_ID,
+    code: "uc-ops",
+    name: "C端用户中心运营后台",
+    description: "C 端注册用户运营：账号状态、安全审计、入驻关系只读汇总",
+    entryUrl: "http://localhost:3005",
+    accent: "#0f3786",
+    status: "active",
+    sort: 30,
   },
 ];
 
@@ -440,6 +453,91 @@ let permissions: Permission[] = [
     routePath: "api-docs",
     component: "pages/api-docs/ApiDocsOverviewPage",
     sort: 30,
+    visible: true,
+  },
+  // 用户中心运营
+  {
+    id: "p-uco-dir",
+    code: "uco.dir",
+    name: "用户中心运营",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "C 端用户运营目录",
+    apiIds: [],
+    menuType: "directory",
+    parentId: null,
+    routePath: "/",
+    component: "",
+    sort: 10,
+    visible: true,
+  },
+  {
+    id: "p-uco-dashboard",
+    code: "uco.dashboard",
+    name: "首页",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "运营总览",
+    apiIds: [],
+    menuType: "menu",
+    parentId: "p-uco-dir",
+    routePath: "dashboard",
+    component: "pages/DashboardPage",
+    sort: 10,
+    visible: true,
+  },
+  {
+    id: "p-uco-users",
+    code: "uco.users",
+    name: "全部用户",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "查看 C 端注册用户",
+    apiIds: [],
+    menuType: "menu",
+    parentId: "p-uco-dir",
+    routePath: "users",
+    component: "pages/users/UsersPage",
+    sort: 20,
+    visible: true,
+  },
+  {
+    id: "p-uco-users-write",
+    code: "uco.users.write",
+    name: "冻结/解冻",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "变更 C 端用户状态（暂隐藏）",
+    apiIds: [],
+    menuType: "button",
+    parentId: "p-uco-users",
+    routePath: "",
+    component: "",
+    sort: 10,
+    visible: false,
+  },
+  {
+    id: "p-uco-security",
+    code: "uco.security",
+    name: "用户安全日志",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "用户安全相关操作日志",
+    apiIds: [],
+    menuType: "menu",
+    parentId: "p-uco-dir",
+    routePath: "security/logs",
+    component: "pages/security/SecurityLogsPage",
+    sort: 30,
+    visible: true,
+  },
+  {
+    id: "p-uco-oplogs",
+    code: "uco.oplogs",
+    name: "操作日志",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "运营审计",
+    apiIds: [],
+    menuType: "menu",
+    parentId: "p-uco-dir",
+    routePath: "system/op-logs",
+    component: "pages/system/OpLogsPage",
+    sort: 40,
     visible: true,
   },
 ];
@@ -910,6 +1008,31 @@ let roles: Role[] = [
     permissionIds: ["p-tsc-dir-console", "p-tsc-home", "p-tsc-verify", "p-tsc-api"],
     status: "active",
   },
+  {
+    id: "r-uco-admin",
+    code: "uco_admin",
+    name: "用户中心运营管理员",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "查看并冻结/解冻 C 端用户",
+    permissionIds: [
+      "p-uco-dir",
+      "p-uco-dashboard",
+      "p-uco-users",
+      "p-uco-users-write",
+      "p-uco-security",
+      "p-uco-oplogs",
+    ],
+    status: "active",
+  },
+  {
+    id: "r-uco-viewer",
+    code: "uco_viewer",
+    name: "用户中心运营只读",
+    subsystemId: UC_OPS_SUBSYSTEM_ID,
+    description: "仅查看 C 端用户与日志",
+    permissionIds: ["p-uco-dir", "p-uco-dashboard", "p-uco-users", "p-uco-security", "p-uco-oplogs"],
+    status: "active",
+  },
 ];
 
 let users: SsoUser[] = [
@@ -924,6 +1047,7 @@ let users: SsoUser[] = [
       { roleId: "r-sso-admin", orgUnitIds: ["org-root"] },
       { roleId: "role-super", orgUnitIds: ["org-ops"] },
       { roleId: "r-tsc-admin", orgUnitIds: ["org-root"] },
+      { roleId: "r-uco-admin", orgUnitIds: ["org-root"] },
     ],
     createdAt: "2026-01-01 10:00:00",
     updatedAt: "2026-01-01 10:00:00",

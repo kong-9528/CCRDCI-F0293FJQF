@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
+import { listUsers } from "@/lib/rbacStore";
+import { isAllowedReturnUrl, redirectWithSsoTicket } from "@/lib/ssoEntry";
 
 export function LoginPage() {
   const { user, ready, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("return_url") || "";
   const from = (location.state as { from?: string } | null)?.from || "/";
 
   const [username, setUsername] = useState("");
@@ -14,6 +18,16 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   if (ready && user) {
+    if (returnUrl && isAllowedReturnUrl(returnUrl)) {
+      redirectWithSsoTicket(returnUrl, user);
+      return (
+        <div className="sso-login">
+          <div className="sso-login__panel">
+            <p className="sso-login__hint">正在进入业务系统…</p>
+          </div>
+        </div>
+      );
+    }
     return <Navigate to={from === "/login" ? "/" : from} replace />;
   }
 
@@ -31,6 +45,14 @@ export function LoginPage() {
       setError(result.message);
       return;
     }
+
+    if (returnUrl && isAllowedReturnUrl(returnUrl)) {
+      const matched = listUsers().find((u) => u.username === username.trim());
+      if (matched) {
+        redirectWithSsoTicket(returnUrl, matched);
+        return;
+      }
+    }
     navigate(from === "/login" ? "/" : from, { replace: true });
   };
 
@@ -45,7 +67,6 @@ export function LoginPage() {
         <div className="sso-login__brand">
           <span className="sso-brand__mark sso-brand__mark--lg" aria-hidden />
           <h1>用户统一认证系统</h1>
-          {/* <p>一次登录，安全访问已开通的业务子系统</p> */}
         </div>
         <form className="sso-login__form" onSubmit={(e) => void onSubmit(e)}>
           <div className="sso-field">
@@ -77,6 +98,7 @@ export function LoginPage() {
           </button>
           <p className="sso-login__hint">
             演示：admin / admin123（超管）；wang_editor / demo123456（运营专员）
+            {returnUrl ? " · 登录后将返回业务系统" : ""}
           </p>
         </form>
       </div>
