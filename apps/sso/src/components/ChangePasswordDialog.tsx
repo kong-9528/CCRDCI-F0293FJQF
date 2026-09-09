@@ -1,19 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { RequirePerm } from "@/components/RequireAuth";
 
-export function ChangePasswordPage() {
-  return (
-    <RequirePerm code="sso.password">
-      <ChangePasswordForm />
-    </RequirePerm>
-  );
-}
+type Props = {
+  onClose: () => void;
+};
 
-function ChangePasswordForm() {
+export function ChangePasswordDialog({ onClose }: Props) {
   const { changeOwnPassword } = useAuth();
-  const navigate = useNavigate();
   const [oldPassword, setOldPassword] = useState("");
   const [nextPassword, setNextPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -40,15 +33,17 @@ function ChangePasswordForm() {
   };
 
   return (
-    <div className="sso-narrow">
-      <header className="sso-list-head">
-        <div className="sso-list-head__main">
-          <h1 className="sso-list-title">修改密码</h1>
-          <p className="sso-list-desc">使用原密码校验后即可更新，无需短信或邮箱二次验证。</p>
-        </div>
-      </header>
-      <div className="sso-card">
+    <div className="sso-modal-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="sso-modal"
+        role="dialog"
+        aria-modal
+        aria-labelledby="sso-pwd-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 id="sso-pwd-title">修改密码</h3>
         <form className="sso-form" onSubmit={onSubmit}>
+          <p className="sso-hint">使用原密码校验后即可更新，无需短信或邮箱二次验证。</p>
           <div className="sso-field">
             <label htmlFor="old-pwd">原密码</label>
             <input
@@ -86,18 +81,15 @@ function ChangePasswordForm() {
           {error ? <div className="sso-error">{error}</div> : null}
           {ok ? <div className="sso-success">密码已更新</div> : null}
           <div className="sso-form-actions">
-            <Link to="/home" className="sso-btn sso-btn--ghost">
-              返回
-            </Link>
+            <button type="button" className="sso-btn sso-btn--ghost" onClick={onClose}>
+              {ok ? "关闭" : "取消"}
+            </button>
             <button type="submit" className="sso-btn sso-btn--primary">
               保存
             </button>
           </div>
         </form>
       </div>
-      <button type="button" className="sso-linkish" onClick={() => navigate(-1)}>
-        ← 返回上一页
-      </button>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { useAuth } from "@/lib/auth";
 import { getRole, getUserRoleIds } from "@/lib/rbacStore";
 import { buildSubsystemEntryUrl } from "@/lib/ssoEntry";
@@ -27,14 +26,11 @@ export function LauncherPage() {
 
   return (
     <div className="sso-launcher">
-      <ListPageHeader
-        title={`你好，${user?.displayName ?? ""}`}
-        description={
-          subsystems.length
-            ? `已开通 ${subsystems.length} 个业务系统（本平台「用户统一认证系统」不在此展示）。点击卡片进入对应子系统。`
-            : "暂未开通其他业务系统。本平台入口不在首页展示。"
-        }
-      />
+      <p className="sso-list-desc sso-list-desc--visible">
+        {subsystems.length
+          ? `已开通 ${subsystems.length} 个业务系统（本平台「用户统一认证系统」不在此展示）。点击卡片进入对应子系统。`
+          : "暂未开通其他业务系统。本平台入口不在首页展示。"}
+      </p>
 
       {subsystems.length === 0 ? (
         <div className="sso-card">

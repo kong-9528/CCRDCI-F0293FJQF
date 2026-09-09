@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { SsoPagination } from "@/components/SsoPagination";
+import { UserDialog } from "@/components/UserDialog";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
@@ -63,6 +62,8 @@ function UsersPageInner() {
   const { can } = useAuth();
   const [draft, setDraft] = useState<Filters>(EMPTY);
   const [applied, setApplied] = useState<Filters>(EMPTY);
+  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<SsoUser | null>(null);
 
   const filtered = useMemo(() => {
     const q = applied.keyword.trim().toLowerCase();
@@ -82,18 +83,6 @@ function UsersPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="用户管理"
-        description="用户名全局唯一。每位用户有唯一归属部门，并可绑定各子系统角色。"
-        actions={
-          can("sso.users.write") ? (
-            <Link to="/admin/users/new" className="sso-btn sso-btn--primary">
-              新增用户
-            </Link>
-          ) : null
-        }
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键词</span>
@@ -139,6 +128,17 @@ function UsersPageInner() {
             重置
           </button>
         </div>
+        {can("sso.users.write") ? (
+          <div className="sso-filters__end">
+            <button
+              type="button"
+              className="sso-btn sso-btn--primary"
+              onClick={() => setCreating(true)}
+            >
+              新增用户
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="sso-card sso-card--flush">
@@ -185,9 +185,13 @@ function UsersPageInner() {
                   </td>
                   <td>
                     {can("sso.users.write") ? (
-                      <Link to={`/admin/users/${u.id}`} className="sso-text-link">
+                      <button
+                        type="button"
+                        className="sso-text-link"
+                        onClick={() => setEditing(u)}
+                      >
                         编辑
-                      </Link>
+                      </button>
                     ) : (
                       "—"
                     )}
@@ -214,6 +218,11 @@ function UsersPageInner() {
           onPageSizeChange={pager.setPageSize}
         />
       </div>
+
+      {creating ? <UserDialog mode="create" onClose={() => setCreating(false)} /> : null}
+      {editing ? (
+        <UserDialog key={editing.id} mode="edit" user={editing} onClose={() => setEditing(null)} />
+      ) : null}
     </div>
   );
 }

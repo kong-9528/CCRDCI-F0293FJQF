@@ -640,6 +640,7 @@ code {
   display: none;
 }
 
+.sso-shell--rbac .sso-list-desc.sso-list-desc--visible,
 .sso-shell--rbac .sso-launcher .sso-list-desc {
   display: block;
   color: var(--n-500);
@@ -909,14 +910,19 @@ code {
 }
 
 .sso-page-head {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .sso-page-head--row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sso-launcher > .sso-list-desc {
+  margin: 0 0 16px;
 }
 
 .sso-eyebrow {
@@ -1298,6 +1304,14 @@ code {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  /* 查询/重置紧挨筛选条件，不居右 */
+  margin-left: 0;
+}
+
+.sso-filters__end {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-left: auto;
 }
 
@@ -1354,34 +1368,77 @@ code {
 }
 
 .sso-card__head {
-  padding: 12px 16px;
+  padding: 10px 14px;
+  font-size: 13px;
   font-weight: 600;
-  border-bottom: 1px solid var(--n-200);
+  color: var(--n-700);
+  border-bottom: 1px solid #eef1f6;
+  background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+}
+
+.sso-portal-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sso-portal-detail__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+}
+
+.sso-portal-detail__msg {
+  margin: 0;
+}
+
+.sso-portal-detail__foot {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--n-500);
+  border-top: 1px solid #eef1f6;
+  background: #fafbfc;
 }
 
 .sso-portal-desc {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px 20px;
-  padding: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.sso-portal-desc__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef1f6;
+  border-right: 1px solid #eef1f6;
 }
 
 .sso-portal-desc__label {
   display: block;
+  margin: 0;
   font-size: 12px;
-  color: var(--n-500);
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: #64748b;
 }
 
 .sso-portal-desc__value {
-  font-size: 14px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--n-900);
 }
 
 .sso-masked-phone {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sso-masked-phone__value {

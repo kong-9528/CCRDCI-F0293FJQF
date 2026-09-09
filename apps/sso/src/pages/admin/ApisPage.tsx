@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -57,18 +56,6 @@ function ApisPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="接口管理"
-        description="维护各子系统 API 清单，并可关联菜单管理中的权限点。"
-        actions={
-          can("sso.apis.write") ? (
-            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-              新增接口
-            </button>
-          ) : null
-        }
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键词</span>
@@ -130,6 +117,13 @@ function ApisPageInner() {
             重置
           </button>
         </div>
+        {can("sso.apis.write") ? (
+          <div className="sso-filters__end">
+            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
+              新增接口
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="sso-card sso-card--flush">

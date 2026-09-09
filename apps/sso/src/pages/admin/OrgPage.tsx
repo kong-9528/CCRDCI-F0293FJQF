@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
@@ -86,11 +85,6 @@ function OrgPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="组织结构管理"
-        description="按层级维护集团组织；可展开/收起节点，在行内编辑或新增下级。"
-      />
-
       <div className="sso-card sso-card--flush">
         <table className="sso-table sso-org-table">
           <thead>

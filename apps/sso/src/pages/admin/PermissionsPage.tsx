@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
@@ -141,11 +140,6 @@ function PermissionsPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="菜单管理"
-        description="经典后台菜单：目录（路由路径）/ 菜单（页面组件）/ 按钮（权限标识）；支持展开收起与关联接口。"
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键字</span>
@@ -181,11 +175,8 @@ function PermissionsPageInner() {
             重置
           </button>
         </div>
-      </div>
-
-      <div className="sso-card sso-card--flush">
         {canWrite ? (
-          <div className="sso-menu-toolbar">
+          <div className="sso-filters__end">
             <button
               type="button"
               className="sso-btn sso-btn--primary"
@@ -195,7 +186,9 @@ function PermissionsPageInner() {
             </button>
           </div>
         ) : null}
+      </div>
 
+      <div className="sso-card sso-card--flush">
         <table className="sso-table sso-menu-table">
           <thead>
             <tr>

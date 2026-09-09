@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { MaskedPhone } from "@/components/MaskedPhone";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import {
   MEMBERSHIP_LABEL,
-  REAL_NAME_LABEL,
   USER_STATUS_LABEL,
   freezePortalUser,
   getPortalUser,
@@ -55,77 +53,46 @@ function PortalUserDetailInner() {
     setMessage(result.ok ? "已解冻该用户" : result.message);
   };
 
+  const fields: { label: string; value: React.ReactNode }[] = [
+    { label: "用户名", value: <code>{user.username}</code> },
+    { label: "手机号", value: <MaskedPhone phone={user.phone} /> },
+    { label: "状态", value: USER_STATUS_LABEL[user.status] },
+    { label: "注册时间", value: user.createdAt },
+    { label: "最近登录", value: user.lastLoginAt ?? "—" },
+  ];
+
   return (
-    <div className="sso-admin">
-      <div className="sso-page-head">
+    <div className="sso-admin sso-portal-detail">
+      <div className="sso-portal-detail__toolbar">
         <Link to="/admin/portal-users" className="sso-text-link">
           ← 返回列表
         </Link>
+        {canWrite && user.status === "active" ? (
+          <button type="button" className="sso-btn sso-btn--outline sso-btn--sm" onClick={onFreeze}>
+            冻结
+          </button>
+        ) : canWrite && user.status === "frozen" ? (
+          <button type="button" className="sso-btn sso-btn--primary sso-btn--sm" onClick={onUnfreeze}>
+            解冻
+          </button>
+        ) : null}
       </div>
-      <ListPageHeader
-        title={`用户详情 · ${user.username}`}
-        actions={
-          canWrite && user.status === "active" ? (
-            <button type="button" className="sso-btn sso-btn--outline" onClick={onFreeze}>
-              冻结
-            </button>
-          ) : canWrite && user.status === "frozen" ? (
-            <button type="button" className="sso-btn sso-btn--primary" onClick={onUnfreeze}>
-              解冻
-            </button>
-          ) : null
-        }
-      />
 
-      {message ? <p className="sso-hint">{message}</p> : null}
+      {message ? <p className="sso-hint sso-portal-detail__msg">{message}</p> : null}
 
-      <section className="sso-card">
+      <section className="sso-card sso-card--flush">
         <div className="sso-card__head">账号信息</div>
-        <div className="sso-portal-desc">
-          <div>
-            <span className="sso-portal-desc__label">用户名</span>
-            <span className="sso-portal-desc__value">
-              <code>{user.username}</code>
-            </span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">手机号</span>
-            <span className="sso-portal-desc__value">
-              <MaskedPhone phone={user.phone} />
-            </span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">邮箱</span>
-            <span className="sso-portal-desc__value">{user.email || "—"}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">状态</span>
-            <span className="sso-portal-desc__value">{USER_STATUS_LABEL[user.status]}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">实名</span>
-            <span className="sso-portal-desc__value">{REAL_NAME_LABEL[user.realNameStatus]}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">注册渠道</span>
-            <span className="sso-portal-desc__value">{user.registerChannel}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">注册时间</span>
-            <span className="sso-portal-desc__value">{user.createdAt}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">最近登录</span>
-            <span className="sso-portal-desc__value">{user.lastLoginAt ?? "—"}</span>
-          </div>
-          <div>
-            <span className="sso-portal-desc__label">备注</span>
-            <span className="sso-portal-desc__value">{user.remark || "—"}</span>
-          </div>
-        </div>
+        <dl className="sso-portal-desc">
+          {fields.map((f) => (
+            <div key={f.label} className="sso-portal-desc__item">
+              <dt className="sso-portal-desc__label">{f.label}</dt>
+              <dd className="sso-portal-desc__value">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
-      <section className="sso-card" style={{ marginTop: 16 }}>
+      <section className="sso-card sso-card--flush">
         <div className="sso-card__head">控制台入驻关系</div>
         <table className="sso-table">
           <thead>
@@ -147,7 +114,7 @@ function PortalUserDetailInner() {
             ))}
           </tbody>
         </table>
-        <p className="sso-hint">入驻审批在各产品运营后台处理；此处只读汇总 UC 侧关系。</p>
+        <p className="sso-portal-detail__foot">入驻审批在各产品运营后台处理；此处只读汇总 UC 侧关系。</p>
       </section>
     </div>
   );

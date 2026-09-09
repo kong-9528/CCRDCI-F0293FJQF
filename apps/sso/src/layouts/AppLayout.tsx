@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { useAuth } from "@/lib/auth";
 
 type NavItem = {
@@ -38,7 +39,6 @@ const NAV_GROUPS: NavGroup[] = [
 
 const TITLE_MAP: { match: (path: string) => boolean; title: string }[] = [
   { match: (p) => p === "/home", title: "首页" },
-  { match: (p) => p.startsWith("/account/password"), title: "修改密码" },
   { match: (p) => /^\/admin\/portal-users\/[^/]+/.test(p), title: "门户用户详情" },
   { match: (p) => p.startsWith("/admin/portal-users"), title: "门户用户列表" },
   { match: (p) => p.startsWith("/admin/users"), title: "用户管理" },
@@ -75,6 +75,7 @@ export function AppLayout() {
     系统管理: true,
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const groups = NAV_GROUPS.map((g) => ({
@@ -240,7 +241,7 @@ export function AppLayout() {
                       className="sso-user-menu__item"
                       onClick={() => {
                         setUserMenuOpen(false);
-                        navigate("/account/password");
+                        setPasswordOpen(true);
                       }}
                     >
                       修改密码
@@ -267,6 +268,8 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
+
+      {passwordOpen ? <ChangePasswordDialog onClose={() => setPasswordOpen(false)} /> : null}
     </div>
   );
 }

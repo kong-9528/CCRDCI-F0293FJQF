@@ -250,10 +250,10 @@ let permissions: Permission[] = [
     name: "修改密码",
     menuType: "menu",
     parentId: "p-sso-dir-workspace",
-    routePath: "account/password",
-    component: "pages/ChangePasswordPage",
+    routePath: "",
+    component: "components/ChangePasswordDialog",
     sort: 20,
-    description: "原密码校验后修改密码",
+    description: "原密码校验后修改密码（弹窗）",
     apiIds: ["api-sso-password"],
   }),
   ssoPerm({

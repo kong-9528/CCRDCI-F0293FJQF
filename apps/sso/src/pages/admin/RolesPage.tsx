@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { PermCheckTree, getPermissionTreeForSubsystem } from "@/components/PermCheckTree";
 import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
@@ -51,18 +50,6 @@ function RolesPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="角色管理"
-        description="角色归属单一子系统；用户通过绑定多角色获得多系统权限。"
-        actions={
-          can("sso.roles.write") ? (
-            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-              新增角色
-            </button>
-          ) : null
-        }
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键词</span>
@@ -124,6 +111,13 @@ function RolesPageInner() {
             重置
           </button>
         </div>
+        {can("sso.roles.write") ? (
+          <div className="sso-filters__end">
+            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
+              新增角色
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="sso-card sso-card--flush">

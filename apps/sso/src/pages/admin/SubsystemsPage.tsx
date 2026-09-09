@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { SsoPagination } from "@/components/SsoPagination";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -47,18 +46,6 @@ function SubsystemsPageInner() {
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="子系统管理"
-        description="维护可接入的业务系统清单与入口地址。"
-        actions={
-          can("sso.subsystems.write") ? (
-            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-              新增子系统
-            </button>
-          ) : null
-        }
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键词</span>
@@ -105,6 +92,13 @@ function SubsystemsPageInner() {
             重置
           </button>
         </div>
+        {can("sso.subsystems.write") ? (
+          <div className="sso-filters__end">
+            <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
+              新增子系统
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="sso-card sso-card--flush">

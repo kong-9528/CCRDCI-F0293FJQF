@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ListPageHeader } from "@/components/ListPageHeader";
 import { MaskedPhone, maskPhone } from "@/components/MaskedPhone";
 import { RequirePerm } from "@/components/RequireAuth";
+import { SsoPagination } from "@/components/SsoPagination";
 import {
   MEMBERSHIP_LABEL,
   USER_STATUS_LABEL,
   listPortalUsers,
   type PortalUserStatus,
 } from "@/lib/portalUserStore";
+import { useClientPagination } from "@/lib/useClientPagination";
 import { usePortalTick } from "@/lib/usePortalTick";
 
 function normalizePhone(phone: string) {
@@ -21,6 +22,13 @@ function statusTagClass(status: PortalUserStatus) {
   return "";
 }
 
+type Filters = {
+  keyword: string;
+  status: "" | PortalUserStatus;
+};
+
+const EMPTY: Filters = { keyword: "", status: "" };
+
 export function PortalUsersPage() {
   return (
     <RequirePerm code="sso.portal.users">
@@ -31,17 +39,17 @@ export function PortalUsersPage() {
 
 function PortalUsersPageInner() {
   usePortalTick();
-  const [keyword, setKeyword] = useState("");
-  const [status, setStatus] = useState<"" | PortalUserStatus>("");
+  const [draft, setDraft] = useState<Filters>(EMPTY);
+  const [applied, setApplied] = useState<Filters>(EMPTY);
 
-  const rows = useMemo(() => {
-    const raw = keyword.trim();
+  const filtered = useMemo(() => {
+    const raw = applied.keyword.trim();
     const q = raw.toLowerCase();
     const phoneQ = normalizePhone(raw);
     const exactPhone = /^\d{11}$/.test(phoneQ);
 
     return listPortalUsers().filter((u) => {
-      if (status && u.status !== status) return false;
+      if (applied.status && u.status !== applied.status) return false;
       if (!q) return true;
       if (exactPhone) {
         return normalizePhone(u.phone) === phoneQ;
@@ -49,35 +57,37 @@ function PortalUsersPageInner() {
       return (
         u.username.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
-        // 非完整 11 位时，不用脱敏串模糊匹配手机；避免靠 **** 搜到
         false
       );
     });
-  }, [keyword, status]);
+  }, [applied]);
+
+  const pager = useClientPagination(filtered);
 
   return (
     <div className="sso-admin">
-      <ListPageHeader
-        title="门户用户列表"
-        description="UC 全量注册账号。手机号列表脱敏展示；完整 11 位手机号可精准搜索。冻结/解冻在详情页操作。"
-      />
-
       <div className="sso-filters">
         <label className="sso-filters__item">
           <span>关键词</span>
           <input
             className="sso-input"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={draft.keyword}
+            onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
             placeholder="用户名 / 邮箱 / 完整手机号"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setApplied(draft);
+                pager.resetPage();
+              }
+            }}
           />
         </label>
         <label className="sso-filters__item">
           <span>状态</span>
           <select
             className="sso-select"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as "" | PortalUserStatus)}
+            value={draft.status}
+            onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value as Filters["status"] }))}
           >
             <option value="">全部</option>
             <option value="active">正常</option>
@@ -85,6 +95,29 @@ function PortalUsersPageInner() {
             <option value="cancelled">注销</option>
           </select>
         </label>
+        <div className="sso-filters__actions">
+          <button
+            type="button"
+            className="sso-btn sso-btn--primary"
+            onClick={() => {
+              setApplied(draft);
+              pager.resetPage();
+            }}
+          >
+            查询
+          </button>
+          <button
+            type="button"
+            className="sso-btn sso-btn--outline"
+            onClick={() => {
+              setDraft(EMPTY);
+              setApplied(EMPTY);
+              pager.resetPage();
+            }}
+          >
+            重置
+          </button>
+        </div>
       </div>
 
       <div className="sso-card sso-card--flush">
@@ -101,7 +134,7 @@ function PortalUsersPageInner() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((u) => {
+            {pager.pageItems.map((u) => {
               const settled = u.memberships
                 .filter((m) => m.status === "approved" || m.status === "applying")
                 .map((m) => `${m.consoleName.replace("控制台", "")}(${MEMBERSHIP_LABEL[m.status]})`)
@@ -132,7 +165,7 @@ function PortalUsersPageInner() {
                 </tr>
               );
             })}
-            {!rows.length ? (
+            {!pager.total ? (
               <tr>
                 <td colSpan={7}>
                   <div className="sso-empty">暂无用户</div>
@@ -141,6 +174,15 @@ function PortalUsersPageInner() {
             ) : null}
           </tbody>
         </table>
+        <SsoPagination
+          page={pager.page}
+          pageSize={pager.pageSize}
+          total={pager.total}
+          totalPages={pager.totalPages}
+          pageSizes={pager.pageSizes}
+          onPageChange={pager.setPage}
+          onPageSizeChange={pager.setPageSize}
+        />
       </div>
     </div>
   );

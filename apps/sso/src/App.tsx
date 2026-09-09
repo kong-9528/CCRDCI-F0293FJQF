@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { RequireAuth } from "@/components/RequireAuth";
 import { AppLayout } from "@/layouts/AppLayout";
-import { ChangePasswordPage } from "@/pages/ChangePasswordPage";
 import { LauncherPage } from "@/pages/LauncherPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { PermissionsPage } from "@/pages/admin/PermissionsPage";
@@ -11,7 +10,6 @@ import { ApisPage } from "@/pages/admin/ApisPage";
 import { SubsystemsPage } from "@/pages/admin/SubsystemsPage";
 import { PortalUserDetailPage } from "@/pages/admin/PortalUserDetailPage";
 import { PortalUsersPage } from "@/pages/admin/PortalUsersPage";
-import { UserEditPage } from "@/pages/admin/UserEditPage";
 import { UsersPage } from "@/pages/admin/UsersPage";
 
 export function App() {
@@ -27,11 +25,11 @@ export function App() {
         }
       >
         <Route path="/home" element={<LauncherPage />} />
-        <Route path="/account/password" element={<ChangePasswordPage />} />
+        <Route path="/account/password" element={<Navigate to="/home" replace />} />
         <Route path="/admin/org" element={<OrgPage />} />
         <Route path="/admin/users" element={<UsersPage />} />
-        <Route path="/admin/users/new" element={<UserEditPage />} />
-        <Route path="/admin/users/:id" element={<UserEditPage />} />
+        <Route path="/admin/users/new" element={<Navigate to="/admin/users" replace />} />
+        <Route path="/admin/users/:id" element={<Navigate to="/admin/users" replace />} />
         <Route path="/admin/portal-users" element={<PortalUsersPage />} />
         <Route path="/admin/portal-users/:id" element={<PortalUserDetailPage />} />
         <Route path="/admin/roles" element={<RolesPage />} />

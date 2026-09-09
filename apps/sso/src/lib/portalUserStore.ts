@@ -160,6 +160,64 @@ let users: PortalUser[] = [
   },
 ];
 
+const EXTRA_STATUSES: PortalUserStatus[] = [
+  "active",
+  "active",
+  "active",
+  "frozen",
+  "cancelled",
+  "active",
+];
+const EXTRA_REAL: RealNameStatus[] = ["none", "pending", "verified", "rejected", "verified", "none"];
+
+function padPhone(n: number) {
+  return `13${String(800000000 + n).slice(0, 9)}`;
+}
+
+function padDay(n: number) {
+  const day = String(((n - 1) % 28) + 1).padStart(2, "0");
+  const month = String(((n - 1) % 8) + 1).padStart(2, "0");
+  return `2026-${month}-${day}`;
+}
+
+/** 额外 mock，便于列表翻页演示（合计约 28 条） */
+const EXTRA_USERS: PortalUser[] = Array.from({ length: 24 }, (_, i) => {
+  const n = i + 5;
+  const status = EXTRA_STATUSES[i % EXTRA_STATUSES.length]!;
+  const realNameStatus = EXTRA_REAL[i % EXTRA_REAL.length]!;
+  const day = padDay(n);
+  return {
+    id: `cu-${n}`,
+    username: `user_${String(n).padStart(2, "0")}`,
+    phone: padPhone(n),
+    email: i % 3 === 0 ? `user${n}@mail.com` : "",
+    status,
+    realNameStatus,
+    registerChannel: "门户注册",
+    createdAt: `${day} ${String(8 + (i % 10)).padStart(2, "0")}:00:00`,
+    lastLoginAt: status === "cancelled" ? `${day} 12:00:00` : `2026-09-${String((i % 8) + 1).padStart(2, "0")} 10:${String(i % 60).padStart(2, "0")}:00`,
+    memberships: [
+      {
+        consoleId: "console-a",
+        consoleName: "DCI管理中心控制台",
+        status: i % 4 === 0 ? "approved" : i % 4 === 1 ? "applying" : "none",
+        tenantName: i % 4 === 0 ? `演示企业${n}` : undefined,
+        updatedAt: i % 4 <= 1 ? `${day} 11:00:00` : undefined,
+      },
+      {
+        consoleId: "console-b",
+        consoleName: "DCI®技术服务中心控制台",
+        status: i % 5 === 0 ? "approved" : "none",
+        tenantName: i % 5 === 0 ? `工作室${n}` : undefined,
+        updatedAt: i % 5 === 0 ? `${day} 15:00:00` : undefined,
+      },
+    ],
+    remark: status === "frozen" ? "演示冻结账号" : "",
+  };
+});
+
+users = [...users, ...EXTRA_USERS];
+
 let opLogs: PortalOpLog[] = [
   {
     id: "pol-1",
