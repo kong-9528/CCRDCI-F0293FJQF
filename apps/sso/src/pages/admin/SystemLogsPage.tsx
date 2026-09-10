@@ -61,7 +61,7 @@ function SystemLogsPageInner() {
             className="sso-input"
             value={draft.keyword}
             onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
-            placeholder="IP/操作人"
+            placeholder="IP / 操作人 / 操作标题"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 setApplied(draft);

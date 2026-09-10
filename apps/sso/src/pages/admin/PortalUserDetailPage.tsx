@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { MaskedPhone } from "@/components/MaskedPhone";
 import { RequirePerm } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -11,6 +12,8 @@ import {
   unfreezePortalUser,
 } from "@/lib/portalUserStore";
 import { usePortalTick } from "@/lib/usePortalTick";
+
+type PendingAction = "freeze" | "unfreeze" | null;
 
 export function PortalUserDetailPage() {
   return (
@@ -25,6 +28,7 @@ function PortalUserDetailInner() {
   const { id } = useParams();
   const { user: operator, can } = useAuth();
   const [message, setMessage] = useState("");
+  const [pending, setPending] = useState<PendingAction>(null);
   const user = id ? getPortalUser(id) : null;
   const canWrite = can("sso.portal.users.write");
 
@@ -39,18 +43,20 @@ function PortalUserDetailInner() {
     );
   }
 
-  const onFreeze = () => {
-    if (!id || !operator) return;
-    if (!window.confirm(`确认冻结用户「${user.username}」？冻结后其门户登录将受限。`)) return;
-    const result = freezePortalUser(id, operator.username);
-    setMessage(result.ok ? "已冻结该用户" : result.message);
-  };
-
-  const onUnfreeze = () => {
-    if (!id || !operator) return;
-    if (!window.confirm(`确认解冻用户「${user.username}」？`)) return;
-    const result = unfreezePortalUser(id, operator.username);
-    setMessage(result.ok ? "已解冻该用户" : result.message);
+  const confirmPending = () => {
+    if (!id || !operator || !pending) return;
+    const result =
+      pending === "freeze"
+        ? freezePortalUser(id, operator.username)
+        : unfreezePortalUser(id, operator.username);
+    setMessage(
+      result.ok
+        ? pending === "freeze"
+          ? "已冻结该用户"
+          : "已解冻该用户"
+        : result.message,
+    );
+    setPending(null);
   };
 
   const fields: { label: string; value: React.ReactNode }[] = [
@@ -68,11 +74,19 @@ function PortalUserDetailInner() {
           ← 返回列表
         </Link>
         {canWrite && user.status === "active" ? (
-          <button type="button" className="sso-btn sso-btn--outline sso-btn--sm" onClick={onFreeze}>
+          <button
+            type="button"
+            className="sso-btn sso-btn--outline sso-btn--sm"
+            onClick={() => setPending("freeze")}
+          >
             冻结
           </button>
         ) : canWrite && user.status === "frozen" ? (
-          <button type="button" className="sso-btn sso-btn--primary sso-btn--sm" onClick={onUnfreeze}>
+          <button
+            type="button"
+            className="sso-btn sso-btn--primary sso-btn--sm"
+            onClick={() => setPending("unfreeze")}
+          >
             解冻
           </button>
         ) : null}
@@ -116,6 +130,24 @@ function PortalUserDetailInner() {
         </table>
         <p className="sso-portal-detail__foot">入驻审批在各产品运营后台处理；此处只读汇总 UC 侧关系。</p>
       </section>
+
+      <ConfirmDialog
+        open={pending === "freeze"}
+        title="确认冻结用户"
+        description={`确定冻结用户「${user.username}」吗？冻结后其门户登录将受限。`}
+        confirmText="冻结"
+        danger
+        onCancel={() => setPending(null)}
+        onConfirm={confirmPending}
+      />
+      <ConfirmDialog
+        open={pending === "unfreeze"}
+        title="确认解冻用户"
+        description={`确定解冻用户「${user.username}」吗？解冻后可恢复正常登录。`}
+        confirmText="解冻"
+        onCancel={() => setPending(null)}
+        onConfirm={confirmPending}
+      />
     </div>
   );
 }
