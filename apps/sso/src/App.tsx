@@ -10,6 +10,7 @@ import { ApisPage } from "@/pages/admin/ApisPage";
 import { SubsystemsPage } from "@/pages/admin/SubsystemsPage";
 import { PortalUserDetailPage } from "@/pages/admin/PortalUserDetailPage";
 import { PortalUsersPage } from "@/pages/admin/PortalUsersPage";
+import { SystemLogsPage } from "@/pages/admin/SystemLogsPage";
 import { UsersPage } from "@/pages/admin/UsersPage";
 
 export function App() {
@@ -36,6 +37,7 @@ export function App() {
         <Route path="/admin/permissions" element={<PermissionsPage />} />
         <Route path="/admin/subsystems" element={<SubsystemsPage />} />
         <Route path="/admin/apis" element={<ApisPage />} />
+        <Route path="/admin/logs" element={<SystemLogsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

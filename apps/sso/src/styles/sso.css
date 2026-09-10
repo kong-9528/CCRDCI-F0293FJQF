@@ -2039,6 +2039,91 @@ code {
   border-bottom: 1px solid var(--n-100);
 }
 
+.sso-modal__head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.sso-modal__head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--n-900);
+}
+
+.sso-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--n-500);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sso-modal__close:hover {
+  background: var(--n-50);
+  color: var(--n-800);
+}
+
+.sso-filters__item--range {
+  min-width: 0;
+}
+
+.sso-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sso-range .sso-input {
+  min-width: 168px;
+}
+
+.sso-range__sep {
+  color: var(--n-400);
+  font-size: 13px;
+}
+
+.sso-log-detail {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.sso-log-detail th,
+.sso-log-detail td {
+  border: 1px solid #e8ecf2;
+  padding: 10px 12px;
+  vertical-align: top;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.sso-log-detail th {
+  width: 96px;
+  background: #f5f7fa;
+  color: #64748b;
+  font-weight: 600;
+  text-align: left;
+}
+
+.sso-log-detail td {
+  background: #fff;
+  color: var(--n-900);
+}
+
 .sso-modal > h3 code {
   font-size: 12px;
   font-weight: 500;

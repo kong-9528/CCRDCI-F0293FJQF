@@ -33,6 +33,7 @@ const NAV_GROUPS: NavGroup[] = [
       { to: "/admin/permissions", label: "菜单管理", perm: "sso.perms" },
       { to: "/admin/subsystems", label: "子系统管理", perm: "sso.subsystems" },
       { to: "/admin/apis", label: "接口管理", perm: "sso.apis" },
+      { to: "/admin/logs", label: "系统日志", perm: "sso.logs" },
     ],
   },
 ];
@@ -47,6 +48,7 @@ const TITLE_MAP: { match: (path: string) => boolean; title: string }[] = [
   { match: (p) => p.startsWith("/admin/permissions"), title: "菜单管理" },
   { match: (p) => p.startsWith("/admin/subsystems"), title: "子系统管理" },
   { match: (p) => p.startsWith("/admin/apis"), title: "接口管理" },
+  { match: (p) => p.startsWith("/admin/logs"), title: "系统日志" },
 ];
 
 function pageTitle(pathname: string) {
