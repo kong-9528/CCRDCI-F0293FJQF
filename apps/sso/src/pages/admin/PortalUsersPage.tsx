@@ -73,7 +73,7 @@ function PortalUsersPageInner() {
             className="sso-input"
             value={draft.keyword}
             onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
-            placeholder="用户名 / 邮箱 / 完整手机号"
+            placeholder="用户名 / 手机号"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 setApplied(draft);
