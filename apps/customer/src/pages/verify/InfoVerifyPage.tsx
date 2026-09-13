@@ -6,15 +6,16 @@ import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchInfoModal } from "@/components/verify/BatchInfoModal";
 import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
+import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
 import {
   INFO_BATCH_LIMIT,
-  INFO_DAILY_LIMIT,
   INFO_DEFAULT_DAYS,
   INFO_STATUS_LABEL,
   INFO_WORK_TYPE_LABEL,
   MOCK_INFO_RECORDS,
   PAGE_SIZES,
   emptyInfoForm,
+  formatInfoFailReasons,
   infoNameLabel,
   infoSubmittedFieldRows,
   infoVerifyPassed,
@@ -49,11 +50,15 @@ type Filters = {
 
 function InfoResultCard({ result }: { result: InfoVerifyResult }) {
   const ok = infoVerifyPassed(result.status);
+  const failReasons = formatInfoFailReasons(result);
   return (
     <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
-      <div className="a-result__head">
+      <div className="a-result__head c-cert-inline-result__status">
         <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <span className="a-result__title">{infoVerifyTitle(result.status)}</span>
+        <div className="c-cert-inline-result__status-text">
+          <span className="a-result__title">{infoVerifyTitle(result.status)}</span>
+          {!ok ? <VerifyFailReasons reasons={failReasons} /> : null}
+        </div>
       </div>
       <div className="a-desc c-dci-result-desc">
         <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
@@ -286,9 +291,8 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            登记号必填；{nameLabel}与著作权人至少填一项 · 单次批量上限 {INFO_BATCH_LIMIT} 条 · 每日上限{" "}
-            {INFO_DAILY_LIMIT} 条 · 演示：2024SR001234 / 2024ZP001234 / 2024SJ001234
-            配合正确名称或著作权人可核验通过
+            登记号必填；{nameLabel}与著作权人至少填一项 · 单次批量上限 {INFO_BATCH_LIMIT} 条 ·
+            演示：2024SR001234 / 2024ZP001234 / 2024SJ001234 配合正确名称或著作权人可核验通过
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}

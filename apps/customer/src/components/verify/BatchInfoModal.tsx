@@ -1,7 +1,6 @@
 import { Modal } from "@/components/Modal";
 import {
   INFO_BATCH_LIMIT,
-  INFO_DAILY_LIMIT,
   INFO_WORK_TYPE_LABEL,
   downloadInfoBatchTemplate,
   infoNameLabel,
@@ -93,8 +92,7 @@ export function BatchInfoModal({
         ) : null}
 
         <p className="a-field__hint">
-          支持 CSV、XLS、XLSX · 单次上限 {INFO_BATCH_LIMIT} 条 · 每日上限 {INFO_DAILY_LIMIT} 条 ·
-          同批登记号自动去重
+          支持 CSV、XLS、XLSX · 单次上限 {INFO_BATCH_LIMIT} 条 · 同批登记号自动去重
         </p>
       </div>
     </Modal>

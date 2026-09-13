@@ -46,8 +46,18 @@ export type CertVerifyResult = {
 
 export const CERT_STATUS_LABEL: Record<CertVerifyStatus, string> = {
   pass: "核验通过",
-  fail: "核验失败",
+  fail: "核验不通过",
 };
+
+export const CERT_RECOGNITION_FIELDS: { key: keyof CertRecognition; label: string }[] = [
+  { key: "certTitleNo", label: "证书号" },
+  { key: "workName", label: "软件名称" },
+  { key: "owner", label: "著作权人" },
+  { key: "acquireMethod", label: "权利取得方式" },
+  { key: "rightScope", label: "权利范围" },
+  { key: "registerDate", label: "登记日期" },
+  { key: "registerNo", label: "登记号" },
+];
 
 export const CERT_MISMATCH_LABEL: Record<CertMismatchField, string> = {
   certNo: "证书编号不一致",

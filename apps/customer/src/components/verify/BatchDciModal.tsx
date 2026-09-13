@@ -1,7 +1,6 @@
 import { Modal } from "@/components/Modal";
 import {
   DCI_BATCH_LIMIT,
-  DCI_DAILY_LIMIT,
   DCI_NAME_LABEL,
   downloadDciBatchTemplate,
   type DciBatchRow,
@@ -82,8 +81,7 @@ export function BatchDciModal({
         ) : null}
 
         <p className="a-field__hint">
-          支持 CSV、XLS、XLSX · 单次上限 {DCI_BATCH_LIMIT} 条 · 每日上限 {DCI_DAILY_LIMIT} 条 ·
-          同批 DCI 码自动去重
+          支持 CSV、XLS、XLSX · 单次上限 {DCI_BATCH_LIMIT} 条 · 同批 DCI 码自动去重
         </p>
       </div>
     </Modal>

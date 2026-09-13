@@ -9,6 +9,7 @@ import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import { CertInlineResult } from "@/components/verify/CertInlineResult";
 import {
   CERT_DEFAULT_DAYS,
+  CERT_STATUS_LABEL,
   MOCK_CERT_RECORDS,
   PAGE_SIZES,
   confirmCertVerify,
@@ -195,7 +196,7 @@ export function CertVerifyPage() {
       setOcrDraft(null);
       setRecords([...MOCK_CERT_RECORDS]);
       setPage(1);
-      showToast(result.status === "pass" ? "证书核验通过" : "证书核验未通过");
+      showToast(result.status === "pass" ? "核验通过" : "核验不通过");
     } finally {
       setConfirmLoading(false);
     }
@@ -476,7 +477,7 @@ export function CertVerifyPage() {
                                     r.status === "pass" ? "a-tag--ok" : "a-tag--er"
                                   }`}
                                 >
-                                  {r.status === "pass" ? "通过" : "未通过"}
+                                  {CERT_STATUS_LABEL[r.status]}
                                 </span>
                               </td>
                               {VERIFY_DETAIL_DRAWER_ENABLED ? (

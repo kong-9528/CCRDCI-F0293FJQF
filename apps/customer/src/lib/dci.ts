@@ -78,9 +78,8 @@ export const MISMATCH_FIELD_LABEL: Record<DciMismatchField, string> = {
   name: DCI_NAME_LABEL,
 };
 
-/** 单次批量上限 / 每日上限（演示常量） */
+/** 单次批量上限（演示常量） */
 export const DCI_BATCH_LIMIT = 100;
-export const DCI_DAILY_LIMIT = 1000;
 export const DCI_EXPORT_LIMIT = 5000;
 export const DCI_DEFAULT_DAYS = 30;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
@@ -596,5 +595,5 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
       f === "owner" ? "著作权人不一致" : `${DCI_NAME_LABEL}不一致`,
     );
   }
-  return result.message ? [result.message] : ["核验未通过"];
+  return result.message ? [result.message] : ["核验不通过"];
 }

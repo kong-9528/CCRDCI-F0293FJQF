@@ -31,113 +31,184 @@ function historyStatusTag(status: ApplyHistoryStatus) {
   return <span className="a-tag a-tag--muted">{label}</span>;
 }
 
+function formatContractRange(start: string, end: string) {
+  if (!start && !end) return "—";
+  if (!start) return end;
+  if (!end) return start;
+  return `${start} ~ ${end}`;
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      className={`c-apply-history-card__chevron${open ? " is-open" : ""}`}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M4 6l4 4 4-4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function ApplyHistoryCard({
   record,
+  expanded,
+  onToggle,
   onPreviewFile,
 }: {
   record: ApplyHistoryRecord;
+  expanded: boolean;
+  onToggle: () => void;
   onPreviewFile: (name: string) => void;
 }) {
+  const panelId = `apply-history-panel-${record.id}`;
+  const triggerId = `apply-history-trigger-${record.id}`;
+  const contractRange = formatContractRange(record.contractStart, record.contractEnd);
+
   return (
-    <article className="c-apply-history-card">
-      <header className="c-apply-history-card__head">
-        <span className="c-apply-history-card__time">提交时间 {record.submittedAt}</span>
-        {historyStatusTag(record.status)}
-      </header>
-
-      <section className="c-apply-history-block">
-        <h4 className="c-apply-history-block__title">
-          <span className="c-apply-history-block__icon" aria-hidden>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 21h18M5 21V8.5L12 4l7 4.5V21M9 21v-4h6v4"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+    <article className={`c-apply-history-card${expanded ? " is-open" : ""}`}>
+      <button
+        type="button"
+        id={triggerId}
+        className="c-apply-history-card__summary"
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={onToggle}
+      >
+        <span className="c-apply-history-card__summary-main">
+          <span className="c-apply-history-card__company" title={record.companyName}>
+            {record.companyName}
           </span>
-          基本信息
-        </h4>
-        <div className="c-apply-history-grid">
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">机构名称</span>
-            <span className="c-apply-history-field__value">{record.companyName}</span>
-          </div>
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">统一社会信用代码</span>
-            <span className="c-apply-history-field__value">{record.creditCode || "—"}</span>
-          </div>
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">联系地址</span>
-            <span className="c-apply-history-field__value">{record.address || "—"}</span>
-          </div>
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">合同开始日期</span>
-            <span className="c-apply-history-field__value">{record.contractStart || "—"}</span>
-          </div>
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">合同结束日期</span>
-            <span className="c-apply-history-field__value">{record.contractEnd || "—"}</span>
-          </div>
-          <div className="c-apply-history-field c-apply-history-field--full">
-            <span className="c-apply-history-field__label">合同附件</span>
-            <div className="c-apply-history-files">
-              {record.contractFiles.length === 0 ? (
-                <span className="c-apply-history-field__value">—</span>
-              ) : (
-                record.contractFiles.map((f) => {
-                  const sizeText = formatFileSize(f.size);
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      className="c-apply-history-file"
-                      onClick={() => onPreviewFile(f.name)}
-                    >
-                      <span className="c-apply-history-file__name">{f.name}</span>
-                      {sizeText ? (
-                        <span className="c-apply-history-file__size">（{sizeText}）</span>
-                      ) : null}
-                    </button>
-                  );
-                })
-              )}
+          <span className="c-apply-history-card__summary-meta">
+            <span className="c-apply-history-card__meta-item">
+              <span className="c-apply-history-card__meta-label">合同起止</span>
+              <span className="c-apply-history-card__meta-value">{contractRange}</span>
+            </span>
+            <span className="c-apply-history-card__meta-item">
+              <span className="c-apply-history-card__meta-label">提交时间</span>
+              <span className="c-apply-history-card__meta-value">{record.submittedAt}</span>
+            </span>
+          </span>
+        </span>
+        <span className="c-apply-history-card__summary-aside">
+          {historyStatusTag(record.status)}
+          <ChevronIcon open={expanded} />
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={triggerId}
+        className="c-apply-history-card__panel"
+        aria-hidden={!expanded}
+        inert={!expanded ? true : undefined}
+      >
+        <div className="c-apply-history-card__panel-inner">
+          <section className="c-apply-history-block">
+            <h4 className="c-apply-history-block__title">
+              <span className="c-apply-history-block__icon" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M3 21h18M5 21V8.5L12 4l7 4.5V21M9 21v-4h6v4"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              基本信息
+            </h4>
+            <div className="c-apply-history-grid">
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">机构名称</span>
+                <span className="c-apply-history-field__value">{record.companyName}</span>
+              </div>
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">统一社会信用代码</span>
+                <span className="c-apply-history-field__value">{record.creditCode || "—"}</span>
+              </div>
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">联系地址</span>
+                <span className="c-apply-history-field__value">{record.address || "—"}</span>
+              </div>
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">合同开始日期</span>
+                <span className="c-apply-history-field__value">{record.contractStart || "—"}</span>
+              </div>
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">合同结束日期</span>
+                <span className="c-apply-history-field__value">{record.contractEnd || "—"}</span>
+              </div>
+              <div className="c-apply-history-field c-apply-history-field--full">
+                <span className="c-apply-history-field__label">合同附件</span>
+                <div className="c-apply-history-files">
+                  {record.contractFiles.length === 0 ? (
+                    <span className="c-apply-history-field__value">—</span>
+                  ) : (
+                    record.contractFiles.map((f) => {
+                      const sizeText = formatFileSize(f.size);
+                      return (
+                        <button
+                          key={f.id}
+                          type="button"
+                          className="c-apply-history-file"
+                          onClick={() => onPreviewFile(f.name)}
+                        >
+                          <span className="c-apply-history-file__name">{f.name}</span>
+                          {sizeText ? (
+                            <span className="c-apply-history-file__size">（{sizeText}）</span>
+                          ) : null}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="c-apply-history-block">
-        <h4 className="c-apply-history-block__title">
-          <span className="c-apply-history-block__icon" aria-hidden>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.75" />
-              <path
-                d="M5 19.5c1.2-3 3.5-4.5 7-4.5s5.8 1.5 7 4.5"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>
-          联系人信息
-        </h4>
-        <div className="c-apply-history-grid">
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">联系人</span>
-            <span className="c-apply-history-field__value">{record.contactName}</span>
-          </div>
-          <div className="c-apply-history-field">
-            <span className="c-apply-history-field__label">手机号</span>
-            <span className="c-apply-history-field__value">{record.contactPhone}</span>
-          </div>
+          <section className="c-apply-history-block">
+            <h4 className="c-apply-history-block__title">
+              <span className="c-apply-history-block__icon" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.75" />
+                  <path
+                    d="M5 19.5c1.2-3 3.5-4.5 7-4.5s5.8 1.5 7 4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              联系人信息
+            </h4>
+            <div className="c-apply-history-grid">
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">联系人</span>
+                <span className="c-apply-history-field__value">{record.contactName}</span>
+              </div>
+              <div className="c-apply-history-field">
+                <span className="c-apply-history-field__label">手机号</span>
+                <span className="c-apply-history-field__value">{record.contactPhone}</span>
+              </div>
+            </div>
+            {record.status === "rejected" && record.rejectReason ? (
+              <p className="c-apply-history-reject">不通过原因：{record.rejectReason}</p>
+            ) : null}
+          </section>
         </div>
-        {record.status === "rejected" && record.rejectReason ? (
-          <p className="c-apply-history-reject">不通过原因：{record.rejectReason}</p>
-        ) : null}
-      </section>
+      </div>
     </article>
   );
 }
@@ -148,6 +219,9 @@ export function AccountCenterPage() {
   const [tab, setTab] = useState<TabKey>("info");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() =>
+    history[0] ? new Set([history[0].id]) : new Set(),
+  );
 
   const isPending = applyStatus === "pending";
   const currentRejectReason = useMemo(() => {
@@ -158,6 +232,15 @@ export function AccountCenterPage() {
   const showToast = (msg: string) => {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2200);
+  };
+
+  const toggleHistory = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const confirmWithdraw = () => {
@@ -290,6 +373,8 @@ export function AccountCenterPage() {
                 <ApplyHistoryCard
                   key={record.id}
                   record={record}
+                  expanded={expandedIds.has(record.id)}
+                  onToggle={() => toggleHistory(record.id)}
                   onPreviewFile={(name) => showToast(`演示：预览 ${name}`)}
                 />
               ))

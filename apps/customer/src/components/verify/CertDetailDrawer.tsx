@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
 import { Drawer } from "@/components/Drawer";
 import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
 import { copyText } from "@/lib/keys";
-import { formatCertFailReasons, type CertVerifyResult } from "@/lib/verifyCert";
+import {
+  CERT_RECOGNITION_FIELDS,
+  formatCertFailReasons,
+  type CertVerifyResult,
+} from "@/lib/verifyCert";
 
 type Props = {
   open: boolean;
@@ -94,12 +97,6 @@ function ShieldFailIcon() {
 }
 
 export function CertDetailDrawer({ open, result, onClose, onToast }: Props) {
-  const [recogOpen, setRecogOpen] = useState(true);
-
-  useEffect(() => {
-    if (open) setRecogOpen(true);
-  }, [open, result?.id]);
-
   if (!result) {
     return null;
   }
@@ -149,7 +146,7 @@ export function CertDetailDrawer({ open, result, onClose, onToast }: Props) {
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
             <div className="c-cert-detail__status-title">
-              {ok ? "证书信息核验通过" : "证书信息核验未通过"}
+              {ok ? "核验通过" : "核验不通过"}
             </div>
             {ok ? (
               <span className="c-cert-detail__badge is-ok">核验通过</span>
@@ -185,52 +182,15 @@ export function CertDetailDrawer({ open, result, onClose, onToast }: Props) {
           </div>
         </dl>
 
-        <div className="c-cert-detail__section-bar c-cert-detail__section-bar--toggle">
-          <span>识别结果</span>
-          <button
-            type="button"
-            className="c-cert-detail__toggle"
-            onClick={() => setRecogOpen((v) => !v)}
-          >
-            {recogOpen ? "收起" : "展开"}
-            <span className={`c-cert-detail__chevron${recogOpen ? " is-open" : ""}`} aria-hidden>
-              ▾
-            </span>
-          </button>
-        </div>
-
-        {recogOpen ? (
-          <dl className="c-cert-detail__meta">
-            <div className="c-cert-detail__row">
-              <dt>证书号</dt>
-              <dd>{rec.certTitleNo}</dd>
+        <div className="c-cert-detail__section-bar">识别结果</div>
+        <dl className="c-cert-detail__meta">
+          {CERT_RECOGNITION_FIELDS.map((f) => (
+            <div key={f.key} className="c-cert-detail__row">
+              <dt>{f.label}</dt>
+              <dd>{rec[f.key] || "—"}</dd>
             </div>
-            <div className="c-cert-detail__row">
-              <dt>软件名称</dt>
-              <dd>{rec.workName}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>著作权人</dt>
-              <dd>{rec.owner}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>权利取得方式</dt>
-              <dd>{rec.acquireMethod}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>权利范围</dt>
-              <dd>{rec.rightScope}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>登记日期</dt>
-              <dd>{rec.registerDate}</dd>
-            </div>
-            <div className="c-cert-detail__row">
-              <dt>登记号</dt>
-              <dd>{rec.registerNo}</dd>
-            </div>
-          </dl>
-        ) : null}
+          ))}
+        </dl>
 
         <p className="c-cert-detail__disclaimer">
           ※

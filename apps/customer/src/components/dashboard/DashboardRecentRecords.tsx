@@ -33,7 +33,7 @@ export function DashboardRecentRecords() {
                 <td>{row.channel}</td>
                 <td>
                   <span className={`a-tag ${row.status === "pass" ? "a-tag--ok" : "a-tag--er"}`}>
-                    {row.status === "pass" ? "通过" : "未通过"}
+                    {row.status === "pass" ? "核验通过" : "核验不通过"}
                   </span>
                 </td>
               </tr>

@@ -6,16 +6,17 @@ import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiI
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchDciModal } from "@/components/verify/BatchDciModal";
 import { DciDetailDrawer } from "@/components/verify/DciDetailDrawer";
+import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
 import {
   CHANNEL_LABEL,
   DCI_BATCH_LIMIT,
-  DCI_DAILY_LIMIT,
   DCI_DEFAULT_DAYS,
   DCI_NAME_LABEL,
   MOCK_DCI_RECORDS,
   PAGE_SIZES,
   STATUS_LABEL,
   emptyDciForm,
+  formatDciFailReasons,
   isDciVerifyPass,
   normalizeDciCode,
   parseDciBatchFile,
@@ -69,12 +70,16 @@ function ResultCard({
 }) {
   const ok = isDciVerifyPass(result.status);
   const title = ok ? "核验通过" : "核验不通过";
+  const failReasons = formatDciFailReasons(result);
 
   return (
     <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
-      <div className="a-result__head">
+      <div className="a-result__head c-cert-inline-result__status">
         <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <span className="a-result__title">{title}</span>
+        <div className="c-cert-inline-result__status-text">
+          <span className="a-result__title">{title}</span>
+          {!ok ? <VerifyFailReasons reasons={failReasons} /> : null}
+        </div>
       </div>
       <div className="a-desc c-dci-result-desc">
         <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
@@ -305,8 +310,8 @@ export function DciVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            DCI 核验码必填；著作权人与{DCI_NAME_LABEL}至少填一项 · 单次批量上限 {DCI_BATCH_LIMIT} 条 ·
-            每日上限 {DCI_DAILY_LIMIT} 条 · 演示码：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001
+            DCI 核验码必填；著作权人与{DCI_NAME_LABEL}至少填一项 · 单次批量上限 {DCI_BATCH_LIMIT}{" "}
+            条 · 演示码：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}

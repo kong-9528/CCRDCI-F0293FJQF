@@ -58,9 +58,8 @@ export const INFO_MISMATCH_LABEL: Record<InfoMismatchField, string> = {
 
 export const INFO_DEFAULT_DAYS = 30;
 export const INFO_EXPORT_LIMIT = 5000;
-/** 单次批量上限 / 每日上限（演示常量，与 DCI 核验一致） */
+/** 单次批量上限（演示常量，与 DCI 核验一致） */
 export const INFO_BATCH_LIMIT = 100;
-export const INFO_DAILY_LIMIT = 1000;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 
 export function infoNameLabel(workType: InfoWorkType): string {
@@ -303,9 +302,9 @@ export function formatInfoFailReasons(result: InfoVerifyResult): string[] {
 /** 结果区仅展示用户提交过的字段 */
 export function infoSubmittedFieldRows(result: InfoVerifyResult) {
   return [
-    { label: "登记号", value: result.regNo, field: "regNo" as const },
-    { label: infoNameLabel(result.workType), value: result.name, field: "name" as const },
-    { label: "著作权人", value: result.owner, field: "owner" as const },
+    { label: "登记号", value: result.regNo || "—", field: "regNo" as const },
+    { label: infoNameLabel(result.workType), value: result.name || "—", field: "name" as const },
+    { label: "著作权人", value: result.owner || "—", field: "owner" as const },
   ];
 }
 

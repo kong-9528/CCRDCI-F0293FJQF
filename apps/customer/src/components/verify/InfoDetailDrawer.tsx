@@ -96,7 +96,7 @@ export function InfoDetailDrawer({ open, result, onClose, onToast }: Props) {
           {ok ? <ShieldOkIcon /> : <ShieldFailIcon />}
           <div className="c-cert-detail__status-text">
             <div className="c-cert-detail__status-title">
-              {ok ? "登记信息核验通过" : "登记信息核验未通过"}
+              {ok ? "核验通过" : "核验不通过"}
             </div>
             {ok ? (
               <span className="c-cert-detail__badge is-ok">核验通过</span>
