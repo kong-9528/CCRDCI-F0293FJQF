@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/lib/auth";
 import { LOGO_BLUE, NAV_ITEMS } from "@/lib/content";
 
 function normalizePath(path: string) {
@@ -12,13 +14,12 @@ function normalizePath(path: string) {
 }
 
 function isActive(pathname: string, href: string) {
-  const current = normalizePath(pathname);
-  const target = normalizePath(href);
-  return current === target;
+  return normalizePath(pathname) === normalizePath(href);
 }
 
 export function SiteHeader() {
   const pathname = usePathname() || "/";
+  const { user, ready } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -53,12 +54,24 @@ export function SiteHeader() {
         </nav>
 
         <div className="d-header__actions">
-          <Link
-            href="/login/"
-            className={`d-header__login${isActive(pathname, "/login/") ? " is-active" : ""}`}
-          >
-            注册 / 登录
-          </Link>
+          {ready && user ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Link
+                href="/login/"
+                className={`d-header__auth-btn${isActive(pathname, "/login/") ? " is-active" : ""}`}
+              >
+                登录
+              </Link>
+              <Link
+                href="/register/"
+                className={`d-header__auth-btn${isActive(pathname, "/register/") ? " is-active" : ""}`}
+              >
+                注册
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -101,9 +114,20 @@ export function SiteHeader() {
             </Link>
           ),
         )}
-        <Link href="/login/" onClick={() => setOpen(false)}>
-          注册 / 登录
-        </Link>
+        {ready && user ? (
+          <div className="d-header__drawer-user">
+            <UserMenu onNavigate={() => setOpen(false)} />
+          </div>
+        ) : (
+          <>
+            <Link href="/login/" onClick={() => setOpen(false)}>
+              登录
+            </Link>
+            <Link href="/register/" onClick={() => setOpen(false)}>
+              注册
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

@@ -136,12 +136,16 @@ export function AccountApplicationPage({ mode }: Props) {
               <span className="a-desc__value">{application.companyName}</span>
             </div>
             <div className="a-desc__item">
-              <span className="a-desc__label">统一社会信用代码</span>
+              <span className="a-desc__label">组织机构代码</span>
               <span className="a-desc__value">{application.creditCode || "—"}</span>
             </div>
             <div className="a-desc__item a-desc__item--wide">
               <span className="a-desc__label">联系地址</span>
               <span className="a-desc__value">{application.address || "—"}</span>
+            </div>
+            <div className="a-desc__item a-desc__item--wide">
+              <span className="a-desc__label">合作领域</span>
+              <span className="a-desc__value">{application.cooperationField || "—"}</span>
             </div>
             <div className="a-desc__item">
               <span className="a-desc__label">合同开始日期</span>

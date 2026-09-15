@@ -56,9 +56,12 @@ function HistoryCard({
         <h4 className="o-audit-hist-section__title">申请信息</h4>
         <div className="o-audit-hist-grid">
           <Field label="机构名称">{record.companyName}</Field>
-          <Field label="统一社会信用代码">{record.creditCode || "—"}</Field>
+          <Field label="组织机构代码">{record.creditCode || "—"}</Field>
           <Field label="联系地址" full>
             {record.address || "—"}
+          </Field>
+          <Field label="合作领域" full>
+            {record.cooperationField || "—"}
           </Field>
           <Field label="合同开始日期">{record.contractStart || "—"}</Field>
           <Field label="合同结束日期">{record.contractEnd || "—"}</Field>

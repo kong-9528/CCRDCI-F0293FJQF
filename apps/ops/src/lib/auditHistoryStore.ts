@@ -10,8 +10,11 @@ export type AuditHistoryRecord = {
   submittedAt: string;
   status: AuditHistoryStatus;
   companyName: string;
+  /** 组织机构代码 */
   creditCode: string;
   address: string;
+  /** 合作领域 */
+  cooperationField: string;
   contractStart: string;
   contractEnd: string;
   contractFiles: ContractFile[];
@@ -39,6 +42,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "江南文创集团有限公司",
     creditCode: "91330100MA2HJK5678",
     address: "杭州市西湖区文三路 478 号",
+    cooperationField: "文创内容发行与版权保护",
     contractStart: "2026-05-01",
     contractEnd: "2027-04-30",
     contractFiles: [
@@ -57,6 +61,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "江南文创集团有限公司",
     creditCode: "91330100MA2HJK5678",
     address: "杭州市西湖区文三路 478 号",
+    cooperationField: "文创内容发行与版权保护",
     contractStart: "2026-05-01",
     contractEnd: "2027-04-30",
     contractFiles: [{ id: "af2-old", name: "江南文创-服务合同.pdf", size: 980_000 }],
@@ -75,6 +80,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "云图数字科技有限公司",
     creditCode: "91110108MA01XY1234",
     address: "北京市海淀区中关村软件园二期 8 号",
+    cooperationField: "数字内容版权核验",
     contractStart: "2026-04-01",
     contractEnd: "2027-03-31",
     contractFiles: [{ id: "af1", name: "云图-平台开通申请.pdf", size: 860_000 }],
@@ -90,6 +96,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "前海智链科技有限公司",
     creditCode: "91440300MA5D998877",
     address: "深圳市前海深港合作区梦海大道 5033 号",
+    cooperationField: "跨境数字版权服务",
     contractStart: "2026-03-01",
     contractEnd: "2027-02-28",
     contractFiles: [{ id: "af4", name: "智链-开通协议.pdf", size: 740_000 }],
@@ -107,6 +114,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "蜀锦文化传播工作室",
     creditCode: "91510100MA62AB1122",
     address: "成都市武侯区科华北路 65 号",
+    cooperationField: "艺术作品版权登记辅助",
     contractStart: "2026-06-01",
     contractEnd: "2027-05-31",
     contractFiles: [],
@@ -125,6 +133,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "申城融媒体科技有限公司",
     creditCode: "91310000MA1FL2XY99",
     address: "上海市静安区南京西路 1266 号",
+    cooperationField: "融媒体内容版权核验",
     contractStart: "2026-07-01",
     contractEnd: "2027-06-30",
     contractFiles: [{ id: "af5", name: "申城融媒体-开通合同.pdf", size: 920_000 }],
@@ -142,6 +151,7 @@ const MOCK_AUDIT_HISTORY: AuditHistoryRecord[] = [
     companyName: "粤海数字创意有限公司",
     creditCode: "91440100MA5K3N7788",
     address: "广州市天河区珠江新城花城大道 85 号",
+    cooperationField: "数字创意内容安全审核",
     contractStart: "2026-08-01",
     contractEnd: "2027-07-31",
     contractFiles: [{ id: "af6", name: "粤海-申请材料.zip", size: 2_100_000 }],
@@ -162,6 +172,7 @@ function snapshotFromApplication(
     companyName: string;
     creditCode: string;
     address: string;
+    cooperationField?: string;
     contractStart: string;
     contractEnd: string;
     contractFiles: ContractFile[];
@@ -181,6 +192,7 @@ function snapshotFromApplication(
     companyName: app.companyName,
     creditCode: app.creditCode,
     address: app.address,
+    cooperationField: app.cooperationField || "",
     contractStart: app.contractStart,
     contractEnd: app.contractEnd,
     contractFiles: [...app.contractFiles],

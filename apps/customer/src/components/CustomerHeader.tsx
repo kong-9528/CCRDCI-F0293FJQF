@@ -142,10 +142,10 @@ export function CustomerHeader({ pathname }: Props) {
                 <Link
                   to="/desk"
                   role="menuitem"
-                  className={`a-header__user-menu-link a-header__user-menu-link--with-note${onTechDesk ? " is-current" : ""}`}
+                  className={`a-header__user-menu-link${onTechDesk ? " a-header__user-menu-link--with-note is-current" : ""}`}
                 >
                   <span>技术服务中心工作台</span>
-                  <span className="a-header__user-menu-note">当前平台</span>
+                  {onTechDesk ? <span className="a-header__user-menu-note">当前平台</span> : null}
                 </Link>
                 <div className="a-header__user-menu-divider" />
                 <button

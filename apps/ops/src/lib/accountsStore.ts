@@ -12,11 +12,14 @@ export type ApplicationStatus = "pending" | "approved" | "rejected";
 export type AccountApplication = {
   id: string;
   status: ApplicationStatus;
+  /** 组织机构代码 */
   creditCode: string;
   companyName: string;
   contactName: string;
   contactPhone: string;
   address: string;
+  /** 合作领域 */
+  cooperationField: string;
   contractNo: string;
   contractFiles: ContractFile[];
   contractStart: string;
@@ -50,6 +53,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "周婷",
     contactPhone: "13600001234",
     address: "北京市海淀区中关村软件园二期 8 号",
+    cooperationField: "数字内容版权核验",
     contractNo: "HT-2026-0318",
     contractFiles: [{ id: "af1", name: "云图-平台开通申请.pdf", size: 860_000 }],
     contractStart: "2026-04-01",
@@ -69,6 +73,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "吴浩",
     contactPhone: "13500005678",
     address: "杭州市西湖区文三路 478 号",
+    cooperationField: "文创内容发行与版权保护",
     contractNo: "HT-2026-0422",
     contractFiles: [
       { id: "af2", name: "江南文创-服务合同.pdf", size: 1_120_000 },
@@ -91,6 +96,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "林静",
     contactPhone: "13800009988",
     address: "深圳市前海深港合作区梦海大道 5033 号",
+    cooperationField: "跨境数字版权服务",
     contractNo: "HT-2026-0208",
     contractFiles: [{ id: "af4", name: "智链-开通协议.pdf", size: 740_000 }],
     contractStart: "2026-03-01",
@@ -113,6 +119,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "何平",
     contactPhone: "13900008877",
     address: "成都市武侯区科华北路 65 号",
+    cooperationField: "艺术作品版权登记辅助",
     contractNo: "HT-2026-0510",
     contractFiles: [],
     contractStart: "2026-06-01",
@@ -135,6 +142,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "赵敏",
     contactPhone: "13700006655",
     address: "上海市静安区南京西路 1266 号",
+    cooperationField: "融媒体内容版权核验",
     contractNo: "HT-2026-0612",
     contractFiles: [{ id: "af5", name: "申城融媒体-开通合同.pdf", size: 920_000 }],
     contractStart: "2026-07-01",
@@ -156,6 +164,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contactName: "陈峰",
     contactPhone: "13600007766",
     address: "广州市天河区珠江新城花城大道 85 号",
+    cooperationField: "数字创意内容安全审核",
     contractNo: "HT-2026-0701",
     contractFiles: [{ id: "af6", name: "粤海-申请材料.zip", size: 2_100_000 }],
     contractStart: "2026-08-01",

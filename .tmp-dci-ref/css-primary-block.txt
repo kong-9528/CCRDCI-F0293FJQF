@@ -1,0 +1,1 @@
+{--tw-gradient-from:hsl(var(--primary) / .05) var(--tw-gradient-from-position);--tw-gradient-to:hsl(var(--primary) / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}

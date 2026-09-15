@@ -183,7 +183,7 @@ export function AccountApplicationsPage({ mode }: Props) {
   const colSpan = (() => {
     if (mode === "pending") return 7;
     if (isApprovedTab) return mode === "all" ? 9 : 8;
-    // 不通过：机构/信用代码/联系人/账号/申请时间/审核时间/不通过原因/[审核人]/状态/操作
+    // 不通过：机构/组织机构代码/联系人/账号/申请时间/审核时间/不通过原因/[审核人]/状态/操作
     if (isRejectedTab) return mode === "all" ? 10 : 9;
     return 9;
   })();
@@ -223,10 +223,10 @@ export function AccountApplicationsPage({ mode }: Props) {
           />
         </div>
         <div className="a-field">
-          <span className="a-field__label">信用代码</span>
+          <span className="a-field__label">组织机构代码</span>
           <input
             className="a-input"
-            placeholder="请输入统一社会信用代码"
+            placeholder="请输入组织机构代码"
             value={draft.creditCode}
             onChange={(e) => setFilter("creditCode", e.target.value)}
           />
@@ -290,7 +290,7 @@ export function AccountApplicationsPage({ mode }: Props) {
           <thead>
             <tr>
               <th>机构名称</th>
-              {mode !== "pending" ? <th>统一社会信用代码</th> : null}
+              {mode !== "pending" ? <th>组织机构代码</th> : null}
               <th>联系人姓名</th>
               <th>申请账号</th>
               {isApprovedTab ? <th>开通产品</th> : null}

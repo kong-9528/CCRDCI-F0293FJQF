@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SITE_DESC, SITE_TITLE } from "@/lib/content";
@@ -24,9 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <SiteHeader />
-        <main className="d-main">{children}</main>
-        <SiteFooter />
+        <Providers>
+          <SiteHeader />
+          <main className="d-main">{children}</main>
+          <SiteFooter />
+        </Providers>
       </body>
     </html>
   );

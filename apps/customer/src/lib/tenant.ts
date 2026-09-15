@@ -43,9 +43,12 @@ export const MOCK_SESSION = {
   isDciRegistryCenter: true,
 };
 
-/** 外链门户（账号中心 / DCI 注册中心等） */
+/** 外链门户（账号中心落在 DCI 门户；注册中心等工作台外链） */
+const DCI_PORTAL_URL =
+  (import.meta.env.VITE_DCI_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:3010";
+
 export const PORTAL_LINKS = {
-  accountCenter: "https://app-ck03sng4kykh.appmiaoda.com/account",
+  accountCenter: `${DCI_PORTAL_URL}/account/info/`,
   dciRegistryWorkbench: "https://app-ck03sng4kykh.appmiaoda.com/dashboard/home",
   applyDciRegistry: "https://app-ck03sng4kykh.appmiaoda.com/apply",
 } as const;
