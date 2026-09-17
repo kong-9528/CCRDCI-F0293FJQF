@@ -122,7 +122,7 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
       <section className="a-stats-overview">
         <article className="a-stats-strip a-stats-strip--tone-0">
           <header className="a-stats-strip__head">
-            <h3 className="a-stats-strip__title">机构使用数据统计</h3>
+            <h3 className="a-stats-strip__title">按机构</h3>
           </header>
           <div
             className={`a-stats-strip__metrics a-stats-strip__metrics--${overviewMetrics.length}`}

@@ -110,7 +110,7 @@ export function AccountApplicationPage({ mode }: Props) {
           {pageTitle}
           {readOnly && application.status === "approved" && application.customerId ? (
             <Link
-              to={`/accounts/${application.id}/edit`}
+              to={`/accounts/${application.id}/edit?from=detail`}
               className="a-btn a-btn--sm a-btn--primary"
               style={{ marginLeft: 12 }}
             >

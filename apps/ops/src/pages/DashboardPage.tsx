@@ -59,13 +59,13 @@ const QUICK_ENTRIES: QuickEntry[] = [
   },
   {
     id: "stats-c",
-    label: "机构使用统计",
+    label: "按机构",
     to: "/stats/verify/customers",
     perms: ["stats.customers"],
   },
   {
     id: "stats-p",
-    label: "技术服务使用统计",
+    label: "按技术服务",
     to: "/stats/verify/products",
     perms: ["stats.products"],
   },

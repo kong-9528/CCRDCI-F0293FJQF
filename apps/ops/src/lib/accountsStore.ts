@@ -4,7 +4,7 @@ import { flattenServicePackages, type ContractFile, type ProductCode } from "@/l
 import { createCustomer, isAccountTaken } from "@/lib/customersStore";
 import type { ProductConfigState } from "@/lib/productConfig";
 import {
-  parseServicePackages,
+  parseAllServicePackages,
   validateProductConfig,
 } from "@/lib/productConfig";
 import { getCurrentUser } from "@/lib/usersStore";
@@ -224,7 +224,7 @@ export function approveApplication(
   const validationError = validateProductConfig(config, { allowEmpty: true });
   if (validationError) return { ok: false, error: validationError };
 
-  const packages = parseServicePackages(config.packages, { allowEmpty: true });
+  const packages = parseAllServicePackages(config, { allowEmpty: true });
   if (!packages.ok) return { ok: false, error: packages.error };
 
   if (isAccountTaken(app.account)) {

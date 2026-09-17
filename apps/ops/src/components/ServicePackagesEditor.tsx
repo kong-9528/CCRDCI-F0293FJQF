@@ -1,12 +1,13 @@
-import { Fragment, useEffect, useRef, useState } from "react";
-import {
-  ProductSubparamsRow,
-  ProductVerifyOptions,
-} from "@/components/ProductVerifyOptions";
+import { createPortal } from "react-dom";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ProductVerifyOptions } from "@/components/ProductVerifyOptions";
 import { TableAction } from "@/components/TableAction";
 import { IconDisable, IconEnable, IconTrash } from "@/components/icons/UiIcons";
 import {
-  CONFIGURABLE_PRODUCTS,
+  PACKAGE_TECH_SERVICES,
+  SERVICE_STATUS_LABEL,
+  deriveServiceStatus,
   isVerifyProduct,
   productName,
   type ProductCode,
@@ -27,6 +28,13 @@ type Props = {
   mode?: "create" | "edit";
 };
 
+function packageStatusTagClass(status: keyof typeof SERVICE_STATUS_LABEL) {
+  if (status === "active") return "a-tag--ok";
+  if (status === "pending") return "a-tag--wn";
+  if (status === "stopped") return "a-tag--er";
+  return "a-tag--muted";
+}
+
 function ProductCombobox({
   value,
   taken,
@@ -37,27 +45,61 @@ function ProductCombobox({
   onChange: (code: ProductCode) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const placePanel = () => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const width = Math.max(rect.width, 200);
+    const spaceBelow = window.innerHeight - rect.bottom - 8;
+    const openUp = spaceBelow < 240 && rect.top > spaceBelow;
+    setPanelStyle({
+      position: "fixed",
+      left: rect.left,
+      width,
+      top: openUp ? undefined : rect.bottom + 4,
+      bottom: openUp ? window.innerHeight - rect.top + 4 : undefined,
+      zIndex: 2100,
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    placePanel();
+    const onReposition = () => placePanel();
+    window.addEventListener("resize", onReposition);
+    window.addEventListener("scroll", onReposition, true);
+    return () => {
+      window.removeEventListener("resize", onReposition);
+      window.removeEventListener("scroll", onReposition, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (rootRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
   const selectedLabel = value
-    ? (CONFIGURABLE_PRODUCTS.find((p) => p.code === value)?.name ?? value)
+    ? (PACKAGE_TECH_SERVICES.find((p) => p.code === value)?.name ?? value)
     : "";
 
   return (
-    <div className="a-combobox" ref={ref}>
+    <div className="a-combobox" ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
         className={`a-combobox__trigger${!selectedLabel ? " is-placeholder" : ""}`}
-        style={{ minWidth: 160 }}
         aria-expanded={open}
         aria-haspopup="listbox"
         onClick={() => setOpen((v) => !v)}
@@ -67,37 +109,45 @@ function ProductCombobox({
           ▾
         </span>
       </button>
-      {open ? (
-        <div className="a-combobox__panel" role="listbox">
-          <div className="a-combobox__list">
-            {CONFIGURABLE_PRODUCTS.map((p) => {
-              const disabled = taken.has(p.code) && p.code !== value;
-              return (
-                <button
-                  key={p.code}
-                  type="button"
-                  role="option"
-                  disabled={disabled}
-                  className={`a-combobox__option${
-                    p.code === value ? " is-selected" : ""
-                  }${disabled ? " is-disabled" : ""}`}
-                  aria-selected={p.code === value}
-                  onClick={() => {
-                    if (disabled) return;
-                    onChange(p.code);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="a-combobox__option-main">
-                    {p.name}
-                    {disabled ? <span className="a-combobox__badge">已配置</span> : null}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
+      {open
+        ? createPortal(
+            <div
+              ref={panelRef}
+              className="a-combobox__panel a-combobox__panel--portal"
+              style={panelStyle}
+              role="listbox"
+            >
+              <div className="a-combobox__list">
+                {PACKAGE_TECH_SERVICES.map((p) => {
+                  const disabled = taken.has(p.code) && p.code !== value;
+                  return (
+                    <button
+                      key={p.code}
+                      type="button"
+                      role="option"
+                      disabled={disabled}
+                      className={`a-combobox__option${
+                        p.code === value ? " is-selected" : ""
+                      }${disabled ? " is-disabled" : ""}`}
+                      aria-selected={p.code === value}
+                      onClick={() => {
+                        if (disabled) return;
+                        onChange(p.code);
+                        setOpen(false);
+                      }}
+                    >
+                      <span className="a-combobox__option-main">
+                        {p.name}
+                        {disabled ? <span className="a-combobox__badge">已配置</span> : null}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -129,12 +179,19 @@ export function ServicePackagesEditor({
   mode = "create",
 }: Props) {
   const isEdit = mode === "edit";
+  const [pendingToggle, setPendingToggle] = useState<{
+    key: string;
+    name: string;
+    nextStopped: boolean;
+  } | null>(null);
 
   const takenProducts = new Set(
     packages.flatMap((pkg) =>
       pkg.services.map((s) => s.product).filter(Boolean),
     ) as string[],
   );
+  const packageServiceCap = PACKAGE_TECH_SERVICES.length;
+  const atServiceCap = takenProducts.size >= packageServiceCap;
 
   const updatePkg = (key: string, patch: Partial<PackageFormRow>) => {
     onChange(packages.map((p) => (p.key === key ? { ...p, ...patch } : p)));
@@ -201,31 +258,27 @@ export function ServicePackagesEditor({
     onChange(
       packages.map((pkg) => {
         if (pkg.key !== pkgKey) return pkg;
-        const svc = pkg.services.find((s) => s.key === svcKey);
-        if (isEdit && svc && !svc.isNew) return pkg;
         const next = pkg.services.filter((s) => s.key !== svcKey);
-        return {
-          ...pkg,
-          services: next.length ? next : [emptyPackageServiceRow()],
-        };
+        // 已停止的套餐允许清空全部技术服务；未停止时保留一行便于继续配置
+        if (next.length > 0) return { ...pkg, services: next };
+        if (pkg.stopped) return { ...pkg, services: [] };
+        return { ...pkg, services: [emptyPackageServiceRow()] };
       }),
     );
   };
 
   return (
-    <div className="a-stack a-service-packages-editor">
-      <div className="a-field__hint">
-        规则：以「套餐包」设定授权总量与生效起止；包内可包含一个或多个技术服务。同一技术服务不可出现在多个套餐包中。核验类服务的业务类型与
-        Web页面/API 使用方式仍配置在技术服务上。套餐额度仅在生效期内可消耗。
-        {isEdit
-          ? " 已开通的技术服务不可移除，可调整所属套餐额度与有效期，或停止/恢复整包；本次新增的套餐与服务可移除。"
-          : ""}
-      </div>
-
+      <div className="a-stack a-service-packages-editor">
       {packages.map((pkg, pkgIndex) => {
         const pkgLocked = isEdit && !pkg.isNew;
         const canRemovePkg = isEdit ? Boolean(pkg.isNew) : packages.length > 1;
-        const svcColSpan = 2;
+        const pkgStatus = pkg.isNew
+          ? null
+          : deriveServiceStatus({
+              stopped: pkg.stopped,
+              startDate: pkg.startDate,
+              endDate: pkg.endDate,
+            });
 
         return (
           <section key={pkg.key} className="a-service-package">
@@ -238,9 +291,7 @@ export function ServicePackagesEditor({
                   value={pkg.name}
                   onChange={(e) => updatePkg(pkg.key, { name: e.target.value })}
                 />
-              </div>
-              <div className="a-service-package__meta">
-                <label className="a-field a-field--inline">
+                <label className="a-field a-field--inline a-service-package__quota">
                   <span className="a-field__label">授权总量</span>
                   <input
                     className="a-input a-input--sm"
@@ -259,7 +310,7 @@ export function ServicePackagesEditor({
                   <div className="a-field a-field--inline">
                     <span className="a-field__label">已用</span>
                     <span className="a-service-package__used">
-                      {pkg.usedCount.toLocaleString()}
+                      {pkg.isNew ? "—" : pkg.usedCount.toLocaleString()}
                     </span>
                   </div>
                 ) : null}
@@ -284,18 +335,26 @@ export function ServicePackagesEditor({
                 {showStatus ? (
                   <div className="a-field a-field--inline">
                     <span className="a-field__label">状态</span>
-                    {pkg.stopped ? (
-                      <span className="a-tag a-tag--er">已停止</span>
+                    {pkgStatus == null ? (
+                      <span className="a-service-package__placeholder">—</span>
                     ) : (
-                      <span className="a-tag a-tag--ok">可使用</span>
+                      <span className={`a-tag ${packageStatusTagClass(pkgStatus)}`}>
+                        {SERVICE_STATUS_LABEL[pkgStatus]}
+                      </span>
                     )}
                   </div>
                 ) : null}
-                <div className="a-actions a-actions--nowrap">
+                <div className="a-service-package__title-actions a-actions a-actions--nowrap">
                   {pkgLocked ? (
                     <TableAction
                       icon={pkg.stopped ? <IconEnable /> : <IconDisable />}
-                      onClick={() => updatePkg(pkg.key, { stopped: !pkg.stopped })}
+                      onClick={() =>
+                        setPendingToggle({
+                          key: pkg.key,
+                          name: pkg.name.trim() || `套餐 ${pkgIndex + 1}`,
+                          nextStopped: !pkg.stopped,
+                        })
+                      }
                     >
                       {pkg.stopped ? "恢复" : "停止"}
                     </TableAction>
@@ -306,7 +365,7 @@ export function ServicePackagesEditor({
                       danger
                       onClick={() => removePkg(pkg.key)}
                     >
-                      移除套餐
+                      移除套餐包
                     </TableAction>
                   ) : null}
                 </div>
@@ -315,39 +374,59 @@ export function ServicePackagesEditor({
 
             <div className="a-service-package__body">
               <div className="a-service-package__section-label">包内技术服务</div>
-              <div className="a-table-wrap">
-                <table className="a-table a-table--compact">
+              <div className="a-service-package__table-wrap">
+                <table className="a-table a-table--compact a-service-package__table">
+                  <colgroup>
+                    <col className="a-service-package__col-svc" />
+                    <col className="a-service-package__col-cfg" />
+                    <col className="a-service-package__col-act" />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>技术服务</th>
+                      <th>功能配置</th>
                       <th>操作</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {pkg.services.map((svc) => {
-                      const locked = isEdit && !svc.isNew;
-                      const canRemoveSvc = isEdit
-                        ? Boolean(svc.isNew) && pkg.services.length > 1
-                        : pkg.services.length > 1;
-                      const hasSubparams = Boolean(svc.product && isVerifyProduct(svc.product));
+                    {pkg.services.length === 0 ? (
+                      <tr>
+                        <td colSpan={3}>
+                          <div className="a-empty" style={{ padding: "12px 0" }}>
+                            暂无技术服务
+                            {pkg.stopped ? "（已停止的套餐包允许为空）" : ""}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      pkg.services.map((svc) => {
+                        const canRemoveSvc =
+                          pkg.stopped || pkg.services.length > 1 || Boolean(svc.product);
+                        const hasCfg = Boolean(svc.product && isVerifyProduct(svc.product));
 
-                      return (
-                        <Fragment key={svc.key}>
-                          <tr className={hasSubparams ? "a-product-row--has-subparams" : undefined}>
-                            <td>
-                              {locked && svc.product ? (
-                                <span>{productName(svc.product)}</span>
-                              ) : (
-                                <ProductCombobox
-                                  value={svc.product}
-                                  taken={takenProducts}
-                                  onChange={(code) =>
-                                    updateSvc(pkg.key, svc.key, patchServiceProduct(svc, code))
-                                  }
+                        return (
+                          <tr key={svc.key}>
+                            <td className="a-service-package__cell-svc">
+                              <ProductCombobox
+                                value={svc.product}
+                                taken={takenProducts}
+                                onChange={(code) =>
+                                  updateSvc(pkg.key, svc.key, patchServiceProduct(svc, code))
+                                }
+                              />
+                            </td>
+                            <td className="a-service-package__cell-cfg">
+                              {hasCfg ? (
+                                <ProductVerifyOptions
+                                  businessTypes={svc.businessTypes}
+                                  usageChannels={svc.usageChannels}
+                                  onChange={(patch) => updateSvc(pkg.key, svc.key, patch)}
                                 />
+                              ) : (
+                                <span className="a-field__hint">—</span>
                               )}
                             </td>
-                            <td>
+                            <td className="a-service-package__cell-act">
                               <div className="a-actions">
                                 {canRemoveSvc ? (
                                   <TableAction
@@ -363,18 +442,9 @@ export function ServicePackagesEditor({
                               </div>
                             </td>
                           </tr>
-                          {hasSubparams ? (
-                            <ProductSubparamsRow colSpan={svcColSpan}>
-                              <ProductVerifyOptions
-                                businessTypes={svc.businessTypes}
-                                usageChannels={svc.usageChannels}
-                                onChange={(patch) => updateSvc(pkg.key, svc.key, patch)}
-                              />
-                            </ProductSubparamsRow>
-                          ) : null}
-                        </Fragment>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -382,8 +452,14 @@ export function ServicePackagesEditor({
                 <button
                   type="button"
                   className="a-btn a-btn--sm"
-                  disabled={takenProducts.size >= CONFIGURABLE_PRODUCTS.length}
-                  onClick={() => addService(pkg.key)}
+                  disabled={atServiceCap}
+                  onClick={() => {
+                    if (pkg.services.length === 0) {
+                      updatePkg(pkg.key, { services: [emptyPackageServiceRow()] });
+                      return;
+                    }
+                    addService(pkg.key);
+                  }}
                 >
                   添加技术服务
                 </button>
@@ -397,18 +473,36 @@ export function ServicePackagesEditor({
         <button
           type="button"
           className="a-btn a-btn--sm a-btn--primary"
-          disabled={takenProducts.size >= CONFIGURABLE_PRODUCTS.length}
+          disabled={atServiceCap}
           onClick={addPkg}
         >
           新增套餐包
         </button>
         {takenProducts.size > 0 ? (
           <span className="a-field__hint">
-            已配置技术服务：
+            已配置核验服务：
             {[...takenProducts].map((code) => productName(code as ProductCode)).join("、")}
           </span>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingToggle)}
+        title={pendingToggle?.nextStopped ? "确认停止套餐包" : "确认恢复套餐包"}
+        description={
+          pendingToggle?.nextStopped
+            ? `确定停止「${pendingToggle.name}」吗？停止后，该套餐包内全部技术服务将不可调用，已用额度仍会保留。`
+            : `确定恢复「${pendingToggle?.name ?? ""}」吗？恢复后，在生效期内且额度未用尽时，包内技术服务可继续使用。恢复时包内须至少配置一项核验技术服务。`
+        }
+        confirmText={pendingToggle?.nextStopped ? "停止" : "恢复"}
+        danger={Boolean(pendingToggle?.nextStopped)}
+        onCancel={() => setPendingToggle(null)}
+        onConfirm={() => {
+          if (!pendingToggle) return;
+          updatePkg(pendingToggle.key, { stopped: pendingToggle.nextStopped });
+          setPendingToggle(null);
+        }}
+      />
     </div>
   );
 }

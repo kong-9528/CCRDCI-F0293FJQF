@@ -89,7 +89,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
 
   const scopeProducts = statsProductsForScope(scope);
   const isAudit = scope === "audit";
-  const pageTitle = isAudit ? "机构审核能力使用统计" : "机构服务使用统计";
+  const pageTitle = isAudit ? "按机构+审核能力" : "按机构+服务";
   const detailTitle = isAudit ? "机构审核能力使用明细" : "机构服务使用明细";
   const serviceFilterLabel = isAudit ? "审核能力" : "技术服务";
   const entityLabel = isAudit ? "审核能力" : "产品";

@@ -27,6 +27,7 @@ type Filters = {
   company: string;
   creditCode: string;
   account: string;
+  reviewer: string;
   product: string;
   applyFrom: string;
   applyTo: string;
@@ -36,6 +37,7 @@ const EMPTY_FILTERS: Filters = {
   company: "",
   creditCode: "",
   account: "",
+  reviewer: "",
   product: "",
   applyFrom: "",
   applyTo: "",
@@ -77,8 +79,13 @@ function dayOf(ts: string) {
 function matchesFilters(
   row: AccountApplication,
   f: Filters,
-  filterByProduct: boolean,
-  filterByApplyTime: boolean,
+  opts: {
+    filterByProduct: boolean;
+    filterByAccount: boolean;
+    filterByReviewer: boolean;
+    /** pending：申请/提交时间；rejected：审核时间 */
+    timeField: "submittedAt" | "reviewedAt" | null;
+  },
 ) {
   const companyQ = f.company.trim();
   if (companyQ && !row.companyName.includes(companyQ)) return false;
@@ -86,15 +93,24 @@ function matchesFilters(
   const creditQ = f.creditCode.trim();
   if (creditQ && !row.creditCode.includes(creditQ)) return false;
 
-  const accountQ = f.account.trim();
-  if (accountQ && !row.account.includes(accountQ)) return false;
+  if (opts.filterByAccount) {
+    const accountQ = f.account.trim();
+    if (accountQ && !row.account.includes(accountQ)) return false;
+  }
 
-  if (filterByProduct && f.product && !customerHasProduct(applicationProductServices(row), f.product)) {
+  if (opts.filterByReviewer) {
+    const reviewerQ = f.reviewer.trim();
+    if (reviewerQ && !(row.reviewer ?? "").includes(reviewerQ)) return false;
+  }
+
+  if (opts.filterByProduct && f.product && !customerHasProduct(applicationProductServices(row), f.product)) {
     return false;
   }
 
-  if (filterByApplyTime) {
-    const day = dayOf(row.submittedAt);
+  if (opts.timeField) {
+    const raw = opts.timeField === "reviewedAt" ? row.reviewedAt : row.submittedAt;
+    if (!raw) return false;
+    const day = dayOf(raw);
     if (f.applyFrom && day < f.applyFrom) return false;
     if (f.applyTo && day > f.applyTo) return false;
   }
@@ -121,7 +137,20 @@ export function AccountApplicationsPage({ mode }: Props) {
   const isRejectedTab = showTabs && resultTab === "rejected";
   /** 待审核、不通过 tab 不展示产品筛选；仅我的/全部审核的通过 tab 保留 */
   const showProductFilter = isApprovedTab;
-  const showApplyTimeFilter = mode === "pending" || isRejectedTab;
+  /** 不通过 tab 去掉申请账号；待审核与通过 tab 保留 */
+  const showAccountFilter = mode === "pending" || isApprovedTab;
+  /** 全部审核 · 不通过：用审核人搜索替换申请账号位置 */
+  const showReviewerFilter = mode === "all" && isRejectedTab;
+  const showTimeFilter = mode === "pending" || isRejectedTab;
+  const timeFilterField: "submittedAt" | "reviewedAt" | null = isRejectedTab
+    ? "reviewedAt"
+    : mode === "pending"
+      ? "submittedAt"
+      : null;
+  const timeFilterLabel = isRejectedTab ? "审核时间" : "申请时间";
+  /** 全部审核 · 已通过：仅详情，不展示配置 */
+  const showConfigAction = (row: AccountApplication) =>
+    row.status === "approved" && mode !== "all";
 
   const scoped = useMemo(() => {
     let rows = [...applications];
@@ -140,7 +169,12 @@ export function AccountApplicationsPage({ mode }: Props) {
 
   const filtered = useMemo(() => {
     let rows = scoped.filter((row) =>
-      matchesFilters(row, applied, showProductFilter, showApplyTimeFilter),
+      matchesFilters(row, applied, {
+        filterByProduct: showProductFilter,
+        filterByAccount: showAccountFilter,
+        filterByReviewer: showReviewerFilter,
+        timeField: timeFilterField,
+      }),
     );
     if (mode === "mine" || mode === "all") {
       rows = rows.filter((r) => r.status === resultTab);
@@ -150,7 +184,16 @@ export function AccountApplicationsPage({ mode }: Props) {
       const tb = mode === "pending" ? b.submittedAt : (b.reviewedAt ?? b.submittedAt);
       return tb.localeCompare(ta);
     });
-  }, [scoped, applied, mode, resultTab, showProductFilter, showApplyTimeFilter]);
+  }, [
+    scoped,
+    applied,
+    mode,
+    resultTab,
+    showProductFilter,
+    showAccountFilter,
+    showReviewerFilter,
+    timeFilterField,
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -231,15 +274,28 @@ export function AccountApplicationsPage({ mode }: Props) {
             onChange={(e) => setFilter("creditCode", e.target.value)}
           />
         </div>
-        <div className="a-field">
-          <span className="a-field__label">申请账号</span>
-          <input
-            className="a-input"
-            placeholder="请输入申请账号"
-            value={draft.account}
-            onChange={(e) => setFilter("account", e.target.value)}
-          />
-        </div>
+        {showAccountFilter ? (
+          <div className="a-field">
+            <span className="a-field__label">申请账号</span>
+            <input
+              className="a-input"
+              placeholder="请输入申请账号"
+              value={draft.account}
+              onChange={(e) => setFilter("account", e.target.value)}
+            />
+          </div>
+        ) : null}
+        {showReviewerFilter ? (
+          <div className="a-field">
+            <span className="a-field__label">审核人</span>
+            <input
+              className="a-input"
+              placeholder="请输入审核人"
+              value={draft.reviewer}
+              onChange={(e) => setFilter("reviewer", e.target.value)}
+            />
+          </div>
+        ) : null}
         {showProductFilter ? (
           <div className="a-field">
             <span className="a-field__label">产品</span>
@@ -257,9 +313,9 @@ export function AccountApplicationsPage({ mode }: Props) {
             </select>
           </div>
         ) : null}
-        {showApplyTimeFilter ? (
+        {showTimeFilter ? (
           <div className="a-field">
-            <span className="a-field__label">{isRejectedTab ? "提交时间" : "申请时间"}</span>
+            <span className="a-field__label">{timeFilterLabel}</span>
             <div className="a-date-range">
               <input
                 type="date"
@@ -353,8 +409,8 @@ export function AccountApplicationsPage({ mode }: Props) {
                           <TableAction icon={<IconEye />} to={`/accounts/${row.id}`}>
                             详情
                           </TableAction>
-                          {row.status === "approved" ? (
-                            <TableAction icon={<IconEdit />} to={`/accounts/${row.id}/edit`}>
+                          {showConfigAction(row) ? (
+                            <TableAction icon={<IconEdit />} to={`/accounts/${row.id}/edit?from=${mode}`}>
                               配置
                             </TableAction>
                           ) : null}

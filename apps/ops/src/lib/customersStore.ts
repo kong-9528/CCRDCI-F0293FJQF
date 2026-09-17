@@ -6,7 +6,9 @@ import {
   deriveServiceStatus,
   ensureCustomerContracts,
   flattenServicePackages,
+  mergePackageAndStandaloneServices,
   productName,
+  resolveAuditServicePackage,
   resolveServicePackages,
   withContractSummary,
   type AccountStatus,
@@ -19,7 +21,7 @@ import {
 } from "@/lib/catalog";
 import {
   diffProductConfig,
-  parseServicePackages,
+  parseAllServicePackages,
   validateProductConfig,
   type ProductConfigState,
 } from "@/lib/productConfig";
@@ -377,18 +379,20 @@ export function addCustomerProductService(
   return null;
 }
 
-export function setCustomerProductStopped(
+export function setCustomerPackageStopped(
   customerId: string,
-  product: ProductServiceConfig["product"],
+  packageId: string,
   stopped: boolean,
 ): boolean {
   const cur = getCustomerById(customerId);
   if (!cur) return false;
-  const packages = resolveServicePackages(cur);
-  const pkg = packages.find((p) =>
-    p.services.some((s) => s.product === product),
-  );
+  const verifyPkgs = resolveServicePackages(cur);
+  const auditPkg = resolveAuditServicePackage(cur);
+  const packages = [...verifyPkgs, ...(auditPkg ? [auditPkg] : [])];
+  const pkg = packages.find((p) => p.id === packageId);
   if (!pkg || pkg.stopped === stopped) return false;
+  // 核验套餐恢复时包内须至少一项技术服务
+  if (!stopped && pkg.services.length === 0) return false;
 
   const nextPackages = packages.map((p) =>
     p.id === pkg.id ? { ...p, stopped } : p,
@@ -396,14 +400,14 @@ export function setCustomerProductStopped(
   const next: CustomerAccount = {
     ...cur,
     servicePackages: nextPackages,
-    productServices: flattenServicePackages(nextPackages),
+    productServices: mergePackageAndStandaloneServices(nextPackages),
   };
   updateCustomer(
     customerId,
     next,
     [
       {
-        field: pkg.name || `套餐（含${productName(product)}）`,
+        field: pkg.name || "技术服务套餐",
         before: pkg.stopped ? "已停止" : "可使用",
         after: stopped ? "已停止" : "已恢复",
       },
@@ -412,6 +416,23 @@ export function setCustomerProductStopped(
     stopped ? "停止技术服务套餐" : "恢复技术服务套餐",
   );
   return true;
+}
+
+export function setCustomerProductStopped(
+  customerId: string,
+  product: ProductServiceConfig["product"],
+  stopped: boolean,
+): boolean {
+  const cur = getCustomerById(customerId);
+  if (!cur) return false;
+  const verifyPkgs = resolveServicePackages(cur);
+  const auditPkg = resolveAuditServicePackage(cur);
+  const packages = [...verifyPkgs, ...(auditPkg ? [auditPkg] : [])];
+  const pkg = packages.find((p) =>
+    p.services.some((s) => s.product === product),
+  );
+  if (!pkg) return false;
+  return setCustomerPackageStopped(customerId, pkg.id, stopped);
 }
 
 function appendLog(
@@ -463,20 +484,12 @@ export function saveCustomerProductConfig(
   const validationError = validateProductConfig(state);
   if (validationError) return validationError;
 
-  const parsed = parseServicePackages(state.packages);
+  const parsed = parseAllServicePackages(state, { allowEmpty: true });
   if (!parsed.ok) return parsed.error;
 
-  const beforeProducts = new Set(
-    resolveServicePackages(cur).flatMap((p) => p.services.map((s) => s.product)),
-  );
-  const afterProducts = new Set(parsed.value.flatMap((p) => p.services.map((s) => s.product)));
-  for (const product of beforeProducts) {
-    if (!afterProducts.has(product)) {
-      return `不可移除已开通技术服务「${productName(product)}」`;
-    }
-  }
-
-  const beforePkgs = resolveServicePackages(cur);
+  const beforeVerify = resolveServicePackages(cur);
+  const beforeAudit = resolveAuditServicePackage(cur);
+  const beforePkgs = [...beforeVerify, ...(beforeAudit ? [beforeAudit] : [])];
   const nextPackages = parsed.value.map((pkg) => {
     const existing = beforePkgs.find((p) => p.id === pkg.id);
     return {
@@ -491,11 +504,10 @@ export function saveCustomerProductConfig(
     }
   }
 
-  const nextServices = flattenServicePackages(nextPackages);
   const next: CustomerAccount = {
     ...cur,
     servicePackages: nextPackages,
-    productServices: nextServices,
+    productServices: flattenServicePackages(nextPackages),
   };
 
   const changes = diffProductConfig(cur, nextPackages);
@@ -525,6 +537,7 @@ export function useCustomerStore() {
     updateProductService: updateCustomerProductService,
     addProductService: addCustomerProductService,
     setProductStopped: setCustomerProductStopped,
+    setPackageStopped: setCustomerPackageStopped,
     saveProductConfig: saveCustomerProductConfig,
     addContract: addCustomerContract,
     updateContract: updateCustomerContract,

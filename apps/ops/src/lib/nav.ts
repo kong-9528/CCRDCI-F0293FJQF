@@ -42,10 +42,10 @@ export const OPS_NAV: NavGroup[] = [
     title: "核验统计",
     icon: "stats",
     items: [
-      { to: "/stats/verify/customers", label: "机构使用统计", ready: true },
-      { to: "/stats/verify/products", label: "技术服务使用统计", ready: true },
-      { to: "/stats/verify/account-products", label: "机构服务使用统计", ready: true },
-      { to: "/stats/verify/usage-records", label: "技术服务使用记录", ready: true },
+      { to: "/stats/verify/customers", label: "按机构", ready: true },
+      { to: "/stats/verify/products", label: "按技术服务", ready: true },
+      { to: "/stats/verify/account-products", label: "按机构+服务", ready: true },
+      { to: "/stats/verify/usage-records", label: "使用记录", ready: true },
     ],
   },
   {
@@ -53,10 +53,10 @@ export const OPS_NAV: NavGroup[] = [
     title: "作品智能辅助审核统计",
     icon: "stats",
     items: [
-      { to: "/stats/audit/customers", label: "机构使用统计", ready: true },
-      { to: "/stats/audit/products", label: "审核能力使用统计", ready: true },
-      { to: "/stats/audit/account-products", label: "机构审核能力使用统计", ready: true },
-      { to: "/stats/audit/usage-records", label: "技术服务使用记录", ready: true },
+      { to: "/stats/audit/customers", label: "按机构", ready: true },
+      { to: "/stats/audit/products", label: "按审核能力", ready: true },
+      { to: "/stats/audit/account-products", label: "按机构+审核能力", ready: true },
+      { to: "/stats/audit/usage-records", label: "使用记录", ready: true },
     ],
   },
   {

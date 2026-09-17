@@ -12,8 +12,9 @@ import {
   formatQuota,
   isVerifyProduct,
   productName,
+  resolveAuditServicePackage,
   resolveServicePackages,
-  type ProductServiceConfig,
+  type ServicePackage,
 } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import { actionTypeLabel, getCustomerPortalLogs } from "@/lib/opLogsStore";
@@ -24,20 +25,20 @@ function serviceStatusTagClass(
   status: keyof typeof SERVICE_STATUS_LABEL,
 ) {
   if (status === "active") return "a-tag--ok";
-  if (status === "pending") return "a-tag--wn";
-  if (status === "stopped") return "a-tag--muted";
-  return "a-tag--er";
+  if (status === "pending" || status === "over_quota") return "a-tag--wn";
+  if (status === "stopped") return "a-tag--er";
+  return "a-tag--muted";
 }
 
 export function CustomerDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { getById, getUsage, setProductStopped } = useCustomerStore();
+  const { getById, getUsage, setPackageStopped } = useCustomerStore();
   const customer = getById(id);
   const [tab, setTab] = useState<TabKey>("detail");
   const [logPage, setLogPage] = useState(1);
   const logPageSize = 10;
-  const [confirmSvc, setConfirmSvc] = useState<ProductServiceConfig | null>(null);
+  const [confirmPkg, setConfirmPkg] = useState<ServicePackage | null>(null);
 
   const logs = useMemo(
     () => (customer ? getCustomerPortalLogs(customer.id) : []),
@@ -166,14 +167,14 @@ export function CustomerDetailPage() {
             </section>
 
             <section className="a-form-section">
-              <h3 className="a-form-section__title">技术服务套餐</h3>
+              <h3 className="a-form-section__title">核验技术服务套餐</h3>
               <div className="a-field__hint" style={{ marginBottom: 8 }}>
-                套餐包统一设定额度与生效起止；包内技术服务共享该额度。核验类服务的业务类型与使用方式见各服务明细。
+                套餐包统一设定额度与生效起止，仅面向三类核验技术服务；包内服务共享该额度。
               </div>
               {(() => {
                 const packages = resolveServicePackages(customer);
                 if (packages.length === 0) {
-                  return <div className="a-empty">暂无技术服务套餐配置</div>;
+                  return <div className="a-empty">暂无核验技术服务套餐配置</div>;
                 }
                 return (
                   <div className="a-stack" style={{ gap: 14 }}>
@@ -197,17 +198,13 @@ export function CustomerDetailPage() {
                               <div className="a-actions">
                                 <TableAction
                                   icon={pkg.stopped ? <IconEnable /> : <IconDisable />}
-                                  onClick={() =>
-                                    setConfirmSvc({
-                                      product: pkg.services[0]!.product,
-                                      quotaType: pkg.quotaType,
-                                      quotaTotal: pkg.quotaTotal,
-                                      usedCount: pkg.usedCount,
-                                      startDate: pkg.startDate,
-                                      endDate: pkg.endDate,
-                                      stopped: pkg.stopped,
-                                    })
+                                  disabled={pkg.stopped && pkg.services.length === 0}
+                                  title={
+                                    pkg.stopped && pkg.services.length === 0
+                                      ? "请先在配置页为该套餐包添加核验技术服务后再恢复"
+                                      : undefined
                                   }
+                                  onClick={() => setConfirmPkg(pkg)}
                                 >
                                   {pkg.stopped ? "恢复" : "停止"}
                                 </TableAction>
@@ -224,22 +221,33 @@ export function CustomerDetailPage() {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {pkg.services.map((svc) => (
-                                    <tr key={svc.product}>
-                                      <td>{productName(svc.product)}</td>
-                                      <td>
-                                        {isVerifyProduct(svc.product) ? (
-                                          <ProductVerifyOptions
-                                            readonly
-                                            businessTypes={svc.businessTypes ?? []}
-                                            usageChannels={svc.usageChannels ?? []}
-                                          />
-                                        ) : (
-                                          "—"
-                                        )}
+                                  {pkg.services.length === 0 ? (
+                                    <tr>
+                                      <td colSpan={2}>
+                                        <div className="a-empty" style={{ padding: "10px 0" }}>
+                                          暂无技术服务
+                                          {pkg.stopped ? "（已停止）" : ""}
+                                        </div>
                                       </td>
                                     </tr>
-                                  ))}
+                                  ) : (
+                                    pkg.services.map((svc) => (
+                                      <tr key={svc.product}>
+                                        <td>{productName(svc.product)}</td>
+                                        <td>
+                                          {isVerifyProduct(svc.product) ? (
+                                            <ProductVerifyOptions
+                                              readonly
+                                              businessTypes={svc.businessTypes ?? []}
+                                              usageChannels={svc.usageChannels ?? []}
+                                            />
+                                          ) : (
+                                            "—"
+                                          )}
+                                        </td>
+                                      </tr>
+                                    ))
+                                  )}
                                 </tbody>
                               </table>
                             </div>
@@ -248,6 +256,47 @@ export function CustomerDetailPage() {
                       );
                     })}
                   </div>
+                );
+              })()}
+            </section>
+
+            <section className="a-form-section">
+              <h3 className="a-form-section__title">作品智能辅助审核</h3>
+              {(() => {
+                const audit = resolveAuditServicePackage(customer);
+                if (!audit) {
+                  return <div className="a-empty">尚未开通作品智能辅助审核</div>;
+                }
+                const status = deriveServiceStatus({
+                  ...audit,
+                  product: "workReview",
+                });
+                return (
+                  <article className="a-service-package a-service-package--readonly a-audit-service-card">
+                    <header className="a-service-package__head">
+                      <div className="a-service-package__title-row">
+                        <span className="a-service-package__badge">技术服务</span>
+                        <strong>作品智能辅助审核</strong>
+                      </div>
+                      <div className="a-service-package__meta">
+                        <span>额度：{formatQuota(audit)}</span>
+                        <span>
+                          生效：{audit.startDate} ~ {audit.endDate}
+                        </span>
+                        <span className={`a-tag ${serviceStatusTagClass(status)}`}>
+                          {SERVICE_STATUS_LABEL[status]}
+                        </span>
+                        <div className="a-actions">
+                          <TableAction
+                            icon={audit.stopped ? <IconEnable /> : <IconDisable />}
+                            onClick={() => setConfirmPkg(audit)}
+                          >
+                            {audit.stopped ? "恢复" : "停止"}
+                          </TableAction>
+                        </div>
+                      </div>
+                    </header>
+                  </article>
                 );
               })()}
             </section>
@@ -284,7 +333,8 @@ export function CustomerDetailPage() {
                           className={`a-tag ${
                             row.serviceStatus === "active"
                               ? "a-tag--ok"
-                              : row.serviceStatus === "pending"
+                              : row.serviceStatus === "pending" ||
+                                  row.serviceStatus === "over_quota"
                                 ? "a-tag--wn"
                                 : "a-tag--er"
                           }`}
@@ -357,20 +407,20 @@ export function CustomerDetailPage() {
       </div>
 
       <ConfirmDialog
-        open={Boolean(confirmSvc)}
-        title={confirmSvc?.stopped ? "确认恢复套餐" : "确认停止套餐"}
+        open={Boolean(confirmPkg)}
+        title={confirmPkg?.stopped ? "确认恢复套餐" : "确认停止套餐"}
         description={
-          confirmSvc
-            ? `确定要${confirmSvc.stopped ? "恢复" : "停止"}账号「${customer.account}」中包含「${productName(confirmSvc.product)}」的技术服务套餐吗？停止后包内服务均不可调用。`
+          confirmPkg
+            ? `确定要${confirmPkg.stopped ? "恢复" : "停止"}账号「${customer.account}」的技术服务套餐「${confirmPkg.name || "未命名套餐"}」吗？停止后包内服务均不可调用。`
             : ""
         }
-        confirmText={confirmSvc?.stopped ? "恢复" : "停止"}
-        danger={!confirmSvc?.stopped}
-        onCancel={() => setConfirmSvc(null)}
+        confirmText={confirmPkg?.stopped ? "恢复" : "停止"}
+        danger={!confirmPkg?.stopped}
+        onCancel={() => setConfirmPkg(null)}
         onConfirm={() => {
-          if (!confirmSvc) return;
-          setProductStopped(customer.id, confirmSvc.product, !confirmSvc.stopped);
-          setConfirmSvc(null);
+          if (!confirmPkg) return;
+          setPackageStopped(customer.id, confirmPkg.id, !confirmPkg.stopped);
+          setConfirmPkg(null);
         }}
       />
     </div>

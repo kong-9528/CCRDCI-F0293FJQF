@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AccountProductConfigPanel } from "@/components/AccountProductConfigPanel";
 import { useAccountsStore } from "@/lib/accountsStore";
 import { useCustomerStore } from "@/lib/customersStore";
@@ -9,9 +9,24 @@ import {
   emptyProductConfig,
   type ProductConfigState,
 } from "@/lib/productConfig";
+import { getCurrentUser } from "@/lib/usersStore";
+
+function resolveBackPath(
+  from: string | null,
+  application: { id: string; reviewer?: string },
+) {
+  if (from === "mine") return "/accounts/mine";
+  if (from === "all") return "/accounts/all";
+  if (from === "list") {
+    const me = getCurrentUser()?.displayName ?? "";
+    return application.reviewer === me ? "/accounts/mine" : "/accounts/all";
+  }
+  return `/accounts/${application.id}`;
+}
 
 export function AccountApplicationEditPage() {
   const { id = "" } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { getApplicationById } = useAccountsStore();
   const { getById, saveProductConfig } = useCustomerStore();
@@ -20,6 +35,10 @@ export function AccountApplicationEditPage() {
 
   const [config, setConfig] = useState<ProductConfigState>(() => emptyProductConfig());
   const [error, setError] = useState<string | null>(null);
+
+  const from = searchParams.get("from");
+  const backPath = application ? resolveBackPath(from, application) : "/accounts/mine";
+  const backLabel = from === "mine" || from === "all" || from === "list" ? "返回列表" : "返回详情";
 
   useEffect(() => {
     if (!application) return;
@@ -53,6 +72,8 @@ export function AccountApplicationEditPage() {
         ? { startDate: application.contractStart, endDate: application.contractEnd }
         : undefined;
 
+  const goBack = () => navigate(backPath);
+
   const submit = () => {
     if (!customer) {
       setError("未找到关联机构账号，无法保存");
@@ -63,7 +84,7 @@ export function AccountApplicationEditPage() {
       setError(err);
       return;
     }
-    navigate(`/accounts/${application.id}`);
+    goBack();
   };
 
   return (
@@ -72,20 +93,12 @@ export function AccountApplicationEditPage() {
         <div className="a-card__head">
           配置技术服务 · {application.companyName}
           <div className="a-card__extra">
-            <button
-              type="button"
-              className="a-btn a-btn--sm"
-              onClick={() => navigate(`/accounts/${application.id}`)}
-            >
-              返回详情
+            <button type="button" className="a-btn a-btn--sm" onClick={goBack}>
+              {backLabel}
             </button>
           </div>
         </div>
         <div className="a-card__body a-stack">
-          <p className="a-field__hint" style={{ margin: 0 }}>
-            为 {application.account} 配置技术服务套餐包：先设定包的授权总量与生效起止，再在包内添加技术服务。已开通服务不可移除，可新增套餐或向现有套餐加入未配置的服务。
-          </p>
-
           {!customer ? (
             <div className="a-empty">未找到关联机构账号，无法配置技术服务</div>
           ) : (
@@ -106,11 +119,7 @@ export function AccountApplicationEditPage() {
               <button type="button" className="a-btn a-btn--primary" onClick={submit}>
                 保存
               </button>
-              <button
-                type="button"
-                className="a-btn"
-                onClick={() => navigate(`/accounts/${application.id}`)}
-              >
+              <button type="button" className="a-btn" onClick={goBack}>
                 取消
               </button>
             </div>

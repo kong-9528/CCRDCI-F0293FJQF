@@ -12,6 +12,7 @@ import {
   formatUsageChannels,
   isVerifyProduct,
   productName,
+  resolveAuditServicePackage,
   resolveServicePackages,
 } from "@/lib/catalog";
 
@@ -37,8 +38,22 @@ export type PackageFormRow = {
   isNew?: boolean;
 };
 
+/** 作品智能辅助审核：页面表现为单项服务，底层仍是单服务套餐包 */
+export type AuditServiceFormRow = {
+  key: string;
+  quotaTotal: string;
+  startDate: string;
+  endDate: string;
+  stopped: boolean;
+  usedCount: number;
+  isNew?: boolean;
+};
+
 export type ProductConfigState = {
+  /** 核验服务套餐包 */
   packages: PackageFormRow[];
+  /** 作品智能辅助审核（未开通时为 null） */
+  auditService: AuditServiceFormRow | null;
 };
 
 function newKey(prefix: string) {
@@ -73,12 +88,28 @@ export function emptyPackageRow(defaults?: {
   };
 }
 
+export function emptyAuditServiceRow(defaults?: {
+  startDate?: string;
+  endDate?: string;
+}): AuditServiceFormRow {
+  return {
+    key: newKey("audit"),
+    quotaTotal: "",
+    startDate: defaults?.startDate ?? "",
+    endDate: defaults?.endDate ?? "",
+    stopped: false,
+    usedCount: 0,
+    isNew: true,
+  };
+}
+
 export function emptyProductConfig(_defaultRange?: {
   startDate?: string;
   endDate?: string;
 }): ProductConfigState {
   return {
     packages: [],
+    auditService: null,
   };
 }
 
@@ -94,6 +125,7 @@ export function defaultProductConfigForApplication(app: {
         name: "套餐 1",
       }),
     ],
+    auditService: null,
   };
 }
 
@@ -116,7 +148,21 @@ function packageToForm(pkg: ServicePackage, index: number): PackageFormRow {
             usageChannels: s.usageChannels ? [...s.usageChannels] : [],
             isNew: false,
           }))
-        : [emptyPackageServiceRow()],
+        : pkg.stopped
+          ? []
+          : [emptyPackageServiceRow()],
+  };
+}
+
+function auditPackageToForm(pkg: ServicePackage): AuditServiceFormRow {
+  return {
+    key: pkg.id || newKey("audit"),
+    quotaTotal: pkg.quotaTotal == null ? "" : String(pkg.quotaTotal),
+    startDate: pkg.startDate,
+    endDate: pkg.endDate,
+    stopped: pkg.stopped,
+    usedCount: pkg.usedCount,
+    isNew: false,
   };
 }
 
@@ -126,19 +172,19 @@ function normalizeKey(code: string) {
 
 export function customerToProductConfig(customer: CustomerAccount): ProductConfigState {
   const packages = resolveServicePackages(customer);
-  if (packages.length === 0) {
-    return {
-      packages: [
-        emptyPackageRow({
-          startDate: customer.contractStart,
-          endDate: customer.contractEnd,
-          name: "套餐 1",
-        }),
-      ],
-    };
-  }
+  const auditPkg = resolveAuditServicePackage(customer);
   return {
-    packages: packages.map((pkg, i) => packageToForm(pkg, i)),
+    packages:
+      packages.length > 0
+        ? packages.map((pkg, i) => packageToForm(pkg, i))
+        : [
+            emptyPackageRow({
+              startDate: customer.contractStart,
+              endDate: customer.contractEnd,
+              name: "套餐 1",
+            }),
+          ],
+    auditService: auditPkg ? auditPackageToForm(auditPkg) : null,
   };
 }
 
@@ -169,7 +215,7 @@ export function parseServicePackages(
 
   if (effective.length === 0) {
     if (opts?.allowEmpty) return { ok: true, value: [] };
-    return { ok: false, error: "请至少配置一个技术服务套餐包" };
+    return { ok: false, error: "请至少配置一个核验技术服务套餐包" };
   }
 
   const globalProducts = new Set<string>();
@@ -202,19 +248,25 @@ export function parseServicePackages(
       return { ok: false, error: `${label}：生效开始日期不能晚于结束日期` };
     }
 
-    const serviceRows = pkg.services.filter((s) => Boolean(s.product) || !opts?.allowEmpty);
     const filled = pkg.services.filter((s) => Boolean(s.product));
     if (filled.length === 0) {
-      return { ok: false, error: `${label}：请至少添加一项技术服务` };
+      if (!pkg.stopped) {
+        return { ok: false, error: `${label}：请至少添加一项技术服务` };
+      }
     }
 
     const services: PackageServiceItem[] = [];
-    for (let si = 0; si < (opts?.allowEmpty ? filled : serviceRows).length; si++) {
-      const list = opts?.allowEmpty ? filled : serviceRows;
-      const svc = list[si]!;
+    for (let si = 0; si < filled.length; si++) {
+      const svc = filled[si]!;
       const sLabel = `${label} · ${serviceLabel(svc, si)}`;
       if (!svc.product) {
         return { ok: false, error: `${sLabel}：请选择技术服务` };
+      }
+      if (!isVerifyProduct(svc.product)) {
+        return {
+          ok: false,
+          error: `${sLabel}：核验套餐包仅支持 DCI核验、版权登记信息核验、版权登记证书核验`,
+        };
       }
       if (globalProducts.has(svc.product)) {
         return {
@@ -224,23 +276,18 @@ export function parseServicePackages(
       }
       globalProducts.add(svc.product);
 
-      if (isVerifyProduct(svc.product)) {
-        if (svc.businessTypes.length === 0) {
-          return { ok: false, error: `${sLabel}：请至少选择一项开通业务类型` };
-        }
-        if (svc.usageChannels.length === 0) {
-          return { ok: false, error: `${sLabel}：请至少选择一种产品使用方式` };
-        }
+      if (svc.businessTypes.length === 0) {
+        return { ok: false, error: `${sLabel}：请至少选择一项开通业务类型` };
+      }
+      if (svc.usageChannels.length === 0) {
+        return { ok: false, error: `${sLabel}：请至少选择一种产品使用方式` };
       }
 
-      const item: PackageServiceItem = {
+      services.push({
         product: svc.product,
-      };
-      if (isVerifyProduct(svc.product)) {
-        item.businessTypes = [...svc.businessTypes];
-        item.usageChannels = [...svc.usageChannels];
-      }
-      services.push(item);
+        businessTypes: [...svc.businessTypes],
+        usageChannels: [...svc.usageChannels],
+      });
     }
 
     value.push({
@@ -259,12 +306,83 @@ export function parseServicePackages(
   return { ok: true, value };
 }
 
+export function parseAuditService(
+  row: AuditServiceFormRow | null,
+  opts?: { allowEmpty?: boolean },
+): { ok: true; value: ServicePackage | null } | { ok: false; error: string } {
+  if (!row) return { ok: true, value: null };
+
+  const hasContent =
+    row.quotaTotal.trim() || row.startDate || row.endDate || !row.isNew;
+  if (!hasContent && opts?.allowEmpty) {
+    return { ok: true, value: null };
+  }
+
+  const label = "作品智能辅助审核";
+  if (!row.quotaTotal.trim()) {
+    return { ok: false, error: `${label}：请填写授权总量` };
+  }
+  const n = Number(row.quotaTotal);
+  if (!Number.isInteger(n) || n <= 0) {
+    return { ok: false, error: `${label}：授权总量须为正整数` };
+  }
+  if (n < row.usedCount) {
+    return {
+      ok: false,
+      error: `${label}：授权总量不能小于已用次数 ${row.usedCount}`,
+    };
+  }
+  if (!row.startDate) {
+    return { ok: false, error: `${label}：请填写生效开始日期` };
+  }
+  if (!row.endDate) {
+    return { ok: false, error: `${label}：请填写生效结束日期` };
+  }
+  if (row.startDate > row.endDate) {
+    return { ok: false, error: `${label}：生效开始日期不能晚于结束日期` };
+  }
+
+  return {
+    ok: true,
+    value: {
+      id: row.key,
+      name: label,
+      quotaType: "total",
+      quotaTotal: n,
+      usedCount: row.usedCount,
+      startDate: row.startDate,
+      endDate: row.endDate,
+      stopped: row.stopped,
+      services: [{ product: "workReview" }],
+    },
+  };
+}
+
+/** 解析完整配置：核验套餐 + 审核套餐 */
+export function parseAllServicePackages(
+  state: ProductConfigState,
+  opts?: { allowEmpty?: boolean },
+): { ok: true; value: ServicePackage[] } | { ok: false; error: string } {
+  const verify = parseServicePackages(state.packages, opts);
+  if (!verify.ok) return verify;
+  const audit = parseAuditService(state.auditService, opts);
+  if (!audit.ok) return audit;
+  return {
+    ok: true,
+    value: audit.value ? [...verify.value, audit.value] : verify.value,
+  };
+}
+
 export function validateProductConfig(
   state: ProductConfigState,
   opts?: { allowEmpty?: boolean },
 ): string | null {
-  const parsed = parseServicePackages(state.packages, opts);
+  // 空白占位套餐/未填写审核在解析时忽略；再按场景要求「至少一项」或允许全空
+  const parsed = parseAllServicePackages(state, { allowEmpty: true });
   if (!parsed.ok) return parsed.error;
+  if (!opts?.allowEmpty && parsed.value.length === 0) {
+    return "请至少配置核验套餐或作品智能辅助审核中的一项";
+  }
   return null;
 }
 
@@ -285,7 +403,11 @@ export function diffProductConfig(
     if (a !== b) changes.push({ field, before: a || "—", after: b || "—" });
   };
 
-  const beforePkgs = resolveServicePackages(before);
+  const beforeAudit = resolveAuditServicePackage(before);
+  const beforePkgs = [
+    ...resolveServicePackages(before),
+    ...(beforeAudit ? [beforeAudit] : []),
+  ];
   const describe = (pkgs: ServicePackage[]) =>
     pkgs
       .map((p) => {

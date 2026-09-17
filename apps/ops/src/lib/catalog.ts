@@ -71,6 +71,9 @@ export function isVerifyProduct(code: ProductCode | ""): code is VerifyProductCo
   return Boolean(code && (VERIFY_PRODUCT_CODES as readonly string[]).includes(code));
 }
 
+/** 套餐包可配置的技术服务（仅核验，不含审核） */
+export const PACKAGE_TECH_SERVICES = PRODUCTS.filter((p) => p.category === "verify");
+
 export type CustomerType = "enterprise";
 
 export type AccountStatus = "enabled" | "disabled";
@@ -175,7 +178,7 @@ export type CustomerAccount = {
 export type ProductUsageStat = {
   account: string;
   product: ProductCode;
-  serviceStatus: "pending" | "active" | "expired" | "stopped";
+  serviceStatus: "pending" | "active" | "expired" | "stopped" | "over_quota";
   totalCalls: number;
 };
 
@@ -205,6 +208,7 @@ export const SERVICE_STATUS_LABEL = {
   active: "使用中",
   expired: "已到期",
   stopped: "已停止",
+  over_quota: "已超额",
 } as const;
 
 export const CUSTOMER_TYPE_LABEL: Record<CustomerType, string> = {
@@ -270,8 +274,10 @@ export function flattenServicePackages(packages: ServicePackage[]): ProductServi
   return out;
 }
 
-/** 读取机构套餐包；无包数据时由历史 productServices 各迁成独立包 */
-export function resolveServicePackages(customer: CustomerAccount): ServicePackage[] {
+/**
+ * 读取原始套餐包；无包数据时由 productServices 各迁成独立包（含审核）。
+ */
+export function getRawServicePackages(customer: CustomerAccount): ServicePackage[] {
   if (customer.servicePackages && customer.servicePackages.length > 0) {
     return customer.servicePackages;
   }
@@ -284,7 +290,7 @@ export function resolveServicePackages(customer: CustomerAccount): ServicePackag
     }
     return {
       id: `legacy-${customer.id}-${product}`,
-      name: `套餐 ${index + 1}`,
+      name: isVerifyProduct(product) ? `套餐 ${index + 1}` : productName(product),
       quotaType: s.quotaType,
       quotaTotal: s.quotaTotal,
       usedCount: s.usedCount,
@@ -292,14 +298,87 @@ export function resolveServicePackages(customer: CustomerAccount): ServicePackag
       endDate: s.endDate,
       stopped: s.stopped,
       services: [item],
-    };
+    } satisfies ServicePackage;
   });
+}
+
+/** 是否为「作品智能辅助审核」单服务套餐包 */
+export function isAuditServicePackage(pkg: ServicePackage): boolean {
+  const codes = pkg.services.map((s) => normalizeProductCode(s.product));
+  if (codes.length === 0) return false;
+  return codes.every((c) => c === "workReview");
+}
+
+/**
+ * 读取机构「核验」套餐包。
+ * 审核类服务（作品智能辅助审核）不进入核验套餐列表。
+ */
+export function resolveServicePackages(customer: CustomerAccount): ServicePackage[] {
+  return getRawServicePackages(customer)
+    .filter((pkg) => !isAuditServicePackage(pkg))
+    .map((pkg) => ({
+      ...pkg,
+      services: pkg.services.filter((s) => isVerifyProduct(normalizeProductCode(s.product))),
+    }))
+    .filter((pkg) => pkg.services.length > 0 || pkg.stopped);
+}
+
+/** 读取机构「作品智能辅助审核」套餐（至多一个；底层仍是单服务套餐包） */
+export function resolveAuditServicePackage(
+  customer: CustomerAccount,
+): ServicePackage | null {
+  const fromPkg = getRawServicePackages(customer).find(isAuditServicePackage);
+  if (fromPkg) {
+    return {
+      ...fromPkg,
+      name: fromPkg.name?.trim() || "作品智能辅助审核",
+      services: [{ product: "workReview" }],
+    };
+  }
+  // 兼容：审核仍挂在 productServices、未写入 servicePackages 的旧数据
+  const wr = customer.productServices.find(
+    (s) => normalizeProductCode(s.product) === "workReview",
+  );
+  if (!wr) return null;
+  return {
+    id: `legacy-audit-${customer.id}`,
+    name: "作品智能辅助审核",
+    quotaType: wr.quotaType,
+    quotaTotal: wr.quotaTotal,
+    usedCount: wr.usedCount,
+    startDate: wr.startDate,
+    endDate: wr.endDate,
+    stopped: wr.stopped,
+    services: [{ product: "workReview" }],
+  };
+}
+
+/** @deprecated 审核已纳入套餐包；保留空实现供兼容调用 */
+export function customerNonPackageServices(
+  _customer: CustomerAccount,
+): ProductServiceConfig[] {
+  return [];
+}
+
+/** 套餐展平结果（核验 + 审核）用于写回 productServices */
+export function mergePackageAndStandaloneServices(
+  packages: ServicePackage[],
+  standalone: ProductServiceConfig[] = [],
+): ProductServiceConfig[] {
+  return [...flattenServicePackages(packages), ...standalone];
 }
 
 /** 机构是否已开通某技术服务（含套餐包） */
 export function customerHasTechService(customer: CustomerAccount, filter: string): boolean {
   if (!filter) return true;
-  return customerHasProduct(flattenServicePackages(resolveServicePackages(customer)), filter);
+  const audit = resolveAuditServicePackage(customer);
+  return customerHasProduct(
+    mergePackageAndStandaloneServices([
+      ...resolveServicePackages(customer),
+      ...(audit ? [audit] : []),
+    ]),
+    filter,
+  );
 }
 
 export function todayISO() {
@@ -437,10 +516,26 @@ export function ensureCustomerContracts(
 }
 
 export function deriveServiceStatus(
-  svc: Pick<ProductServiceConfig, "stopped" | "startDate" | "endDate">,
+  svc: Pick<ProductServiceConfig, "stopped" | "startDate" | "endDate"> &
+    Partial<
+      Pick<ProductServiceConfig, "product" | "quotaType" | "quotaTotal" | "usedCount">
+    >,
 ): ProductUsageStat["serviceStatus"] {
   if (svc.stopped) return "stopped";
-  return derivePeriodStatus(svc.startDate, svc.endDate);
+  const period = derivePeriodStatus(svc.startDate, svc.endDate);
+  if (period !== "active") return period;
+  // 作品智能辅助审核允许超额使用：用光或用超后标为「已超额」，仍可继续调用
+  const product = svc.product ? normalizeProductCode(svc.product) : "";
+  if (
+    product === "workReview" &&
+    svc.quotaType !== "unlimited" &&
+    svc.quotaTotal != null &&
+    svc.usedCount != null &&
+    svc.usedCount >= svc.quotaTotal
+  ) {
+    return "over_quota";
+  }
+  return "active";
 }
 
 /** 列表展示用：当前已配置产品（含已停止） */
@@ -461,6 +556,8 @@ export function canConsumeQuota(svc: ProductServiceConfig): boolean {
   if (svc.stopped) return false;
   if (derivePeriodStatus(svc.startDate, svc.endDate) !== "active") return false;
   if (svc.quotaType === "unlimited") return true;
+  // 审核服务允许超额使用
+  if (normalizeProductCode(svc.product) === "workReview") return true;
   return (svc.quotaTotal ?? 0) > svc.usedCount;
 }
 

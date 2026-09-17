@@ -38,7 +38,7 @@ function quotaCell(svc: ProductServiceConfig) {
 
 function statusTagClass(status: ServiceRow["status"]) {
   if (status === "active") return "a-tag--ok";
-  if (status === "pending") return "a-tag--wn";
+  if (status === "pending" || status === "over_quota") return "a-tag--wn";
   if (status === "stopped") return "a-tag--muted";
   return "a-tag--er";
 }
@@ -150,6 +150,7 @@ export function CustomerServicesPage() {
               <option value="">请选择服务状态</option>
               <option value="pending">未生效</option>
               <option value="active">使用中</option>
+              <option value="over_quota">已超额</option>
               <option value="expired">已到期</option>
               <option value="stopped">已停止</option>
             </select>
