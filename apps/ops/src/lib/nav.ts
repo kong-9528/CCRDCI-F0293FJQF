@@ -44,7 +44,7 @@ export const OPS_NAV: NavGroup[] = [
     items: [
       { to: "/stats/verify/customers", label: "按机构", ready: true },
       { to: "/stats/verify/products", label: "按技术服务", ready: true },
-      { to: "/stats/verify/account-products", label: "按机构+服务", ready: true },
+      { to: "/stats/verify/account-products", label: "按机构+技术服务", ready: true },
       { to: "/stats/verify/usage-records", label: "使用记录", ready: true },
     ],
   },

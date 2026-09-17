@@ -89,11 +89,11 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
 
   const scopeProducts = statsProductsForScope(scope);
   const isAudit = scope === "audit";
-  const pageTitle = isAudit ? "按机构+审核能力" : "按机构+服务";
+  const pageTitle = isAudit ? "按机构+审核能力" : "按机构+技术服务";
   const detailTitle = isAudit ? "机构审核能力使用明细" : "机构服务使用明细";
   const serviceFilterLabel = isAudit ? "审核能力" : "技术服务";
-  const entityLabel = isAudit ? "审核能力" : "产品";
-  const comboHint = isAudit ? "账号×审核能力" : "账号×产品";
+  const entityLabel = isAudit ? "审核能力" : "技术服务";
+  const comboHint = isAudit ? "机构×审核能力" : "机构×技术服务";
   const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
@@ -380,7 +380,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       <div className="a-card a-stats-ap-panel">
         <section className="a-stats-ap-panel__section">
           <div className="a-stats-ap-panel__head">
-            <h3 className="a-stats-ap-panel__title">用量热力矩阵</h3>
+            <h3 className="a-stats-ap-panel__title">用量热力图</h3>
             <span className="a-field__hint a-stats-ap-panel__hint">
               「—」表示时段内该账号下该{entityLabel}处于“未开通/已到期/已停用”的状态。点击单元格可查看调用趋势图。
               {visibleMatrix.truncated
@@ -544,7 +544,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
             <thead>
               <tr>
                 <th>账号</th>
-                <th>公司</th>
+                <th>机构</th>
                 <th>{entityLabel}</th>
                 <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
                 {scope === "verify" ? <th>页面 / API</th> : null}

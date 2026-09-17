@@ -401,12 +401,12 @@ export function AccountApplicationsPage({ mode }: Props) {
                   <td className="a-table__col-actions">
                     <div className="a-actions a-actions--nowrap">
                       {row.status === "pending" ? (
-                        <TableAction icon={<IconAudit />} to={`/accounts/${row.id}/review`}>
+                        <TableAction icon={<IconAudit />} to={`/accounts/${row.id}/review?from=pending`}>
                           审核
                         </TableAction>
                       ) : (
                         <>
-                          <TableAction icon={<IconEye />} to={`/accounts/${row.id}`}>
+                          <TableAction icon={<IconEye />} to={`/accounts/${row.id}?from=${mode}`}>
                             详情
                           </TableAction>
                           {showConfigAction(row) ? (

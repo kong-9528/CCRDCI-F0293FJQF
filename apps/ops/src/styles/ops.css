@@ -4802,6 +4802,67 @@ body,
   color: #ff4d4f;
 }
 
+.o-app-detail-page {
+  background: #fff;
+}
+
+.o-app-detail-page > .a-card__body {
+  padding: 20px 24px 24px;
+}
+
+.o-app-detail-page .o-audit-hist-list {
+  gap: 20px;
+}
+
+.o-app-detail-page .o-audit-hist-card {
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 16px 18px 14px;
+  background: #fff;
+}
+
+.o-app-detail-page .a-file-list {
+  gap: 6px;
+}
+
+.o-app-detail-page .a-file-list li {
+  margin: 0;
+}
+
+.o-app-detail-page .a-file-list__link {
+  color: #1890ff;
+}
+
+.o-app-review__title .a-tag {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.o-app-detail-svc-block {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.o-app-detail-svc-block:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.o-app-detail-svc-block__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.o-app-detail-svc-block__meta strong {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+}
+
 .o-audit-hist-modal .a-file-list {
   gap: 6px;
 }

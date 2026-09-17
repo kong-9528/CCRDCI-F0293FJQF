@@ -346,7 +346,7 @@ export function exportProductDailyCsv(products?: ProductCode[]) {
     : productDays;
   downloadCsv(
     "产品使用统计报表.csv",
-    ["日期", "产品名称", "当日调用账号数", "当日调用次数", "当日成功率"],
+    ["日期", "产品名称", "当日调用机构数", "当日调用次数", "当日成功率"],
     rows.map((r) => [
       r.date,
       r.productLabel,

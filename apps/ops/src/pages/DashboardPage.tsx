@@ -19,7 +19,7 @@ import { getCurrentUserPermissions } from "@/lib/usersStore";
 type TrendMetric = "activeAccounts" | "calls";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用账号数",
+  activeAccounts: "日调用机构数",
   calls: "日调用次数",
 };
 
@@ -100,7 +100,7 @@ export function DashboardPage() {
   const apiCalls = sumApiCalls(data.accountDays);
 
   const overviewMetrics = [
-    { label: "总账号数", value: totalAccounts },
+    { label: "总机构数", value: totalAccounts },
     { label: "总调用次数", value: totalCalls.toLocaleString() },
     { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
     { label: "API调用次数", value: apiCalls.toLocaleString() },
@@ -186,13 +186,13 @@ export function DashboardPage() {
                 const showChannelMetrics = p.category === "verify";
                 const metrics = showChannelMetrics
                   ? [
-                      { label: "总账号数", value: String(p.accounts) },
+                      { label: "总机构数", value: String(p.accounts) },
                       { label: "总调用次数", value: p.totalCalls.toLocaleString() },
                       { label: "页面提交次数", value: p.pageSubmitCalls.toLocaleString() },
                       { label: "API调用次数", value: p.apiCalls.toLocaleString() },
                     ]
                   : [
-                      { label: "总账号数", value: String(p.accounts) },
+                      { label: "总机构数", value: String(p.accounts) },
                       { label: "总调用次数", value: p.totalCalls.toLocaleString() },
                     ];
                 const glyphKind = i % 3 === 0 ? "users" : i % 3 === 1 ? "chart" : "api";

@@ -28,7 +28,7 @@ type TrendMetric = "calls" | "activeAccounts";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   calls: "日调用次数",
-  activeAccounts: "日调用账号数",
+  activeAccounts: "日调用机构数",
 };
 
 const TREND_METRIC_OPTIONS: TrendMetric[] = ["activeAccounts", "calls"];
@@ -107,13 +107,13 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
   const overviewMetrics =
     scope === "verify"
       ? [
-          { label: "总账号数", value: totalAccounts },
+          { label: "总机构数", value: totalAccounts },
           { label: "总调用次数", value: totalCallsAll.toLocaleString() },
           { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
           { label: "API调用次数", value: apiCalls.toLocaleString() },
         ]
       : [
-          { label: "总账号数", value: totalAccounts },
+          { label: "总机构数", value: totalAccounts },
           { label: "总调用次数", value: totalCallsAll.toLocaleString() },
         ];
 
@@ -170,7 +170,7 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
 
       <div className="a-card">
         <div className="a-card__head">
-          账号调用榜单
+          机构调用榜单
           <div className="a-card__extra a-inline-actions">
             <TrendRangeToggle
               value={rankRange}

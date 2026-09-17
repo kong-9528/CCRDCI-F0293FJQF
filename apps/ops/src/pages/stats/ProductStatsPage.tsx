@@ -28,7 +28,7 @@ import {
 type TrendMetric = "activeAccounts" | "calls";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用账号数",
+  activeAccounts: "日调用机构数",
   calls: "日调用次数",
 };
 
@@ -54,7 +54,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
   const categoryProducts = statsProductsForScope(scope);
   const productCodes = categoryProducts.map((p) => p.code) as ProductCode[];
   const showChannelMetrics = scope === "verify";
-  const entityLabel = scope === "audit" ? "审核能力" : "产品";
+  const entityLabel = scope === "audit" ? "审核能力" : "核验服务";
 
   const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);
@@ -112,13 +112,13 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
           {productCards.map((card, i) => {
             const metrics = showChannelMetrics
               ? [
-                  { label: "总账号数", value: String(card.totalAccounts) },
+                  { label: "总机构数", value: String(card.totalAccounts) },
                   { label: "总调用次数", value: card.totalCalls.toLocaleString() },
                   { label: "页面提交次数", value: card.pageSubmitCalls.toLocaleString() },
                   { label: "API调用次数", value: card.apiCalls.toLocaleString() },
                 ]
               : [
-                  { label: "总账号数", value: String(card.totalAccounts) },
+                  { label: "总机构数", value: String(card.totalAccounts) },
                   { label: "总调用次数", value: card.totalCalls.toLocaleString() },
                 ];
 
@@ -203,7 +203,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
                 <th>排名</th>
                 <th>{entityLabel}</th>
                 <th>调用次数</th>
-                <th>日均调用账号数</th>
+                <th>日均调用机构数</th>
               </tr>
             </thead>
             <tbody>
