@@ -1,10 +1,12 @@
 ﻿import { useEffect, useState } from "react";
 import { finalizeAuditHistory } from "@/lib/auditHistoryStore";
-import type { ContractFile, ProductCode } from "@/lib/catalog";
+import { flattenServicePackages, type ContractFile, type ProductCode } from "@/lib/catalog";
 import { createCustomer, isAccountTaken } from "@/lib/customersStore";
-import { parseProductServices, type ProductFormRow } from "@/lib/customerForm";
 import type { ProductConfigState } from "@/lib/productConfig";
-import { defaultProductConfigForApplication, validateProductConfig } from "@/lib/productConfig";
+import {
+  parseServicePackages,
+  validateProductConfig,
+} from "@/lib/productConfig";
 import { getCurrentUser } from "@/lib/usersStore";
 
 export type ApplicationStatus = "pending" | "approved" | "rejected";
@@ -211,10 +213,6 @@ export function getApplicationById(id: string): AccountApplication | undefined {
   return applications.find((a) => a.id === id);
 }
 
-export function defaultProductRowsForApplication(app: AccountApplication): ProductFormRow[] {
-  return defaultProductConfigForApplication(app).productRows;
-}
-
 export function approveApplication(
   id: string,
   config: ProductConfigState,
@@ -226,8 +224,8 @@ export function approveApplication(
   const validationError = validateProductConfig(config, { allowEmpty: true });
   if (validationError) return { ok: false, error: validationError };
 
-  const products = parseProductServices(config.productRows, { allowEmpty: true });
-  if (!products.ok) return { ok: false, error: products.error };
+  const packages = parseServicePackages(config.packages, { allowEmpty: true });
+  if (!packages.ok) return { ok: false, error: packages.error };
 
   if (isAccountTaken(app.account)) {
     return { ok: false, error: "申请账号已被占用，请拒绝后通知客户修改账号重新申请" };
@@ -259,7 +257,8 @@ export function approveApplication(
     contractAmount: app.contractAmount,
     account: app.account,
     passwordHint: app.passwordHint,
-    productServices: products.value,
+    productServices: flattenServicePackages(packages.value),
+    servicePackages: packages.value,
     status: "enabled",
   });
 

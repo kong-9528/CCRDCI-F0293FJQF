@@ -1,10 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import {
-  ProductSubparamsRow,
-  ProductVerifyOptions,
-} from "@/components/ProductVerifyOptions";
+import { ProductVerifyOptions } from "@/components/ProductVerifyOptions";
 import { TableAction } from "@/components/TableAction";
 import { IconDisable, IconEnable } from "@/components/icons/UiIcons";
 import {
@@ -15,6 +12,7 @@ import {
   formatQuota,
   isVerifyProduct,
   productName,
+  resolveServicePackages,
   type ProductServiceConfig,
 } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
@@ -168,77 +166,90 @@ export function CustomerDetailPage() {
             </section>
 
             <section className="a-form-section">
-              <h3 className="a-form-section__title">产品服务配置</h3>
+              <h3 className="a-form-section__title">技术服务套餐</h3>
               <div className="a-field__hint" style={{ marginBottom: 8 }}>
-                产品额度仅在产品有效期内可消耗；过期后次数保留但不可再使用（WebUI / API）。
-                账号能否登录取决于账号状态（启用/停用）。
+                套餐包统一设定额度与生效起止；包内技术服务共享该额度。核验类服务的业务类型与使用方式见各服务明细。
               </div>
-              <div className="a-table-wrap">
-                <table className="a-table">
-                  <thead>
-                    <tr>
-                      <th>产品</th>
-                      <th>额度</th>
-                      <th>有效期</th>
-                      <th>服务状态</th>
-                      <th>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customer.productServices.length === 0 ? (
-                      <tr>
-                        <td colSpan={5}>
-                          <div className="a-empty">暂无产品服务配置</div>
-                        </td>
-                      </tr>
-                    ) : (
-                      customer.productServices.flatMap((svc) => {
-                        const status = deriveServiceStatus(svc);
-                        const hasSubparams = isVerifyProduct(svc.product);
-                        const rows = [
-                          <tr
-                            key={svc.product}
-                            className={hasSubparams ? "a-product-row--has-subparams" : undefined}
-                          >
-                            <td>{productName(svc.product)}</td>
-                            <td>{formatQuota(svc)}</td>
-                            <td>
-                              {svc.startDate} ~ {svc.endDate}
-                            </td>
-                            <td>
+              {(() => {
+                const packages = resolveServicePackages(customer);
+                if (packages.length === 0) {
+                  return <div className="a-empty">暂无技术服务套餐配置</div>;
+                }
+                return (
+                  <div className="a-stack" style={{ gap: 14 }}>
+                    {packages.map((pkg) => {
+                      const status = deriveServiceStatus(pkg);
+                      return (
+                        <article key={pkg.id} className="a-service-package a-service-package--readonly">
+                          <header className="a-service-package__head">
+                            <div className="a-service-package__title-row">
+                              <span className="a-service-package__badge">套餐包</span>
+                              <strong>{pkg.name || "未命名套餐"}</strong>
+                            </div>
+                            <div className="a-service-package__meta">
+                              <span>额度：{formatQuota(pkg)}</span>
+                              <span>
+                                生效：{pkg.startDate} ~ {pkg.endDate}
+                              </span>
                               <span className={`a-tag ${serviceStatusTagClass(status)}`}>
                                 {SERVICE_STATUS_LABEL[status]}
                               </span>
-                            </td>
-                            <td>
                               <div className="a-actions">
                                 <TableAction
-                                  icon={svc.stopped ? <IconEnable /> : <IconDisable />}
-                                  onClick={() => setConfirmSvc(svc)}
+                                  icon={pkg.stopped ? <IconEnable /> : <IconDisable />}
+                                  onClick={() =>
+                                    setConfirmSvc({
+                                      product: pkg.services[0]!.product,
+                                      quotaType: pkg.quotaType,
+                                      quotaTotal: pkg.quotaTotal,
+                                      usedCount: pkg.usedCount,
+                                      startDate: pkg.startDate,
+                                      endDate: pkg.endDate,
+                                      stopped: pkg.stopped,
+                                    })
+                                  }
                                 >
-                                  {svc.stopped ? "恢复" : "停止"}
+                                  {pkg.stopped ? "恢复" : "停止"}
                                 </TableAction>
                               </div>
-                            </td>
-                          </tr>,
-                        ];
-                        if (hasSubparams) {
-                          rows.push(
-                            <ProductSubparamsRow key={`${svc.product}-opts`} colSpan={4}>
-                              <ProductVerifyOptions
-                                readonly
-                                businessTypes={svc.businessTypes ?? []}
-                                usageChannels={svc.usageChannels ?? []}
-                              />
-                            </ProductSubparamsRow>,
-                          );
-                        }
-                        return rows;
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            </div>
+                          </header>
+                          <div className="a-service-package__body">
+                            <div className="a-table-wrap">
+                              <table className="a-table a-table--compact">
+                                <thead>
+                                  <tr>
+                                    <th>技术服务</th>
+                                    <th>开通明细</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {pkg.services.map((svc) => (
+                                    <tr key={svc.product}>
+                                      <td>{productName(svc.product)}</td>
+                                      <td>
+                                        {isVerifyProduct(svc.product) ? (
+                                          <ProductVerifyOptions
+                                            readonly
+                                            businessTypes={svc.businessTypes ?? []}
+                                            usageChannels={svc.usageChannels ?? []}
+                                          />
+                                        ) : (
+                                          "—"
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </section>
           </div>
         ) : null}
@@ -347,10 +358,10 @@ export function CustomerDetailPage() {
 
       <ConfirmDialog
         open={Boolean(confirmSvc)}
-        title={confirmSvc?.stopped ? "确认恢复服务" : "确认停止服务"}
+        title={confirmSvc?.stopped ? "确认恢复套餐" : "确认停止套餐"}
         description={
           confirmSvc
-            ? `确定要${confirmSvc.stopped ? "恢复" : "停止"}账号「${customer.account}」的产品「${productName(confirmSvc.product)}」吗？`
+            ? `确定要${confirmSvc.stopped ? "恢复" : "停止"}账号「${customer.account}」中包含「${productName(confirmSvc.product)}」的技术服务套餐吗？停止后包内服务均不可调用。`
             : ""
         }
         confirmText={confirmSvc?.stopped ? "恢复" : "停止"}

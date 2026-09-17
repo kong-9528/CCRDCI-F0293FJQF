@@ -16,7 +16,7 @@ export type ProductCode = (typeof PRODUCTS)[number]["code"] | LegacyAuditProduct
 
 export type ConfigurableProductCode = (typeof PRODUCTS)[number]["code"];
 
-/** 产品配置、筛选项等 UI 使用的可售产品列表 */
+/** 技术服务配置、筛选项等 UI 使用的可售产品列表 */
 export const CONFIGURABLE_PRODUCTS = PRODUCTS;
 
 export function normalizeProductCode(code: ProductCode): ConfigurableProductCode {
@@ -84,6 +84,7 @@ export type QuotaType = "unlimited" | "total";
  * - 额度仅在 startDate~endDate 内可消耗；过期后 usedCount / 剩余次数均不清零，但不可再调用（WebUI / API）。
  * - 合同服务期仅用于提醒与展示，不参与登录或调用控制。
  * - 账号能否登录仅取决于账号状态（启用/停用）。
+ * - 新模型下额度与有效期归属「技术服务套餐包」；本结构仍用于列表兼容展平。
  */
 export type ProductServiceConfig = {
   product: ProductCode;
@@ -100,6 +101,30 @@ export type ProductServiceConfig = {
   businessTypes?: BusinessType[];
   /** 核验类产品：使用方式 */
   usageChannels?: UsageChannel[];
+};
+
+/** 套餐包内的技术服务项（业务类型 / 使用方式挂在服务上） */
+export type PackageServiceItem = {
+  product: ProductCode;
+  businessTypes?: BusinessType[];
+  usageChannels?: UsageChannel[];
+};
+
+/**
+ * 技术服务套餐包：统一额度与生效起止；包内可含多个技术服务。
+ * 同一机构下，技术服务不可跨包重复。
+ */
+export type ServicePackage = {
+  id: string;
+  /** 展示名，缺省时 UI 用「套餐 N」 */
+  name?: string;
+  quotaType: QuotaType;
+  quotaTotal: number | null;
+  usedCount: number;
+  startDate: string;
+  endDate: string;
+  stopped: boolean;
+  services: PackageServiceItem[];
 };
 
 export type ContractFile = {
@@ -141,6 +166,8 @@ export type CustomerAccount = {
   passwordHint: string;
   status: AccountStatus;
   productServices: ProductServiceConfig[];
+  /** 技术服务套餐包（优先）；缺省时由 productServices 迁移生成 */
+  servicePackages?: ServicePackage[];
   createdAt: string;
   updatedAt: string;
 };
@@ -217,6 +244,62 @@ export function customerHasProduct(
   if (!filter) return true;
   const target = normalizeProductCode(filter as ProductCode);
   return services.some((s) => normalizeProductCode(s.product) === target);
+}
+
+/** 将套餐包展平为兼容用的 productServices（额度/有效期取自所属包） */
+export function flattenServicePackages(packages: ServicePackage[]): ProductServiceConfig[] {
+  const out: ProductServiceConfig[] = [];
+  for (const pkg of packages) {
+    for (const svc of pkg.services) {
+      const item: ProductServiceConfig = {
+        product: normalizeProductCode(svc.product),
+        quotaType: pkg.quotaType,
+        quotaTotal: pkg.quotaTotal,
+        usedCount: pkg.usedCount,
+        startDate: pkg.startDate,
+        endDate: pkg.endDate,
+        stopped: pkg.stopped,
+      };
+      if (isVerifyProduct(item.product)) {
+        item.businessTypes = svc.businessTypes ? [...svc.businessTypes] : [];
+        item.usageChannels = svc.usageChannels ? [...svc.usageChannels] : [];
+      }
+      out.push(item);
+    }
+  }
+  return out;
+}
+
+/** 读取机构套餐包；无包数据时由历史 productServices 各迁成独立包 */
+export function resolveServicePackages(customer: CustomerAccount): ServicePackage[] {
+  if (customer.servicePackages && customer.servicePackages.length > 0) {
+    return customer.servicePackages;
+  }
+  return customer.productServices.map((s, index) => {
+    const product = normalizeProductCode(s.product);
+    const item: PackageServiceItem = { product };
+    if (isVerifyProduct(product)) {
+      item.businessTypes = s.businessTypes ? [...s.businessTypes] : [];
+      item.usageChannels = s.usageChannels ? [...s.usageChannels] : [];
+    }
+    return {
+      id: `legacy-${customer.id}-${product}`,
+      name: `套餐 ${index + 1}`,
+      quotaType: s.quotaType,
+      quotaTotal: s.quotaTotal,
+      usedCount: s.usedCount,
+      startDate: s.startDate,
+      endDate: s.endDate,
+      stopped: s.stopped,
+      services: [item],
+    };
+  });
+}
+
+/** 机构是否已开通某技术服务（含套餐包） */
+export function customerHasTechService(customer: CustomerAccount, filter: string): boolean {
+  if (!filter) return true;
+  return customerHasProduct(flattenServicePackages(resolveServicePackages(customer)), filter);
 }
 
 export function todayISO() {
@@ -354,7 +437,7 @@ export function ensureCustomerContracts(
 }
 
 export function deriveServiceStatus(
-  svc: ProductServiceConfig,
+  svc: Pick<ProductServiceConfig, "stopped" | "startDate" | "endDate">,
 ): ProductUsageStat["serviceStatus"] {
   if (svc.stopped) return "stopped";
   return derivePeriodStatus(svc.startDate, svc.endDate);
@@ -365,7 +448,9 @@ export function customerProductCodes(c: CustomerAccount): ProductCode[] {
   return c.productServices.map((s) => s.product);
 }
 
-export function formatQuota(svc: ProductServiceConfig): string {
+export function formatQuota(
+  svc: Pick<ProductServiceConfig, "quotaType" | "quotaTotal" | "usedCount">,
+): string {
   if (svc.quotaType === "unlimited") return "不限量";
   const total = svc.quotaTotal ?? 0;
   const left = Math.max(0, total - svc.usedCount);

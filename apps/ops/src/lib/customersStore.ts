@@ -5,7 +5,9 @@ import {
   deriveAccountContractPeriod,
   deriveServiceStatus,
   ensureCustomerContracts,
+  flattenServicePackages,
   productName,
+  resolveServicePackages,
   withContractSummary,
   type AccountStatus,
   type ContractFile,
@@ -17,10 +19,10 @@ import {
 } from "@/lib/catalog";
 import {
   diffProductConfig,
+  parseServicePackages,
   validateProductConfig,
   type ProductConfigState,
 } from "@/lib/productConfig";
-import { parseProductServices } from "@/lib/customerForm";
 
 let customers: CustomerAccount[] = structuredClone(MOCK_CUSTOMERS).map(ensureCustomerContracts);
 let opLogs: CustomerOpLog[] = structuredClone(MOCK_OP_LOGS);
@@ -382,26 +384,32 @@ export function setCustomerProductStopped(
 ): boolean {
   const cur = getCustomerById(customerId);
   if (!cur) return false;
-  const before = cur.productServices.find((s) => s.product === product);
-  if (!before || before.stopped === stopped) return false;
+  const packages = resolveServicePackages(cur);
+  const pkg = packages.find((p) =>
+    p.services.some((s) => s.product === product),
+  );
+  if (!pkg || pkg.stopped === stopped) return false;
+
+  const nextPackages = packages.map((p) =>
+    p.id === pkg.id ? { ...p, stopped } : p,
+  );
   const next: CustomerAccount = {
     ...cur,
-    productServices: cur.productServices.map((s) =>
-      s.product === product ? { ...s, stopped } : s,
-    ),
+    servicePackages: nextPackages,
+    productServices: flattenServicePackages(nextPackages),
   };
   updateCustomer(
     customerId,
     next,
     [
       {
-        field: productName(product),
-        before: before.stopped ? "已停止" : "可使用",
+        field: pkg.name || `套餐（含${productName(product)}）`,
+        before: pkg.stopped ? "已停止" : "可使用",
         after: stopped ? "已停止" : "已恢复",
       },
     ],
     "service",
-    stopped ? "停止产品服务" : "恢复产品服务",
+    stopped ? "停止技术服务套餐" : "恢复技术服务套餐",
   );
   return true;
 }
@@ -455,42 +463,49 @@ export function saveCustomerProductConfig(
   const validationError = validateProductConfig(state);
   if (validationError) return validationError;
 
-  const parsed = parseProductServices(state.productRows);
+  const parsed = parseServicePackages(state.packages);
   if (!parsed.ok) return parsed.error;
 
-  for (const existing of cur.productServices) {
-    if (!parsed.value.some((svc) => svc.product === existing.product)) {
-      return `不可移除已开通产品「${productName(existing.product)}」`;
+  const beforeProducts = new Set(
+    resolveServicePackages(cur).flatMap((p) => p.services.map((s) => s.product)),
+  );
+  const afterProducts = new Set(parsed.value.flatMap((p) => p.services.map((s) => s.product)));
+  for (const product of beforeProducts) {
+    if (!afterProducts.has(product)) {
+      return `不可移除已开通技术服务「${productName(product)}」`;
     }
   }
 
-  const nextServices = parsed.value.map((svc) => {
-    const existing = cur.productServices.find((s) => s.product === svc.product);
+  const beforePkgs = resolveServicePackages(cur);
+  const nextPackages = parsed.value.map((pkg) => {
+    const existing = beforePkgs.find((p) => p.id === pkg.id);
     return {
-      ...svc,
+      ...pkg,
       usedCount: existing?.usedCount ?? 0,
     };
   });
 
-  for (const svc of nextServices) {
-    if (svc.quotaType === "total" && svc.quotaTotal != null && svc.quotaTotal < svc.usedCount) {
-      return `产品「${productName(svc.product)}」的新额度不能小于已用次数 ${svc.usedCount}`;
+  for (const pkg of nextPackages) {
+    if (pkg.quotaType === "total" && pkg.quotaTotal != null && pkg.quotaTotal < pkg.usedCount) {
+      return `套餐「${pkg.name || pkg.id}」的新额度不能小于已用次数 ${pkg.usedCount}`;
     }
   }
 
+  const nextServices = flattenServicePackages(nextPackages);
   const next: CustomerAccount = {
     ...cur,
+    servicePackages: nextPackages,
     productServices: nextServices,
   };
 
-  const changes = diffProductConfig(cur, state.productRows);
+  const changes = diffProductConfig(cur, nextPackages);
 
   updateCustomer(
     customerId,
     next,
-    changes.length ? changes : [{ field: "产品服务配置", before: "—", after: "已更新" }],
+    changes.length ? changes : [{ field: "技术服务套餐配置", before: "—", after: "已更新" }],
     "service",
-    "编辑产品服务配置",
+    "编辑技术服务套餐配置",
   );
   return null;
 }

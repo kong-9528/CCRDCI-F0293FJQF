@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import { AccountProductConfigPanel } from "@/components/AccountProductConfigPanel";
 import { AuditHistoryModal } from "@/components/AuditHistoryModal";
 import { ContractFileList } from "@/components/ContractFileList";
 import { IconBack, IconHistory } from "@/components/icons/UiIcons";
@@ -10,11 +9,7 @@ import {
   useAccountsStore,
   type ApplicationStatus,
 } from "@/lib/accountsStore";
-import {
-  defaultProductConfigForApplication,
-  emptyProductConfig,
-  type ProductConfigState,
-} from "@/lib/productConfig";
+import { emptyProductConfig } from "@/lib/productConfig";
 import { getCurrentUser, getCurrentUserPermissions } from "@/lib/usersStore";
 
 type ReviewDecision = "approve" | "reject";
@@ -40,7 +35,6 @@ export function AccountApplicationPage({ mode }: Props) {
   const application = getApplicationById(id);
 
   const [decision, setDecision] = useState<ReviewDecision>("approve");
-  const [productConfig, setProductConfig] = useState<ProductConfigState>(() => emptyProductConfig());
   const [rejectReason, setRejectReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -48,7 +42,6 @@ export function AccountApplicationPage({ mode }: Props) {
   useEffect(() => {
     if (!application) return;
     setDecision("approve");
-    setProductConfig(defaultProductConfigForApplication(application));
     setRejectReason("");
     setError(null);
     setHistoryOpen(false);
@@ -98,7 +91,7 @@ export function AccountApplicationPage({ mode }: Props) {
       navigate(`/accounts/${application.id}`, { replace: true });
       return;
     }
-    const result = approveApplication(application.id, productConfig);
+    const result = approveApplication(application.id, emptyProductConfig());
     if (!result.ok) {
       setError(result.error);
       return;
@@ -121,7 +114,7 @@ export function AccountApplicationPage({ mode }: Props) {
               className="a-btn a-btn--sm a-btn--primary"
               style={{ marginLeft: 12 }}
             >
-              编辑产品服务
+              配置技术服务
             </Link>
           ) : null}
         </h1>
@@ -234,19 +227,8 @@ export function AccountApplicationPage({ mode }: Props) {
               </div>
 
               {decision === "approve" ? (
-                <div className="a-stack">
-                  <div className="a-field__hint">
-                    审核通过后将创建机构账号。产品配置为可选项：可在此开通产品，也可通过后在「编辑产品服务」中配置。
-                  </div>
-                  <AccountProductConfigPanel
-                    value={productConfig}
-                    onChange={setProductConfig}
-                    defaultRange={{
-                      startDate: application.contractStart,
-                      endDate: application.contractEnd,
-                    }}
-                    mode="create"
-                  />
+                <div className="a-field__hint">
+                  {/* 审核通过后将创建机构账号，技术服务可在通过后于「编辑产品服务」中配置。 */}
                 </div>
               ) : (
                 <div className="a-field a-field--stack">

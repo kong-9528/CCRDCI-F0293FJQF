@@ -34,7 +34,7 @@ export function AccountApplicationEditPage() {
   if (!application) {
     return (
       <div className="a-card">
-        <div className="a-card__head">编辑产品服务</div>
+        <div className="a-card__head">配置技术服务</div>
         <div className="a-card__body">
           <div className="a-empty">未找到该申请记录</div>
         </div>
@@ -70,7 +70,7 @@ export function AccountApplicationEditPage() {
     <div className="a-stack">
       <div className="a-card">
         <div className="a-card__head">
-          编辑产品服务 · {application.companyName}
+          配置技术服务 · {application.companyName}
           <div className="a-card__extra">
             <button
               type="button"
@@ -83,11 +83,11 @@ export function AccountApplicationEditPage() {
         </div>
         <div className="a-card__body a-stack">
           <p className="a-field__hint" style={{ margin: 0 }}>
-            {application.account} 的产品开通配置。已有产品不可移除，可新增配置或调整额度与有效期。
+            为 {application.account} 配置技术服务套餐包：先设定包的授权总量与生效起止，再在包内添加技术服务。已开通服务不可移除，可新增套餐或向现有套餐加入未配置的服务。
           </p>
 
           {!customer ? (
-            <div className="a-empty">未找到关联机构账号，无法编辑产品服务</div>
+            <div className="a-empty">未找到关联机构账号，无法配置技术服务</div>
           ) : (
             <AccountProductConfigPanel
               value={config}

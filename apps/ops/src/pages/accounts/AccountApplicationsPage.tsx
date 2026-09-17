@@ -183,8 +183,8 @@ export function AccountApplicationsPage({ mode }: Props) {
   const colSpan = (() => {
     if (mode === "pending") return 7;
     if (isApprovedTab) return mode === "all" ? 9 : 8;
-    // 不通过：机构/组织机构代码/联系人/账号/申请时间/审核时间/不通过原因/[审核人]/状态/操作
-    if (isRejectedTab) return mode === "all" ? 10 : 9;
+    // 不通过：机构/组织机构代码/联系人/账号/提交时间/审核时间/不通过原因/[审核人]/操作（无状态）
+    if (isRejectedTab) return mode === "all" ? 9 : 8;
     return 9;
   })();
 
@@ -259,7 +259,7 @@ export function AccountApplicationsPage({ mode }: Props) {
         ) : null}
         {showApplyTimeFilter ? (
           <div className="a-field">
-            <span className="a-field__label">申请时间</span>
+            <span className="a-field__label">{isRejectedTab ? "提交时间" : "申请时间"}</span>
             <div className="a-date-range">
               <input
                 type="date"
@@ -290,16 +290,20 @@ export function AccountApplicationsPage({ mode }: Props) {
           <thead>
             <tr>
               <th>机构名称</th>
-              {mode !== "pending" ? <th>组织机构代码</th> : null}
+              {mode !== "pending" ? <th className="a-table__col-credit">组织机构代码</th> : null}
               <th>联系人姓名</th>
               <th>申请账号</th>
-              {isApprovedTab ? <th>开通产品</th> : null}
-              {mode === "pending" || isApprovedTab ? <th>合同起止日期</th> : null}
-              {mode === "pending" || isRejectedTab ? <th>申请时间</th> : null}
+              {isApprovedTab ? <th>开通技术服务</th> : null}
+              {mode === "pending" || isApprovedTab ? (
+                <th className="a-table__col-period">合同起止日期</th>
+              ) : null}
+              {mode === "pending" || isRejectedTab ? (
+                <th>{isRejectedTab ? "提交时间" : "申请时间"}</th>
+              ) : null}
               {isRejectedTab ? <th>审核时间</th> : null}
               {isRejectedTab ? <th>不通过原因</th> : null}
               {mode === "all" ? <th>审核人</th> : null}
-              <th className="a-table__col-status">状态</th>
+              {!isRejectedTab ? <th className="a-table__col-status">状态</th> : null}
               <th className="a-table__col-actions">操作</th>
             </tr>
           </thead>
@@ -314,7 +318,9 @@ export function AccountApplicationsPage({ mode }: Props) {
               pageRows.map((row) => (
                 <tr key={row.id}>
                   <td>{row.companyName}</td>
-                  {mode !== "pending" ? <td>{row.creditCode}</td> : null}
+                  {mode !== "pending" ? (
+                    <td className="a-table__col-credit">{row.creditCode}</td>
+                  ) : null}
                   <td>{row.contactName}</td>
                   <td>
                     <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
@@ -324,15 +330,19 @@ export function AccountApplicationsPage({ mode }: Props) {
                       <ProductServiceTags services={applicationProductServices(row)} />
                     </td>
                   ) : null}
-                  {mode === "pending" || isApprovedTab ? <td>{contractPeriodText(row)}</td> : null}
+                  {mode === "pending" || isApprovedTab ? (
+                    <td className="a-table__col-period">{contractPeriodText(row)}</td>
+                  ) : null}
                   {mode === "pending" || isRejectedTab ? <td>{row.submittedAt}</td> : null}
                   {isRejectedTab ? <td>{row.reviewedAt ?? "—"}</td> : null}
                   {isRejectedTab ? (
                     <td title={row.rejectReason || undefined}>{row.rejectReason || "—"}</td>
                   ) : null}
                   {mode === "all" ? <td>{row.reviewer ?? "—"}</td> : null}
-                  <td className="a-table__col-status">{statusTag(row.status)}</td>
-                  <td>
+                  {!isRejectedTab ? (
+                    <td className="a-table__col-status">{statusTag(row.status)}</td>
+                  ) : null}
+                  <td className="a-table__col-actions">
                     <div className="a-actions a-actions--nowrap">
                       {row.status === "pending" ? (
                         <TableAction icon={<IconAudit />} to={`/accounts/${row.id}/review`}>
@@ -341,11 +351,11 @@ export function AccountApplicationsPage({ mode }: Props) {
                       ) : (
                         <>
                           <TableAction icon={<IconEye />} to={`/accounts/${row.id}`}>
-                            查看
+                            详情
                           </TableAction>
                           {row.status === "approved" ? (
                             <TableAction icon={<IconEdit />} to={`/accounts/${row.id}/edit`}>
-                              编辑
+                              配置
                             </TableAction>
                           ) : null}
                         </>

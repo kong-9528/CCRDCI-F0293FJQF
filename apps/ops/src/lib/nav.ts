@@ -103,7 +103,7 @@ export function findNavLabel(pathname: string): string {
   if (pathname === "/accounts/mine") return "我的审核";
   if (pathname === "/accounts/all") return "全部审核";
   if (/^\/accounts\/[^/]+\/review$/.test(pathname)) return "审核开通申请";
-  if (/^\/accounts\/[^/]+\/edit$/.test(pathname)) return "编辑产品服务";
+  if (/^\/accounts\/[^/]+\/edit$/.test(pathname)) return "配置技术服务";
   if (/^\/accounts\/[^/]+$/.test(pathname)) return "申请详情";
   if (pathname === "/customers/new") return "新增机构账号";
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";

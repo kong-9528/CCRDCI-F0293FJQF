@@ -320,7 +320,7 @@ export function ProductServicesEditor({
           disabled={used.size >= CONFIGURABLE_PRODUCTS.length}
           onClick={add}
         >
-          {isEdit ? "新增配置" : "新增产品配置"}
+          {isEdit ? "新增配置" : "新增技术服务配置"}
         </button>
         {rows.some((r) => r.product) ? (
           <span className="a-field__hint">
