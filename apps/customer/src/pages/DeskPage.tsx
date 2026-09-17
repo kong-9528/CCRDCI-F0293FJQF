@@ -20,7 +20,6 @@ export function DeskPage() {
   /** 设计稿称呼；可后续接真实角色名 */
   const displayName = "管理员";
   const openedCount = MOCK_TENANT_SERVICES.length;
-  const usableCount = MOCK_TENANT_SERVICES.filter((s) => s.status !== "stopped").length;
 
   return (
     <div className="a-stack c-desk">
@@ -37,10 +36,6 @@ export function DeskPage() {
           <div className="c-desk-stat">
             <span className="c-desk-stat__value c-desk-stat__value--primary">{openedCount}</span>
             <span className="c-desk-stat__label">已开通服务</span>
-          </div>
-          <div className="c-desk-stat">
-            <span className="c-desk-stat__value c-desk-stat__value--ok">{usableCount}</span>
-            <span className="c-desk-stat__label">可正常使用</span>
           </div>
         </div>
       </section>

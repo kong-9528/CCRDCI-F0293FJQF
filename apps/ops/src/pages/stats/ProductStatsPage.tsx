@@ -54,6 +54,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
   const categoryProducts = statsProductsForScope(scope);
   const productCodes = categoryProducts.map((p) => p.code) as ProductCode[];
   const showChannelMetrics = scope === "verify";
+  const entityLabel = scope === "audit" ? "审核能力" : "产品";
 
   const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);
@@ -156,7 +157,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
 
       <div className="a-card">
         <div className="a-card__head">
-          产品趋势
+          {entityLabel}趋势
           <div className="a-card__extra a-inline-actions">
             <SegmentedControl
               value={trendMetric}
@@ -176,7 +177,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
 
       <div className="a-card">
         <div className="a-card__head">
-          产品调用汇总数据
+          {entityLabel}调用汇总数据
           <div className="a-card__extra a-inline-actions">
             <TrendRangeToggle value={rankRange} onChange={setRankRange} />
             <button
@@ -200,7 +201,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
             <thead>
               <tr>
                 <th>排名</th>
-                <th>产品</th>
+                <th>{entityLabel}</th>
                 <th>调用次数</th>
                 <th>日均调用账号数</th>
               </tr>

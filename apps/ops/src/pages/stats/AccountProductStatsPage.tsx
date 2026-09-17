@@ -88,8 +88,13 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
   }, []);
 
   const scopeProducts = statsProductsForScope(scope);
-  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");
-  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
+  const isAudit = scope === "audit";
+  const pageTitle = isAudit ? "机构审核能力使用统计" : "机构服务使用统计";
+  const detailTitle = isAudit ? "机构审核能力使用明细" : "机构服务使用明细";
+  const serviceFilterLabel = isAudit ? "审核能力" : "技术服务";
+  const entityLabel = isAudit ? "审核能力" : "产品";
+  const comboHint = isAudit ? "账号×审核能力" : "账号×产品";
+  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -303,7 +308,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       <section className="a-stats-overview">
         <article className="a-stats-strip a-stats-strip--tone-1">
           <header className="a-stats-strip__head">
-            <h3 className="a-stats-strip__title">机构服务使用统计</h3>
+            <h3 className="a-stats-strip__title">{pageTitle}</h3>
           </header>
           <div
             className={`a-stats-strip__metrics a-stats-strip__metrics--${overviewMetrics.length}`}
@@ -322,7 +327,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       <div className="a-card">
         <div className="a-toolbar a-toolbar--wrap a-stats-ap-filters">
           <div className="a-field">
-            <span className="a-field__label">技术服务</span>
+            <span className="a-field__label">{serviceFilterLabel}</span>
             <select
               className="a-select"
               value={serviceFilter}
@@ -377,7 +382,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
           <div className="a-stats-ap-panel__head">
             <h3 className="a-stats-ap-panel__title">用量热力矩阵</h3>
             <span className="a-field__hint a-stats-ap-panel__hint">
-              「—」表示时段内该账号下该产品处于“未开通/已到期/已停用”的状态。点击单元格可查看调用趋势图。
+              「—」表示时段内该账号下该{entityLabel}处于“未开通/已到期/已停用”的状态。点击单元格可查看调用趋势图。
               {visibleMatrix.truncated
                 ? ` 当前共 ${visibleMatrix.totalCombos} 个有日报的组合，矩阵账号来自其中 Top ${visibleMatrix.topComboCount}（${visibleMatrix.accounts.length} 个账号）；全部组合见下方明细。`
                 : ""}
@@ -398,7 +403,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
                 <table className="a-stats-matrix a-stats-matrix--transposed">
                   <thead>
                     <tr>
-                      <th className="a-stats-matrix__corner">产品 \ 账号</th>
+                      <th className="a-stats-matrix__corner">{entityLabel} \ 账号</th>
                       {visibleMatrix.accounts.map((a) => (
                         <th key={a.customerId} className="a-stats-matrix__col-head a-stats-matrix__col-head--account">
                           <Link to={`/customers/${a.customerId}`} className="a-stats-matrix__account">
@@ -508,9 +513,9 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       <div className="a-card">
         <div className="a-card__head a-stats-ap-detail-head">
           <div className="a-stats-ap-detail-head__main">
-            <span>机构服务使用明细</span>
+            <span>{detailTitle}</span>
             <span className="a-field__hint a-stats-ap-detail-head__hint">
-              下列为当前搜索条件与统计周期下的全部「账号×产品」组合
+              下列为当前搜索条件与统计周期下的全部「{comboHint}」组合
             </span>
           </div>
           <div className="a-card__extra a-inline-actions">
@@ -540,7 +545,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
               <tr>
                 <th>账号</th>
                 <th>公司</th>
-                <th>产品</th>
+                <th>{entityLabel}</th>
                 <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
                 {scope === "verify" ? <th>页面 / API</th> : null}
                 <th>服务状态</th>

@@ -54,8 +54,8 @@ export const OPS_NAV: NavGroup[] = [
     icon: "stats",
     items: [
       { to: "/stats/audit/customers", label: "机构使用统计", ready: true },
-      { to: "/stats/audit/products", label: "技术服务使用统计", ready: true },
-      { to: "/stats/audit/account-products", label: "机构服务使用统计", ready: true },
+      { to: "/stats/audit/products", label: "审核能力使用统计", ready: true },
+      { to: "/stats/audit/account-products", label: "机构审核能力使用统计", ready: true },
       { to: "/stats/audit/usage-records", label: "技术服务使用记录", ready: true },
     ],
   },
