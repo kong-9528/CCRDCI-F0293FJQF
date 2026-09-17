@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 import {
   apiEndpointTitle,
+  countEndpointsInCatalog,
+  createApiDocCatalog,
   createApiEndpoint,
+  deleteApiDocCatalog,
   deleteApiEndpoint,
+  getApiDocCatalog,
   getApiEndpointById,
   isApiCodeTaken,
+  listApiDocCatalogs,
   listApiEndpoints,
+  listApiEndpointsByCatalog,
   listApiEndpointsByTab,
+  listOnlineByCatalog,
   setApiEndpointStatus,
   subscribeApiCatalog,
+  updateApiDocCatalog,
   updateApiEndpoint,
   API_STATUS_LABEL,
   API_TAB_LABEL,
   PRODUCT_CODES,
   PRODUCT_NAME,
+  type ApiDocCatalog,
   type ApiDocFile,
   type ApiEndpoint,
   type ApiEndpointInput,
@@ -27,6 +36,7 @@ import {
 } from "@ctp/api-catalog";
 
 export type {
+  ApiDocCatalog,
   ApiDocFile,
   ApiEndpoint as ProductApiEndpoint,
   ApiEndpoint,
@@ -44,12 +54,21 @@ export {
   PRODUCT_CODES,
   PRODUCT_NAME,
   apiEndpointTitle,
+  countEndpointsInCatalog,
+  createApiDocCatalog,
   createApiEndpoint,
+  deleteApiDocCatalog,
   deleteApiEndpoint,
+  getApiDocCatalog,
   getApiEndpointById,
   isApiCodeTaken,
+  listApiDocCatalogs,
   listApiEndpoints,
+  listApiEndpointsByCatalog,
+  listOnlineByCatalog,
   setApiEndpointStatus,
+  subscribeApiCatalog,
+  updateApiDocCatalog,
   updateApiEndpoint,
 };
 
@@ -72,6 +91,11 @@ export function useApiServicesStore() {
     remove: deleteApiEndpoint,
     isCodeTaken: isApiCodeTaken,
     titleOf: apiEndpointTitle,
+    listCatalogs: listApiDocCatalogs,
+    createCatalog: createApiDocCatalog,
+    updateCatalog: updateApiDocCatalog,
+    removeCatalog: deleteApiDocCatalog,
+    countInCatalog: countEndpointsInCatalog,
   };
 }
 

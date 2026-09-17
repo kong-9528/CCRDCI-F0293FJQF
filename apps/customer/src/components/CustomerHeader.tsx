@@ -45,116 +45,118 @@ export function CustomerHeader({ pathname }: Props) {
 
   return (
     <header className="a-header">
-      <div className="a-header__brand">
-        <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
-        <span className="a-header__logo-text">{PLATFORM_NAME}</span>
-      </div>
+      <div className="a-header__inner">
+        <div className="a-header__brand">
+          <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
+          <span className="a-header__logo-text">{PLATFORM_NAME}</span>
+        </div>
 
-      <div className="a-header__right">
-        <nav className="a-header__nav" aria-label="主导航">
-          {CUSTOMER_NAV.map((item) => {
-            const active = isNavItemActive(item, pathname);
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === "/desk"}
-                className={`a-header__nav-link${active ? " is-active" : ""}`}
-              >
-                {item.label}
-              </NavLink>
-            );
-          })}
-          <Link to="/api" className={`a-header__nav-link${apiActive ? " is-active" : ""}`}>
-            API管理
-          </Link>
-          <Link
-            to="/help"
-            className={`a-header__nav-link${pathname.startsWith("/help") ? " is-active" : ""}`}
-          >
-            帮助中心
-          </Link>
-          <Link
-            to="/account"
-            className={`a-header__nav-link${pathname === "/account" || pathname.startsWith("/account/") ? " is-active" : ""}`}
-          >
-            机构信息
-          </Link>
-        </nav>
+        <div className="a-header__right">
+          <nav className="a-header__nav" aria-label="主导航">
+            {CUSTOMER_NAV.map((item) => {
+              const active = isNavItemActive(item, pathname);
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === "/desk"}
+                  className={`a-header__nav-link${active ? " is-active" : ""}`}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
+            <Link to="/api" className={`a-header__nav-link${apiActive ? " is-active" : ""}`}>
+              API管理
+            </Link>
+            <Link
+              to="/docs"
+              className={`a-header__nav-link${pathname.startsWith("/docs") ? " is-active" : ""}`}
+            >
+              文档
+            </Link>
+            <Link
+              to="/account"
+              className={`a-header__nav-link${pathname === "/account" || pathname.startsWith("/account/") ? " is-active" : ""}`}
+            >
+              机构信息
+            </Link>
+          </nav>
 
-        <div className="a-header__actions">
-          <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
-            <IconBell />
-            <span className="a-header__badge">3</span>
-          </button>
-
-          <div className="a-header__user">
-            <button type="button" className="a-header__user-btn" aria-haspopup="menu">
-              <span className="a-header__avatar">{userInitial(username)}</span>
-              <span className="a-header__user-meta">
-                <span className="a-header__user-role" title={username}>
-                  {username}
-                </span>
-              </span>
-              <span className="a-header__chevron" aria-hidden>
-                ▾
-              </span>
+          <div className="a-header__actions">
+            <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
+              <IconBell />
+              <span className="a-header__badge">3</span>
             </button>
-            <div className="a-header__user-dropdown">
-              <div className="a-header__user-menu" role="menu">
-                <div className="a-header__user-menu-head">
-                  <div className="a-header__user-menu-user">{username}</div>
-                  <div className="a-header__user-menu-org">{companyName}</div>
+
+            <div className="a-header__user">
+              <button type="button" className="a-header__user-btn" aria-haspopup="menu">
+                <span className="a-header__avatar">{userInitial(username)}</span>
+                <span className="a-header__user-meta">
+                  <span className="a-header__user-role" title={username}>
+                    {username}
+                  </span>
+                </span>
+                <span className="a-header__chevron" aria-hidden>
+                  ▾
+                </span>
+              </button>
+              <div className="a-header__user-dropdown">
+                <div className="a-header__user-menu" role="menu">
+                  <div className="a-header__user-menu-head">
+                    <div className="a-header__user-menu-user">{username}</div>
+                    <div className="a-header__user-menu-org">{companyName}</div>
+                  </div>
+                  <div className="a-header__user-menu-divider" />
+                  <a
+                    href={PORTAL_LINKS.accountCenter}
+                    target="_blank"
+                    rel="noreferrer"
+                    role="menuitem"
+                    className="a-header__user-menu-link"
+                  >
+                    账号中心
+                  </a>
+                  {isDciCenter ? (
+                    <a
+                      href={PORTAL_LINKS.dciRegistryWorkbench}
+                      target="_blank"
+                      rel="noreferrer"
+                      role="menuitem"
+                      className="a-header__user-menu-link"
+                    >
+                      DCI注册中心工作台
+                    </a>
+                  ) : (
+                    <a
+                      href={PORTAL_LINKS.applyDciRegistry}
+                      target="_blank"
+                      rel="noreferrer"
+                      role="menuitem"
+                      className="a-header__user-menu-link"
+                    >
+                      申请成为DCI注册中心
+                    </a>
+                  )}
+                  <Link
+                    to="/desk"
+                    role="menuitem"
+                    className={`a-header__user-menu-link${onTechDesk ? " a-header__user-menu-link--with-note is-current" : ""}`}
+                  >
+                    <span>技术服务中心工作台</span>
+                    {onTechDesk ? <span className="a-header__user-menu-note">当前平台</span> : null}
+                  </Link>
+                  <div className="a-header__user-menu-divider" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="a-header__user-menu-item a-header__user-menu-item--logout"
+                    onClick={() => setLogoutConfirm(true)}
+                  >
+                    <LogoutIcon />
+                    退出登录
+                  </button>
                 </div>
-                <div className="a-header__user-menu-divider" />
-                <a
-                  href={PORTAL_LINKS.accountCenter}
-                  target="_blank"
-                  rel="noreferrer"
-                  role="menuitem"
-                  className="a-header__user-menu-link"
-                >
-                  账号中心
-                </a>
-                {isDciCenter ? (
-                  <a
-                    href={PORTAL_LINKS.dciRegistryWorkbench}
-                    target="_blank"
-                    rel="noreferrer"
-                    role="menuitem"
-                    className="a-header__user-menu-link"
-                  >
-                    DCI注册中心工作台
-                  </a>
-                ) : (
-                  <a
-                    href={PORTAL_LINKS.applyDciRegistry}
-                    target="_blank"
-                    rel="noreferrer"
-                    role="menuitem"
-                    className="a-header__user-menu-link"
-                  >
-                    申请成为DCI注册中心
-                  </a>
-                )}
-                <Link
-                  to="/desk"
-                  role="menuitem"
-                  className={`a-header__user-menu-link${onTechDesk ? " a-header__user-menu-link--with-note is-current" : ""}`}
-                >
-                  <span>技术服务中心工作台</span>
-                  {onTechDesk ? <span className="a-header__user-menu-note">当前平台</span> : null}
-                </Link>
-                <div className="a-header__user-menu-divider" />
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="a-header__user-menu-item a-header__user-menu-item--logout"
-                  onClick={() => setLogoutConfirm(true)}
-                >
-                  <LogoutIcon />
-                  退出登录
-                </button>
               </div>
             </div>
           </div>

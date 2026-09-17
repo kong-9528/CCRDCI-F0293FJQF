@@ -31,6 +31,14 @@ export type ApiDocFile = {
   url?: string;
 };
 
+/** 文档目录（customer 左侧导航 / ops 可维护） */
+export type ApiDocCatalog = {
+  id: string;
+  name: string;
+  /** 越小越靠前 */
+  sort: number;
+};
+
 export type ApiEndpoint = {
   id: string;
   /** 接口唯一标识；新增可编辑，编辑后只读 */
@@ -40,7 +48,15 @@ export type ApiEndpoint = {
   method: HttpMethod;
   version: string;
   description: string;
+  /**
+   * 主产品（兼容旧逻辑）；等于 productCodes[0]，无产品时回退 dci
+   * @deprecated 优先使用 productCodes
+   */
   productCode: ProductCode;
+  /** 关联产品（可多选，可为空） */
+  productCodes: ProductCode[];
+  /** 关联文档目录（可多选，至少 1 个） */
+  catalogIds: string[];
   owner: string;
   status: ApiOnlineStatus;
   /** 创建时间 YYYY-MM-DD HH:mm:ss */
@@ -63,13 +79,21 @@ export type ApiEndpoint = {
   exampleResponse: string;
 };
 
-export type ApiEndpointInput = Omit<ApiEndpoint, "id" | "status" | "createdAt" | "updatedAt"> & {
+export type ApiEndpointInput = Omit<
+  ApiEndpoint,
+  "id" | "status" | "createdAt" | "updatedAt" | "productCode" | "productCodes" | "catalogIds"
+> & {
   status?: ApiOnlineStatus;
   createdAt?: string;
   updatedAt?: string;
+  productCode?: ProductCode;
+  productCodes?: ProductCode[];
+  catalogIds: string[];
 };
 
-export type ApiEndpointUpdate = Partial<Omit<ApiEndpoint, "id" | "apiCode" | "createdAt">> & {
+export type ApiEndpointUpdate = Partial<
+  Omit<ApiEndpoint, "id" | "apiCode" | "createdAt">
+> & {
   apiCode?: never;
 };
 

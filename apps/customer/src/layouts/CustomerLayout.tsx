@@ -1,24 +1,19 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { CustomerHeader } from "@/components/CustomerHeader";
-import { findNavLabel } from "@/lib/nav";
-import { PLATFORM_NAME } from "@/lib/catalog";
 
 export function CustomerLayout() {
-  const location = useLocation();
-  const pageTitle = findNavLabel(location.pathname);
+  const { pathname } = useLocation();
 
   return (
     <div className="a-layout a-layout--topnav">
-      <CustomerHeader pathname={location.pathname} />
+      <CustomerHeader pathname={pathname} />
       <div className="a-layout__body">
         <div className="a-main">
-          <div className="a-breadcrumb" aria-label="面包屑">
-            <span className="a-breadcrumb__root">{PLATFORM_NAME}</span>
-            <span className="a-breadcrumb__sep">/</span>
-            <span className="a-breadcrumb__current">{pageTitle}</span>
-          </div>
-          <div className="a-content">
-            <Outlet />
+          {/* 对齐 DCI管理中心：内容区 max-width:1400 + 左右 padding:24 */}
+          <div className="a-main__shell">
+            <div className="a-content">
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>

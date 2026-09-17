@@ -29,7 +29,7 @@ export type PermNode = {
 export const PERMISSION_TREE: PermNode[] = [
   {
     id: "customers",
-    label: "客户管理",
+    label: "机构服务管理",
     children: [
       {
         id: "customers.list",
@@ -100,7 +100,7 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "products",
-    label: "产品上架管理",
+    label: "技术服务上架管理",
     children: [
       { id: "products.list", label: "列表页" },
       { id: "products.settings", label: "上下架操作" },
@@ -110,10 +110,10 @@ export const PERMISSION_TREE: PermNode[] = [
     id: "stats",
     label: "运营统计分析",
     children: [
-      { id: "stats.customers", label: "客户使用统计页" },
-      { id: "stats.products", label: "产品使用统计页" },
-      { id: "stats.accountProducts", label: "账号产品使用统计页" },
-      { id: "stats.usageRecords", label: "产品使用记录页" },
+      { id: "stats.customers", label: "机构使用统计页" },
+      { id: "stats.products", label: "技术服务使用统计页" },
+      { id: "stats.accountProducts", label: "机构服务使用统计页" },
+      { id: "stats.usageRecords", label: "技术服务使用记录页" },
     ],
   },
   {

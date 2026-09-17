@@ -6,11 +6,12 @@ import {
   IconEye,
   IconEyeOff,
   IconPlus,
+  IconRefresh,
   IconShieldCheck,
   IconWand,
 } from "@/components/icons/UiIcons";
+import { SERVICE_TABS, type ServiceTab } from "@/lib/apiStats";
 import {
-  MAX_API_KEYS,
   copyText,
   createApiKeyDraft,
   createApiKeyFromDraft,
@@ -27,7 +28,8 @@ type Draft = { ak: string; sk: string; dek: string };
 type FormMode = "create" | "edit";
 
 export function KeysPage() {
-  const [record, setRecord] = useState<ApiKeyRecord | null>(() => loadStoredApiKey());
+  const [serviceTab, setServiceTab] = useState<ServiceTab>("verify");
+  const [record, setRecord] = useState<ApiKeyRecord | null>(() => loadStoredApiKey("verify"));
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("create");
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -36,8 +38,17 @@ export function KeysPage() {
   const [copied, setCopied] = useState<"ak" | "sk" | "dek" | null>(null);
 
   useEffect(() => {
-    saveStoredApiKey(record);
-  }, [record]);
+    setRecord(loadStoredApiKey(serviceTab));
+    setRevealed(false);
+    setFormOpen(false);
+    setDraft(null);
+    setCopied(null);
+  }, [serviceTab]);
+
+  const persistRecord = (next: ApiKeyRecord | null) => {
+    setRecord(next);
+    saveStoredApiKey(next, serviceTab);
+  };
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -90,19 +101,18 @@ export function KeysPage() {
         return;
       }
       const next = createApiKeyFromDraft(draft);
-      setRecord(next);
+      persistRecord(next);
       setRevealed(false);
       closeForm();
       showToast("API key 已创建");
       return;
     }
     if (!record) return;
-    setRecord(regenerateSecrets(record, { sk: draft.sk, dek: draft.dek }));
+    persistRecord(regenerateSecrets(record, { sk: draft.sk, dek: draft.dek }));
+    setRevealed(false);
     closeForm();
     showToast("密钥已更新");
   };
-
-  const canCreate = !record && MAX_API_KEYS >= 1;
 
   return (
     <div className="a-stack c-keys-page">
@@ -113,13 +123,22 @@ export function KeysPage() {
           <h1 className="c-keys-hero__title">API key管理</h1>
           <p className="c-keys-hero__sub">生成、更新用于接口调用的 AK、SK、DEK 信息</p>
         </div>
-        {canCreate ? (
-          <button type="button" className="a-btn a-btn--primary c-keys-hero__create" onClick={openCreate}>
-            <IconPlus size={14} />
-            创建API key
-          </button>
-        ) : null}
       </header>
+
+      <div className="c-stats-service-tabs c-keys-service-tabs" role="tablist" aria-label="服务类型">
+        {SERVICE_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={serviceTab === tab.key}
+            className={`c-stats-service-tabs__item${serviceTab === tab.key ? " is-active" : ""}`}
+            onClick={() => setServiceTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {!record ? (
         <div className="a-card c-keys-empty-card">
@@ -151,21 +170,18 @@ export function KeysPage() {
           <div className="c-keys-tiles">
             <KeyTile
               label="AK"
-              value={record.ak}
               display={record.ak}
               copied={copied === "ak"}
               onCopy={() => onCopy("ak", record.ak)}
             />
             <KeyTile
               label="SK"
-              value={record.sk}
               display={revealed ? record.sk : maskSecret(record.sk)}
               copied={copied === "sk"}
               onCopy={() => onCopy("sk", record.sk)}
             />
             <KeyTile
               label="DEK"
-              value={record.dek}
               display={revealed ? record.dek : maskSecret(record.dek)}
               copied={copied === "dek"}
               onCopy={() => onCopy("dek", record.dek)}
@@ -175,7 +191,7 @@ export function KeysPage() {
           <div className="c-keys-detail__foot">
             <button
               type="button"
-              className="c-keys-reveal-toggle"
+              className={`c-keys-reveal-toggle${revealed ? " is-on" : ""}`}
               onClick={() => setRevealed((v) => !v)}
             >
               {revealed ? <IconEyeOff size={16} /> : <IconEye size={16} />}
@@ -211,7 +227,6 @@ function KeyTile({
   onCopy,
 }: {
   label: string;
-  value: string;
   display: string;
   copied: boolean;
   onCopy: () => void;
@@ -256,6 +271,8 @@ function ApiKeyFormModal({
 }) {
   if (!draft) return null;
 
+  const RegenIcon = mode === "create" ? IconWand : IconRefresh;
+
   return (
     <Modal
       open={open}
@@ -282,7 +299,7 @@ function ApiKeyFormModal({
       <div className="c-keys-form">
         <label className="c-keys-form__field">
           <span className="c-keys-form__label">AK</span>
-          <input className="a-input c-keys-form__input" value={draft.ak} readOnly />
+          <input className="a-input c-keys-form__input is-readonly" value={draft.ak} readOnly />
           <span className="c-keys-form__hint">AK 由系统自动生成，不可变更。</span>
         </label>
 
@@ -292,12 +309,12 @@ function ApiKeyFormModal({
             <input className="a-input c-keys-form__input is-muted" value={draft.sk} readOnly />
             <button
               type="button"
-              className="c-keys-form__wand"
+              className="c-keys-form__gen"
               aria-label="重新生成 SK"
               title="重新生成 SK"
               onClick={onRegenSk}
             >
-              <IconWand size={16} />
+              <RegenIcon size={16} />
             </button>
           </div>
         </div>
@@ -308,18 +325,18 @@ function ApiKeyFormModal({
             <input className="a-input c-keys-form__input is-muted" value={draft.dek} readOnly />
             <button
               type="button"
-              className="c-keys-form__wand"
+              className="c-keys-form__gen"
               aria-label="重新生成 DEK"
               title="重新生成 DEK"
               onClick={onRegenDek}
             >
-              <IconWand size={16} />
+              <RegenIcon size={16} />
             </button>
           </div>
         </div>
 
         <button type="button" className="c-keys-form__regen-all" onClick={onRegenBoth}>
-          <IconWand size={16} />
+          <RegenIcon size={16} />
           重新生成 SK / DEK
         </button>
 

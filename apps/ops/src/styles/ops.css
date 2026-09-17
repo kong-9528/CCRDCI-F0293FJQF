@@ -373,6 +373,124 @@ body,
   grid-column: 1 / -1;
 }
 
+.epf-assoc__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.epf-assoc__count {
+  font-size: 12px;
+  color: var(--n-500, #6b7280);
+  white-space: nowrap;
+}
+
+.epf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.epf-chip {
+  appearance: none;
+  border: 1px solid var(--n-200, #e5e7eb);
+  background: #fff;
+  color: var(--n-700, #374151);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.2;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.epf-chip:hover {
+  border-color: #91b0e0;
+  color: #1449b2;
+}
+
+.epf-chip.is-active {
+  border-color: #1449b2;
+  background: rgba(20, 73, 178, 0.08);
+  color: #1449b2;
+  font-weight: 600;
+}
+
+.epf-chip:focus-visible {
+  outline: 2px solid rgba(20, 73, 178, 0.35);
+  outline-offset: 1px;
+}
+
+/* 目录列表弹窗：对齐接口列表页的 flush 表格 + 工具栏节奏 */
+.a-catalog-modal {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+.a-catalog-modal .a-modal__head {
+  padding: var(--ad-sp-4) var(--ad-sp-4) var(--ad-sp-2);
+  margin: 0;
+}
+
+.a-catalog-modal__desc {
+  margin: 0;
+  padding: 0 var(--ad-sp-4) var(--ad-sp-2);
+}
+
+.a-catalog-modal__toolbar {
+  padding: 0 var(--ad-sp-4) var(--ad-sp-2);
+  margin: 0;
+}
+
+.a-catalog-modal__table-wrap {
+  margin: 0 var(--ad-sp-4);
+  border: 1px solid var(--n-100);
+  border-radius: var(--ad-radius-sm, 6px);
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  background: var(--n-0);
+}
+
+.a-catalog-modal__table-wrap .a-table {
+  margin: 0;
+}
+
+.a-catalog-modal__table-wrap .a-input {
+  min-width: 0;
+}
+
+.a-catalog-modal__sort {
+  width: 72px;
+  text-align: center;
+}
+
+.a-catalog-modal__footer {
+  margin: 0 var(--ad-sp-4);
+  border-left: 1px solid var(--n-100);
+  border-right: 1px solid var(--n-100);
+  border-bottom: 1px solid var(--n-100);
+  border-radius: 0 0 var(--ad-radius-sm, 6px) var(--ad-radius-sm, 6px);
+  border-top: none;
+}
+
+.a-catalog-modal__error {
+  margin: var(--ad-sp-2) var(--ad-sp-4) 0;
+}
+
+.a-catalog-modal .a-modal__actions {
+  margin: 0;
+  padding: var(--ad-sp-3) var(--ad-sp-4) var(--ad-sp-4);
+}
+
 .epf-label {
   font-size: 13px;
   font-weight: 500;
@@ -1136,19 +1254,64 @@ body,
   line-height: 1.35;
 }
 
-/* ????????????????? */
-.a-stats-strip {
-  border-radius: 12px;
-  overflow: hidden;
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(9, 109, 217, 0.16);
+/* ---------- 统计指标卡（对齐 DCI 控制台渐变卡） ---------- */
+.a-stats-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-sp-4);
 }
 
-.a-stats-strip--customer {
-  background: linear-gradient(90deg, #40a9ff 0%, #096dd9 100%);
+.a-stats-strip {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  color: #fff;
+  padding: 18px 22px 16px;
+  box-shadow: 0 10px 28px rgba(30, 90, 180, 0.16);
+}
+
+.a-stats-strip--customer,
+.a-stats-strip--tone-0 {
+  background: linear-gradient(135deg, #74c7ec 0%, #4aaedc 48%, #2f96c8 100%);
+}
+
+.a-stats-strip--tone-1 {
+  background: linear-gradient(135deg, #6d9ff5 0%, #7488f2 48%, #8a72ef 100%);
+}
+
+.a-stats-strip--tone-2 {
+  background: linear-gradient(135deg, #3f82e4 0%, #2f6fd4 52%, #1e5bb8 100%);
+}
+
+.a-stats-strip__head {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 14px;
+}
+
+.a-stats-strip__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.a-stats-strip__glyph {
+  position: absolute;
+  right: 10px;
+  bottom: -8px;
+  width: 108px;
+  height: 108px;
+  color: #fff;
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .a-stats-strip__metrics {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 0;
 }
@@ -1161,42 +1324,47 @@ body,
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
+.a-stats-strip__metrics--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .a-stats-strip__metrics--2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .a-stats-strip__cell {
-  padding: 16px 18px;
+  padding: 4px 16px 2px 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
 .a-stats-strip__cell + .a-stats-strip__cell {
+  padding-left: 18px;
   border-left: 1px solid rgba(255, 255, 255, 0.28);
 }
 
 .a-stats-strip__value {
-  font-family: var(--font-mono);
-  font-size: 22px;
+  font-family: var(--font-sans, inherit);
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: #fff;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .a-stats-strip__label {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.86);
   line-height: 1.35;
 }
 
 .a-product-board__metrics {
-  margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  margin-top: 0;
+  border-top: none;
 }
 
 .a-product-board--compact .a-product-board__card {
@@ -1204,23 +1372,28 @@ body,
 }
 
 .a-product-board--compact .a-product-board__head {
-  padding: 10px 14px 8px;
+  padding: 16px 18px 10px;
 }
 
 .a-product-board--compact .a-product-board__metrics {
   margin-top: 0;
+  padding: 0 18px 16px;
 }
 
 .a-product-board--compact .a-product-board__metrics .a-stats-strip__cell {
-  padding: 10px 12px 12px;
+  padding: 4px 12px 0 0;
+}
+
+.a-product-board--compact .a-product-board__metrics .a-stats-strip__cell + .a-stats-strip__cell {
+  padding-left: 14px;
 }
 
 .a-product-board--compact .a-product-board__metrics .a-stats-strip__value {
-  font-size: 16px;
+  font-size: 24px;
 }
 
 .a-product-board--compact .a-product-board__metrics .a-stats-strip__label {
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .a-dash-panel__body--compact {
@@ -1232,7 +1405,7 @@ body,
   padding-top: var(--ad-sp-3);
 }
 
-/* ---------- ???????????? ---------- */
+/* ---------- 产品指标看板 ---------- */
 .a-product-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1245,42 +1418,55 @@ body,
   border-radius: 12px;
   overflow: hidden;
   padding: 0;
-  min-height: 168px;
+  min-height: 148px;
   display: flex;
   flex-direction: column;
   color: #fff;
   animation: a-dash-rise 420ms ease both;
-  box-shadow: 0 6px 18px rgba(29, 57, 196, 0.16);
+  box-shadow: 0 10px 28px rgba(30, 90, 180, 0.16);
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .a-product-board__card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(29, 57, 196, 0.22);
+  box-shadow: 0 14px 32px rgba(30, 90, 180, 0.22);
 }
 
-/* ????????? / ??? / ?? */
 .a-product-board__card--tone-0 {
-  background: linear-gradient(90deg, #40a9ff 0%, #096dd9 100%);
+  background: linear-gradient(135deg, #74c7ec 0%, #4aaedc 48%, #2f96c8 100%);
 }
 
 .a-product-board__card--tone-1 {
-  background: linear-gradient(90deg, #722ed1 0%, #85a5ff 100%);
+  background: linear-gradient(135deg, #6d9ff5 0%, #7488f2 48%, #8a72ef 100%);
 }
 
 .a-product-board__card--tone-2 {
-  background: linear-gradient(90deg, #1d39c4 0%, #2f54eb 55%, #1d39c4 100%);
+  background: linear-gradient(135deg, #3f82e4 0%, #2f6fd4 52%, #1e5bb8 100%);
+}
+
+.a-product-board__glyph {
+  position: absolute;
+  right: 6px;
+  bottom: -10px;
+  width: 96px;
+  height: 96px;
+  color: #fff;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .a-product-board__head {
+  position: relative;
+  z-index: 1;
   padding: 16px 18px 12px;
 }
 
 .a-product-board__name {
   margin: 0;
-  font-size: var(--ad-fs-body);
-  font-weight: 600;
-  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.94);
   line-height: 1.35;
 }
 
@@ -1333,8 +1519,8 @@ body,
 }
 
 .a-product-board__value {
-  font-family: var(--font-mono);
-  font-size: 18px;
+  font-family: var(--font-sans, inherit);
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #fff;
@@ -1345,8 +1531,13 @@ body,
 
 .a-product-board__label {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.86);
   line-height: 1.35;
+}
+
+.a-product-board__metrics {
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 1100px) {
@@ -1358,12 +1549,31 @@ body,
     grid-template-columns: 1fr;
   }
 
+  .a-stats-strip__metrics--3,
   .a-stats-strip__metrics--4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .a-stats-strip__metrics--5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .a-stats-strip__cell + .a-stats-strip__cell {
+    border-left: none;
+  }
+
+  .a-stats-strip__metrics--3 .a-stats-strip__cell:nth-child(odd),
+  .a-stats-strip__metrics--4 .a-stats-strip__cell:nth-child(odd),
+  .a-stats-strip__metrics--5 .a-stats-strip__cell:nth-child(odd) {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .a-stats-strip__metrics--3 .a-stats-strip__cell:nth-child(even),
+  .a-stats-strip__metrics--4 .a-stats-strip__cell:nth-child(even),
+  .a-stats-strip__metrics--5 .a-stats-strip__cell:nth-child(even) {
+    border-left: 1px solid rgba(255, 255, 255, 0.28);
+    padding-left: 18px;
   }
 
   .a-product-board__groups {
@@ -1972,7 +2182,7 @@ body,
   }
 }
 
-/* ??????????????????????? */
+/* 统计概览宽度兜底 */
 .a-stats-overview {
   width: 100%;
 }

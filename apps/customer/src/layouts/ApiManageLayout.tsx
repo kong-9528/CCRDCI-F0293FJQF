@@ -2,7 +2,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 const API_SIDE_NAV = [
   { to: "/api/keys", label: "API key管理", end: true },
-  { to: "/api/docs", label: "API文档", end: false },
+  { to: "/api/stats", label: "调用统计", end: true },
 ] as const;
 
 export function ApiManageLayout() {

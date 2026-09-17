@@ -1,4 +1,5 @@
 export type {
+  ApiDocCatalog,
   ApiDocFile,
   ApiDocProductMeta,
   ApiEndpoint,
@@ -24,6 +25,12 @@ export {
   resolveDocProductId,
 } from "./products";
 
+export {
+  DEFAULT_API_DOC_CATALOGS,
+  PRODUCT_DEFAULT_CATALOG,
+  catalogIdForProduct,
+} from "./catalogs";
+
 export { AUTH_HEADER_PARAMS, buildSeedEndpoints } from "./seed";
 
 export {
@@ -35,16 +42,24 @@ export {
 
 export {
   apiEndpointTitle,
+  countEndpointsInCatalog,
+  createApiDocCatalog,
   createApiEndpoint,
+  deleteApiDocCatalog,
   deleteApiEndpoint,
+  getApiDocCatalog,
   getApiEndpointByCode,
   getApiEndpointById,
   isApiCodeTaken,
+  listApiDocCatalogs,
   listApiEndpoints,
+  listApiEndpointsByCatalog,
   listApiEndpointsByProduct,
   listApiEndpointsByTab,
+  listOnlineByCatalog,
   listOnlineByProduct,
   setApiEndpointStatus,
   subscribeApiCatalog,
+  updateApiDocCatalog,
   updateApiEndpoint,
 } from "./store";

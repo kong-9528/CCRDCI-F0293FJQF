@@ -3,6 +3,7 @@ import {
   ApiEndpointFormModal,
   type ApiEndpointFormValues,
 } from "@/components/ApiEndpointFormModal";
+import { CatalogListModal } from "@/components/CatalogListModal";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TableAction } from "@/components/TableAction";
 import { IconEdit, IconEnable, IconOffline, IconPdf, IconPlus } from "@/components/icons/UiIcons";
@@ -11,6 +12,7 @@ import {
   API_STATUS_LABEL,
   PRODUCT_CODES,
   PRODUCT_NAME,
+  listApiDocCatalogs,
   useApiServicesStore,
   type ApiEndpoint,
   type ApiOnlineStatus,
@@ -23,6 +25,7 @@ type Filters = {
   name: string;
   path: string;
   product: string;
+  catalog: string;
   status: "" | ApiOnlineStatus;
 };
 
@@ -30,8 +33,14 @@ const EMPTY_FILTERS: Filters = {
   name: "",
   path: "",
   product: "",
+  catalog: "",
   status: "",
 };
+
+function endpointProducts(row: ApiEndpoint): ProductCode[] {
+  if (row.productCodes?.length) return row.productCodes;
+  return row.productCode ? [row.productCode] : [];
+}
 
 function matchesFilters(row: ApiEndpoint, f: Filters) {
   const nameQ = f.name.trim().toLowerCase();
@@ -40,12 +49,16 @@ function matchesFilters(row: ApiEndpoint, f: Filters) {
   }
   const pathQ = f.path.trim().toLowerCase();
   if (pathQ && !row.path.toLowerCase().includes(pathQ)) return false;
-  if (f.product && row.productCode !== f.product) return false;
+  if (f.product) {
+    const products = endpointProducts(row);
+    if (!products.includes(f.product as ProductCode)) return false;
+  }
+  if (f.catalog && !(row.catalogIds ?? []).includes(f.catalog)) return false;
   if (f.status && row.status !== f.status) return false;
   return true;
 }
 
-function autoApiCode(path: string, productCode: ProductCode) {
+function autoApiCode(path: string, productCode: ProductCode | "api") {
   const slug = path
     .trim()
     .replace(/^\/+/, "")
@@ -59,6 +72,20 @@ function isProductCode(value: string): value is ProductCode {
   return (PRODUCT_CODES as readonly string[]).includes(value);
 }
 
+function productLabel(row: ApiEndpoint) {
+  const codes = endpointProducts(row);
+  if (!codes.length) return "未关联";
+  return codes.map((c) => PRODUCT_NAME[c]).join("、");
+}
+
+function catalogLabel(row: ApiEndpoint) {
+  const catalogs = listApiDocCatalogs();
+  const names = (row.catalogIds ?? [])
+    .map((id) => catalogs.find((c) => c.id === id)?.name)
+    .filter(Boolean);
+  return names.length ? names.join("、") : "—";
+}
+
 export function ApiServicesPage() {
   const store = useApiServicesStore();
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
@@ -70,9 +97,11 @@ export function ApiServicesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<ApiEndpoint | null>(null);
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const allRows = store.list();
+  const catalogs = store.listCatalogs();
 
   const filtered = useMemo(() => {
     return allRows
@@ -140,11 +169,13 @@ export function ApiServicesPage() {
 
   const handleFormSubmit = (values: ApiEndpointFormValues) => {
     try {
+      const productCodes = values.productCodes ?? [];
+      const productCode = productCodes[0] ?? "dci";
       if (formMode === "create") {
-        let apiCode = autoApiCode(values.path, values.productCode);
+        let apiCode = autoApiCode(values.path, productCodes[0] ?? "api");
         let n = 1;
         while (store.isCodeTaken(apiCode)) {
-          apiCode = `${autoApiCode(values.path, values.productCode)}_${n++}`;
+          apiCode = `${autoApiCode(values.path, productCodes[0] ?? "api")}_${n++}`;
         }
         store.create({
           apiCode,
@@ -153,7 +184,9 @@ export function ApiServicesPage() {
           method: values.method,
           version: "v1",
           description: values.description,
-          productCode: values.productCode,
+          productCode,
+          productCodes,
+          catalogIds: values.catalogIds,
           owner: "平台运营",
           docFile: values.docFile,
           requestParamsText: paramsToText(values.requestParams),
@@ -179,7 +212,9 @@ export function ApiServicesPage() {
           path: values.path,
           method: values.method,
           description: values.description,
-          productCode: values.productCode,
+          productCode,
+          productCodes,
+          catalogIds: values.catalogIds,
           docFile: values.docFile,
           requestParamsText: paramsToText(values.requestParams),
           responseFieldsText: paramsToText(values.responseParams),
@@ -224,7 +259,7 @@ export function ApiServicesPage() {
           />
         </div>
         <div className="a-field">
-          <span className="a-field__label">所属产品</span>
+          <span className="a-field__label">关联产品</span>
           <select
             className="a-select"
             value={draft.product}
@@ -234,6 +269,21 @@ export function ApiServicesPage() {
             {PRODUCT_CODES.map((code) => (
               <option key={code} value={code}>
                 {PRODUCT_NAME[code]}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="a-field">
+          <span className="a-field__label">关联目录</span>
+          <select
+            className="a-select"
+            value={draft.catalog}
+            onChange={(e) => setFilter("catalog", e.target.value)}
+          >
+            <option value="">全部目录</option>
+            {catalogs.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </select>
@@ -261,7 +311,10 @@ export function ApiServicesPage() {
       <div className="a-toolbar a-toolbar--secondary">
         <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={openCreate}>
           <IconPlus size={14} />
-          新增
+          新增接口
+        </button>
+        <button type="button" className="a-btn a-btn--sm" onClick={() => setCatalogOpen(true)}>
+          目录列表
         </button>
       </div>
 
@@ -272,7 +325,8 @@ export function ApiServicesPage() {
               <th className="num" style={{ width: 56 }}>
                 序号
               </th>
-              <th>所属产品</th>
+              <th>关联产品</th>
+              <th>关联目录</th>
               <th>接口名称</th>
               <th>请求地址</th>
               <th>请求方式</th>
@@ -285,7 +339,7 @@ export function ApiServicesPage() {
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={9}>
+                <td colSpan={10}>
                   <div className="a-empty">暂无符合条件的接口</div>
                 </td>
               </tr>
@@ -295,7 +349,8 @@ export function ApiServicesPage() {
                 return (
                   <tr key={row.id}>
                     <td className="num">{(safePage - 1) * pageSize + index + 1}</td>
-                    <td>{PRODUCT_NAME[row.productCode as ProductCode]}</td>
+                    <td>{productLabel(row)}</td>
+                    <td>{catalogLabel(row)}</td>
                     <td>
                       <div className="a-api-name">
                         <span>{row.apiName}</span>
@@ -443,6 +498,8 @@ export function ApiServicesPage() {
         onSubmit={handleFormSubmit}
       />
 
+      <CatalogListModal open={catalogOpen} onClose={() => setCatalogOpen(false)} />
+
       <ConfirmDialog
         open={Boolean(confirmShelf)}
         title={
@@ -470,3 +527,4 @@ export function ApiServicesPage() {
     </div>
   );
 }
+

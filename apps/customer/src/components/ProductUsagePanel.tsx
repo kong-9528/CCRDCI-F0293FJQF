@@ -14,12 +14,12 @@ function formatCount(n: number) {
 
 type Props = {
   product: ProductCode;
-  /** 卡片副标题，默认「额度与有效期」 */
+  /** 卡片副标题，默认「用量统计」 */
   subtitle?: string;
 };
 
 /** 产品页使用量板块（与智能辅助审核服务页一致） */
-export function ProductUsagePanel({ product, subtitle = "额度与有效期" }: Props) {
+export function ProductUsagePanel({ product, subtitle = "用量统计" }: Props) {
   const item = DASHBOARD_PRODUCTS.find((p) => p.code === product);
   if (!item) return null;
 

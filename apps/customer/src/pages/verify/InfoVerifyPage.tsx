@@ -313,7 +313,7 @@ export function InfoVerifyPage() {
           },
           {
             id: "quota",
-            label: "额度与有效期",
+            label: "用量统计",
             content: <ProductUsagePanel product="info" />,
           },
           {

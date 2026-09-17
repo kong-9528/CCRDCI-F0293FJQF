@@ -58,10 +58,21 @@ export function App() {
         <Route path="/products" element={<Navigate to="/products/verify" replace />} />
         <Route path="/products/verify" element={<ProductManagePage />} />
         <Route path="/products/audit" element={<Navigate to="/products/verify" replace />} />
-        <Route path="/stats/customers" element={<CustomerStatsPage />} />
-        <Route path="/stats/products" element={<ProductStatsPage />} />
-        <Route path="/stats/account-products" element={<AccountProductStatsPage />} />
-        <Route path="/stats/usage-records" element={<ProductUsageRecordsPage />} />
+        <Route path="/stats" element={<Navigate to="/stats/verify/customers" replace />} />
+        <Route path="/stats/customers" element={<Navigate to="/stats/verify/customers" replace />} />
+        <Route path="/stats/products" element={<Navigate to="/stats/verify/products" replace />} />
+        <Route
+          path="/stats/account-products"
+          element={<Navigate to="/stats/verify/account-products" replace />}
+        />
+        <Route
+          path="/stats/usage-records"
+          element={<Navigate to="/stats/verify/usage-records" replace />}
+        />
+        <Route path="/stats/:scope/customers" element={<CustomerStatsPage />} />
+        <Route path="/stats/:scope/products" element={<ProductStatsPage />} />
+        <Route path="/stats/:scope/account-products" element={<AccountProductStatsPage />} />
+        <Route path="/stats/:scope/usage-records" element={<ProductUsageRecordsPage />} />
         <Route path="/content/home" element={<PortalHomeManagePage />} />
         <Route path="/content/home/:id/edit" element={<PortalHomeEditPage />} />
         <Route path="/content/portal" element={<PortalContentPage />} />

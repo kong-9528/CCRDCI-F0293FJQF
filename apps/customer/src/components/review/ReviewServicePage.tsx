@@ -135,11 +135,11 @@ export function ReviewServicePage({ product }: Props) {
           },
           {
             id: "quota",
-            label: "额度与有效期",
+            label: "用量统计",
             content: (
       <div className="a-card">
         <div className="a-card__head">
-          额度与有效期
+          用量统计
           <span className="a-card__extra">超额不拦截，仅提示</span>
         </div>
         <div className="a-card__body a-stack">

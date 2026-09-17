@@ -2,9 +2,8 @@ import { Link } from "react-router-dom";
 import { PRODUCTS, productName, type ProductCode } from "@/lib/catalog";
 
 const QUICK_EXTRAS = [
-  { label: "API 文档", to: "/api/docs", desc: "接口说明与示例" },
+  { label: "文档", to: "/docs", desc: "接口说明与示例" },
   { label: "API key管理", to: "/api/keys", desc: "AK / SK / DEK" },
-  { label: "帮助中心", to: "/help", desc: "接入指南与 FAQ" },
 ] as const;
 
 const QUICK_DESC: Partial<Record<ProductCode, string>> = {

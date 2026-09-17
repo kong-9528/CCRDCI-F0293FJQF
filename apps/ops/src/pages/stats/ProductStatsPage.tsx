@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
   SegmentedControl,
   TrendRangeToggle,
 } from "@/components/StatsControls";
-import { PRODUCTS, type ProductCode } from "@/lib/catalog";
+import { StatsCardGlyph } from "@/components/StatsCardGlyph";
+import { normalizeProductCode, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   exportAccountProductDailyCsv,
@@ -17,14 +19,13 @@ import {
   sumPageSubmitCalls,
   type TrendRange,
 } from "@/lib/statsData";
+import {
+  isStatsScope,
+  statsProductsForScope,
+  type StatsScope,
+} from "@/lib/statsScope";
 
-type ProductStatsTab = "verify" | "audit";
 type TrendMetric = "activeAccounts" | "calls";
-
-const TAB_ITEMS: { key: ProductStatsTab; label: string }[] = [
-  { key: "verify", label: "版权核验使用统计" },
-  { key: "audit", label: "智能辅助审核使用统计" },
-];
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   activeAccounts: "日调用账号数",
@@ -32,37 +33,37 @@ const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
 };
 
 export function ProductStatsPage() {
+  const { scope: scopeParam } = useParams();
+  if (!isStatsScope(scopeParam)) {
+    return <Navigate to="/stats/verify/products" replace />;
+  }
+  return <ProductStatsBody scope={scopeParam} />;
+}
+
+function ProductStatsBody({ scope }: { scope: StatsScope }) {
   useCustomerStore();
   const data = useMemo(() => {
     refreshStatsData();
     return getStatsData();
   }, []);
 
-  const [tab, setTab] = useState<ProductStatsTab>("verify");
   const [trendRange, setTrendRange] = useState<TrendRange>("30d");
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
 
-  const categoryProducts = useMemo(
-    () => PRODUCTS.filter((p) => p.category === tab),
-    [tab],
-  );
-  const productCodes = useMemo(
-    () => categoryProducts.map((p) => p.code) as ProductCode[],
-    [categoryProducts],
-  );
-
-  const showChannelMetrics = tab === "verify";
+  const categoryProducts = statsProductsForScope(scope);
+  const productCodes = categoryProducts.map((p) => p.code) as ProductCode[];
+  const showChannelMetrics = scope === "verify";
 
   const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);
+    const lookupCode = scope === "audit" ? "workReview" : p.code;
     const totalAccounts = data.customers.filter((c) =>
-      c.productServices.some((s) => s.product === p.code),
+      c.productServices.some((s) => normalizeProductCode(s.product) === lookupCode),
     ).length;
     return {
       code: p.code,
       name: p.name,
-      category: p.category,
       totalAccounts,
       totalCalls: sumCalls(all),
       pageSubmitCalls: sumPageSubmitCalls(all),
@@ -105,21 +106,6 @@ export function ProductStatsPage() {
 
   return (
     <div className="a-stack a-stats-products">
-      <div className="a-tabs a-tabs--segment a-tabs--compact a-stats-products__tabs" role="tablist">
-        {TAB_ITEMS.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            className={`a-tabs__item${tab === key ? " is-active" : ""}`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
       <section className="a-stats-overview">
         <div className="a-product-board a-product-board--compact">
           {productCards.map((card, i) => {
@@ -158,6 +144,10 @@ export function ProductStatsPage() {
                     </div>
                   ))}
                 </div>
+                <StatsCardGlyph
+                  kind={i % 3 === 0 ? "product" : i % 3 === 1 ? "chart" : "api"}
+                  className="a-product-board__glyph"
+                />
               </article>
             );
           })}

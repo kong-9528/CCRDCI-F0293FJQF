@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { IconBell, IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
+import { IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
 
 type Props = {
   pathname?: string;
@@ -39,10 +39,6 @@ export function OpsHeader({ collapsed, onToggleCollapse }: Props) {
       <div className="a-header__actions">
         <button type="button" className="a-header__icon-btn" aria-label="全屏" onClick={toggleFullscreen}>
           <IconFullscreen />
-        </button>
-        <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
-          <IconBell />
-          <span className="a-header__badge">3</span>
         </button>
 
         <div className="a-header__user">

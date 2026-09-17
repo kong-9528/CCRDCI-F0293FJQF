@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
   TrendRangeToggle,
   SegmentedControl,
 } from "@/components/StatsControls";
+import { StatsCardGlyph } from "@/components/StatsCardGlyph";
+import { normalizeProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  exportAccountDailyCsv,
   exportAccountProductDailyCsv,
   getStatsData,
   refreshStatsData,
@@ -16,6 +18,11 @@ import {
   sumPageSubmitCalls,
   type TrendRange,
 } from "@/lib/statsData";
+import {
+  isStatsScope,
+  statsProductCodesForScope,
+  type StatsScope,
+} from "@/lib/statsScope";
 
 type TrendMetric = "calls" | "activeAccounts";
 
@@ -27,6 +34,14 @@ const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
 const TREND_METRIC_OPTIONS: TrendMetric[] = ["activeAccounts", "calls"];
 
 export function CustomerStatsPage() {
+  const { scope: scopeParam } = useParams();
+  if (!isStatsScope(scopeParam)) {
+    return <Navigate to="/stats/verify/customers" replace />;
+  }
+  return <CustomerStatsBody scope={scopeParam} />;
+}
+
+function CustomerStatsBody({ scope }: { scope: StatsScope }) {
   useCustomerStore();
   const data = useMemo(() => {
     refreshStatsData();
@@ -39,14 +54,28 @@ export function CustomerStatsPage() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  const totalAccounts = data.customers.length;
-  const totalCallsAll = sumCalls(data.accountDays);
-  const pageSubmitCalls = sumPageSubmitCalls(data.accountDays);
-  const apiCalls = sumApiCalls(data.accountDays);
+  const scopeCodes = useMemo(() => new Set(statsProductCodesForScope(scope)), [scope]);
+  const scopedDays = useMemo(
+    () => data.accountProductDays.filter((r) => scopeCodes.has(r.product)),
+    [data.accountProductDays, scopeCodes],
+  );
+
+  const entitlementCode = scope === "audit" ? "workReview" : null;
+  const totalAccounts = data.customers.filter((c) =>
+    c.productServices.some((s) => {
+      const code = normalizeProductCode(s.product);
+      if (entitlementCode) return code === entitlementCode;
+      return scopeCodes.has(code);
+    }),
+  ).length;
+
+  const totalCallsAll = sumCalls(scopedDays);
+  const pageSubmitCalls = sumPageSubmitCalls(scopedDays);
+  const apiCalls = sumApiCalls(scopedDays);
 
   const trendDates = sliceDates(trendRange);
   const trendValues = trendDates.map((date) => {
-    const dayRows = data.accountDays.filter((r) => r.date === date);
+    const dayRows = scopedDays.filter((r) => r.date === date);
     if (trendMetric === "calls") return sumCalls(dayRows);
     return new Set(dayRows.filter((r) => r.calls > 0).map((r) => r.customerId)).size;
   });
@@ -57,7 +86,7 @@ export function CustomerStatsPage() {
       string,
       { account: string; companyName: string; contactName: string; calls: number }
     >();
-    for (const r of data.accountDays) {
+    for (const r of scopedDays) {
       if (!rankDates.includes(r.date)) continue;
       const cur = map.get(r.customerId) ?? {
         account: r.account,
@@ -69,24 +98,35 @@ export function CustomerStatsPage() {
       map.set(r.customerId, cur);
     }
     return [...map.values()].sort((a, b) => b.calls - a.calls);
-  }, [data.accountDays, rankDates]);
+  }, [scopedDays, rankDates]);
 
   const totalPages = Math.max(1, Math.ceil(rankRows.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const pageRows = rankRows.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const overviewMetrics = [
-    { label: "总账号数", value: totalAccounts },
-    { label: "总调用次数", value: totalCallsAll.toLocaleString() },
-    { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
-    { label: "API调用次数", value: apiCalls.toLocaleString() },
-  ];
+  const overviewMetrics =
+    scope === "verify"
+      ? [
+          { label: "总账号数", value: totalAccounts },
+          { label: "总调用次数", value: totalCallsAll.toLocaleString() },
+          { label: "页面提交次数", value: pageSubmitCalls.toLocaleString() },
+          { label: "API调用次数", value: apiCalls.toLocaleString() },
+        ]
+      : [
+          { label: "总账号数", value: totalAccounts },
+          { label: "总调用次数", value: totalCallsAll.toLocaleString() },
+        ];
 
   return (
     <div className="a-stack">
       <section className="a-stats-overview">
-        <article className="a-stats-strip a-stats-strip--customer">
-          <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+        <article className="a-stats-strip a-stats-strip--tone-0">
+          <header className="a-stats-strip__head">
+            <h3 className="a-stats-strip__title">机构使用数据统计</h3>
+          </header>
+          <div
+            className={`a-stats-strip__metrics a-stats-strip__metrics--${overviewMetrics.length}`}
+          >
             {overviewMetrics.map((item) => (
               <div key={item.label} className="a-stats-strip__cell">
                 <span className="a-stats-strip__value">{item.value}</span>
@@ -94,6 +134,7 @@ export function CustomerStatsPage() {
               </div>
             ))}
           </div>
+          <StatsCardGlyph kind="users" />
         </article>
       </section>
 
@@ -138,13 +179,10 @@ export function CustomerStatsPage() {
                 setPage(1);
               }}
             />
-            <button type="button" className="a-btn a-btn--sm" onClick={exportAccountDailyCsv}>
-              下载统计报表
-            </button>
             <button
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
-              onClick={() => exportAccountProductDailyCsv()}
+              onClick={() => exportAccountProductDailyCsv([...scopeCodes])}
             >
               下载明细报表
             </button>

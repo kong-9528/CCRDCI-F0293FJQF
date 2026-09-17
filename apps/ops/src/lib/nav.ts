@@ -26,7 +26,7 @@ export const OPS_NAV: NavGroup[] = [
   },
   {
     key: "customers",
-    title: "客户管理",
+    title: "机构服务管理",
     icon: "customers",
     items: [
       { to: "/accounts/pending", label: "待审核", ready: true },
@@ -38,14 +38,25 @@ export const OPS_NAV: NavGroup[] = [
     ],
   },
   {
-    key: "stats",
-    title: "运营统计",
+    key: "stats-verify",
+    title: "核验统计",
     icon: "stats",
     items: [
-      { to: "/stats/customers", label: "客户使用统计", ready: true },
-      { to: "/stats/products", label: "产品使用统计", ready: true },
-      { to: "/stats/account-products", label: "账号产品使用统计", ready: true },
-      { to: "/stats/usage-records", label: "产品使用记录", ready: true },
+      { to: "/stats/verify/customers", label: "机构使用统计", ready: true },
+      { to: "/stats/verify/products", label: "技术服务使用统计", ready: true },
+      { to: "/stats/verify/account-products", label: "机构服务使用统计", ready: true },
+      { to: "/stats/verify/usage-records", label: "技术服务使用记录", ready: true },
+    ],
+  },
+  {
+    key: "stats-audit",
+    title: "作品智能辅助审核统计",
+    icon: "stats",
+    items: [
+      { to: "/stats/audit/customers", label: "机构使用统计", ready: true },
+      { to: "/stats/audit/products", label: "技术服务使用统计", ready: true },
+      { to: "/stats/audit/account-products", label: "机构服务使用统计", ready: true },
+      { to: "/stats/audit/usage-records", label: "技术服务使用记录", ready: true },
     ],
   },
   {
@@ -55,7 +66,7 @@ export const OPS_NAV: NavGroup[] = [
     items: [
       { to: "/content/portal", label: "技术服务中心专题管理", ready: true, hidden: true },
       { to: "/content/home", label: "门户内容管理", ready: true, hidden: true },
-      { to: "/content/center", label: "技术服务中心内容管理", ready: true },
+      { to: "/content/center", label: "技术服务中心内容管理", ready: true, hidden: true },
     ],
   },
   {
@@ -66,8 +77,8 @@ export const OPS_NAV: NavGroup[] = [
       { to: "/system/roles", label: "角色权限", ready: true, hidden: true },
       { to: "/system/users", label: "用户管理", ready: true, hidden: true },
       { to: "/system/invite-codes", label: "邀请码管理", ready: true },
-      { to: "/products/verify", label: "产品上架管理", ready: true },
-      { to: "/products/audit", label: "产品上架管理", ready: true, hidden: true },
+      { to: "/products/verify", label: "技术服务上架管理", ready: true },
+      { to: "/products/audit", label: "技术服务上架管理", ready: true, hidden: true },
       { to: "/system/api-services", label: "接口服务设置", ready: true },
       { to: "/system/op-logs", label: "操作日志", ready: true },
     ],
@@ -109,7 +120,7 @@ export function findNavLabel(pathname: string): string {
   if (/^\/content\/home\/[^/]+\/edit$/.test(pathname)) return "门户内容编辑";
   if (pathname === "/content/center") return "技术服务中心内容管理";
   if (pathname === "/products/verify" || pathname === "/products/audit" || pathname === "/products") {
-    return "产品上架管理";
+    return "技术服务上架管理";
   }
   for (const group of OPS_NAV) {
     for (const item of group.items) {

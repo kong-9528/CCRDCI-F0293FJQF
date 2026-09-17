@@ -11,6 +11,9 @@ export type ApiKeyRecord = {
 export const MAX_API_KEYS = 1;
 
 const STORAGE_KEY = "ctp.customer.apiKey.v1";
+const STORAGE_KEY_BY_SCOPE = "ctp.customer.apiKey.v2";
+
+export type ApiKeyScope = "verify" | "review";
 
 function randomAlnum(len: number) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -83,25 +86,39 @@ export function maskSecret(value: string, visible = 8) {
   return `${value.slice(0, visible)}${"*".repeat(Math.max(24, value.length - visible))}`;
 }
 
-export function loadStoredApiKey(): ApiKeyRecord | null {
+function readScopeMap(): Partial<Record<ApiKeyScope, ApiKeyRecord>> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as ApiKeyRecord;
-    if (!parsed?.id || !parsed.ak || !parsed.sk || !parsed.dek) return null;
-    return parsed;
+    const raw = localStorage.getItem(STORAGE_KEY_BY_SCOPE);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<Record<ApiKeyScope, ApiKeyRecord>>;
+      return parsed && typeof parsed === "object" ? parsed : {};
+    }
+    // 兼容旧版单 key：迁移到核验服务
+    const legacy = localStorage.getItem(STORAGE_KEY);
+    if (!legacy) return {};
+    const parsed = JSON.parse(legacy) as ApiKeyRecord;
+    if (!parsed?.id || !parsed.ak || !parsed.sk || !parsed.dek) return {};
+    const migrated = { verify: parsed };
+    localStorage.setItem(STORAGE_KEY_BY_SCOPE, JSON.stringify(migrated));
+    return migrated;
   } catch {
-    return null;
+    return {};
   }
 }
 
-export function saveStoredApiKey(record: ApiKeyRecord | null) {
+export function loadStoredApiKey(scope: ApiKeyScope = "verify"): ApiKeyRecord | null {
+  const map = readScopeMap();
+  const record = map[scope];
+  if (!record?.id || !record.ak || !record.sk || !record.dek) return null;
+  return record;
+}
+
+export function saveStoredApiKey(record: ApiKeyRecord | null, scope: ApiKeyScope = "verify") {
   try {
-    if (!record) {
-      localStorage.removeItem(STORAGE_KEY);
-      return;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    const map = readScopeMap();
+    if (!record) delete map[scope];
+    else map[scope] = record;
+    localStorage.setItem(STORAGE_KEY_BY_SCOPE, JSON.stringify(map));
   } catch {
     // ignore quota / private mode
   }

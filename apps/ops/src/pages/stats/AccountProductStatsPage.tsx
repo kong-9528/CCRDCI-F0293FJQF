@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
-import { SegmentedControl, StatsPeriodToggle } from "@/components/StatsControls";
-import { CONFIGURABLE_PRODUCTS, type ProductCode } from "@/lib/catalog";
+import { StatsPeriodToggle } from "@/components/StatsControls";
+import { StatsCardGlyph } from "@/components/StatsCardGlyph";
+import { type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   STATS_PERIOD_LABEL,
@@ -18,8 +19,12 @@ import {
   type AccountProductSummary,
   type StatsPeriod,
 } from "@/lib/statsData";
-
-type CategoryFilter = "" | "verify" | "audit";
+import {
+  isStatsScope,
+  statsProductCodesForScope,
+  statsProductsForScope,
+  type StatsScope,
+} from "@/lib/statsScope";
 
 type Selection = {
   customerId: string;
@@ -27,12 +32,6 @@ type Selection = {
   account: string;
   productLabel: string;
 };
-
-const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-  { value: "", label: "全部产品" },
-  { value: "verify", label: "版权核验" },
-  { value: "audit", label: "智能审核" },
-];
 
 const PAGE_SIZE = 12;
 /** 热力矩阵：先取调用量 Top N「账号×产品」组合，再反推账号列 */
@@ -73,23 +72,24 @@ function heatLevel(calls: number, max: number): number {
   return 1;
 }
 
-function quotaBarClass(pct: number | null) {
-  if (pct == null) return "";
-  if (pct >= 90) return " is-danger";
-  if (pct >= 70) return " is-warn";
-  return "";
+export function AccountProductStatsPage() {
+  const { scope: scopeParam } = useParams();
+  if (!isStatsScope(scopeParam)) {
+    return <Navigate to="/stats/verify/account-products" replace />;
+  }
+  return <AccountProductStatsBody scope={scopeParam} />;
 }
 
-export function AccountProductStatsPage() {
+function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
   useCustomerStore();
   const data = useMemo(() => {
     refreshStatsData();
     return getStatsData();
   }, []);
 
+  const scopeProducts = statsProductsForScope(scope);
   const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");
-  const [category, setCategory] = useState<CategoryFilter>("");
-  const [productFilter, setProductFilter] = useState<ProductCode | "">("");
+  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -97,11 +97,11 @@ export function AccountProductStatsPage() {
 
   const filters = useMemo(
     () => ({
-      product: productFilter,
-      category,
+      scope,
+      product: serviceFilter,
       accountQuery: appliedQuery,
     }),
-    [productFilter, category, appliedQuery],
+    [scope, serviceFilter, appliedQuery],
   );
 
   // summaries：筛选条件下、日报中出现过的全部「账号×产品」汇总（含调用为 0）
@@ -144,13 +144,13 @@ export function AccountProductStatsPage() {
     }
 
     const productCodes = new Set(accountSummaries.map((s) => s.product));
-    const products = CONFIGURABLE_PRODUCTS.filter((p) => productCodes.has(p.code)).map(
-      (p) => ({
+    const products = scopeProducts
+      .filter((p) => productCodes.has(p.code))
+      .map((p) => ({
         code: p.code,
         label: p.name,
-        category: p.category as "verify" | "audit",
-      }),
-    );
+        category: scope,
+      }));
 
     return {
       accounts,
@@ -161,7 +161,7 @@ export function AccountProductStatsPage() {
       totalCombos: summaries.length,
       truncated: summaries.length > MATRIX_TOP_COMBO_LIMIT,
     };
-  }, [topCombos, summaries]);
+  }, [topCombos, summaries, scopeProducts, scope]);
 
   const trendTopPairs = useMemo(
     () => summaries.slice(0, TREND_TOP_COMBO_LIMIT),
@@ -175,7 +175,7 @@ export function AccountProductStatsPage() {
 
   const topPairs = trendTopPairs;
 
-  const hasActiveFilters = Boolean(appliedQuery || productFilter || category);
+  const hasActiveFilters = Boolean(appliedQuery || serviceFilter);
 
   const trendSeries = useMemo(() => {
     if (selection) {
@@ -229,8 +229,8 @@ export function AccountProductStatsPage() {
     setSelection((prev) => {
       if (!prev) return null;
       const nextSummaries = buildAccountProductSummaries(statsPeriod, {
-        product: productFilter,
-        category,
+        scope,
+        product: serviceFilter,
         accountQuery: nextQuery,
       });
       return nextSummaries.some(
@@ -244,8 +244,7 @@ export function AccountProductStatsPage() {
   const resetFilters = () => {
     setAccountQuery("");
     setAppliedQuery("");
-    setProductFilter("");
-    setCategory("");
+    setServiceFilter("");
     setPage(1);
     setSelection(null);
   };
@@ -270,27 +269,45 @@ export function AccountProductStatsPage() {
     return max;
   }, [visibleMatrix]);
 
-  const overviewMetrics = [
-    { label: "开通组合", value: summaries.length.toLocaleString() },
-    {
-      label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
-      value: activePairs.toLocaleString(),
-    },
-    {
-      label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
-      value: totalCalls.toLocaleString(),
-    },
-    {
-      label: "页面 / API",
-      value: `${pageCalls.toLocaleString()} / ${apiCalls.toLocaleString()}`,
-    },
-  ];
+  const overviewMetrics =
+    scope === "verify"
+      ? [
+          { label: "开通组合", value: summaries.length.toLocaleString() },
+          {
+            label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
+            value: activePairs.toLocaleString(),
+          },
+          {
+            label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
+            value: totalCalls.toLocaleString(),
+          },
+          {
+            label: "页面 / API",
+            value: `${pageCalls.toLocaleString()} / ${apiCalls.toLocaleString()}`,
+          },
+        ]
+      : [
+          { label: "开通组合", value: summaries.length.toLocaleString() },
+          {
+            label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
+            value: activePairs.toLocaleString(),
+          },
+          {
+            label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
+            value: totalCalls.toLocaleString(),
+          },
+        ];
 
   return (
     <div className="a-stack a-stats-account-product">
       <section className="a-stats-overview">
-        <article className="a-stats-strip a-stats-strip--customer">
-          <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+        <article className="a-stats-strip a-stats-strip--tone-1">
+          <header className="a-stats-strip__head">
+            <h3 className="a-stats-strip__title">机构服务使用统计</h3>
+          </header>
+          <div
+            className={`a-stats-strip__metrics a-stats-strip__metrics--${overviewMetrics.length}`}
+          >
             {overviewMetrics.map((item) => (
               <div key={item.label} className="a-stats-strip__cell">
                 <span className="a-stats-strip__value">{item.value}</span>
@@ -298,39 +315,25 @@ export function AccountProductStatsPage() {
               </div>
             ))}
           </div>
+          <StatsCardGlyph kind="chart" />
         </article>
       </section>
 
       <div className="a-card">
         <div className="a-toolbar a-toolbar--wrap a-stats-ap-filters">
           <div className="a-field">
-            <span className="a-field__label">产品类型</span>
-            <SegmentedControl
-              value={category}
-              onChange={(v) => {
-                setCategory(v);
-                setProductFilter("");
-                setPage(1);
-                setSelection(null);
-              }}
-              options={CATEGORY_OPTIONS}
-            />
-          </div>
-          <div className="a-field">
-            <span className="a-field__label">产品</span>
+            <span className="a-field__label">技术服务</span>
             <select
               className="a-select"
-              value={productFilter}
+              value={serviceFilter}
               onChange={(e) => {
-                setProductFilter(e.target.value as ProductCode | "");
+                setServiceFilter(e.target.value as ProductCode | "");
                 setPage(1);
                 setSelection(null);
               }}
             >
-              <option value="">全部开通产品</option>
-              {CONFIGURABLE_PRODUCTS.filter(
-                (p) => !category || p.category === category,
-              ).map((p) => (
+              <option value="">全部</option>
+              {scopeProducts.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
                 </option>
@@ -505,7 +508,7 @@ export function AccountProductStatsPage() {
       <div className="a-card">
         <div className="a-card__head a-stats-ap-detail-head">
           <div className="a-stats-ap-detail-head__main">
-            <span>账号产品使用明细</span>
+            <span>机构服务使用明细</span>
             <span className="a-field__hint a-stats-ap-detail-head__hint">
               下列为当前搜索条件与统计周期下的全部「账号×产品」组合
             </span>
@@ -523,7 +526,7 @@ export function AccountProductStatsPage() {
               className="a-btn a-btn--sm a-btn--primary"
               onClick={() =>
                 exportAccountProductDailyCsv(
-                  productFilter ? [productFilter] : undefined,
+                  serviceFilter ? [serviceFilter] : statsProductCodesForScope(scope),
                 )
               }
             >
@@ -539,20 +542,14 @@ export function AccountProductStatsPage() {
                 <th>公司</th>
                 <th>产品</th>
                 <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
-                <th>页面 / API</th>
-                <th>
-                  {/* 有调用天数：时段内该组合 Web+API 之和 > 0 的天数 */}
-                  有调用天数
-                </th>
-                <th>历史累积</th>
-                <th>额度使用</th>
+                {scope === "verify" ? <th>页面 / API</th> : null}
                 <th>服务状态</th>
               </tr>
             </thead>
             <tbody>
               {pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={9}>
+                  <td colSpan={scope === "verify" ? 6 : 5}>
                     <div className="a-empty">暂无数据</div>
                   </td>
                 </tr>
@@ -577,26 +574,11 @@ export function AccountProductStatsPage() {
                       <span className={`a-tag a-tag--cyan`}>{row.productLabel}</span>
                     </td>
                     <td className="num">{row.calls.toLocaleString()}</td>
-                    <td className="num">
-                      {row.productCategory === "verify"
-                        ? `${row.pageSubmitCalls.toLocaleString()} / ${row.apiCalls.toLocaleString()}`
-                        : "—"}
-                    </td>
-                    <td className="num">{row.daysWithCalls}</td>
-                    <td className="num">{row.lifetimeUsed.toLocaleString()}</td>
-                    <td>
-                      {row.quotaUsagePct == null ? (
-                        <span style={{ color: "var(--n-400)" }}>不限量</span>
-                      ) : (
-                        <div className="a-quota-bar">
-                          <div
-                            className={`a-quota-bar__fill${quotaBarClass(row.quotaUsagePct)}`}
-                            style={{ width: `${row.quotaUsagePct}%` }}
-                          />
-                          <span className="a-quota-bar__text">{row.quotaUsagePct}%</span>
-                        </div>
-                      )}
-                    </td>
+                    {scope === "verify" ? (
+                      <td className="num">
+                        {`${row.pageSubmitCalls.toLocaleString()} / ${row.apiCalls.toLocaleString()}`}
+                      </td>
+                    ) : null}
                     <td>
                       <span
                         className={`a-tag${row.serviceStatus === "使用中" ? " a-tag--ok" : row.serviceStatus === "已停止" ? " a-tag--er" : " a-tag--muted"}`}

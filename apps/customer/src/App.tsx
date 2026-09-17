@@ -4,11 +4,12 @@ import { ApiManageLayout } from "@/layouts/ApiManageLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { AccountEditPage } from "@/pages/account/AccountEditPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
+import { ApiStatsPage } from "@/pages/api-stats/ApiStatsPage";
 import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
 import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { DeskPage } from "@/pages/DeskPage";
-import { HelpCenterPage } from "@/pages/help/HelpCenterPage";
+import { DocsPage } from "@/pages/docs/DocsPage";
 import { KeysPage } from "@/pages/keys/KeysPage";
 import { DuplicateReviewPage } from "@/pages/review/DuplicateReviewPage";
 import { InfringementReviewPage } from "@/pages/review/InfringementReviewPage";
@@ -45,18 +46,21 @@ export function App() {
         <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route path="/account/edit" element={<AccountEditPage />} />
         <Route path="/account" element={<AccountCenterPage />} />
-        <Route path="/help" element={<HelpCenterPage />} />
+        <Route path="/docs" element={<DocsPage />} />
+        <Route path="/help" element={<Navigate to="/docs" replace />} />
 
         <Route path="/api" element={<ApiManageLayout />}>
           <Route index element={<Navigate to="keys" replace />} />
           <Route path="keys" element={<KeysPage />} />
+          <Route path="stats" element={<ApiStatsPage />} />
+          {/* 产品维度文档仍可通过核验页入口访问 */}
           <Route path="docs" element={<ApiDocsOverviewPage />} />
           <Route path="docs/:productId" element={<ApiDocProductPage />} />
         </Route>
 
         {/* 旧路由重定向 */}
         <Route path="/keys" element={<Navigate to="/api/keys" replace />} />
-        <Route path="/api-docs" element={<Navigate to="/api/docs" replace />} />
+        <Route path="/api-docs" element={<Navigate to="/docs" replace />} />
         <Route path="/api-docs/:productId" element={<ApiDocsLegacyRedirect />} />
         <Route path="/audit" element={<Navigate to="/review/safety" replace />} />
         <Route path="/account/*" element={<Navigate to="/account" replace />} />

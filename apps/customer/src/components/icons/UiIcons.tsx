@@ -186,7 +186,7 @@ export function IconEyeOff({ className, size = 14 }: IconProps) {
   );
 }
 
-/** 魔法棒：重新生成密钥 */
+/** 魔法棒：创建时重新生成密钥 */
 export function IconWand({ className, size = 16 }: IconProps) {
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -200,6 +200,27 @@ export function IconWand({ className, size = 16 }: IconProps) {
         strokeLinejoin="round"
       />
       <path d="M14 11l1.8-4.2L20 5l-1.8 4.2L14 11Z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** 刷新：编辑时重新生成密钥 */
+export function IconRefresh({ className, size = 16 }: IconProps) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M21 12a9 9 0 1 1-2.64-6.36"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M21 3v6h-6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { collectRequestParams } from "@ctp/api-catalog";
+import { catalogIdForProduct, collectRequestParams } from "@ctp/api-catalog";
 import {
   PRODUCT_CODES,
   PRODUCT_NAME,
+  listApiDocCatalogs,
   type ApiDocFile,
   type ApiEndpoint,
   type ApiParam,
@@ -21,7 +22,10 @@ export type ApiEndpointFormValues = {
   method: HttpMethod;
   path: string;
   description: string;
+  /** @deprecated 兼容；以 productCodes 为准 */
   productCode: ProductCode;
+  productCodes: ProductCode[];
+  catalogIds: string[];
   requestParams: ApiParam[];
   responseParams: ApiParam[];
   exampleRequest: string;
@@ -49,6 +53,8 @@ function emptyValues(productCode: ProductCode = "dci"): ApiEndpointFormValues {
     path: "",
     description: "",
     productCode,
+    productCodes: [productCode],
+    catalogIds: [catalogIdForProduct(productCode)],
     requestParams: [emptyParam()],
     responseParams: [emptyParam()],
     exampleRequest: "",
@@ -60,18 +66,30 @@ function emptyValues(productCode: ProductCode = "dci"): ApiEndpointFormValues {
 function fromEndpoint(ep: ApiEndpoint): ApiEndpointFormValues {
   const requestParams = collectRequestParams(ep);
   const responseParams = ep.responseParams?.length ? ep.responseParams.map((p) => ({ ...p })) : [];
+  const productCodes =
+    ep.productCodes?.length > 0 ? [...ep.productCodes] : ep.productCode ? [ep.productCode] : [];
+  const catalogIds =
+    ep.catalogIds?.length > 0
+      ? [...ep.catalogIds]
+      : [catalogIdForProduct(ep.productCode ?? "dci")];
   return {
     apiName: ep.apiName,
     method: ep.method,
     path: ep.path,
     description: ep.description,
-    productCode: ep.productCode,
+    productCode: productCodes[0] ?? ep.productCode ?? "dci",
+    productCodes,
+    catalogIds,
     requestParams: requestParams.length ? requestParams.map((p) => ({ ...p })) : [emptyParam()],
     responseParams: responseParams.length ? responseParams : [emptyParam()],
     exampleRequest: ep.exampleRequest ?? "",
     exampleResponse: ep.exampleResponse ?? "",
     docFile: ep.docFile ?? null,
   };
+}
+
+function toggleInList<T>(list: T[], value: T): T[] {
+  return list.includes(value) ? list.filter((x) => x !== value) : [...list, value];
 }
 
 function extOf(name: string) {
@@ -260,21 +278,27 @@ export function ApiEndpointFormModal({
       setError("请求地址须以 / 开头");
       return;
     }
-    if (!form.productCode) {
-      setError("请选择所属产品");
+    if (!form.catalogIds.length) {
+      setError("请至少选择一个文档目录");
       return;
     }
+    const productCodes = form.productCodes;
     onSubmit({
       ...form,
       apiName: form.apiName.trim(),
       path: form.path.trim(),
       description: form.description.trim(),
+      productCodes,
+      productCode: productCodes[0] ?? "dci",
+      catalogIds: form.catalogIds,
       requestParams: sanitizeParams(form.requestParams),
       responseParams: sanitizeParams(form.responseParams),
       exampleRequest: form.exampleRequest.trim(),
       exampleResponse: form.exampleResponse.trim(),
     });
   };
+
+  const catalogs = listApiDocCatalogs();
 
   return (
     <div className="a-modal-backdrop" role="presentation" onClick={onClose}>
@@ -339,23 +363,6 @@ export function ApiEndpointFormModal({
             </label>
 
             <label className="epf-field epf-field--full">
-              <span className="epf-label">
-                <span className="epf-req">*</span>所属产品
-              </span>
-              <select
-                className="epf-input"
-                value={form.productCode}
-                onChange={(e) => setField("productCode", e.target.value as ProductCode)}
-              >
-                {PRODUCT_CODES.map((code) => (
-                  <option key={code} value={code}>
-                    {PRODUCT_NAME[code]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="epf-field epf-field--full">
               <span className="epf-label">接口描述</span>
               <textarea
                 className="epf-input epf-textarea"
@@ -365,6 +372,64 @@ export function ApiEndpointFormModal({
                 placeholder="请输入接口描述"
               />
             </label>
+
+            <div className="epf-field epf-field--full">
+              <div className="epf-assoc__head">
+                <span className="epf-label">
+                  <span className="epf-req">*</span>关联目录
+                </span>
+                <span className="epf-assoc__count">
+                  已选 {form.catalogIds.length}/{catalogs.length}
+                </span>
+              </div>
+              <div className="epf-chips" role="group" aria-label="关联目录">
+                {catalogs.map((cat) => {
+                  const checked = form.catalogIds.includes(cat.id);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`epf-chip${checked ? " is-active" : ""}`}
+                      aria-pressed={checked}
+                      onClick={() => setField("catalogIds", toggleInList(form.catalogIds, cat.id))}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="a-field__hint">至少选择 1 个；决定客户台「文档」左侧归属</span>
+            </div>
+
+            <div className="epf-field epf-field--full">
+              <div className="epf-assoc__head">
+                <span className="epf-label">关联产品</span>
+                <span className="epf-assoc__count">
+                  {form.productCodes.length
+                    ? `已选 ${form.productCodes.length}/${PRODUCT_CODES.length}`
+                    : "未关联（可选）"}
+                </span>
+              </div>
+              <div className="epf-chips" role="group" aria-label="关联产品">
+                {PRODUCT_CODES.map((code) => {
+                  const checked = form.productCodes.includes(code);
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      className={`epf-chip${checked ? " is-active" : ""}`}
+                      aria-pressed={checked}
+                      onClick={() =>
+                        setField("productCodes", toggleInList(form.productCodes, code))
+                      }
+                    >
+                      {PRODUCT_NAME[code]}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="a-field__hint">可多选，也可留空；用于按客户开通范围展示/隐藏</span>
+            </div>
           </div>
 
           <ParamEditor

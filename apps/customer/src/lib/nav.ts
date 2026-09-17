@@ -33,21 +33,26 @@ const NAV_LABELS: Record<string, string> = {
   "/review/infringement": "作品智能辅助审核",
   "/api": "API管理",
   "/api/keys": "API key管理",
+  "/api/stats": "调用统计",
   "/api/docs": "API文档",
   "/keys": "API key管理",
   "/account": "机构信息",
   "/account/edit": "编辑机构信息",
   "/account/password": "修改密码",
-  "/api-docs": "API文档",
-  "/help": "帮助中心",
+  "/api-docs": "文档",
+  "/docs": "文档",
+  "/help": "文档",
   "/apply": "入驻申请",
 };
 
 export function findNavLabel(pathname: string): string {
   if (pathname === "/" || pathname === "/desk") return "工作台";
   if (pathname === "/api" || pathname === "/api/keys") return "API key管理";
+  if (pathname === "/api/stats" || pathname.startsWith("/api/stats/")) return "调用统计";
+  if (pathname === "/docs" || pathname.startsWith("/docs/")) return "文档";
   if (pathname.startsWith("/api/docs")) return "API文档";
-  if (pathname.startsWith("/api-docs")) return "API文档";
+  if (pathname.startsWith("/api-docs")) return "文档";
+  if (pathname === "/help" || pathname.startsWith("/help/")) return "文档";
   if (pathname === "/apply" || pathname.startsWith("/apply/")) return "入驻申请";
   if (pathname.startsWith("/review")) return "作品智能辅助审核";
   if (pathname === "/account/edit") return "编辑机构信息";

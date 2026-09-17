@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import { AccountSearchSelect } from "@/components/AccountSearchSelect";
 import { TableAction } from "@/components/TableAction";
 import { IconEye } from "@/components/icons/UiIcons";
@@ -7,6 +8,7 @@ import { DciUsageDetailDrawer } from "@/components/usage/DciUsageDetailDrawer";
 import { InfoUsageDetailDrawer } from "@/components/usage/InfoUsageDetailDrawer";
 import { ReviewUsageDetailDrawer } from "@/components/usage/ReviewUsageDetailDrawer";
 import { REVIEW_USAGE_DETAIL_DRAWER_ENABLED } from "@/lib/usageFeatureFlags";
+import { isStatsScope, type StatsScope } from "@/lib/statsScope";
 import {
   CERT_STATUS_LABEL,
   DCI_STATUS_LABEL,
@@ -27,6 +29,8 @@ import {
   type ReviewUsageRecord,
   type UsageProductTab,
 } from "@/lib/usageRecordsStore";
+
+const VERIFY_USAGE_TABS: UsageProductTab[] = ["dci", "info", "certificate"];
 
 type CommonFilters = {
   customerId: string;
@@ -67,7 +71,17 @@ function dayOf(stamp: string) {
 }
 
 export function ProductUsageRecordsPage() {
-  const [tab, setTab] = useState<UsageProductTab>("dci");
+  const { scope: scopeParam } = useParams();
+  if (!isStatsScope(scopeParam)) {
+    return <Navigate to="/stats/verify/usage-records" replace />;
+  }
+  return <ProductUsageRecordsBody scope={scopeParam} />;
+}
+
+function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
+  const [tab, setTab] = useState<UsageProductTab>(
+    scope === "audit" ? "workReview" : "dci",
+  );
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<(typeof USAGE_PAGE_SIZES)[number]>(10);
   const [jump, setJump] = useState("");
@@ -246,19 +260,21 @@ export function ProductUsageRecordsPage() {
 
   return (
     <div className="a-card">
-      <div className="a-tabs" role="tablist">
-        {(Object.keys(USAGE_PRODUCT_TAB_LABEL) as UsageProductTab[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            className={`a-tabs__item${tab === key ? " is-active" : ""}`}
-            onClick={() => switchTab(key)}
-          >
-            {USAGE_PRODUCT_TAB_LABEL[key]}
-          </button>
-        ))}
-      </div>
+      {scope === "verify" ? (
+        <div className="a-tabs" role="tablist">
+          {VERIFY_USAGE_TABS.map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              className={`a-tabs__item${tab === key ? " is-active" : ""}`}
+              onClick={() => switchTab(key)}
+            >
+              {USAGE_PRODUCT_TAB_LABEL[key]}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {tab === "dci" ? (
         <div className="a-toolbar">

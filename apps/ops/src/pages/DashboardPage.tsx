@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 // import { Link } from "react-router-dom"; // 快速入口暂隐
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import { SegmentedControl, TrendRangeToggle } from "@/components/StatsControls";
+import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { PRODUCTS } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
@@ -31,7 +32,7 @@ type QuickEntry = {
 };
 
 const QUICK_ENTRIES: QuickEntry[] = [
-  { id: "customers", label: "客户管理", to: "/customers", perms: ["customers.list"] },
+      { id: "customers", label: "机构服务管理", to: "/customers", perms: ["customers.list"] },
   {
     id: "services",
     label: "服务产品管理",
@@ -58,14 +59,14 @@ const QUICK_ENTRIES: QuickEntry[] = [
   },
   {
     id: "stats-c",
-    label: "客户使用统计",
-    to: "/stats/customers",
+    label: "机构使用统计",
+    to: "/stats/verify/customers",
     perms: ["stats.customers"],
   },
   {
     id: "stats-p",
-    label: "产品使用统计",
-    to: "/stats/products",
+    label: "技术服务使用统计",
+    to: "/stats/verify/products",
     perms: ["stats.products"],
   },
 ];
@@ -162,65 +163,67 @@ export function DashboardPage() {
     <div className="a-stack">
       {showBoard ? (
         <>
-          <section className="a-card a-dash-panel a-dash-panel--stats-board">
-            <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
-              <article className="a-stats-strip a-stats-strip--customer">
-                <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
-                  {overviewMetrics.map((item) => (
-                    <div key={item.label} className="a-stats-strip__cell">
-                      <span className="a-stats-strip__value">{item.value}</span>
-                      <span className="a-stats-strip__label">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            </div>
+          <section className="a-stats-overview">
+            <article className="a-stats-strip a-stats-strip--tone-0">
+              <header className="a-stats-strip__head">
+                <h3 className="a-stats-strip__title">平台数据概览</h3>
+              </header>
+              <div className="a-stats-strip__metrics a-stats-strip__metrics--4">
+                {overviewMetrics.map((item) => (
+                  <div key={item.label} className="a-stats-strip__cell">
+                    <span className="a-stats-strip__value">{item.value}</span>
+                    <span className="a-stats-strip__label">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+              <StatsCardGlyph kind="trend" />
+            </article>
           </section>
 
-          <section className="a-card a-dash-panel a-dash-panel--product-board">
-            <div className="a-card__body a-dash-panel__body a-dash-panel__body--compact">
-              <div className="a-product-board a-product-board--compact">
-                {productBoard.map((p, i) => {
-                  const showChannelMetrics = p.category === "verify";
-                  const metrics = showChannelMetrics
-                    ? [
-                        { label: "总账号数", value: String(p.accounts) },
-                        { label: "总调用次数", value: p.totalCalls.toLocaleString() },
-                        { label: "页面提交次数", value: p.pageSubmitCalls.toLocaleString() },
-                        { label: "API调用次数", value: p.apiCalls.toLocaleString() },
-                      ]
-                    : [
-                        { label: "总账号数", value: String(p.accounts) },
-                        { label: "总调用次数", value: p.totalCalls.toLocaleString() },
-                      ];
+          <section className="a-stats-overview">
+            <div className="a-product-board a-product-board--compact">
+              {productBoard.map((p, i) => {
+                const showChannelMetrics = p.category === "verify";
+                const metrics = showChannelMetrics
+                  ? [
+                      { label: "总账号数", value: String(p.accounts) },
+                      { label: "总调用次数", value: p.totalCalls.toLocaleString() },
+                      { label: "页面提交次数", value: p.pageSubmitCalls.toLocaleString() },
+                      { label: "API调用次数", value: p.apiCalls.toLocaleString() },
+                    ]
+                  : [
+                      { label: "总账号数", value: String(p.accounts) },
+                      { label: "总调用次数", value: p.totalCalls.toLocaleString() },
+                    ];
+                const glyphKind = i % 3 === 0 ? "users" : i % 3 === 1 ? "chart" : "api";
 
-                  return (
-                    <article
-                      key={p.code}
-                      className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
-                      style={{ animationDelay: `${i * 45}ms` }}
+                return (
+                  <article
+                    key={p.code}
+                    className={`a-product-board__card a-product-board__card--tone-${i % 3}`}
+                    style={{ animationDelay: `${i * 45}ms` }}
+                  >
+                    <header className="a-product-board__head">
+                      <h3 className="a-product-board__name">{p.name}</h3>
+                    </header>
+                    <div
+                      className={`a-stats-strip__metrics a-product-board__metrics${
+                        showChannelMetrics
+                          ? " a-stats-strip__metrics--4"
+                          : " a-stats-strip__metrics--2"
+                      }`}
                     >
-                      <header className="a-product-board__head">
-                        <h3 className="a-product-board__name">{p.name}</h3>
-                      </header>
-                      <div
-                        className={`a-stats-strip__metrics a-product-board__metrics${
-                          showChannelMetrics
-                            ? " a-stats-strip__metrics--4"
-                            : " a-stats-strip__metrics--2"
-                        }`}
-                      >
-                        {metrics.map((item) => (
-                          <div key={item.label} className="a-stats-strip__cell">
-                            <span className="a-stats-strip__value">{item.value}</span>
-                            <span className="a-stats-strip__label">{item.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+                      {metrics.map((item) => (
+                        <div key={item.label} className="a-stats-strip__cell">
+                          <span className="a-stats-strip__value">{item.value}</span>
+                          <span className="a-stats-strip__label">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <StatsCardGlyph kind={glyphKind} className="a-product-board__glyph" />
+                  </article>
+                );
+              })}
             </div>
           </section>
         </>

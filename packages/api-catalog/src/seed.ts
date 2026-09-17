@@ -1,3 +1,4 @@
+import { catalogIdForProduct } from "./catalogs";
 import type {
   ApiEndpoint,
   ApiErrorCode,
@@ -154,6 +155,8 @@ function ep(input: SeedInput): ApiEndpoint {
     version: input.version ?? "v1",
     description: input.description,
     productCode: input.productCode,
+    productCodes: [input.productCode],
+    catalogIds: [catalogIdForProduct(input.productCode)],
     owner: input.owner ?? "平台运营",
     status: input.status ?? "online",
     createdAt: input.createdAt ?? "2026-03-01 10:00:00",

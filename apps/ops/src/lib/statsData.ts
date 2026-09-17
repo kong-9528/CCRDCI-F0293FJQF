@@ -1,8 +1,6 @@
 import {
   ACCOUNT_STATUS_LABEL,
-  CONFIGURABLE_PRODUCTS,
   PERIOD_STATUS_LABEL,
-  PRODUCTS,
   SERVICE_STATUS_LABEL,
   derivePeriodStatus,
   deriveServiceStatus,
@@ -12,6 +10,12 @@ import {
   type ProductCode,
 } from "@/lib/catalog";
 import { getCustomers, listPeriodStatus } from "@/lib/customersStore";
+import {
+  AUDIT_STATS_PRODUCTS,
+  VERIFY_STATS_PRODUCTS,
+  statsProductCodesForScope,
+  type StatsScope,
+} from "@/lib/statsScope";
 
 export type StatsPeriod = "1d" | "7d" | "30d";
 
@@ -141,35 +145,56 @@ function buildMock() {
         if (svc.stopped) continue;
         if (date < svc.startDate || date > svc.endDate) continue;
 
+        const emitRow = (
+          code: ProductCode,
+          label: string,
+          pCalls: number,
+          pageSubmit: number,
+          api: number,
+          rate: number,
+        ) => {
+          accountProductDays.push({
+            date,
+            customerId: c.id,
+            account: c.account,
+            companyName: c.companyName,
+            contactName: c.contactName,
+            product: code,
+            productLabel: label,
+            calls: pCalls,
+            pageSubmitCalls: pageSubmit,
+            apiCalls: api,
+            successRate: rate,
+            accountStatus: ACCOUNT_STATUS_LABEL[c.status],
+            periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(svc.startDate, svc.endDate)],
+          });
+        };
+
+        if (product === "workReview") {
+          // 审核开通拆成 3 个能力维度落库，供「作品智能辅助审核统计」使用
+          for (const cap of AUDIT_STATS_PRODUCTS) {
+            const pb = hash(`${c.id}:${cap.code}:${date}`);
+            const hadTraffic = active && seeded(pb, 0, 10) > 3;
+            const pCalls = hadTraffic ? seeded(pb + 1, 3, 80) : 0;
+            const pRate =
+              pCalls === 0 ? 0 : Number((88 + seeded(pb + 2, 0, 110) / 10).toFixed(1));
+            emitRow(cap.code, cap.name, pCalls, 0, pCalls, pRate);
+          }
+          continue;
+        }
+
         const pb = hash(`${c.id}:${product}:${date}`);
         const hadTraffic = active && seeded(pb, 0, 10) > 3;
-        // 已开通：即使 0 次调用也要落库
         const pCalls = hadTraffic ? seeded(pb + 1, 5, 160) : 0;
-        const isAudit = PRODUCTS.find((item) => item.code === product)?.category === "audit";
-        const pageSubmitCalls =
-          isAudit || pCalls === 0 ? 0 : seeded(pb + 4, 0, pCalls);
+        const pageSubmitCalls = pCalls === 0 ? 0 : seeded(pb + 4, 0, pCalls);
         const apiCalls = pCalls - pageSubmitCalls;
         const pRate =
           pCalls === 0 ? 0 : Number((88 + seeded(pb + 2, 0, 110) / 10).toFixed(1));
-        accountProductDays.push({
-          date,
-          customerId: c.id,
-          account: c.account,
-          companyName: c.companyName,
-          contactName: c.contactName,
-          product,
-          productLabel: productName(product),
-          calls: pCalls,
-          pageSubmitCalls,
-          apiCalls,
-          successRate: pRate,
-          accountStatus: ACCOUNT_STATUS_LABEL[c.status],
-          periodStatus: PERIOD_STATUS_LABEL[derivePeriodStatus(svc.startDate, svc.endDate)],
-        });
+        emitRow(product, productName(product), pCalls, pageSubmitCalls, apiCalls, pRate);
       }
     }
 
-    for (const p of PRODUCTS) {
+    for (const p of [...VERIFY_STATS_PRODUCTS, ...AUDIT_STATS_PRODUCTS]) {
       const rows = accountProductDays.filter(
         (r) => r.date === date && r.product === p.code,
       );
@@ -371,8 +396,17 @@ export type AccountProductMatrix = {
   maxCalls: number;
 };
 
-function productCategory(code: ConfigurableProductCode): "verify" | "audit" {
-  return PRODUCTS.find((p) => p.code === code)?.category === "audit" ? "audit" : "verify";
+function statsRowCategory(code: ProductCode): "verify" | "audit" {
+  if ((AUDIT_STATS_PRODUCTS as readonly { code: string }[]).some((p) => p.code === code)) {
+    return "audit";
+  }
+  return "verify";
+}
+
+function statsProductLabel(code: ProductCode) {
+  const hit = [...VERIFY_STATS_PRODUCTS, ...AUDIT_STATS_PRODUCTS].find((p) => p.code === code);
+  if (hit) return hit.name;
+  return productName(normalizeProductCode(code));
 }
 
 /**
@@ -383,7 +417,9 @@ export function buildAccountProductSummaries(
   period: StatsPeriod,
   filters?: {
     product?: ProductCode | "";
+    /** @deprecated 请用 scope */
     category?: "verify" | "audit" | "";
+    scope?: StatsScope;
     accountQuery?: string;
   },
 ): AccountProductSummary[] {
@@ -391,22 +427,25 @@ export function buildAccountProductSummaries(
   const customerById = new Map(customers.map((c) => [c.id, c]));
   const dates = new Set(sliceDates(period));
   const periodRows = accountProductDays.filter((r) => dates.has(r.date));
+  const scope = filters?.scope ?? (filters?.category || undefined);
+  const scopeCodes = scope ? new Set(statsProductCodesForScope(scope)) : null;
 
   type Acc = {
     customerId: string;
     account: string;
     companyName: string;
     contactName: string;
-    product: ConfigurableProductCode;
+    product: ProductCode;
     dayRows: AccountProductDayStat[];
   };
   const groups = new Map<string, Acc>();
 
   for (const r of periodRows) {
-    const product = normalizeProductCode(r.product);
-    const cat = productCategory(product);
+    const product = r.product;
+    const cat = statsRowCategory(product);
     if (filters?.product && product !== filters.product) continue;
-    if (filters?.category && cat !== filters.category) continue;
+    if (scopeCodes && !scopeCodes.has(product)) continue;
+    if (!scopeCodes && filters?.category && cat !== filters.category) continue;
 
     const q = filters?.accountQuery?.trim().toLowerCase() ?? "";
     if (
@@ -435,29 +474,36 @@ export function buildAccountProductSummaries(
 
   const summaries: AccountProductSummary[] = [];
   for (const g of groups.values()) {
-    const cat = productCategory(g.product);
+    const cat = statsRowCategory(g.product);
     const dayRows = g.dayRows;
     const calls = sumCalls(dayRows);
     const pageSubmitCalls = sumPageSubmitCalls(dayRows);
     const apiCalls = sumApiCalls(dayRows);
-    // 有调用天数：当日 Web + API 之和 > 0
     const daysWithCalls = dayRows.filter(
       (r) => r.pageSubmitCalls + r.apiCalls > 0,
     ).length;
 
     const customer = customerById.get(g.customerId);
+    const lookupCode =
+      cat === "audit" ? ("workReview" as ConfigurableProductCode) : (g.product as ConfigurableProductCode);
     const svcs =
       customer?.productServices.filter(
-        (s) => normalizeProductCode(s.product) === g.product,
+        (s) => normalizeProductCode(s.product) === lookupCode,
       ) ?? [];
-    const primarySvc = svcs[0];
-    const lifetimeUsed = svcs.reduce((sum, svc) => sum + svc.usedCount, 0);
-    const quotaTotal =
-      primarySvc?.quotaType === "total" ? primarySvc.quotaTotal : null;
+    const lifetimeUsed = svcs.reduce((s, x) => s + x.usedCount, 0);
+    const quotaTotal = svcs.reduce<number | null>((acc, x) => {
+      if (x.quotaType === "unlimited") return acc;
+      const t = x.quotaTotal ?? 0;
+      return (acc ?? 0) + t;
+    }, null);
     const quotaUsagePct =
-      quotaTotal && quotaTotal > 0
-        ? Math.min(100, Math.round((lifetimeUsed / quotaTotal) * 100))
-        : null;
+      quotaTotal == null || quotaTotal <= 0
+        ? null
+        : Math.min(100, Math.round((lifetimeUsed / quotaTotal) * 100));
+    const primarySvc = svcs[0];
+    const serviceStatus = primarySvc
+      ? SERVICE_STATUS_LABEL[deriveServiceStatus(primarySvc)]
+      : "—";
 
     summaries.push({
       customerId: g.customerId,
@@ -465,29 +511,30 @@ export function buildAccountProductSummaries(
       companyName: g.companyName,
       contactName: g.contactName,
       product: g.product,
-      productLabel: productName(g.product),
+      productLabel: statsProductLabel(g.product),
       productCategory: cat,
       calls,
       pageSubmitCalls,
       apiCalls,
-      successRate: avgSuccessRate(dayRows),
+      successRate:
+        calls === 0
+          ? 0
+          : Number(
+              (
+                dayRows.reduce((s, r) => s + r.calls * r.successRate, 0) / calls
+              ).toFixed(1),
+            ),
       daysWithCalls,
       lifetimeUsed,
       quotaTotal,
       quotaUsagePct,
-      serviceStatus: primarySvc
-        ? SERVICE_STATUS_LABEL[deriveServiceStatus(primarySvc)]
-        : "—",
-      accountStatus: customer
-        ? ACCOUNT_STATUS_LABEL[customer.status]
-        : dayRows[0]?.accountStatus ?? "—",
-      periodStatus: primarySvc
-        ? PERIOD_STATUS_LABEL[derivePeriodStatus(primarySvc.startDate, primarySvc.endDate)]
-        : dayRows[0]?.periodStatus ?? "—",
+      serviceStatus,
+      accountStatus: dayRows[0]?.accountStatus ?? "—",
+      periodStatus: dayRows[0]?.periodStatus ?? "—",
     });
   }
 
-  return summaries.sort((a, b) => b.calls - a.calls);
+  return summaries.sort((a, b) => b.calls - a.calls || a.account.localeCompare(b.account));
 }
 
 export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMatrix {
@@ -519,11 +566,13 @@ export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMa
     if (row.calls > maxCalls) maxCalls = row.calls;
   }
 
+  const ordered = [...VERIFY_STATS_PRODUCTS, ...AUDIT_STATS_PRODUCTS]
+    .filter((p) => productMap.has(p.code))
+    .map((p) => productMap.get(p.code)!);
+
   return {
     accounts: [...accountMap.values()].sort((a, b) => a.account.localeCompare(b.account)),
-    products: CONFIGURABLE_PRODUCTS.filter((p) => productMap.has(p.code)).map(
-      (p) => productMap.get(p.code)!,
-    ),
+    products: ordered,
     cells,
     maxCalls,
   };
@@ -534,14 +583,10 @@ export function getAccountProductTrend(
   product: ProductCode,
   period: StatsPeriod | TrendRange,
 ) {
-  const normalized = normalizeProductCode(product);
   const { accountProductDays } = getStatsData();
   return sliceDates(period).map((date) => {
     const row = accountProductDays.find(
-      (r) =>
-        r.date === date &&
-        r.customerId === customerId &&
-        normalizeProductCode(r.product) === normalized,
+      (r) => r.date === date && r.customerId === customerId && r.product === product,
     );
     return {
       date,
