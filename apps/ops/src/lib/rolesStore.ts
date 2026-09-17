@@ -33,7 +33,7 @@ export const PERMISSION_TREE: PermNode[] = [
     children: [
       {
         id: "customers.list",
-        label: "客户账号列表页",
+        label: "机构账号列表页",
         children: [
           { id: "customers.list.create", label: "新增客户按钮" },
           { id: "customers.list.edit", label: "编辑按钮" },
@@ -63,7 +63,7 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "accounts",
-    label: "客户账号管理",
+    label: "机构账号管理",
     children: [
       {
         id: "accounts.pending",

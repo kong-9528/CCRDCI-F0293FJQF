@@ -141,7 +141,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
 
   const submit = () => {
     if (!form.customerId) {
-      setError("请选择客户账号");
+      setError("请选择机构账号");
       return;
     }
     if (!form.product) {
@@ -190,13 +190,13 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
           新增产品服务
         </h3>
         <p className="a-modal__desc">
-          为已有客户账号开通产品。开通后不可移除，仅可编辑额度 / 有效期或启停。
+          为已有机构账号开通产品。开通后不可移除，仅可编辑额度 / 有效期或启停。
         </p>
 
         <div className="a-form a-form--modal a-form--stack">
           <div className="a-field a-field--stack">
             <span className="a-field__label">
-              客户账号 <span className="a-req">*</span>
+              机构账号 <span className="a-req">*</span>
             </span>
             <div className="a-combobox" ref={accountRef}>
               <button

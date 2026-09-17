@@ -65,7 +65,7 @@ export function CustomerContractsPage() {
       <div className="a-card">
         <div className="a-card__head">合同管理</div>
         <div className="a-card__body">
-          <div className="a-empty">未找到该客户账号</div>
+          <div className="a-empty">未找到该机构账号</div>
           <div className="a-form-actions" style={{ marginTop: 16 }}>
             <button type="button" className="a-btn" onClick={() => navigate("/customers")}>
               返回列表

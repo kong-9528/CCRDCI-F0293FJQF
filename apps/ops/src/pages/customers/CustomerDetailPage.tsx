@@ -58,7 +58,7 @@ export function CustomerDetailPage() {
       <div className="a-card">
         <div className="a-card__head">客户详情</div>
         <div className="a-card__body">
-          <div className="a-empty">未找到该客户账号</div>
+          <div className="a-empty">未找到该机构账号</div>
         </div>
       </div>
     );

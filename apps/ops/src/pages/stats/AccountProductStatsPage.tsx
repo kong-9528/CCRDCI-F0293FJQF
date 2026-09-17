@@ -346,7 +346,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">账号 / 公司</span>
+            <span className="a-field__label">账号 / 机构</span>
             <input
               className="a-input"
               placeholder="模糊搜索"

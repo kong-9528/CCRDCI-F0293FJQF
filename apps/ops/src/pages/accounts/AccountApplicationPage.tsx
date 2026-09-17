@@ -236,7 +236,7 @@ export function AccountApplicationPage({ mode }: Props) {
               {decision === "approve" ? (
                 <div className="a-stack">
                   <div className="a-field__hint">
-                    审核通过后将创建客户账号。产品配置为可选项：可在此开通产品，也可通过后在「编辑产品服务」中配置。
+                    审核通过后将创建机构账号。产品配置为可选项：可在此开通产品，也可通过后在「编辑产品服务」中配置。
                   </div>
                   <AccountProductConfigPanel
                     value={productConfig}

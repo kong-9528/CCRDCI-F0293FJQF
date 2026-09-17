@@ -224,7 +224,7 @@ export function CustomerListPage() {
             className="a-btn a-btn--primary"
             onClick={() => navigate("/customers/new")}
           >
-            新增客户账号
+            新增机构账号
           </button>
         </div>
 
@@ -245,7 +245,7 @@ export function CustomerListPage() {
               {pageRows.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
-                    <div className="a-empty">暂无符合条件的客户账号</div>
+                    <div className="a-empty">暂无符合条件的机构账号</div>
                   </td>
                 </tr>
               ) : (

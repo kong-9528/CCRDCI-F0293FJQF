@@ -97,7 +97,7 @@ export function createCustomer(
   appendLog({
     customerId: row.id,
     action: "create",
-    summary: "创建客户账号",
+    summary: "创建机构账号",
     changes: [
       { field: "账号", before: "—", after: row.account },
       { field: "机构名称", before: "—", after: row.companyName },

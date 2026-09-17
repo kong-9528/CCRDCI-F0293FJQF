@@ -65,7 +65,7 @@ export function ReviewUsageDetailDrawer({ open, record, onClose, onToast }: Prop
 
         <dl className="c-cert-detail__meta">
           <div className="c-cert-detail__row">
-            <dt>客户账号</dt>
+            <dt>机构账号</dt>
             <dd>
               <code>{record.account}</code>
             </dd>

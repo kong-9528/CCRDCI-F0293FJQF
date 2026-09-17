@@ -6,7 +6,7 @@ export type OpLogScope = "portal" | "ops";
 export type OpLog = {
   id: string;
   scope: OpLogScope;
-  /** 客户控制台日志：所属客户账号 ID */
+  /** 客户控制台日志：所属机构账号 ID */
   customerId?: string;
   /** 操作类型编码 */
   actionType: string;
@@ -437,7 +437,7 @@ const LOGS: OpLog[] = [
     id: "o04",
     scope: "ops",
     actionType: "customer_create",
-    content: "新增客户账号 zhilian_sz，公司：智联数字版权有限公司",
+    content: "新增机构账号 zhilian_sz，公司：智联数字版权有限公司",
     operator: "运营管理员",
     operatedAt: "2026-08-21 11:25:00",
   },
@@ -453,7 +453,7 @@ const LOGS: OpLog[] = [
     id: "o06",
     scope: "ops",
     actionType: "customer_status",
-    content: "停用客户账号 pixel_lab",
+    content: "停用机构账号 pixel_lab",
     operator: "运营管理员",
     operatedAt: "2026-08-19 18:02:44",
   },
@@ -461,7 +461,7 @@ const LOGS: OpLog[] = [
     id: "o07",
     scope: "ops",
     actionType: "customer_status",
-    content: "启用客户账号 legacy_art（合同续签后）",
+    content: "启用机构账号 legacy_art（合同续签后）",
     operator: "运营管理员",
     operatedAt: "2026-08-01 09:10:00",
   },

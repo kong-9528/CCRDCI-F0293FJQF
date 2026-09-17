@@ -55,7 +55,7 @@ export function AccountApplicationEditPage() {
 
   const submit = () => {
     if (!customer) {
-      setError("未找到关联客户账号，无法保存");
+      setError("未找到关联机构账号，无法保存");
       return;
     }
     const err = saveProductConfig(customer.id, config);
@@ -87,7 +87,7 @@ export function AccountApplicationEditPage() {
           </p>
 
           {!customer ? (
-            <div className="a-empty">未找到关联客户账号，无法编辑产品服务</div>
+            <div className="a-empty">未找到关联机构账号，无法编辑产品服务</div>
           ) : (
             <AccountProductConfigPanel
               value={config}

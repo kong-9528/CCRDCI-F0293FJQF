@@ -1,6 +1,6 @@
 /**
  * 产品使用记录（运营侧）
- * 字段与 customer 端核验/审核记录对齐，并挂上客户账号维度。
+ * 字段与 customer 端核验/审核记录对齐，并挂上机构账号维度。
  */
 
 export type UsageProductTab = "dci" | "info" | "certificate" | "workReview";

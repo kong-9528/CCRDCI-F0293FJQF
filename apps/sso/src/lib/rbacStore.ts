@@ -1004,7 +1004,7 @@ let apiEndpoints: ApiEndpoint[] = [
     path: "/api/v1/customers",
     tags: "客户",
     sort: 1,
-    summary: "DCI管理中心客户账号列表",
+    summary: "DCI管理中心机构账号列表",
   }),
   api({
     id: "api-ops-customers-create",

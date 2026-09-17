@@ -65,7 +65,7 @@ export function CustomerCreatePage() {
     <div className="a-stack">
       <div className="a-card">
         <div className="a-card__head">
-          新增客户账号
+          新增机构账号
           <div className="a-card__extra">
             <button type="button" className="a-btn a-btn--sm" onClick={() => navigate(-1)}>
               返回

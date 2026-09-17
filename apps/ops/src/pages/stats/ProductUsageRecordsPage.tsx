@@ -229,7 +229,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
     onChange: (id: string) => void,
   ) => (
     <div className="a-field">
-      <span className="a-field__label">客户账号</span>
+      <span className="a-field__label">机构账号</span>
       <div style={{ minWidth: 240 }}>
         <AccountSearchSelect value={value} onChange={onChange} />
       </div>
@@ -602,7 +602,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
           <thead>
             {tab === "dci" ? (
               <tr>
-                <th>客户账号</th>
+                <th>机构账号</th>
                 <th>机构名称</th>
                 <th>核验时间</th>
                 <th>DCI码</th>
@@ -615,7 +615,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
             ) : null}
             {tab === "info" ? (
               <tr>
-                <th>客户账号</th>
+                <th>机构账号</th>
                 <th>机构名称</th>
                 <th>核验时间</th>
                 <th>作品类型</th>
@@ -629,7 +629,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
             ) : null}
             {tab === "certificate" ? (
               <tr>
-                <th>客户账号</th>
+                <th>机构账号</th>
                 <th>机构名称</th>
                 <th>核验时间</th>
                 <th>证书文件</th>
@@ -640,7 +640,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
             ) : null}
             {tab === "workReview" ? (
               <tr>
-                <th>客户账号</th>
+                <th>机构账号</th>
                 <th>机构名称</th>
                 <th>提交时间</th>
                 <th>流水号</th>

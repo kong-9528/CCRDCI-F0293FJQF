@@ -741,7 +741,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     id: "log-1",
     customerId: "1",
     action: "create",
-    summary: "创建客户账号",
+    summary: "创建机构账号",
     changes: [
       { field: "账号", before: "—", after: "acme_corp" },
       { field: "机构名称", before: "—", after: "艾克米文化传媒有限公司" },

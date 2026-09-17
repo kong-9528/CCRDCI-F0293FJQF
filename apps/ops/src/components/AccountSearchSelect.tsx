@@ -7,11 +7,11 @@ type Props = {
   placeholder?: string;
 };
 
-/** 客户账号可搜索下拉：从机构名称、账号模糊匹配，范围=运营后台已通过客户账号 */
+/** 机构账号可搜索下拉：从机构名称、账号模糊匹配，范围=运营后台已通过机构账号 */
 export function AccountSearchSelect({
   value,
   onChange,
-  placeholder = "请选择客户账号",
+  placeholder = "请选择机构账号",
 }: Props) {
   const { customers } = useCustomerStore();
   const [open, setOpen] = useState(false);
