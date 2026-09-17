@@ -599,8 +599,13 @@ export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {
 
 export function validateInfoForm(workType: InfoWorkType, input: InfoVerifyInput): string | null {
   if (!input.regNo.trim()) return "请填写登记号";
-  if (!input.name.trim() && !input.owner.trim()) {
-    return `请填写著作权人或${infoNameLabel(workType)}`;
+  const owner = input.owner.trim();
+  const name = input.name.trim();
+  const nameLabel = infoNameLabel(workType);
+  if (!owner && !name) {
+    return `请填写著作权人 / ${nameLabel}`;
   }
+  if (!owner) return "请填写著作权人";
+  if (!name) return `请填写${nameLabel}`;
   return null;
 }

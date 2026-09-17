@@ -9,6 +9,10 @@ type Props = {
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
   className?: string;
+  /** 点击蒙层是否关闭，默认 true */
+  closeOnBackdrop?: boolean;
+  /** 是否显示右上角关闭按钮，默认 true */
+  showClose?: boolean;
 };
 
 export function Modal({
@@ -20,13 +24,19 @@ export function Modal({
   footer,
   size = "md",
   className,
+  closeOnBackdrop = true,
+  showClose = true,
 }: Props) {
   if (!open) return null;
 
   const sizeClass = size === "lg" ? " a-modal--lg" : size === "md" ? " a-modal--md" : "";
 
   return (
-    <div className="a-modal-backdrop" role="presentation" onClick={onClose}>
+    <div
+      className="a-modal-backdrop"
+      role="presentation"
+      onClick={closeOnBackdrop ? onClose : undefined}
+    >
       <div
         className={`a-modal${sizeClass}${className ? ` ${className}` : ""}`}
         role="dialog"
@@ -41,9 +51,11 @@ export function Modal({
             </h3>
             {description ? <p className="a-modal__desc">{description}</p> : null}
           </div>
-          <button type="button" className="a-modal__close" aria-label="关闭" onClick={onClose}>
-            ×
-          </button>
+          {showClose ? (
+            <button type="button" className="a-modal__close" aria-label="关闭" onClick={onClose}>
+              ×
+            </button>
+          ) : null}
         </div>
         <div className="a-modal__body">{children}</div>
         {footer ? <div className="a-modal__actions">{footer}</div> : null}

@@ -528,17 +528,53 @@ body,
   overflow: auto;
 }
 
+.a-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: var(--ad-sp-3);
+}
+
+.a-modal__head-text {
+  min-width: 0;
+  flex: 1;
+}
+
 .a-modal__title {
-  margin: 0 0 var(--ad-sp-2);
+  margin: 0;
   font-size: var(--ad-fs-h1);
   font-weight: 600;
 }
 
 .a-modal__desc {
-  margin: 0 0 var(--ad-sp-4);
+  margin: 6px 0 0;
   color: var(--n-500);
   font-size: var(--ad-fs-body);
   line-height: 1.6;
+}
+
+.a-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--ad-radius-sm);
+  background: transparent;
+  color: var(--n-400);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.a-modal__close:hover {
+  color: var(--n-700);
+  background: var(--n-50);
 }
 
 .a-modal__body {
@@ -1991,6 +2027,46 @@ body,
   color: var(--n-600);
 }
 
+.c-dci-submit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ad-sp-3);
+  width: 100%;
+}
+
+.c-dci-submit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ad-sp-2);
+}
+
+.c-dci-hybrid__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ad-sp-2);
+}
+
+.c-dci-hybrid__fields .a-input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.c-dci-hybrid__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--n-400);
+  font-size: var(--ad-fs-sm);
+}
+
+.c-dci-hybrid__divider::before,
+.c-dci-hybrid__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--n-200);
+}
+
 .c-cert-detail__disclaimer {
   margin: 8px 20px 0;
   font-size: 12px;
@@ -2019,9 +2095,16 @@ body,
   align-self: stretch;
 }
 
-.c-cert-upload:hover {
+.c-cert-upload:hover,
+.c-cert-upload.is-dragover {
   border-color: var(--p-400);
   background: var(--p-50);
+}
+
+.c-cert-upload.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .c-cert-confirm {

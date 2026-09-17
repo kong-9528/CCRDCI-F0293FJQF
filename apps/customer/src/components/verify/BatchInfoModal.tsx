@@ -58,7 +58,7 @@ export function BatchInfoModal({
           <p>
             当前页签：<strong>{INFO_WORK_TYPE_LABEL[workType]}</strong>
             。请下载模板，按列填写 <strong>登记号</strong>、<strong>著作权人</strong>、
-            <strong>{nameLabel}</strong> 后上传 Excel 文件。
+            <strong>{nameLabel}</strong>（均为必填）后上传 Excel 文件。
           </p>
           <button
             type="button"

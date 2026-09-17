@@ -9,9 +9,9 @@ export type DciMismatchField = "owner" | "name";
 
 export type DciVerifyInput = {
   dciCode: string;
-  /** 著作权人（单条提交与名称合并为一个输入；批量仍可分列） */
+  /** 著作权人（必填；单条提交与名称合并为一个输入） */
   owner: string;
-  /** 作品名称 / 软件名称 / 数据汇编作品名称（单条提交与著作权人合并） */
+  /** 作品名称 / 软件名称 / 数据汇编作品名称（必填；单条提交与著作权人合并） */
   name: string;
 };
 
@@ -101,14 +101,18 @@ export function emptyDciForm(): DciVerifyInput {
   return { dciCode: "", owner: "", name: "" };
 }
 
-/** DCI 码必填；著作权人与名称合并后必填 */
+/** DCI 码、著作权人、名称均为必填 */
 export function validateDciForm(input: DciVerifyInput): string | null {
   const dciCode = normalizeDciCode(input.dciCode);
   if (!dciCode) return "请输入 DCI 核验码";
   if (!isValidDciCode(dciCode)) return "DCI 核验码格式不正确，示例：DCI-SWDEMO0001";
-  if (!input.owner.trim() && !input.name.trim()) {
-    return `请填写著作权人或${DCI_NAME_LABEL}`;
+  const owner = input.owner.trim();
+  const name = input.name.trim();
+  if (!owner && !name) {
+    return `请填写著作权人 / ${DCI_NAME_LABEL}`;
   }
+  if (!owner) return "请填写著作权人";
+  if (!name) return `请填写${DCI_NAME_LABEL}`;
   return null;
 }
 
@@ -624,3 +628,125 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
   }
   return result.message ? [result.message] : ["核验不通过"];
 }
+
+/* ---------- 文件上传核验（与证书核验交互对齐） ---------- */
+
+export type DciFileKind = "image" | "pdf";
+
+export type DciSelectedFile = {
+  file: File;
+  fileName: string;
+  fileUrl: string;
+  fileKind: DciFileKind;
+};
+
+export type DciRecognition = {
+  dciCode: string;
+  owner: string;
+  name: string;
+};
+
+export type DciOcrDraft = {
+  fileName: string;
+  fileUrl: string;
+  fileKind: DciFileKind;
+  recognition: DciRecognition;
+};
+
+export const DCI_MAX_BYTES = 100 * 1024 * 1024;
+
+export function detectDciFileKind(fileName: string): DciFileKind {
+  return /\.pdf$/i.test(fileName) ? "pdf" : "image";
+}
+
+export function isDciFileAllowed(file: File): string | null {
+  const okExt = /\.(pdf|jpe?g|png)$/i.test(file.name);
+  if (!okExt) return "仅支持 PDF、JPG、PNG 格式";
+  if (file.size > DCI_MAX_BYTES) return "请上传 100M 以内的文件";
+  return null;
+}
+
+function demoDciImage(label: string): string {
+  const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="480" viewBox="0 0 360 480">
+  <rect width="360" height="480" fill="#eef4fb"/>
+  <rect x="24" y="24" width="312" height="432" rx="12" fill="none" stroke="#0b62b8" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>
+  <text x="180" y="200" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20" font-weight="700" fill="#1a2b3c">DCI 证书</text>
+  <text x="180" y="240" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="13" fill="#5a6b7c">${label}</text>
+  <text x="180" y="420" text-anchor="middle" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="11" fill="#8a9aac">演示样张 · 仅供预览</text>
+</svg>`.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+/** 选择文件后生成本地预览（尚未 OCR） */
+export function createDciSelectedFile(file: File): DciSelectedFile {
+  const fileKind = detectDciFileKind(file.name);
+  const fileUrl =
+    fileKind === "image" ? URL.createObjectURL(file) : demoDciImage(file.name);
+  return { file, fileName: file.name, fileUrl, fileKind };
+}
+
+/** 模拟 OCR：识别 DCI 核验码、著作权人、名称 */
+export async function ocrDciFile(
+  file: File,
+  preset?: Pick<DciSelectedFile, "fileUrl" | "fileKind" | "fileName">,
+): Promise<DciOcrDraft> {
+  await new Promise((r) => setTimeout(r, 900));
+  const fileKind = preset?.fileKind ?? detectDciFileKind(file.name);
+  const fileName = preset?.fileName ?? file.name;
+  const fileUrl =
+    preset?.fileUrl ??
+    (fileKind === "image" ? URL.createObjectURL(file) : demoDciImage(file.name));
+  const lower = fileName.toLowerCase();
+
+  if (lower.includes("fail") || lower.includes("invalid") || lower.includes("missing")) {
+    return {
+      fileName,
+      fileUrl,
+      fileKind,
+      recognition: {
+        dciCode: "DCI-SW20240001",
+        owner: "错误著作权人",
+        name: "版权核验助手",
+      },
+    };
+  }
+
+  if (lower.includes("wk") || lower.includes("work")) {
+    return {
+      fileName,
+      fileUrl,
+      fileKind,
+      recognition: {
+        dciCode: "DCI-WKDEMO0001",
+        owner: "演示著作权人",
+        name: "演示文字作品",
+      },
+    };
+  }
+
+  if (lower.includes("ds") || lower.includes("data")) {
+    return {
+      fileName,
+      fileUrl,
+      fileKind,
+      recognition: {
+        dciCode: "DCI-DSDEMO0001",
+        owner: "演示著作权人",
+        name: "演示数据汇编作品",
+      },
+    };
+  }
+
+  return {
+    fileName,
+    fileUrl,
+    fileKind,
+    recognition: {
+      dciCode: "DCI-SWDEMO0001",
+      owner: "演示著作权人",
+      name: "演示软件登记",
+    },
+  };
+}
+

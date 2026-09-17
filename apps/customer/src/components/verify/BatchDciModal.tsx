@@ -51,7 +51,7 @@ export function BatchDciModal({
         <div className="c-dci-batch-intro">
           <p>
             请下载模板，按列填写 <strong>DCI 核验码</strong>、<strong>著作权人</strong>、
-            <strong>{DCI_NAME_LABEL}</strong> 后上传 Excel 文件。
+            <strong>{DCI_NAME_LABEL}</strong>（均为必填）后上传 Excel 文件。
           </p>
           <button type="button" className="a-btn a-btn--sm" onClick={downloadDciBatchTemplate}>
             下载 Excel 模板
