@@ -254,10 +254,40 @@ export type InfoVerifyInput = {
 };
 
 function mismatchMessage(mismatches: InfoMismatchField[], workType: InfoWorkType): string {
+  if (mismatches.includes("owner") && mismatches.includes("name")) {
+    return `著作权人/${infoNameLabel(workType)}不一致`;
+  }
   const parts = mismatches.map((f) =>
     f === "owner" ? "著作权人" : infoNameLabel(workType),
   );
   return `${parts.join("、")}不一致`;
+}
+
+/** 单字段合并提交时：命中著作权人或名称任一侧即通过；两侧不同时分别比对 */
+function ownerNameMismatches(
+  queryOwner: string,
+  queryName: string,
+  hitOwner: string,
+  hitName: string,
+): InfoMismatchField[] {
+  const o = queryOwner.trim();
+  const n = queryName.trim();
+  if (!o && !n) return [];
+
+  const distinct = Boolean(o && n && normCompare(o) !== normCompare(n));
+  if (!distinct) {
+    const q = o || n;
+    const hit =
+      normCompare(q) === normCompare(hitOwner) || normCompare(q) === normCompare(hitName);
+    if (hit) return [];
+    if (o && n) return ["owner", "name"];
+    return o ? ["owner"] : ["name"];
+  }
+
+  const mismatches: InfoMismatchField[] = [];
+  if (o && normCompare(o) !== normCompare(hitOwner)) mismatches.push("owner");
+  if (n && normCompare(n) !== normCompare(hitName)) mismatches.push("name");
+  return mismatches;
 }
 
 export function formatInfoMismatchTags(result: InfoVerifyResult): string {
@@ -292,6 +322,9 @@ export function formatInfoFailReasons(result: InfoVerifyResult): string[] {
     return [result.message || "未找到该登记号"];
   }
   if (result.mismatches?.length) {
+    if (result.mismatches.includes("owner") && result.mismatches.includes("name")) {
+      return [`著作权人/${infoNameLabel(result.workType)}不一致`];
+    }
     return result.mismatches.map((f) =>
       f === "owner" ? "著作权人不一致" : `${infoNameLabel(result.workType)}不一致`,
     );
@@ -299,13 +332,28 @@ export function formatInfoFailReasons(result: InfoVerifyResult): string[] {
   return result.message ? [result.message] : ["登记信息与系统记录不一致"];
 }
 
-/** 结果区仅展示用户提交过的字段 */
+/** 结果区仅展示用户提交过的字段；合并提交时合并展示 */
 export function infoSubmittedFieldRows(result: InfoVerifyResult) {
-  return [
-    { label: "登记号", value: result.regNo || "—", field: "regNo" as const },
-    { label: infoNameLabel(result.workType), value: result.name || "—", field: "name" as const },
-    { label: "著作权人", value: result.owner || "—", field: "owner" as const },
+  const rows: { label: string; value: string; field: InfoSubmitField }[] = [
+    { label: "登记号", value: result.regNo || "—", field: "regNo" },
   ];
+  const name = result.name.trim();
+  const owner = result.owner.trim();
+  if (name && owner && normCompare(name) === normCompare(owner)) {
+    rows.push({
+      label: `著作权人 / ${infoNameLabel(result.workType)}`,
+      value: owner,
+      field: "owner",
+    });
+  } else {
+    if (name) {
+      rows.push({ label: infoNameLabel(result.workType), value: name, field: "name" });
+    }
+    if (owner) {
+      rows.push({ label: "著作权人", value: owner, field: "owner" });
+    }
+  }
+  return rows;
 }
 
 export async function verifyInfoOnce(
@@ -339,9 +387,7 @@ export async function verifyInfoOnce(
           : "未找到该登记号",
     };
   } else {
-    const mismatches: InfoMismatchField[] = [];
-    if (name && normCompare(name) !== normCompare(hit.name)) mismatches.push("name");
-    if (owner && normCompare(owner) !== normCompare(hit.owner)) mismatches.push("owner");
+    const mismatches = ownerNameMismatches(owner, name, hit.owner, hit.name);
 
     if (mismatches.length) {
       result = {
@@ -554,7 +600,7 @@ export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {
 export function validateInfoForm(workType: InfoWorkType, input: InfoVerifyInput): string | null {
   if (!input.regNo.trim()) return "请填写登记号";
   if (!input.name.trim() && !input.owner.trim()) {
-    return `著作权人与${infoNameLabel(workType)}至少填写一项`;
+    return `请填写著作权人或${infoNameLabel(workType)}`;
   }
   return null;
 }

@@ -122,12 +122,14 @@ export function ReviewServicePage({ product }: Props) {
             <ApiDocLink productId={cfg.apiDocId} />
           </div>
           <div className="c-review-intro__body">
-            {cfg.intro.map((item) => (
-              <p key={item.label}>{item.text}</p>
+            {cfg.intro.map((item, index) => (
+              <p
+                key={item.label}
+                className={index === 0 ? "c-review-intro__lead" : "c-review-intro__capability"}
+              >
+                {item.text}
+              </p>
             ))}
-            <p className="c-review-intro__async">
-              内容安全审核、作品登记查重、疑似侵权审核共用同一额度；提交后请保存流水号，并在下方记录中查询审核结果。
-            </p>
           </div>
         </div>
       </div>
@@ -140,7 +142,7 @@ export function ReviewServicePage({ product }: Props) {
       <div className="a-card">
         <div className="a-card__head">
           用量统计
-          <span className="a-card__extra">超额不拦截，仅提示</span>
+          <span className="a-card__extra"></span>
         </div>
         <div className="a-card__body a-stack">
           {overQuota ? (
@@ -203,7 +205,7 @@ export function ReviewServicePage({ product }: Props) {
         <div className="a-card__head">
           审核记录
           <div className="a-card__extra">
-            异步任务流水 · 默认近 {REVIEW_DEFAULT_DAYS} 天
+            默认近 {REVIEW_DEFAULT_DAYS} 天
           </div>
         </div>
         <div className="a-toolbar">

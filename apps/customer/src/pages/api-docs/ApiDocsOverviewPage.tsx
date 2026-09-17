@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { catalogIdForProduct, type ProductCode } from "@ctp/api-catalog";
 import {
   getApiDocProductsForOverview,
   getApiDocTotalCount,
@@ -37,10 +38,11 @@ export function ApiDocsOverviewPage() {
       <div className="c-apidoc-grid">
         {products.map((prod, index) => {
           const empty = prod.apis.length === 0;
+          const catalogId = catalogIdForProduct(prod.productCode as ProductCode);
           return (
             <Link
               key={prod.id}
-              to={`/api/docs/${prod.id}`}
+              to={`/docs?catalog=${encodeURIComponent(catalogId)}`}
               state={{ from: `${location.pathname}${location.search}` }}
               className={`c-apidoc-card${empty ? " is-empty" : ""}`}
               style={{ ["--card-i" as string]: index }}

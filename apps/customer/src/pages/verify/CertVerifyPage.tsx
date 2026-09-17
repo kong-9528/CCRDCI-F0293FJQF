@@ -3,6 +3,7 @@ import { ProductUsagePanel } from "@/components/ProductUsagePanel";
 import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
+import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { CertConfirmModal } from "@/components/verify/CertConfirmModal";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
@@ -225,8 +226,11 @@ export function CertVerifyPage() {
               <div className="a-card">
                 <div className="a-card__body a-stack">
                   <div className="c-verify-panel-head">
-                    <h2 className="c-verify-panel-head__title">版权登记证书核验</h2>
-                    <p className="c-verify-hint">仅支持单文件单证书核验</p>
+                    <div className="c-verify-panel-head__main">
+                      <h2 className="c-verify-panel-head__title">版权登记证书核验</h2>
+                      <p className="c-verify-hint">仅支持单文件单证书核验</p>
+                    </div>
+                    <ApiDocLink productId="certificate" />
                   </div>
 
                   <div className="c-cert-submit">

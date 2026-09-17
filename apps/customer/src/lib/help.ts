@@ -34,8 +34,8 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
           <p>登录工作台后，进入「API管理 → API key管理」创建密钥。每个注册中心仅可创建一个 API key；创建后 AK 固定不变，可随时显示/复制 SK、DEK，并通过编辑重新生成 SK / DEK。</p>
           <p><a href="/api/keys">前往 API key管理 →</a></p>
           <h3>第二步：阅读 API 文档</h3>
-          <p>每个核验 / 审核服务页面均提供对应的 API 文档入口，包含请求参数、返回格式、错误码等详细信息。也可在「API文档」中浏览全部接口。</p>
-          <p><a href="/api/docs">打开 API 文档总览 →</a></p>
+          <p>每个核验 / 审核服务页面均提供对应的 API 文档入口，包含请求参数、返回格式、错误码等详细信息。也可在「文档」中按产品目录浏览全部接口。</p>
+          <p><a href="/docs">打开接口文档 →</a></p>
           <h3>第三步：调用接口</h3>
           <p>使用您的密钥调用接口，每次调用将消耗对应的配额。可在工作台查看实时调用量和剩余配额。</p>
           <p><a href="/desk">返回工作台 →</a></p>
@@ -60,8 +60,8 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
             <li>请求时间戳与随机串（防重放，按接口文档约定）</li>
             <li>Content-Type：application/json 或 multipart/form-data</li>
           </ul>
-          <p>完整参数与错误码请参阅各产品 API 文档。</p>
-          <p><a href="/api/docs">浏览 API 文档 →</a></p>
+          <p>完整参数与错误码请参阅各产品接口文档。</p>
+          <p><a href="/docs">浏览接口文档 →</a></p>
         `,
       },
       {

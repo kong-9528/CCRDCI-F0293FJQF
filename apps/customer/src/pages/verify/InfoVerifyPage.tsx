@@ -262,15 +262,12 @@ export function InfoVerifyPage() {
             />
             <input
               className="a-input"
-              placeholder={nameLabel}
-              value={form.name}
-              onChange={(e) => setField("name", e.target.value)}
-            />
-            <input
-              className="a-input"
-              placeholder="著作权人"
-              value={form.owner}
-              onChange={(e) => setField("owner", e.target.value)}
+              placeholder={`著作权人 / ${nameLabel}`}
+              value={form.owner || form.name}
+              onChange={(e) => {
+                const v = e.target.value;
+                setForm((p) => ({ ...p, owner: v, name: v }));
+              }}
             />
             <button
               type="button"
@@ -291,7 +288,7 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            登记号必填；{nameLabel}与著作权人至少填一项 · 单次批量上限 {INFO_BATCH_LIMIT} 条 ·
+            登记号必填；请填写著作权人或{nameLabel} · 单次批量上限 {INFO_BATCH_LIMIT} 条 ·
             演示：2024SR001234 / 2024ZP001234 / 2024SJ001234 配合正确名称或著作权人可核验通过
           </p>
 

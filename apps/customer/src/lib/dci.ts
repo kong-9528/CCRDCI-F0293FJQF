@@ -9,9 +9,9 @@ export type DciMismatchField = "owner" | "name";
 
 export type DciVerifyInput = {
   dciCode: string;
-  /** 著作权人（与名称至少填一项） */
+  /** 著作权人（单条提交与名称合并为一个输入；批量仍可分列） */
   owner: string;
-  /** 作品名称 / 软件名称 / 数据汇编作品名称（统一展示为软件/作品/数据汇编作品名称） */
+  /** 作品名称 / 软件名称 / 数据汇编作品名称（单条提交与著作权人合并） */
   name: string;
 };
 
@@ -101,13 +101,13 @@ export function emptyDciForm(): DciVerifyInput {
   return { dciCode: "", owner: "", name: "" };
 }
 
-/** DCI 码必填；著作权人与名称至少填 1 项 */
+/** DCI 码必填；著作权人与名称合并后必填 */
 export function validateDciForm(input: DciVerifyInput): string | null {
   const dciCode = normalizeDciCode(input.dciCode);
   if (!dciCode) return "请输入 DCI 核验码";
   if (!isValidDciCode(dciCode)) return "DCI 核验码格式不正确，示例：DCI-SWDEMO0001";
   if (!input.owner.trim() && !input.name.trim()) {
-    return `著作权人与${DCI_NAME_LABEL}至少填写一项`;
+    return `请填写著作权人或${DCI_NAME_LABEL}`;
   }
   return null;
 }
@@ -333,7 +333,37 @@ function inferWorkTypeFromCode(dciCode: string): DciWorkType {
   return "software";
 }
 
+/** 单字段（著作权人与名称合并）时：填入值命中任一侧即通过；两侧不同时分别比对 */
+function ownerNameMismatches(
+  queryOwner: string,
+  queryName: string,
+  hitOwner: string,
+  hitName: string,
+): DciMismatchField[] {
+  const o = queryOwner.trim();
+  const n = queryName.trim();
+  if (!o && !n) return [];
+
+  const distinct = Boolean(o && n && normCompare(o) !== normCompare(n));
+  if (!distinct) {
+    const q = o || n;
+    const hit =
+      normCompare(q) === normCompare(hitOwner) || normCompare(q) === normCompare(hitName);
+    if (hit) return [];
+    if (o && n) return ["owner", "name"];
+    return o ? ["owner"] : ["name"];
+  }
+
+  const mismatches: DciMismatchField[] = [];
+  if (o && normCompare(o) !== normCompare(hitOwner)) mismatches.push("owner");
+  if (n && normCompare(n) !== normCompare(hitName)) mismatches.push("name");
+  return mismatches;
+}
+
 function mismatchMessage(mismatches: DciMismatchField[]): string {
+  if (mismatches.includes("owner") && mismatches.includes("name")) {
+    return `著作权人/${DCI_NAME_LABEL}不一致`;
+  }
   const parts = mismatches.map((f) => (f === "owner" ? "著作权人" : DCI_NAME_LABEL));
   return `${parts.join("、")}不一致`;
 }
@@ -370,13 +400,7 @@ export async function verifyDciOnce(
     };
   } else {
     const { workType, ...snapshot } = hit;
-    const mismatches: DciMismatchField[] = [];
-    if (queryOwner && normCompare(queryOwner) !== normCompare(hit.owner)) {
-      mismatches.push("owner");
-    }
-    if (queryName && normCompare(queryName) !== normCompare(hit.name)) {
-      mismatches.push("name");
-    }
+    const mismatches = ownerNameMismatches(queryOwner, queryName, hit.owner, hit.name);
     if (mismatches.length) {
       result = {
         id,
@@ -591,6 +615,9 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
     return [result.message || "DCI不存在"];
   }
   if (result.mismatches?.length) {
+    if (result.mismatches.includes("owner") && result.mismatches.includes("name")) {
+      return [`著作权人/${DCI_NAME_LABEL}不一致`];
+    }
     return result.mismatches.map((f) =>
       f === "owner" ? "著作权人不一致" : `${DCI_NAME_LABEL}不一致`,
     );

@@ -1,12 +1,11 @@
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { catalogIdForProduct, resolveDocProductId, type ProductCode } from "@ctp/api-catalog";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { ApiManageLayout } from "@/layouts/ApiManageLayout";
 import { AccountCenterPage } from "@/pages/account/AccountCenterPage";
 import { AccountEditPage } from "@/pages/account/AccountEditPage";
 import { ChangePasswordPage } from "@/pages/account/ChangePasswordPage";
 import { ApiStatsPage } from "@/pages/api-stats/ApiStatsPage";
-import { ApiDocProductPage } from "@/pages/api-docs/ApiDocProductPage";
-import { ApiDocsOverviewPage } from "@/pages/api-docs/ApiDocsOverviewPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { DeskPage } from "@/pages/DeskPage";
 import { DocsPage } from "@/pages/docs/DocsPage";
@@ -24,7 +23,9 @@ function DefaultRedirect() {
 
 function ApiDocsLegacyRedirect() {
   const { productId = "" } = useParams();
-  return <Navigate to={`/api/docs/${productId}`} replace />;
+  const resolved = resolveDocProductId(productId);
+  const catalogId = catalogIdForProduct(resolved as ProductCode);
+  return <Navigate to={`/docs?catalog=${encodeURIComponent(catalogId)}`} replace />;
 }
 
 export function App() {
@@ -53,9 +54,9 @@ export function App() {
           <Route index element={<Navigate to="keys" replace />} />
           <Route path="keys" element={<KeysPage />} />
           <Route path="stats" element={<ApiStatsPage />} />
-          {/* 产品维度文档仍可通过核验页入口访问 */}
-          <Route path="docs" element={<ApiDocsOverviewPage />} />
-          <Route path="docs/:productId" element={<ApiDocProductPage />} />
+          {/* 旧产品文档页重定向到 /docs 并定位目录 */}
+          <Route path="docs" element={<Navigate to="/docs" replace />} />
+          <Route path="docs/:productId" element={<ApiDocsLegacyRedirect />} />
         </Route>
 
         {/* 旧路由重定向 */}

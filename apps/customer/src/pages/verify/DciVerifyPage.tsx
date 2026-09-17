@@ -102,14 +102,25 @@ function ResultCard({
             <code>{result.dciCode}</code>
           </span>
         </div>
-        <div className="a-desc__item">
-          <span className="a-desc__label">著作权人：</span>
-          <span className="a-desc__value">{result.queryOwner || "—"}</span>
-        </div>
-        <div className="a-desc__item">
-          <span className="a-desc__label">{DCI_NAME_LABEL}：</span>
-          <span className="a-desc__value">{result.queryName || "—"}</span>
-        </div>
+        {result.queryOwner &&
+        result.queryName &&
+        result.queryOwner.trim().toLowerCase() === result.queryName.trim().toLowerCase() ? (
+          <div className="a-desc__item">
+            <span className="a-desc__label">著作权人 / {DCI_NAME_LABEL}：</span>
+            <span className="a-desc__value">{result.queryOwner}</span>
+          </div>
+        ) : (
+          <>
+            <div className="a-desc__item">
+              <span className="a-desc__label">著作权人：</span>
+              <span className="a-desc__value">{result.queryOwner || "—"}</span>
+            </div>
+            <div className="a-desc__item">
+              <span className="a-desc__label">{DCI_NAME_LABEL}：</span>
+              <span className="a-desc__value">{result.queryName || "—"}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -275,18 +286,12 @@ export function DciVerifyPage() {
             />
             <input
               className="a-input"
-              placeholder="著作权人"
-              value={form.owner}
-              onChange={(e) => setField("owner", e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") void runSingle();
+              placeholder={`著作权人 / ${DCI_NAME_LABEL}`}
+              value={form.owner || form.name}
+              onChange={(e) => {
+                const v = e.target.value;
+                setForm((p) => ({ ...p, owner: v, name: v }));
               }}
-            />
-            <input
-              className="a-input"
-              placeholder={DCI_NAME_LABEL}
-              value={form.name}
-              onChange={(e) => setField("name", e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void runSingle();
               }}
@@ -310,7 +315,7 @@ export function DciVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            DCI 核验码必填；著作权人与{DCI_NAME_LABEL}至少填一项 · 单次批量上限 {DCI_BATCH_LIMIT}{" "}
+            DCI 核验码必填；请填写著作权人或{DCI_NAME_LABEL} · 单次批量上限 {DCI_BATCH_LIMIT}{" "}
             条 · 演示码：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001
           </p>
 
