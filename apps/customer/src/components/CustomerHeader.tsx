@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { IconBell, IconEnterprise } from "@/components/icons/UiIcons";
+import { IconBell } from "@/components/icons/UiIcons";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
 import { MOCK_SESSION, MOCK_TENANT, PORTAL_LINKS } from "@/lib/tenant";
@@ -74,17 +74,15 @@ export function CustomerHeader({ pathname }: Props) {
           >
             帮助中心
           </Link>
+          <Link
+            to="/account"
+            className={`a-header__nav-link${pathname === "/account" || pathname.startsWith("/account/") ? " is-active" : ""}`}
+          >
+            机构信息
+          </Link>
         </nav>
 
         <div className="a-header__actions">
-          <Link
-            to="/account"
-            className={`a-header__icon-btn${pathname === "/account" || pathname.startsWith("/account/") ? " is-active" : ""}`}
-            aria-label="机构信息"
-            title="机构信息"
-          >
-            <IconEnterprise size={20} />
-          </Link>
           <button type="button" className="a-header__icon-btn a-header__bell" aria-label="通知">
             <IconBell />
             <span className="a-header__badge">3</span>

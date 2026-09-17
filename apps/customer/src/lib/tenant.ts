@@ -2,10 +2,16 @@ import type { ProductCode } from "@/lib/catalog";
 
 export type TenantProfile = {
   companyName: string;
+  /** 组织机构代码 */
   creditCode: string;
   contactName: string;
   contactPhone: string;
+  /** 机构地址 */
   address: string;
+  /** 合作领域 */
+  cooperationField: string;
+  /** 已核销邀请码（只读展示） */
+  inviteCode: string;
 };
 
 export type TenantService = {
@@ -33,6 +39,8 @@ export const MOCK_TENANT: TenantProfile = {
   contactName: "李四",
   contactPhone: "13800001234",
   address: "北京市海淀区中关村大街1号",
+  cooperationField: "数字版权核验、内容安全审核",
+  inviteCode: "P6R4BHL2",
 };
 
 /** 控制台登录会话（演示） */

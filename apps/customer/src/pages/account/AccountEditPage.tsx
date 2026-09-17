@@ -15,24 +15,40 @@ function formatFileSize(bytes?: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function InfoIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M12 11v6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
 function Field({
   label,
   required,
   children,
-  full,
+  info,
 }: {
   label: string;
   required?: boolean;
   children: ReactNode;
-  full?: boolean;
+  info?: string;
 }) {
   return (
-    <div className={`a-field a-field--stack${full ? " a-form-grid__full" : ""}`}>
-      <label className="a-field__label">
+    <div className="c-org-field c-org-field--edit">
+      <div className="c-org-field__label">
+        {required ? <span className="c-required">*</span> : null}
+        {required ? " " : null}
         {label}
-        {required ? <span className="c-required"> *</span> : null}
-      </label>
-      {children}
+        {info ? (
+          <button type="button" className="c-field-info" title={info} aria-label={`${label}说明`}>
+            <InfoIcon />
+          </button>
+        ) : null}
+      </div>
+      <div className="c-org-field__control">{children}</div>
     </div>
   );
 }
@@ -106,70 +122,95 @@ export function AccountEditPage() {
   };
 
   return (
-    <div className="a-card c-account-page c-account-edit-page">
+    <div className="c-org-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
-      <div className="a-card__head c-account-edit-page__head">
-        <div className="c-account-edit-page__title-row">
-          <Link to="/account" className="a-btn a-btn--sm">
-            返回
-          </Link>
-          <span>{isResubmit ? "编辑并重新提交" : "编辑机构信息"}</span>
+      <div className="c-org-card">
+        <div className="c-org-card__header">
+          <div className="c-org-card__header-left">
+            <Link to="/account" className="c-org-btn c-org-btn--ghost">
+              返回
+            </Link>
+            <h1 className="c-org-card__title">{isResubmit ? "修改并重新提交" : "修改申请信息"}</h1>
+          </div>
         </div>
-      </div>
-      <div className="a-card__body a-stack">
+
         {isResubmit ? (
-          <p className="a-field__hint" style={{ margin: 0 }}>
-            修改资料并保存后将重新提交审核。
-          </p>
+          <div className="c-org-alert c-org-alert--withdrawn" role="status">
+            <div className="c-org-alert__body">
+              <p className="c-org-alert__title">请完善资料后重新提交</p>
+              <p className="c-org-alert__desc">修改资料并保存后将重新进入审核。</p>
+            </div>
+          </div>
         ) : null}
 
-        <section className="a-form-section">
-          <h3 className="a-form-section__title">基本信息</h3>
-          <div className="a-form-grid">
-            <Field label="机构名称" required>
-              <input
-                className="a-input"
-                value={draft.companyName}
-                onChange={(e) => set("companyName", e.target.value)}
-                placeholder="请输入机构名称"
+        <div className="c-org-form">
+          <h2 className="c-org-section-title">基本信息</h2>
+          <Field label="机构名称" required>
+            <input
+              className="a-input"
+              value={draft.companyName}
+              onChange={(e) => set("companyName", e.target.value)}
+              placeholder="请输入机构名称"
+            />
+          </Field>
+          <Field label="组织机构代码" required>
+            <input
+              className="a-input"
+              value={draft.creditCode}
+              onChange={(e) => set("creditCode", e.target.value)}
+              placeholder="请输入组织机构代码"
+            />
+          </Field>
+          <Field label="机构地址" required>
+            <input
+              className="a-input"
+              value={draft.address}
+              onChange={(e) => set("address", e.target.value)}
+              placeholder="请输入机构地址"
+            />
+          </Field>
+          <Field label="邀请码" required>
+            <div className="c-invite-readonly">
+              <span className="c-invite-readonly__code">{profile.inviteCode || "—"}</span>
+              <span className="c-invite-readonly__badge">已认证核销</span>
+              <span className="c-invite-readonly__hint">（资质变更无需再次消耗邀请码）</span>
+            </div>
+          </Field>
+          <Field
+            label="合作领域"
+            required
+            info="请填写与贵机构业务相关的合作领域，如电商领域、艺术领域等。"
+          >
+            <div className="c-textarea-wrap">
+              <textarea
+                className="a-textarea c-textarea--counted"
+                rows={3}
+                maxLength={300}
+                value={draft.cooperationField}
+                onChange={(e) => set("cooperationField", e.target.value.slice(0, 300))}
+                placeholder="请输入合作领域，如电商领域、艺术领域等"
               />
-            </Field>
-            <Field label="统一社会信用代码" required>
-              <input
-                className="a-input"
-                value={draft.creditCode}
-                onChange={(e) => set("creditCode", e.target.value)}
-                placeholder="请输入统一社会信用代码"
-              />
-            </Field>
-            <Field label="联系地址" required full>
-              <input
-                className="a-input"
-                value={draft.address}
-                onChange={(e) => set("address", e.target.value)}
-                placeholder="请输入联系地址"
-              />
-            </Field>
-            <Field label="合同开始日期" required>
-              <input
-                className="a-input"
-                type="date"
-                value={draft.contractStart}
-                onChange={(e) => set("contractStart", e.target.value)}
-              />
-            </Field>
-            <Field label="合同结束日期" required>
-              <input
-                className="a-input"
-                type="date"
-                value={draft.contractEnd}
-                onChange={(e) => set("contractEnd", e.target.value)}
-              />
-            </Field>
-            <div className="a-field a-field--stack a-form-grid__full">
-              <label className="a-field__label">
-                合同附件<span className="c-required"> *</span>
-              </label>
+              <span className="c-textarea-counter">{draft.cooperationField.length} / 300</span>
+            </div>
+          </Field>
+          <Field label="合同开始日期" required>
+            <input
+              className="a-input"
+              type="date"
+              value={draft.contractStart}
+              onChange={(e) => set("contractStart", e.target.value)}
+            />
+          </Field>
+          <Field label="合同结束日期" required>
+            <input
+              className="a-input"
+              type="date"
+              value={draft.contractEnd}
+              onChange={(e) => set("contractEnd", e.target.value)}
+            />
+          </Field>
+          <Field label="合同附件" required>
+            <div className="c-org-upload">
               <div className="a-upload">
                 <input
                   ref={fileRef}
@@ -180,20 +221,16 @@ export function AccountEditPage() {
                 />
               </div>
               {draft.contractFiles.length > 0 ? (
-                <ul className="a-apply__files">
+                <ul className="c-org-upload__list">
                   {draft.contractFiles.map((f) => {
                     const sizeText = formatFileSize(f.size);
                     return (
-                      <li key={f.id}>
-                        <span>
+                      <li key={f.id} className="c-org-file">
+                        <span className="c-org-file__name">
                           {f.name}
                           {sizeText ? `（${sizeText}）` : ""}
                         </span>
-                        <button
-                          type="button"
-                          className="a-btn a-btn--text a-btn--sm"
-                          onClick={() => removeFile(f.id)}
-                        >
+                        <button type="button" className="c-org-file__link" onClick={() => removeFile(f.id)}>
                           移除
                         </button>
                       </li>
@@ -204,41 +241,39 @@ export function AccountEditPage() {
                 <span className="a-field__hint">请上传至少一份合同附件</span>
               )}
             </div>
+          </Field>
+
+          <div className="c-org-divider" />
+
+          <h2 className="c-org-section-title">联系人信息</h2>
+          <Field label="联系人" required>
+            <input
+              className="a-input"
+              value={draft.contactName}
+              onChange={(e) => set("contactName", e.target.value)}
+              placeholder="请输入联系人姓名"
+            />
+          </Field>
+          <Field label="手机号码" required>
+            <input
+              className="a-input"
+              inputMode="tel"
+              value={draft.contactPhone}
+              onChange={(e) => set("contactPhone", e.target.value)}
+              placeholder="请输入手机号"
+            />
+          </Field>
+
+          {error ? <div className="a-form-error">{error}</div> : null}
+
+          <div className="c-org-actions">
+            <button type="button" className="c-org-submit" onClick={onSave}>
+              {isResubmit ? "保存并提交" : "保存"}
+            </button>
+            <button type="button" className="c-org-btn c-org-btn--ghost c-org-btn--block" onClick={() => navigate("/account")}>
+              取消
+            </button>
           </div>
-        </section>
-
-        <section className="a-form-section">
-          <h3 className="a-form-section__title">联系信息</h3>
-          <div className="a-form-grid">
-            <Field label="联系人" required>
-              <input
-                className="a-input"
-                value={draft.contactName}
-                onChange={(e) => set("contactName", e.target.value)}
-                placeholder="请输入联系人姓名"
-              />
-            </Field>
-            <Field label="联系人手机号" required>
-              <input
-                className="a-input"
-                inputMode="tel"
-                value={draft.contactPhone}
-                onChange={(e) => set("contactPhone", e.target.value)}
-                placeholder="请输入手机号"
-              />
-            </Field>
-          </div>
-        </section>
-
-        {error ? <div className="a-form-error">{error}</div> : null}
-
-        <div className="a-inline-actions">
-          <button type="button" className="a-btn a-btn--primary" onClick={onSave}>
-            {isResubmit ? "保存并提交" : "保存"}
-          </button>
-          <button type="button" className="a-btn" onClick={() => navigate("/account")}>
-            取消
-          </button>
         </div>
       </div>
     </div>

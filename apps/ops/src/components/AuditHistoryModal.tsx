@@ -57,7 +57,7 @@ function HistoryCard({
         <div className="o-audit-hist-grid">
           <Field label="机构名称">{record.companyName}</Field>
           <Field label="组织机构代码">{record.creditCode || "—"}</Field>
-          <Field label="联系地址" full>
+          <Field label="机构地址" full>
             {record.address || "—"}
           </Field>
           <Field label="合作领域" full>

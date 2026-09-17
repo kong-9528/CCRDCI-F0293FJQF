@@ -13,8 +13,12 @@ export type ApplyHistoryRecord = {
   submittedAt: string;
   status: ApplyHistoryStatus;
   companyName: string;
+  /** 组织机构代码 */
   creditCode: string;
+  /** 机构地址 */
   address: string;
+  /** 合作领域 */
+  cooperationField: string;
   contractStart: string;
   contractEnd: string;
   contractFiles: ApplyHistoryFile[];
@@ -40,6 +44,7 @@ export const MOCK_APPLY_HISTORY: ApplyHistoryRecord[] = [
     companyName: "太极计算机股份有限公司",
     creditCode: "91110000MA01XXXX3K",
     address: "北京市海淀区中关村大街1号",
+    cooperationField: "数字版权核验、内容安全审核",
     contractStart: "2026-01-01",
     contractEnd: "2027-12-31",
     contractFiles: [
@@ -56,6 +61,7 @@ export const MOCK_APPLY_HISTORY: ApplyHistoryRecord[] = [
     companyName: "太极计算机股份有限公司",
     creditCode: "91110000MA01XXXX3K",
     address: "北京市海淀区中关村大街1号",
+    cooperationField: "数字版权核验、内容安全审核",
     contractStart: "2026-01-01",
     contractEnd: "2027-12-31",
     contractFiles: [
@@ -72,6 +78,7 @@ export const MOCK_APPLY_HISTORY: ApplyHistoryRecord[] = [
     companyName: "太极计算机股份有限公司",
     creditCode: "91110000MA01XXXX3K",
     address: "北京市海淀区中关村大街1号",
+    cooperationField: "数字内容发行",
     contractStart: "2025-06-01",
     contractEnd: "2026-05-31",
     contractFiles: [{ id: "ahf-2a", name: "开通申请合同.pdf", size: 980_000 }],
@@ -86,6 +93,7 @@ export const MOCK_APPLY_HISTORY: ApplyHistoryRecord[] = [
     companyName: "太极计算机股份有限公司",
     creditCode: "91110000MA01XXXX3K",
     address: "北京市海淀区中关村大街1号",
+    cooperationField: "数字版权登记与数据运营",
     contractStart: "2025-01-01",
     contractEnd: "2026-12-31",
     contractFiles: [

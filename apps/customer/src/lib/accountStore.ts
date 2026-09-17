@@ -72,9 +72,11 @@ export function getApplyStatus() {
 }
 
 export function validateAccountDraft(form: AccountProfileDraft): string | null {
+  if (!form.cooperationField.trim()) return "请填写合作领域";
+  if (form.cooperationField.trim().length > 300) return "合作领域不能超过300字";
   if (!form.companyName.trim()) return "请填写机构名称";
-  if (!form.creditCode.trim()) return "请填写统一社会信用代码";
-  if (!form.address.trim()) return "请填写联系地址";
+  if (!form.creditCode.trim()) return "请填写组织机构代码";
+  if (!form.address.trim()) return "请填写机构地址";
   if (!form.contractStart.trim()) return "请填写合同开始日期";
   if (!form.contractEnd.trim()) return "请填写合同结束日期";
   if (form.contractStart > form.contractEnd) return "合同结束日期不能早于开始日期";
@@ -114,6 +116,8 @@ export function saveAccountProfile(
     companyName: draft.companyName.trim(),
     creditCode: draft.creditCode.trim(),
     address: draft.address.trim(),
+    cooperationField: draft.cooperationField.trim(),
+    inviteCode: profile.inviteCode,
     contactName: draft.contactName.trim(),
     contactPhone: draft.contactPhone.replace(/[\s-]/g, "").trim(),
   };
@@ -136,6 +140,7 @@ export function saveAccountProfile(
       companyName: nextProfile.companyName,
       creditCode: nextProfile.creditCode,
       address: nextProfile.address,
+      cooperationField: nextProfile.cooperationField,
       contractStart: contract.startDate,
       contractEnd: contract.endDate,
       contractFiles: nextFiles,

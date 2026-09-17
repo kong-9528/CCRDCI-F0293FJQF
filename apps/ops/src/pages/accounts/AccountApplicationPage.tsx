@@ -140,7 +140,7 @@ export function AccountApplicationPage({ mode }: Props) {
               <span className="a-desc__value">{application.creditCode || "—"}</span>
             </div>
             <div className="a-desc__item a-desc__item--wide">
-              <span className="a-desc__label">联系地址</span>
+              <span className="a-desc__label">机构地址</span>
               <span className="a-desc__value">{application.address || "—"}</span>
             </div>
             <div className="a-desc__item a-desc__item--wide">

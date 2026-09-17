@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Tabs } from "@/components/Tabs";
 import { useAccountStore } from "@/lib/accountStore";
 import {
   APPLY_HISTORY_STATUS_LABEL,
@@ -9,12 +8,7 @@ import {
   type ApplyHistoryStatus,
 } from "@/lib/applyHistory";
 
-type TabKey = "info" | "history";
-
-const TAB_ITEMS = [
-  { key: "info" as const, label: "基本信息" },
-  { key: "history" as const, label: "历史申请记录" },
-];
+type ViewMode = "info" | "history";
 
 function formatFileSize(bytes?: number) {
   if (bytes == null || !Number.isFinite(bytes) || bytes < 0) return "";
@@ -36,6 +30,121 @@ function formatContractRange(start: string, end: string) {
   if (!start) return end;
   if (!end) return start;
   return `${start} ~ ${end}`;
+}
+
+function IconHistory() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <path d="M14 2v5a1 1 0 0 0 1 1h5" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M10 9H8M16 13H8M16 17H8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconWithdraw() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M9 14H4v-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4 14a8 8 0 1 0-1.05-4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconEdit() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ViewField({
+  label,
+  required,
+  children,
+  preLine,
+}: {
+  label: string;
+  required?: boolean;
+  children: ReactNode;
+  preLine?: boolean;
+}) {
+  return (
+    <div className="c-org-field">
+      <div className="c-org-field__label">
+        {required ? <span className="c-required">*</span> : null}
+        {required ? " " : null}
+        {label}
+      </div>
+      <div className={`c-org-field__value${preLine ? " is-preline" : ""}`}>{children}</div>
+    </div>
+  );
+}
+
+function StatusAlert({
+  status,
+  rejectReason,
+}: {
+  status: ApplyHistoryStatus;
+  rejectReason?: string;
+}) {
+  if (status === "pending") {
+    return (
+      <div className="c-org-alert c-org-alert--pending" role="status">
+        <div className="c-org-alert__body">
+          <p className="c-org-alert__title">机构信息变更审核中</p>
+          <p className="c-org-alert__desc">您的申请已提交，正在等待平台审核。审核期间资料暂不可修改，如需调整请先撤回申请。</p>
+        </div>
+      </div>
+    );
+  }
+  if (status === "rejected") {
+    return (
+      <div className="c-org-alert c-org-alert--rejected" role="status">
+        <div className="c-org-alert__body">
+          <p className="c-org-alert__title">机构信息变更未通过</p>
+          <p className="c-org-alert__desc">{rejectReason || "请修改资料后重新提交。"}</p>
+        </div>
+      </div>
+    );
+  }
+  if (status === "withdrawn") {
+    return (
+      <div className="c-org-alert c-org-alert--withdrawn" role="status">
+        <div className="c-org-alert__body">
+          <p className="c-org-alert__title">申请已撤回</p>
+          <p className="c-org-alert__desc">资料已保留，修改后点击下方按钮可重新提交审核。</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="c-org-alert c-org-alert--approved" role="status">
+      <div className="c-org-alert__body">
+        <p className="c-org-alert__title">您的机构资质申请已审核通过</p>
+        <p className="c-org-alert__desc">
+          机构资质已认证，线上业务运行正常。如机构信息发生变动（如更换联系人、续签合同等），可随时点击下方“修改申请信息”提交变更工单，审核期间不影响现有业务。
+        </p>
+      </div>
+    </div>
+  );
 }
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -115,32 +224,23 @@ function ApplyHistoryCard({
       >
         <div className="c-apply-history-card__panel-inner">
           <section className="c-apply-history-block">
-            <h4 className="c-apply-history-block__title">
-              <span className="c-apply-history-block__icon" aria-hidden>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M3 21h18M5 21V8.5L12 4l7 4.5V21M9 21v-4h6v4"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              基本信息
-            </h4>
+            <h4 className="c-apply-history-block__title">基本信息</h4>
             <div className="c-apply-history-grid">
               <div className="c-apply-history-field">
                 <span className="c-apply-history-field__label">机构名称</span>
                 <span className="c-apply-history-field__value">{record.companyName}</span>
               </div>
               <div className="c-apply-history-field">
-                <span className="c-apply-history-field__label">统一社会信用代码</span>
+                <span className="c-apply-history-field__label">组织机构代码</span>
                 <span className="c-apply-history-field__value">{record.creditCode || "—"}</span>
               </div>
               <div className="c-apply-history-field">
-                <span className="c-apply-history-field__label">联系地址</span>
+                <span className="c-apply-history-field__label">机构地址</span>
                 <span className="c-apply-history-field__value">{record.address || "—"}</span>
+              </div>
+              <div className="c-apply-history-field c-apply-history-field--full">
+                <span className="c-apply-history-field__label">合作领域</span>
+                <span className="c-apply-history-field__value">{record.cooperationField || "—"}</span>
               </div>
               <div className="c-apply-history-field">
                 <span className="c-apply-history-field__label">合同开始日期</span>
@@ -179,20 +279,7 @@ function ApplyHistoryCard({
           </section>
 
           <section className="c-apply-history-block">
-            <h4 className="c-apply-history-block__title">
-              <span className="c-apply-history-block__icon" aria-hidden>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.75" />
-                  <path
-                    d="M5 19.5c1.2-3 3.5-4.5 7-4.5s5.8 1.5 7 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-              联系人信息
-            </h4>
+            <h4 className="c-apply-history-block__title">联系人信息</h4>
             <div className="c-apply-history-grid">
               <div className="c-apply-history-field">
                 <span className="c-apply-history-field__label">联系人</span>
@@ -216,7 +303,7 @@ function ApplyHistoryCard({
 export function AccountCenterPage() {
   const navigate = useNavigate();
   const { profile, contract, history, applyStatus, withdrawAccountApplication } = useAccountStore();
-  const [tab, setTab] = useState<TabKey>("info");
+  const [view, setView] = useState<ViewMode>("info");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() =>
@@ -224,6 +311,7 @@ export function AccountCenterPage() {
   );
 
   const isPending = applyStatus === "pending";
+  const canEdit = !isPending;
   const currentRejectReason = useMemo(() => {
     if (applyStatus !== "rejected") return undefined;
     return history.find((r) => r.status === "rejected")?.rejectReason;
@@ -254,117 +342,122 @@ export function AccountCenterPage() {
   };
 
   return (
-    <div className="a-card c-account-page">
+    <div className="c-org-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
-      <div className="a-card__head">机构信息</div>
-      <Tabs items={TAB_ITEMS} active={tab} onChange={setTab} className="c-seg-tabs" />
-      <div className="a-card__body a-stack">
-        {tab === "info" ? (
-          <section className="a-form-section">
-            <div className="c-account-section-head">
-              <div className="c-account-section-head__main">
-                <h3 className="a-form-section__title" style={{ margin: 0 }}>
-                  基本信息
-                </h3>
-                {historyStatusTag(applyStatus)}
-              </div>
-              {isPending ? (
-                <button
-                  type="button"
-                  className="a-btn a-btn--sm"
-                  onClick={() => setWithdrawOpen(true)}
-                >
-                  撤回申请
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="a-btn a-btn--primary a-btn--sm"
-                  onClick={() => navigate("/account/edit")}
-                >
-                  编辑
-                </button>
-              )}
-            </div>
+      <div className="c-org-card">
+        <div className="c-org-card__header">
+          <div className="c-org-card__header-left">
+            {view === "history" ? (
+              <button type="button" className="c-org-btn c-org-btn--ghost" onClick={() => setView("info")}>
+                返回
+              </button>
+            ) : null}
+            <h1 className="c-org-card__title">{view === "history" ? "历史申请记录" : "机构信息"}</h1>
+          </div>
+          <div className="c-org-card__header-right">
+            {view === "info" ? (
+              <button type="button" className="c-org-btn c-org-btn--ghost" onClick={() => setView("history")}>
+                <IconHistory />
+                历史申请记录
+              </button>
+            ) : null}
+          </div>
+        </div>
 
-            {isPending ? (
-              <p className="a-field__hint c-account-status-hint">
-                申请审核中，资料暂不可修改。如需调整，请先撤回申请。
-              </p>
-            ) : null}
-            {applyStatus === "rejected" && currentRejectReason ? (
-              <p className="c-apply-history-reject c-account-status-hint">
-                不通过原因：{currentRejectReason}
-              </p>
-            ) : null}
-            {applyStatus === "withdrawn" ? (
-              <p className="a-field__hint c-account-status-hint">
-                申请已撤回，修改资料并保存后将重新提交审核。
-              </p>
-            ) : null}
+        {view === "info" ? (
+          <>
+            <StatusAlert status={applyStatus} rejectReason={currentRejectReason} />
 
-            <div className="a-desc c-account-desc" style={{ marginTop: 12 }}>
-              <div className="a-desc__item">
-                <span className="a-desc__label">机构名称</span>
-                <span className="a-desc__value">{profile.companyName}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">统一社会信用代码</span>
-                <span className="a-desc__value">{profile.creditCode || "—"}</span>
-              </div>
-              <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">联系地址</span>
-                <span className="a-desc__value">{profile.address || "—"}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">合同开始日期</span>
-                <span className="a-desc__value">{contract.startDate || "—"}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">合同结束日期</span>
-                <span className="a-desc__value">{contract.endDate || "—"}</span>
-              </div>
-              <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">合同附件</span>
-                <span className="a-desc__value">
-                  {contract.files.length ? (
-                    <div className="c-account-files">
-                      {contract.files.map((f) => {
-                        const sizeText = formatFileSize(f.size);
-                        return (
-                          <button
-                            key={f.id}
-                            type="button"
-                            className="c-account-file"
-                            onClick={() => showToast(`演示：预览 ${f.name}`)}
-                            title={f.name}
-                          >
-                            <span className="c-account-file__name">{f.name}</span>
-                            {sizeText ? (
-                              <span className="c-account-file__size">（{sizeText}）</span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    "—"
-                  )}
+            <div className="c-org-form">
+              <h2 className="c-org-section-title">基本信息</h2>
+              <ViewField label="机构名称" required>
+                {profile.companyName}
+              </ViewField>
+              <ViewField label="组织机构代码" required>
+                {profile.creditCode || "—"}
+              </ViewField>
+              <ViewField label="机构地址" required>
+                {profile.address || "—"}
+              </ViewField>
+              <ViewField label="邀请码" required>
+                <span className="c-invite-readonly c-invite-readonly--inline">
+                  <span className="c-invite-readonly__code">{profile.inviteCode || "—"}</span>
+                  <span className="c-invite-readonly__badge">已认证核销</span>
+                  <span className="c-invite-readonly__hint">（资质变更无需再次消耗邀请码）</span>
                 </span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人</span>
-                <span className="a-desc__value">{profile.contactName}</span>
-              </div>
-              <div className="a-desc__item">
-                <span className="a-desc__label">联系人手机号</span>
-                <span className="a-desc__value">{profile.contactPhone}</span>
+              </ViewField>
+              <ViewField label="合作领域" required preLine>
+                {profile.cooperationField || "—"}
+              </ViewField>
+              <ViewField label="合同开始日期" required>
+                {contract.startDate || "—"}
+              </ViewField>
+              <ViewField label="合同结束日期" required>
+                {contract.endDate || "—"}
+              </ViewField>
+              <ViewField label="合同附件" required>
+                {contract.files.length ? (
+                  <div className="c-org-files">
+                    {contract.files.map((f) => {
+                      const sizeText = formatFileSize(f.size);
+                      return (
+                        <div key={f.id} className="c-org-file">
+                          <span className="c-org-file__name" title={f.name}>
+                            {f.name}
+                            {sizeText ? `（${sizeText}）` : ""}
+                          </span>
+                          <button
+                            type="button"
+                            className="c-org-file__link"
+                            onClick={() => showToast(`演示：预览 ${f.name}`)}
+                          >
+                            查看
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  "—"
+                )}
+              </ViewField>
+
+              <div className="c-org-divider" />
+
+              <h2 className="c-org-section-title">联系人信息</h2>
+              <ViewField label="联系人" required>
+                {profile.contactName}
+              </ViewField>
+              <ViewField label="手机号码" required>
+                {profile.contactPhone}
+              </ViewField>
+
+              <div className="c-org-actions">
+                {isPending ? (
+                  <button
+                    type="button"
+                    className="c-org-withdraw"
+                    onClick={() => setWithdrawOpen(true)}
+                  >
+                    <IconWithdraw />
+                    撤回本次申请
+                  </button>
+                ) : canEdit ? (
+                  <button
+                    type="button"
+                    className="c-org-submit"
+                    onClick={() => navigate("/account/edit")}
+                  >
+                    <IconEdit />
+                    {applyStatus === "withdrawn" || applyStatus === "rejected"
+                      ? "修改并重新提交"
+                      : "修改申请信息"}
+                  </button>
+                ) : null}
               </div>
             </div>
-          </section>
-        ) : null}
-
-        {tab === "history" ? (
+          </>
+        ) : (
           <div className="c-apply-history-list">
             {history.length === 0 ? (
               <div className="a-empty">暂无历史申请记录</div>
@@ -380,7 +473,7 @@ export function AccountCenterPage() {
               ))
             )}
           </div>
-        ) : null}
+        )}
       </div>
 
       <ConfirmDialog
