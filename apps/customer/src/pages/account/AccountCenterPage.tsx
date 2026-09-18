@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAccountStore } from "@/lib/accountStore";
@@ -85,41 +85,15 @@ function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function StatusAlert({
-  status,
-  rejectReason,
-}: {
-  status: ApplyHistoryStatus;
-  rejectReason?: string;
-}) {
+function StatusAlert({ status }: { status: "approved" | "pending" }) {
   if (status === "pending") {
     return (
       <div className="c-org-alert c-org-alert--pending" role="status">
         <div className="c-org-alert__body">
           <p className="c-org-alert__title">机构信息变更审核中</p>
           <p className="c-org-alert__desc">
-            您的申请已提交，正在等待平台审核。审核期间资料暂不可修改，如需调整请先撤回申请。
+            您的变更申请已提交，正在等待平台审核。审核期间机构信息仍展示最后一次审核通过的内容。
           </p>
-        </div>
-      </div>
-    );
-  }
-  if (status === "rejected") {
-    return (
-      <div className="c-org-alert c-org-alert--rejected" role="status">
-        <div className="c-org-alert__body">
-          <p className="c-org-alert__title">机构信息变更未通过</p>
-          <p className="c-org-alert__desc">{rejectReason || "请修改资料后重新提交。"}</p>
-        </div>
-      </div>
-    );
-  }
-  if (status === "withdrawn") {
-    return (
-      <div className="c-org-alert c-org-alert--withdrawn" role="status">
-        <div className="c-org-alert__body">
-          <p className="c-org-alert__title">申请已撤回</p>
-          <p className="c-org-alert__desc">资料已保留，修改后可重新提交审核。</p>
         </div>
       </div>
     );
@@ -271,7 +245,7 @@ function ApplyHistoryCard({
               </div>
             </div>
             {record.status === "rejected" && record.rejectReason ? (
-              <p className="c-apply-history-reject">不通过原因：{record.rejectReason}</p>
+              <p className="c-apply-history-reject">驳回原因：{record.rejectReason}</p>
             ) : null}
           </section>
         </div>
@@ -309,10 +283,6 @@ export function AccountCenterPage() {
 
   const isPending = applyStatus === "pending";
   const canEdit = !isPending;
-  const currentRejectReason = useMemo(() => {
-    if (applyStatus !== "rejected") return undefined;
-    return history.find((r) => r.status === "rejected")?.rejectReason;
-  }, [applyStatus, history]);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -335,7 +305,7 @@ export function AccountCenterPage() {
       showToast(res.error);
       return;
     }
-    showToast("已撤回申请，可修改资料后重新提交");
+    showToast("已撤回申请。机构信息保持最后一次审核通过的内容，本次提交可在历史申请记录中查看");
   };
 
   return (
@@ -355,7 +325,7 @@ export function AccountCenterPage() {
             </button>
           </div>
 
-          <StatusAlert status={applyStatus} rejectReason={currentRejectReason} />
+          <StatusAlert status={applyStatus} />
 
           <section className="c-org-card c-org-card--registry">
             <header className="c-org-card__header">
@@ -364,6 +334,7 @@ export function AccountCenterPage() {
                   <IconBuilding />
                 </span>
                 <h1 className="c-org-card__title">机构信息</h1>
+                {isPending ? <span className="a-tag a-tag--wn">审核中</span> : null}
               </div>
               <div className="c-org-card__header-right">
                 {isPending ? (
@@ -474,7 +445,7 @@ export function AccountCenterPage() {
       <ConfirmDialog
         open={withdrawOpen}
         title="撤回申请"
-        description="撤回后本次申请将标记为已撤回，资料会保留，您可修改后再重新提交。确定撤回吗？"
+        description="撤回后本次变更申请将标记为已撤回；工作台机构信息仍保持最后一次审核通过的内容。确定撤回吗？"
         confirmText="撤回申请"
         danger
         onConfirm={confirmWithdraw}

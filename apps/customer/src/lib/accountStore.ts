@@ -23,6 +23,9 @@ export type AccountProfileDraft = TenantProfile & {
   contractFiles: AccountContractFile[];
 };
 
+/** 工作台机构信息仅两种状态：已通过 / 审核中 */
+export type AccountWorkbenchStatus = "approved" | "pending";
+
 function sortHistory(rows: ApplyHistoryRecord[]) {
   return [...rows].sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : -1));
 }
@@ -37,10 +40,15 @@ function primaryContract(): TenantContract {
   return { ...primary, files: primary.files.map((f) => ({ ...f })) };
 }
 
+/** 工作台状态：有审核中申请则为审核中，否则为已通过 */
+function deriveWorkbenchStatus(rows: ApplyHistoryRecord[]): AccountWorkbenchStatus {
+  return rows.some((r) => r.status === "pending") ? "pending" : "approved";
+}
+
 let profile: TenantProfile = { ...MOCK_TENANT };
 let contract: TenantContract = primaryContract();
 let history: ApplyHistoryRecord[] = sortHistory(MOCK_APPLY_HISTORY);
-let applyStatus: ApplyHistoryStatus = history[0]?.status ?? "approved";
+let applyStatus: AccountWorkbenchStatus = deriveWorkbenchStatus(history);
 
 const listeners = new Set<() => void>();
 
@@ -67,7 +75,7 @@ export function getApplyHistory() {
   return history;
 }
 
-export function getApplyStatus() {
+export function getApplyStatus(): AccountWorkbenchStatus {
   return applyStatus;
 }
 
@@ -94,15 +102,22 @@ export function withdrawAccountApplication(): { ok: true } | { ok: false; error:
     return { ok: false, error: "当前没有可撤回的审核中申请" };
   }
   const idx = history.findIndex((r) => r.status === "pending");
-  if (idx >= 0) {
-    history = history.map((r, i) => (i === idx ? { ...r, status: "withdrawn" as const } : r));
+  if (idx < 0) {
+    return { ok: false, error: "当前没有可撤回的审核中申请" };
   }
-  applyStatus = "withdrawn";
+  history = history.map((r, i) => (i === idx ? { ...r, status: "withdrawn" as const } : r));
+  /** 撤回后工作台仍为已通过，展示最后一次审核通过的机构信息 */
+  applyStatus = "approved";
   emit();
   return { ok: true };
 }
 
-/** 保存机构信息；已撤回/不通过时会重新提交进入审核中 */
+/**
+ * 编辑后提交变更申请：
+ * - 不改动工作台已通过的机构信息
+ * - 写入一条审核中申请记录
+ * - 撤回 / 驳回仅体现在申请记录中
+ */
 export function saveAccountProfile(
   draft: AccountProfileDraft,
 ): { ok: true; resubmitted: boolean } | { ok: false; error: string } {
@@ -112,47 +127,72 @@ export function saveAccountProfile(
   const err = validateAccountDraft(draft);
   if (err) return { ok: false, error: err };
 
-  const nextProfile: TenantProfile = {
+  const nextFiles = draft.contractFiles.map((f) => ({ ...f }));
+  const stamp = nowStamp();
+  const record: ApplyHistoryRecord = {
+    id: `ah-${Date.now()}`,
+    submittedAt: stamp,
+    status: "pending",
     companyName: draft.companyName.trim(),
     creditCode: draft.creditCode.trim(),
     address: draft.address.trim(),
     cooperationField: draft.cooperationField.trim(),
-    inviteCode: profile.inviteCode,
+    contractStart: draft.contractStart.trim(),
+    contractEnd: draft.contractEnd.trim(),
+    contractFiles: nextFiles,
     contactName: draft.contactName.trim(),
     contactPhone: draft.contactPhone.replace(/[\s-]/g, "").trim(),
   };
-  const nextFiles = draft.contractFiles.map((f) => ({ ...f }));
+  history = [record, ...history];
+  applyStatus = "pending";
+  emit();
+  return { ok: true, resubmitted: true };
+}
+
+/** 演示：运营驳回当前审核中申请（工作台仍回已通过，资料不变） */
+export function rejectPendingApplication(reason: string): { ok: true } | { ok: false; error: string } {
+  if (applyStatus !== "pending") {
+    return { ok: false, error: "当前没有审核中的申请" };
+  }
+  const idx = history.findIndex((r) => r.status === "pending");
+  if (idx < 0) return { ok: false, error: "当前没有审核中的申请" };
+  history = history.map((r, i) =>
+    i === idx
+      ? { ...r, status: "rejected" as const, rejectReason: reason.trim() || "资料不符合要求，请修改后重新提交。" }
+      : r,
+  );
+  applyStatus = "approved";
+  emit();
+  return { ok: true };
+}
+
+/** 演示：运营通过当前审核中申请（写入工作台机构信息） */
+export function approvePendingApplication(): { ok: true } | { ok: false; error: string } {
+  if (applyStatus !== "pending") {
+    return { ok: false, error: "当前没有审核中的申请" };
+  }
+  const idx = history.findIndex((r) => r.status === "pending");
+  if (idx < 0) return { ok: false, error: "当前没有审核中的申请" };
+  const row = history[idx];
+  history = history.map((r, i) => (i === idx ? { ...r, status: "approved" as const } : r));
+  profile = {
+    companyName: row.companyName,
+    creditCode: row.creditCode,
+    address: row.address,
+    cooperationField: row.cooperationField,
+    inviteCode: profile.inviteCode,
+    contactName: row.contactName,
+    contactPhone: row.contactPhone,
+  };
   contract = {
     ...contract,
-    startDate: draft.contractStart.trim(),
-    endDate: draft.contractEnd.trim(),
-    files: nextFiles,
+    startDate: row.contractStart,
+    endDate: row.contractEnd,
+    files: row.contractFiles.map((f) => ({ ...f })),
   };
-  profile = nextProfile;
-
-  const shouldResubmit = applyStatus === "withdrawn" || applyStatus === "rejected";
-  if (shouldResubmit) {
-    const stamp = nowStamp();
-    const record: ApplyHistoryRecord = {
-      id: `ah-${Date.now()}`,
-      submittedAt: stamp,
-      status: "pending",
-      companyName: nextProfile.companyName,
-      creditCode: nextProfile.creditCode,
-      address: nextProfile.address,
-      cooperationField: nextProfile.cooperationField,
-      contractStart: contract.startDate,
-      contractEnd: contract.endDate,
-      contractFiles: nextFiles,
-      contactName: nextProfile.contactName,
-      contactPhone: nextProfile.contactPhone,
-    };
-    history = [record, ...history];
-    applyStatus = "pending";
-  }
-
+  applyStatus = "approved";
   emit();
-  return { ok: true, resubmitted: shouldResubmit };
+  return { ok: true };
 }
 
 export function useAccountStore() {
@@ -165,5 +205,10 @@ export function useAccountStore() {
     applyStatus,
     withdrawAccountApplication,
     saveAccountProfile,
+    rejectPendingApplication,
+    approvePendingApplication,
   };
 }
+
+/** 兼容历史类型引用 */
+export type { ApplyHistoryStatus };

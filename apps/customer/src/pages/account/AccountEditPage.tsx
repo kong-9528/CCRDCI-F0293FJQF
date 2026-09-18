@@ -108,7 +108,6 @@ export function AccountEditPage() {
     return <Navigate to="/account" replace />;
   }
 
-  const isResubmit = applyStatus === "withdrawn" || applyStatus === "rejected";
   const set = <K extends keyof AccountProfileDraft>(key: K, value: AccountProfileDraft[K]) => {
     setDraft((d) => ({ ...d, [key]: value }));
   };
@@ -146,7 +145,7 @@ export function AccountEditPage() {
       setError(result.error);
       return;
     }
-    showToast(result.resubmitted ? "已重新提交，请等待审核" : "机构信息已更新");
+    showToast("已提交变更申请，请等待审核。工作台仍展示最后一次审核通过的机构信息");
     window.setTimeout(() => navigate("/account", { replace: true }), 400);
   };
 
@@ -165,14 +164,14 @@ export function AccountEditPage() {
         </button>
       </div>
 
-      {isResubmit ? (
-        <div className="c-org-alert c-org-alert--withdrawn" role="status">
-          <div className="c-org-alert__body">
-            <p className="c-org-alert__title">请完善资料后重新提交</p>
-            <p className="c-org-alert__desc">修改资料并保存后将重新进入审核。</p>
-          </div>
+      <div className="c-org-alert c-org-alert--pending" role="status">
+        <div className="c-org-alert__body">
+          <p className="c-org-alert__title">提交后进入审核</p>
+          <p className="c-org-alert__desc">
+            保存并提交后，变更内容进入审核；审核通过前，工作台机构信息仍保持最后一次审核通过的内容。撤回或驳回后可在历史申请记录中查看本次提交与处理结果。
+          </p>
         </div>
-      ) : null}
+      </div>
 
       <section className="c-org-card c-org-card--registry">
         <header className="c-org-card__header">
@@ -180,9 +179,7 @@ export function AccountEditPage() {
             <span className="c-org-card__icon" aria-hidden>
               <IconBuilding />
             </span>
-            <h1 className="c-org-card__title">
-              {isResubmit ? "修改并重新提交" : "编辑机构信息"}
-            </h1>
+            <h1 className="c-org-card__title">编辑机构信息</h1>
           </div>
           <div className="c-org-card__header-right">
             <button
@@ -197,7 +194,7 @@ export function AccountEditPage() {
               className="c-org-btn c-org-btn--primary c-org-btn--sm"
               onClick={onSave}
             >
-              {isResubmit ? "保存并提交" : "保存"}
+              保存并提交
             </button>
           </div>
         </header>
@@ -348,7 +345,7 @@ export function AccountEditPage() {
               取消
             </button>
             <button type="button" className="c-org-btn c-org-btn--primary" onClick={onSave}>
-              {isResubmit ? "保存并提交" : "保存"}
+              保存并提交
             </button>
           </div>
         </div>

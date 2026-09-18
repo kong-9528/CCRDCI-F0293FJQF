@@ -99,9 +99,9 @@ export const MOCK_TENANT_SERVICES: TenantService[] = [
 export const MOCK_TENANT_CONTRACTS: TenantContract[] = [
   {
     id: "c1",
-    contractNo: "HT-2025-0088",
-    startDate: "2025-01-01",
-    endDate: "2026-12-31",
+    contractNo: "HT-2026-0088",
+    startDate: "2026-01-01",
+    endDate: "2027-12-31",
     amount: 280000,
     periodStatus: "active",
     files: [
