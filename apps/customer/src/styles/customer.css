@@ -2304,6 +2304,258 @@ body,
   align-self: stretch;
 }
 
+.c-cert-outcome {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 24px 16px;
+  border: 1px solid var(--n-200);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.c-cert-outcome__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.c-cert-outcome__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--n-900);
+}
+
+.c-cert-outcome__source {
+  font-size: 12px;
+  color: var(--n-400);
+  white-space: nowrap;
+}
+
+.c-cert-outcome__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.c-cert-outcome__status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.c-cert-outcome__hero-icon {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.c-cert-outcome__status-text {
+  min-width: 0;
+}
+
+.c-cert-outcome__status-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--n-900);
+  line-height: 1.4;
+}
+
+.c-cert-outcome__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--n-500);
+  line-height: 1.5;
+}
+
+.c-cert-outcome__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--n-400);
+  cursor: pointer;
+}
+
+.c-cert-outcome__copy:hover {
+  color: var(--p-600);
+  background: var(--p-50);
+}
+
+.c-cert-outcome__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.c-cert-outcome__badge.is-ok {
+  color: #1a7f4b;
+  background: #e8f8ef;
+}
+
+.c-cert-outcome__badge.is-er {
+  color: #cf1322;
+  background: #fff1f0;
+}
+
+.c-cert-outcome__badge-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.c-cert-outcome__badge.is-ok .c-cert-outcome__badge-mark {
+  background: #22a06b;
+}
+
+.c-cert-outcome__badge.is-er .c-cert-outcome__badge-mark {
+  background: #f5222d;
+}
+
+.c-cert-outcome__thumb {
+  flex-shrink: 0;
+  width: 52px;
+  height: 72px;
+  padding: 0;
+  border: 1px solid var(--n-200);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+}
+
+.c-cert-outcome__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.c-cert-outcome__recog {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--n-100);
+}
+
+.c-cert-outcome__recog-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.c-cert-outcome__recog-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--n-900);
+}
+
+.c-cert-outcome__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--p-600);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.c-cert-outcome__toggle:hover {
+  color: var(--p-700);
+}
+
+.c-cert-outcome__chevron {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform 160ms ease;
+}
+
+.c-cert-outcome__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.c-cert-outcome__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 48px;
+  margin-top: 14px;
+}
+
+.c-cert-outcome__col {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.c-cert-outcome__field {
+  display: flex;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.c-cert-outcome__field dt {
+  flex-shrink: 0;
+  color: var(--n-500);
+}
+
+.c-cert-outcome__field dd {
+  margin: 0;
+  color: var(--n-900);
+  word-break: break-all;
+}
+
+@media (max-width: 860px) {
+  .c-cert-outcome__summary {
+    flex-wrap: wrap;
+  }
+
+  .c-cert-outcome__status {
+    flex-wrap: wrap;
+  }
+
+  .c-cert-outcome__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .c-cert-outcome__source {
+    white-space: normal;
+  }
+}
+
 .c-cert-inline-result__status {
   align-items: flex-start;
 }

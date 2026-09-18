@@ -40,7 +40,6 @@ export function CustomerHeader({ pathname }: Props) {
   const companyName = MOCK_TENANT.companyName;
   const isDciCenter = MOCK_SESSION.isDciRegistryCenter;
   const apiActive = pathname === "/api" || pathname.startsWith("/api/");
-  const onTechDesk = pathname === "/desk" || pathname === "/" || pathname.startsWith("/desk");
 
   return (
     <header className="a-header">
@@ -135,10 +134,10 @@ export function CustomerHeader({ pathname }: Props) {
                   <Link
                     to="/desk"
                     role="menuitem"
-                    className={`a-header__user-menu-link${onTechDesk ? " a-header__user-menu-link--with-note is-current" : ""}`}
+                    className="a-header__user-menu-link a-header__user-menu-link--with-note is-current"
                   >
                     <span>技术服务中心工作台</span>
-                    {onTechDesk ? <span className="a-header__user-menu-note">当前平台</span> : null}
+                    <span className="a-header__user-menu-note">当前平台</span>
                   </Link>
                   <div className="a-header__user-menu-divider" />
                   <button

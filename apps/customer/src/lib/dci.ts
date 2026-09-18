@@ -48,6 +48,10 @@ export type DciVerifyResult = {
     dataType?: string;
   };
   message?: string;
+  /** 文件核验时的原文件预览 */
+  fileName?: string;
+  fileUrl?: string;
+  fileKind?: "image" | "pdf";
 };
 
 export const WORK_TYPE_LABEL: Record<DciWorkType, string> = {

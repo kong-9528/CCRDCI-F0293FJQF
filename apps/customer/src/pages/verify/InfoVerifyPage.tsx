@@ -6,7 +6,7 @@ import { IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchInfoModal } from "@/components/verify/BatchInfoModal";
 import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
-import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
+import { VerifyOutcomeCard } from "@/components/verify/VerifyOutcomeCard";
 import {
   INFO_BATCH_LIMIT,
   INFO_DEFAULT_DAYS,
@@ -19,7 +19,6 @@ import {
   infoNameLabel,
   infoSubmittedFieldRows,
   infoVerifyPassed,
-  infoVerifyTitle,
   parseInfoBatchFile,
   validateInfoBatchRows,
   validateInfoForm,
@@ -50,32 +49,19 @@ type Filters = {
 
 function InfoResultCard({ result }: { result: InfoVerifyResult }) {
   const ok = infoVerifyPassed(result.status);
-  const failReasons = formatInfoFailReasons(result);
+  const reasons = formatInfoFailReasons(result);
   return (
-    <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
-      <div className="a-result__head c-cert-inline-result__status">
-        <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <div className="c-cert-inline-result__status-text">
-          <span className="a-result__title">{infoVerifyTitle(result.status)}</span>
-          {!ok ? <VerifyFailReasons reasons={failReasons} /> : null}
-        </div>
-      </div>
-      <div className="a-desc c-dci-result-desc">
-        <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
-          <span className="a-desc__label">核验编码：</span>
-          <span className="a-desc__value">{result.verifyCode}</span>
-          <span className="c-dci-result-desc__meta">{result.verifiedAt}</span>
-        </div>
-        {infoSubmittedFieldRows(result).map((row) => (
-          <div key={row.field} className="a-desc__item">
-            <span className="a-desc__label">{row.label}：</span>
-            <span className="a-desc__value">
-              {row.field === "regNo" ? <code>{row.value}</code> : row.value}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <VerifyOutcomeCard
+      ok={ok}
+      statusTitle={ok ? "登记信息核验通过" : "登记信息核验未通过"}
+      verifyCode={result.verifyCode}
+      verifiedAt={result.verifiedAt}
+      badge={ok ? "核验通过" : reasons[0] || "核验不通过"}
+      fields={infoSubmittedFieldRows(result).map((row) => ({
+        label: row.label,
+        value: row.value,
+      }))}
+    />
   );
 }
 
@@ -296,9 +282,6 @@ export function InfoVerifyPage() {
 
           {latest.length ? (
             <div className="a-stack">
-              <div className="c-verify-section-title">
-                核验结果{latest.length > 1 ? `（${latest.length}）` : ""}
-              </div>
               {latest.map((r) => (
                 <InfoResultCard key={r.id} result={r} />
               ))}

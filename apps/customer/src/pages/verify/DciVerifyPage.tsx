@@ -8,7 +8,7 @@ import { BatchDciModal } from "@/components/verify/BatchDciModal";
 import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import { DciConfirmModal } from "@/components/verify/DciConfirmModal";
 import { DciDetailDrawer } from "@/components/verify/DciDetailDrawer";
-import { VerifyFailReasons } from "@/components/verify/VerifyFailReasons";
+import { VerifyOutcomeCard } from "@/components/verify/VerifyOutcomeCard";
 import {
   CHANNEL_LABEL,
   DCI_BATCH_LIMIT,
@@ -37,7 +37,6 @@ import {
   type DciVerifyResult,
 } from "@/lib/dci";
 import { VERIFY_DETAIL_DRAWER_ENABLED } from "@/lib/verifyFeatureFlags";
-import { copyText } from "@/lib/keys";
 
 type Filters = {
   from: string;
@@ -53,19 +52,6 @@ function defaultDateRange() {
   from.setDate(from.getDate() - DCI_DEFAULT_DAYS);
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
   return { from: fmt(from), to: fmt(to) };
-}
-
-function CopyIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
-      <path
-        d="M10.5 5.5V4A1.5 1.5 0 0 0 9 2.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-    </svg>
-  );
 }
 
 function UploadIcon() {
@@ -123,69 +109,19 @@ function TrashIcon() {
   );
 }
 
-function ResultCard({
-  result,
-  onCopy,
-}: {
-  result: DciVerifyResult;
-  onCopy: (code: string) => void;
-}) {
-  const ok = isDciVerifyPass(result.status);
-  const title = ok ? "核验通过" : "核验不通过";
-  const failReasons = formatDciFailReasons(result);
-
-  return (
-    <div className={`a-result${ok ? " a-result--ok" : " a-result--er"}`}>
-      <div className="a-result__head c-cert-inline-result__status">
-        <span className={`a-dot ${ok ? "a-dot--ok" : "a-dot--er"}`} />
-        <div className="c-cert-inline-result__status-text">
-          <span className="a-result__title">{title}</span>
-          {!ok ? <VerifyFailReasons reasons={failReasons} /> : null}
-        </div>
-      </div>
-      <div className="a-desc c-dci-result-desc">
-        <div className="a-desc__item c-dci-result-desc__code a-desc__item--wide">
-          <span className="a-desc__label">核验编码：</span>
-          <span className="a-desc__value">{result.verifyCode}</span>
-          <button
-            type="button"
-            className="c-dci-copy"
-            title="复制核验编码"
-            aria-label="复制核验编码"
-            onClick={() => onCopy(result.verifyCode)}
-          >
-            <CopyIcon />
-          </button>
-          <span className="c-dci-result-desc__meta">{result.verifiedAt}</span>
-        </div>
-        <div className="a-desc__item">
-          <span className="a-desc__label">DCI 核验码：</span>
-          <span className="a-desc__value">
-            <code>{result.dciCode}</code>
-          </span>
-        </div>
-        {result.queryOwner &&
-        result.queryName &&
-        result.queryOwner.trim().toLowerCase() === result.queryName.trim().toLowerCase() ? (
-          <div className="a-desc__item">
-            <span className="a-desc__label">著作权人 / {DCI_NAME_LABEL}：</span>
-            <span className="a-desc__value">{result.queryOwner}</span>
-          </div>
-        ) : (
-          <>
-            <div className="a-desc__item">
-              <span className="a-desc__label">著作权人：</span>
-              <span className="a-desc__value">{result.queryOwner || "—"}</span>
-            </div>
-            <div className="a-desc__item">
-              <span className="a-desc__label">{DCI_NAME_LABEL}：</span>
-              <span className="a-desc__value">{result.queryName || "—"}</span>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
+function dciSubmittedFields(result: DciVerifyResult) {
+  const rows: { label: string; value: string }[] = [
+    { label: "DCI 核验码", value: result.dciCode || "—" },
+  ];
+  const owner = result.queryOwner.trim();
+  const name = result.queryName.trim();
+  if (owner && name && owner.toLowerCase() === name.toLowerCase()) {
+    rows.push({ label: `著作权人 / ${DCI_NAME_LABEL}`, value: owner });
+  } else {
+    if (owner) rows.push({ label: "著作权人", value: owner });
+    if (name) rows.push({ label: DCI_NAME_LABEL, value: name });
+  }
+  return rows;
 }
 
 export function DciVerifyPage() {
@@ -293,11 +229,6 @@ export function DciVerifyPage() {
   const safePage = Math.min(page, totalPages);
   const pageRows = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const copyVerifyCode = async (code: string) => {
-    const ok = await copyText(code);
-    showToast(ok ? "核验编码已复制" : "复制失败，请手动选择复制");
-  };
-
   const runSingle = async () => {
     if (selected) return;
     const err = validateDciForm(form);
@@ -342,6 +273,9 @@ export function DciVerifyPage() {
     setConfirmLoading(true);
     try {
       const result = await verifyDciOnce(draftOcr.recognition);
+      result.fileName = draftOcr.fileName;
+      result.fileUrl = draftOcr.fileUrl;
+      result.fileKind = draftOcr.fileKind;
       setLatest([result]);
       setConfirmOpen(false);
       setOcrDraft(null);
@@ -600,16 +534,30 @@ export function DciVerifyPage() {
 
           {latest.length ? (
             <div className="a-stack">
-              <div className="c-verify-section-title">
-                核验结果{latest.length > 1 ? `（${latest.length}）` : ""}
-              </div>
-              {latest.map((r) => (
-                <ResultCard
-                  key={r.id}
-                  result={r}
-                  onCopy={(code) => void copyVerifyCode(code)}
-                />
-              ))}
+              {latest.map((r) => {
+                const ok = isDciVerifyPass(r.status);
+                const reasons = formatDciFailReasons(r);
+                return (
+                  <VerifyOutcomeCard
+                    key={r.id}
+                    ok={ok}
+                    statusTitle={ok ? "DCI核验通过" : "DCI核验未通过"}
+                    verifyCode={r.verifyCode}
+                    verifiedAt={r.verifiedAt}
+                    badge={ok ? "核验通过" : reasons[0] || "核验不通过"}
+                    fields={dciSubmittedFields(r)}
+                    file={
+                      r.fileUrl
+                        ? {
+                            fileName: r.fileName || "证书文件",
+                            fileUrl: r.fileUrl,
+                            fileKind: r.fileKind || "image",
+                          }
+                        : null
+                    }
+                  />
+                );
+              })}
             </div>
           ) : null}
         </div>
