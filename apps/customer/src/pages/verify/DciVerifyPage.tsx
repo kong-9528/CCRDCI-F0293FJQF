@@ -239,7 +239,7 @@ export function DciVerifyPage() {
     setError(null);
     setLoading(true);
     try {
-      const result = await verifyDciOnce(form);
+      const result = await verifyDciOnce(form, "manual", true);
       setLatest([result]);
       syncRecords();
       setPage(1);
@@ -526,7 +526,7 @@ export function DciVerifyPage() {
             <p className="a-field__hint">
               {selected
                 ? "已选择文件：请确认后核验。删除文件后可恢复填写核验与批量核验。"
-                : `可填写信息核验，或上传文件识别后核验 · 填写项均为必填 · 批量核验仅支持文本导入 · 单次批量上限 ${DCI_BATCH_LIMIT} 条 · 演示码：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001`}
+                : `可填写信息核验，或上传文件识别后核验 · 填写项均为必填 · 文本演示：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001，第二项任意填写即返回核验通过 · 单次批量上限 ${DCI_BATCH_LIMIT} 条`}
             </p>
           </div>
 

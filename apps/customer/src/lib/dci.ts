@@ -379,6 +379,8 @@ function mismatchMessage(mismatches: DciMismatchField[]): string {
 export async function verifyDciOnce(
   input: DciVerifyInput,
   channel: DciChannel = "manual",
+  /** 文本提交演示：命中登记库即返回核验通过 */
+  textDemoPass = false,
 ): Promise<DciVerifyResult> {
   await new Promise((r) => setTimeout(r, 420));
   const dciCode = normalizeDciCode(input.dciCode);
@@ -408,7 +410,9 @@ export async function verifyDciOnce(
     };
   } else {
     const { workType, ...snapshot } = hit;
-    const mismatches = ownerNameMismatches(queryOwner, queryName, hit.owner, hit.name);
+    const mismatches = textDemoPass
+      ? []
+      : ownerNameMismatches(queryOwner, queryName, hit.owner, hit.name);
     if (mismatches.length) {
       result = {
         id,

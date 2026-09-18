@@ -359,6 +359,8 @@ export function infoSubmittedFieldRows(result: InfoVerifyResult) {
 export async function verifyInfoOnce(
   workType: InfoWorkType,
   input: InfoVerifyInput,
+  /** 文本提交演示：登记号命中且类型一致即返回核验通过 */
+  textDemoPass = false,
 ): Promise<InfoVerifyResult> {
   await new Promise((r) => setTimeout(r, 380));
   const regNo = input.regNo.trim();
@@ -387,7 +389,9 @@ export async function verifyInfoOnce(
           : "未找到该登记号",
     };
   } else {
-    const mismatches = ownerNameMismatches(owner, name, hit.owner, hit.name);
+    const mismatches = textDemoPass
+      ? []
+      : ownerNameMismatches(owner, name, hit.owner, hit.name);
 
     if (mismatches.length) {
       result = {
