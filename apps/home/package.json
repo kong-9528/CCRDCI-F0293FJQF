@@ -1,0 +1,16 @@
+{
+  "name": "@ctp/home",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node ./_mirror_tools/prepare-dist.mjs",
+    "preview": "vite preview",
+    "mirror:fetch": "node ./_mirror_tools/download-all.mjs && node ./_mirror_tools/rewrite-base.mjs",
+    "lint": "echo ok"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
