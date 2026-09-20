@@ -2,10 +2,11 @@
  * apps/home UI overrides — login modal + register page
  * Loaded after the mirrored Vue build CSS.
  */
+@import url("./static/css/index--ISO3lnV.css");
 
-/* —— 1. Login modal: tab titles always 20px; slightly smaller dialog —— */
+/* —— 1. Login modal: widen LEFT banner only; right width & height unchanged —— */
 .el-dialog.auth-dialog-pixel-perfect {
-  width: 700px !important;
+  width: 750px !important;
   max-width: calc(100vw - 32px) !important;
 }
 
@@ -15,17 +16,22 @@
 }
 
 .auth-left-banner[data-v-8c430319] {
-  width: 300px !important;
+  width: 350px !important;
   padding: 32px 28px !important;
 }
 
 .auth-right-form[data-v-8c430319] {
-  margin-left: 300px !important;
+  margin-left: 350px !important;
+  width: 400px !important;
+  max-width: 400px !important;
+  box-sizing: border-box !important;
   min-height: 460px !important;
 }
 
 .auth-card-body.is-login-mode .auth-right-form[data-v-8c430319] {
   padding: 52px 32px 24px !important;
+  width: 400px !important;
+  max-width: 400px !important;
 }
 
 .auth-card-body.is-login-mode .tab-switcher-track .tab-btn[data-v-8c430319],
@@ -45,117 +51,331 @@
   font-weight: 600 !important;
 }
 
-/* —— 2. Register page: screenshot card layout + typography + scroll —— */
+/* —— 2. Register page: portal nav + flat body + centered card + page scroll —— */
 .register-layout[data-v-367e7859] {
   min-height: 100vh;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: auto !important;
+  overflow: visible !important;
   box-sizing: border-box;
-  padding-bottom: 40px;
-  background: #f0f4f9 !important;
+  padding-bottom: 48px;
+  background: #f5f6f8 !important;
+  font-family: PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  align-items: stretch !important;
 }
 
-.register-layout .dci-portal-header .brand-title[data-v-367e7859],
-.register-layout .dci-portal-header .brand-sub[data-v-367e7859] {
-  /* 截图表单区不含站点营销文案；顶栏仅保留返回能力 */
-  display: none !important;
+.register-layout > .portal-header-wrapper {
+  width: 100% !important;
+  flex-shrink: 0;
 }
 
-.register-layout .dci-portal-header[data-v-367e7859] {
-  justify-content: flex-end !important;
-}
-
+.register-layout .dci-portal-header[data-v-367e7859],
 .register-layout .dci-portal-banner[data-v-367e7859] {
   display: none !important;
 }
 
 .register-layout .register-container[data-v-367e7859] {
-  margin-top: 24px !important;
+  width: 100%;
+  margin: 36px auto 0 !important;
+  padding: 0 16px 24px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
 }
 
 .register-layout .register-container .register-card[data-v-367e7859] {
-  width: min(480px, calc(100vw - 32px));
+  width: min(440px, 100%);
+  margin: 0 auto;
   padding: 32px 36px 28px !important;
   border-radius: 12px !important;
-  box-shadow: 0 8px 28px rgba(15, 52, 112, 0.08) !important;
+  border: none !important;
+  box-shadow: 0 6px 24px rgba(15, 52, 112, 0.06) !important;
+  background: #fff !important;
+}
+
+.register-layout .register-container .register-card .el-card__body {
+  padding: 0 !important;
+}
+
+.register-layout .dci-portal-footer[data-v-367e7859] {
+  margin-top: 28px !important;
+  padding-bottom: 8px !important;
+  font-size: 12px !important;
+  color: #909399 !important;
+  font-family: PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", sans-serif !important;
 }
 
 .register-card-head {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px !important;
+  margin-bottom: 22px !important;
 }
 
 .reg-badge-box {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
-  background: #eef4fe;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  background: #eaf1ff;
+  margin-bottom: 12px;
   background-image: url("./static/png/logo_blue@2x-BBFjl1dV.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 28px auto;
 }
 
+.register-layout .register-card,
+.register-layout .register-card .el-form-item__label,
+.register-layout .register-card .el-input__inner,
+.register-layout .register-card .el-input__wrapper,
+.register-layout .register-card .el-button,
+.register-layout .register-card .reg-title,
+.register-layout .register-card .reg-subtitle,
+.register-layout .reg-login-row,
+.register-layout .reg-agree-box {
+  font-family: PingFangSC-Regular, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+}
+
 .register-layout .register-card .reg-title,
 .register-layout .register-card .card-header-bar h2,
 .register-layout .register-card .text-xl {
   font-size: 20px !important;
-  line-height: 1.35 !important;
+  line-height: 28px !important;
   font-weight: 700 !important;
-  color: #303133 !important;
+  color: #1d2129 !important;
   margin: 0 !important;
+  letter-spacing: 0.2px;
 }
 
 .register-layout .register-card .reg-subtitle,
 .register-layout .register-card .card-header-bar p,
 .register-layout .register-card .text-sm {
-  font-size: 16px !important;
-  line-height: 1.5 !important;
-  color: #909399 !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
+  color: #86909c !important;
   margin: 6px 0 0 !important;
+}
+
+.register-layout .register-card .el-form-item {
+  margin-bottom: 16px !important;
 }
 
 .register-layout .register-card .el-form-item__label {
   font-size: 16px !important;
-  line-height: 1.4 !important;
-  color: #303133 !important;
+  line-height: 22px !important;
+  color: #1d2129 !important;
+  font-weight: 400 !important;
+  margin-bottom: 6px !important;
+  padding: 0 !important;
+}
+
+.register-layout .register-card .el-form-item.is-required:not(.is-no-asterisk)
+  > .el-form-item__label::before,
+.register-layout .register-card .el-form-item.is-required:not(.is-no-asterisk)
+  .el-form-item__label-wrap > .el-form-item__label::before {
+  color: #f53f3f !important;
+  margin-right: 2px !important;
+}
+
+.register-layout .register-card .el-input__wrapper {
+  min-height: 40px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 0 0 1px #e5e6eb inset !important;
+  background: #fff !important;
+  padding: 1px 12px !important;
+}
+
+.register-layout .register-card .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px #94b5ff inset !important;
 }
 
 .register-layout .register-card .el-input__inner,
 .register-layout .register-card .el-input__wrapper input {
-  font-size: 16px !important;
+  font-size: 14px !important;
+  color: #1d2129 !important;
 }
 
 .register-layout .register-card .el-input__inner::placeholder,
 .register-layout .register-card .el-input__wrapper input::placeholder {
   font-size: 14px !important;
-  color: #909399 !important;
+  color: #c9cdd4 !important;
+}
+
+.register-layout .register-card .el-input__prefix {
+  color: #86909c !important;
 }
 
 .register-layout .register-card .el-button {
-  font-size: 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
 }
 
-.reg-login-row {
-  margin-top: 16px;
-  text-align: center;
-  font-size: 16px;
-  color: #909399;
-  line-height: 21px;
+/* SMS get-code: light gray chip button */
+.register-layout .register-card .sms-btn.el-button {
+  height: 40px !important;
+  min-width: 108px !important;
+  padding: 0 14px !important;
+  margin-left: 10px !important;
+  border-radius: 6px !important;
+  background: #f2f3f5 !important;
+  border-color: #f2f3f5 !important;
+  color: #4e5969 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
 }
 
-.reg-login-link {
-  color: #1345a5 !important;
+.register-layout .register-card .sms-btn.el-button:hover,
+.register-layout .register-card .sms-btn.el-button:focus {
+  background: #e5e6eb !important;
+  border-color: #e5e6eb !important;
+  color: #1d2129 !important;
+}
+
+.register-layout .register-card .sms-btn.el-button.is-disabled {
+  color: #c9cdd4 !important;
+  background: #f7f8fa !important;
+  border-color: #f7f8fa !important;
+}
+
+.register-layout .register-card .sms-code-row {
+  width: 100%;
+  gap: 0 !important;
+}
+
+/* Captcha: input + image on one row */
+.register-layout .register-card .el-form-item[prop="code"] .el-form-item__content > div,
+.register-layout .register-card .captcha-row,
+.register-layout .register-card .el-form-item .flex-row.align-center.w-full {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.register-layout .register-card .captcha-input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+.register-layout .register-card .captcha-input.el-input,
+.register-layout .register-card .el-form-item .flex-row > .el-input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+}
+
+.register-layout .register-card .captcha-img {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  height: 40px !important;
+  display: block !important;
+}
+
+/* Agreement box */
+.reg-agree-box {
+  margin: 4px 0 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f7f8fa;
+  box-sizing: border-box;
+}
+
+.reg-agree-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   cursor: pointer;
-  margin-left: 4px;
+  margin: 0;
+}
+
+.reg-agree-check {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: #5b8def;
+  cursor: pointer;
+}
+
+.reg-agree-text {
+  font-size: 13px;
+  line-height: 20px;
+  color: #4e5969;
+}
+
+.reg-agree-link {
+  color: #5b8def !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.reg-agree-link:hover {
   text-decoration: underline;
 }
 
+.reg-agree-hint {
+  margin: 6px 0 0 24px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #c9cdd4;
+}
+
+/* Primary register button — full width + gray/active states */
+.register-layout .register-card .reg-submit-btn.el-button {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  height: 44px !important;
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  border-radius: 8px !important;
+  background: #5b8def !important;
+  border-color: #5b8def !important;
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px;
+}
+
+.register-layout .register-card .reg-submit-btn.el-button:hover,
+.register-layout .register-card .reg-submit-btn.el-button:focus {
+  background: #4a7fe0 !important;
+  border-color: #4a7fe0 !important;
+  color: #fff !important;
+}
+
+.register-layout .register-card .reg-submit-btn.el-button.is-disabled,
+.register-layout .register-card .reg-submit-btn.el-button.is-disabled:hover,
+.register-layout .register-card .reg-submit-btn.el-button.is-disabled:focus {
+  background: #c9cdd4 !important;
+  border-color: #c9cdd4 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+.reg-login-row {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 13px;
+  color: #86909c;
+  line-height: 20px;
+}
+
+.reg-login-link {
+  color: #5b8def !important;
+  cursor: pointer;
+  margin-left: 2px;
+  text-decoration: none;
+}
+
 .reg-login-link:hover {
-  color: #0f3d8c !important;
+  color: #4a7fe0 !important;
+  text-decoration: underline;
 }
 

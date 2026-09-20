@@ -1,38 +1,32 @@
 import fs from "fs";
 
-const path =
-  "c:/WORKING_PLACE/CODE_R/sampleA/apps/home/mirror/static/js/register-CvP1VOMb.js";
-const js = fs.readFileSync(path, "utf8");
+const js = fs.readFileSync(
+  "c:/WORKING_PLACE/CODE_R/sampleA/apps/home/mirror/static/js/register-CvP1VOMb.js",
+  "utf8",
+);
 
-// Find likely breakage around our patches
-const markers = [
-  "reg-login-row",
-  "register-card-head",
-  'C("注册"',
-  "账号注册",
-  "填写以下信息完成账号注册",
-  'label:"密码"',
-  "请输入 11 位手机号码",
-  'push({path:"/",query:{showLogin:"true"}})',
+const keys = [
+  "dci-portal-header",
+  "register-layout",
+  "dci-portal-banner",
+  "portal-header",
+  "brand-title",
+  "返回首页",
+  "PortalHeader",
+  "openAuth",
 ];
-for (const m of markers) {
-  console.log(m, js.includes(m) ? "OK" : "MISSING");
+for (const k of keys) console.log(k, js.indexOf(k));
+
+const i = js.indexOf('o("header"');
+console.log("\nHEADER BLOCK:\n", js.slice(i, i + 700));
+
+// find how home pages import header
+const dir = "c:/WORKING_PLACE/CODE_R/sampleA/apps/home/mirror/static/js";
+for (const f of ["index-_fJendd7.js", "index-LZ7b_aDw.js", "portal-CGcjgAeB.js", "index-D8JrnKcV.js"]) {
+  const t = fs.readFileSync(`${dir}/${f}`, "utf8");
+  console.log("\n===", f, "===");
+  console.log("portal-header", t.includes("portal-header"));
+  console.log("PortalHeader / _fJendd7", t.includes("_fJendd7") || t.includes("portal-header-wrapper"));
+  const m = t.match(/from"\.\/index-_fJendd7[^"]*"/);
+  console.log("import header", m && m[0]);
 }
-
-const i = js.indexOf("reg-login-row");
-console.log("\n--- around login row ---");
-console.log(js.slice(i - 200, i + 350));
-
-const j = js.indexOf("register-card-head");
-console.log("\n--- around card head ---");
-console.log(js.slice(j - 80, j + 400));
-
-// count parentheses balance roughly in file
-let bal = 0;
-let minBal = 0;
-for (const ch of js) {
-  if (ch === "(") bal++;
-  if (ch === ")") bal--;
-  if (bal < minBal) minBal = bal;
-}
-console.log("\nparen balance", bal, "min", minBal);
