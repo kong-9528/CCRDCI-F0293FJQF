@@ -152,14 +152,23 @@ export function PortalNav() {
                 </div>
               </>
             ) : (
-              <button
-                type="button"
-                className="p-btn p-btn--outline"
-                style={{ height: 40, padding: "0 20px", fontSize: 14 }}
-                onClick={() => setLoginOpen(true)}
-              >
-                注册/登录
-              </button>
+              <div className="p-nav__auth">
+                <button
+                  type="button"
+                  className="p-btn p-btn--outline"
+                  style={{ height: 40, padding: "0 18px", fontSize: 14 }}
+                  onClick={() => setLoginOpen(true)}
+                >
+                  登录
+                </button>
+                <Link
+                  href="/register"
+                  className="p-btn p-btn--primary"
+                  style={{ height: 40, padding: "0 18px", fontSize: 14, display: "inline-flex", alignItems: "center" }}
+                >
+                  注册
+                </Link>
+              </div>
             )}
           </div>
         </div>

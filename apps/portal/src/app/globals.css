@@ -68,6 +68,15 @@ a {
 .p-nav__actions {
   margin-left: 0 !important;
   justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.p-nav__auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* 登录后：进入 DCI®技术服务中心 */
@@ -321,10 +330,10 @@ a {
 }
 
 .p-modal {
-  width: min(440px, 100%);
+  width: min(400px, 100%);
   background: var(--n-0);
-  border-radius: 20px;
-  padding: 36px 32px 32px;
+  border-radius: 18px;
+  padding: 28px 26px 26px;
   box-shadow: 0 24px 64px rgba(0, 34, 68, 0.18);
   position: relative;
 }
@@ -349,13 +358,13 @@ a {
 
 .p-modal__title {
   margin: 0 0 8px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--n-900);
 }
 
 .p-modal__desc {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   color: var(--n-500);
   font-size: 14px;
 }
@@ -364,27 +373,29 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px;
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   padding: 4px;
   border-radius: 12px;
   background: var(--n-100);
 }
 
 .p-login-tabs__item {
-  height: 36px;
+  height: 40px;
   border: 0;
   border-radius: 10px;
   background: transparent;
   color: var(--n-500);
   font: inherit;
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
 }
 
 .p-login-tabs__item.is-active {
   background: var(--n-0);
   color: var(--n-900);
+  font-size: 20px;
   box-shadow: 0 1px 2px rgba(22, 28, 36, 0.06);
 }
 
@@ -1100,9 +1111,17 @@ a {
   transform: skewX(-8deg);
 }
 
+.p-page--register {
+  /* 字号加大后允许整页上下滚动，避免一屏硬塞 */
+  min-height: 0;
+  padding-top: calc(var(--pt-nav-h) + 40px);
+  padding-bottom: 64px;
+  overflow: visible;
+}
+
 .p-auth-card--register {
   width: min(520px, 100%);
-  padding: 36px 36px 40px;
+  padding: 32px 32px 36px;
   border-color: rgba(11, 98, 184, 0.1);
   box-shadow:
     var(--pt-shadow-card),
@@ -1110,17 +1129,17 @@ a {
 }
 
 .p-reg__head {
-  margin-bottom: 28px;
-  padding-bottom: 22px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--n-100);
 }
 
 .p-reg__title {
   margin: 0;
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.3;
   color: var(--n-900);
 }
 
@@ -1137,14 +1156,16 @@ a {
 }
 
 .p-reg__form .p-field label {
+  font-size: 16px;
   color: var(--n-700);
   letter-spacing: 0.01em;
 }
 
 .p-reg__form .p-input {
   width: 100%;
-  height: 46px;
+  height: 48px;
   box-sizing: border-box;
+  font-size: 16px;
   background: var(--n-50);
   border-color: var(--n-200);
   transition:
@@ -1165,6 +1186,8 @@ a {
 
 .p-reg__form .p-input::placeholder {
   color: var(--n-400);
+  /* 占位略小于正文，避免与已填内容抢视觉 */
+  font-size: 14px;
 }
 
 .p-reg__form .p-input-icon {
@@ -1174,9 +1197,13 @@ a {
 
 .p-reg__tip {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.45;
   color: var(--n-400);
+}
+
+.p-reg__form .p-agree {
+  font-size: 16px;
 }
 
 .p-reg__form .p-code-row {
@@ -1190,7 +1217,7 @@ a {
   display: flex;
   align-items: center;
   width: 100%;
-  height: 46px;
+  height: 48px;
   box-sizing: border-box;
   background: var(--n-50);
   border: 1.5px solid var(--n-200);
@@ -1234,13 +1261,14 @@ a {
   background: transparent;
   outline: none;
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--n-900);
   padding: 0 8px 0 0;
 }
 
 .p-input-combo__input::placeholder {
   color: var(--n-400);
+  font-size: 14px;
 }
 
 .p-input-combo__action {
@@ -1337,11 +1365,16 @@ a {
 
 @media (max-width: 560px) {
   .p-auth-card--register {
-    padding: 28px 22px 32px;
+    padding: 24px 18px 28px;
   }
 
   .p-reg__title {
-    font-size: 24px;
+    font-size: 20px;
+  }
+
+  .p-login-tabs__item,
+  .p-login-tabs__item.is-active {
+    font-size: 20px;
   }
 }
 

@@ -183,7 +183,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="p-page">
+    <div className="p-page p-page--register">
       <div className="p-container">
         <div className="p-auth-card p-auth-card--register">
           <header className="p-reg__head">

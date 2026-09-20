@@ -1,0 +1,161 @@
+/**
+ * apps/home UI overrides — login modal + register page
+ * Loaded after the mirrored Vue build CSS.
+ */
+
+/* —— 1. Login modal: tab titles always 20px; slightly smaller dialog —— */
+.el-dialog.auth-dialog-pixel-perfect {
+  width: 700px !important;
+  max-width: calc(100vw - 32px) !important;
+}
+
+.auth-card-body[data-v-8c430319],
+.auth-card-body.is-login-mode[data-v-8c430319] {
+  min-height: 460px !important;
+}
+
+.auth-left-banner[data-v-8c430319] {
+  width: 300px !important;
+  padding: 32px 28px !important;
+}
+
+.auth-right-form[data-v-8c430319] {
+  margin-left: 300px !important;
+  min-height: 460px !important;
+}
+
+.auth-card-body.is-login-mode .auth-right-form[data-v-8c430319] {
+  padding: 52px 32px 24px !important;
+}
+
+.auth-card-body.is-login-mode .tab-switcher-track .tab-btn[data-v-8c430319],
+.auth-card-body.is-login-mode .tab-switcher-track .tab-btn.active[data-v-8c430319] {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  font-weight: 600 !important;
+}
+
+.auth-card-body.is-login-mode .tab-switcher-track .tab-btn[data-v-8c430319] {
+  color: #606369 !important;
+  font-weight: 400 !important;
+}
+
+.auth-card-body.is-login-mode .tab-switcher-track .tab-btn.active[data-v-8c430319] {
+  color: #1345a5 !important;
+  font-weight: 600 !important;
+}
+
+/* —— 2. Register page: screenshot card layout + typography + scroll —— */
+.register-layout[data-v-367e7859] {
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-bottom: 40px;
+  background: #f0f4f9 !important;
+}
+
+.register-layout .dci-portal-header .brand-title[data-v-367e7859],
+.register-layout .dci-portal-header .brand-sub[data-v-367e7859] {
+  /* 截图表单区不含站点营销文案；顶栏仅保留返回能力 */
+  display: none !important;
+}
+
+.register-layout .dci-portal-header[data-v-367e7859] {
+  justify-content: flex-end !important;
+}
+
+.register-layout .dci-portal-banner[data-v-367e7859] {
+  display: none !important;
+}
+
+.register-layout .register-container[data-v-367e7859] {
+  margin-top: 24px !important;
+}
+
+.register-layout .register-container .register-card[data-v-367e7859] {
+  width: min(480px, calc(100vw - 32px));
+  padding: 32px 36px 28px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 28px rgba(15, 52, 112, 0.08) !important;
+}
+
+.register-card-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px !important;
+}
+
+.reg-badge-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eef4fe;
+  margin-bottom: 10px;
+  background-image: url("./static/png/logo_blue@2x-BBFjl1dV.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px auto;
+}
+
+.register-layout .register-card .reg-title,
+.register-layout .register-card .card-header-bar h2,
+.register-layout .register-card .text-xl {
+  font-size: 20px !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  color: #303133 !important;
+  margin: 0 !important;
+}
+
+.register-layout .register-card .reg-subtitle,
+.register-layout .register-card .card-header-bar p,
+.register-layout .register-card .text-sm {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  color: #909399 !important;
+  margin: 6px 0 0 !important;
+}
+
+.register-layout .register-card .el-form-item__label {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+  color: #303133 !important;
+}
+
+.register-layout .register-card .el-input__inner,
+.register-layout .register-card .el-input__wrapper input {
+  font-size: 16px !important;
+}
+
+.register-layout .register-card .el-input__inner::placeholder,
+.register-layout .register-card .el-input__wrapper input::placeholder {
+  font-size: 14px !important;
+  color: #909399 !important;
+}
+
+.register-layout .register-card .el-button {
+  font-size: 16px !important;
+}
+
+.reg-login-row {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 16px;
+  color: #909399;
+  line-height: 21px;
+}
+
+.reg-login-link {
+  color: #1345a5 !important;
+  cursor: pointer;
+  margin-left: 4px;
+  text-decoration: underline;
+}
+
+.reg-login-link:hover {
+  color: #0f3d8c !important;
+}
+
