@@ -266,8 +266,8 @@ mustReplace(
 mustReplace(
   HEADER,
   'case"applyTech":window.open("https://www.ccopyright.com.cn/","_blank");break;case"logout":_();break}',
-  'case"applyTech":window.open("https://www.ccopyright.com.cn/","_blank");break;case"techWorkbench":window.open("https://www.ccopyright.com.cn/","_blank");break;case"logout":_();break}',
-  "header tech command",
+  'case"applyTech":s.push("/user/profile?tab=open");break;case"techWorkbench":window.__DCI_MOCK__&&window.__DCI_MOCK__.openTechWorkbench?window.__DCI_MOCK__.openTechWorkbench():window.open((window.__DCI_CUSTOMER_URL__||"http://localhost:3002").replace(/\\/$/,"")+"/desk","_blank");break;case"logout":_();break}',
+  "header tech command → customer",
 );
 
 // Menu: after workbench item, show tech workbench OR applyTech
@@ -298,7 +298,7 @@ mustReplace(
 // Replace static tech card with dynamic (approved / coming soon)
 const techStatic = `e[42]||(e[42]=qe('<div class="service-card" data-v-96ef2aa1><div class="card-top flex-row justify-between align-center" data-v-96ef2aa1><div class="card-title-group flex-row align-center" data-v-96ef2aa1><span class="card-title" data-v-96ef2aa1>DCI®技术服务中心</span></div></div><div class="card-desc" data-v-96ef2aa1> 基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务。 </div><div class="card-bottom" data-v-96ef2aa1><div class="action-link disabled flex-row align-center" data-v-96ef2aa1><span data-v-96ef2aa1>敬请期待</span></div></div><div class="card-glow-blur" data-v-96ef2aa1></div></div>',1))`;
 
-const techDynamic = `a("div",{class:"service-card"},[a("div",{class:"card-top flex-row justify-between align-center"},[a("div",{class:"card-title-group flex-row align-center"},[e[50]||(e[50]=a("span",{class:"card-title"},"DCI®技术服务中心",-1)),jt.value?(u(),G(p,{key:0,class:"verified-icon"},{default:o(()=>[t(w(je))]),_:1})):N("",!0)]),jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已通过")])):N("",!0)]),e[51]||(e[51]=a("div",{class:"card-desc"}," 基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务。 ",-1)),a("div",{class:"card-bottom"},[jt.value?(u(),c("div",{key:0,class:"action-link cursor-pointer flex-row align-center",onClick:e[52]||(e[52]=s=>window.open("https://www.ccopyright.com.cn/","_blank"))},[e[53]||(e[53]=a("span",null,"进入工作台",-1)),e[54]||(e[54]=a("span",{class:"arrow"},"→",-1))])):(u(),c("div",{key:1,class:"action-link disabled flex-row align-center"},[e[55]||(e[55]=a("span",null,"敬请期待",-1))]))]),e[56]||(e[56]=a("div",{class:"card-glow-blur"},null,-1))])`;
+const techDynamic = `a("div",{class:"service-card"},[a("div",{class:"card-top flex-row justify-between align-center"},[a("div",{class:"card-title-group flex-row align-center"},[e[50]||(e[50]=a("span",{class:"card-title"},"DCI®技术服务中心",-1)),jt.value?(u(),G(p,{key:0,class:"verified-icon"},{default:o(()=>[t(w(je))]),_:1})):N("",!0)]),jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已通过")])):N("",!0)]),e[51]||(e[51]=a("div",{class:"card-desc"}," 基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务。 ",-1)),a("div",{class:"card-bottom"},[jt.value?(u(),c("div",{key:0,class:"action-link cursor-pointer flex-row align-center",onClick:e[52]||(e[52]=s=>{var M=window.__DCI_MOCK__;M&&M.openTechWorkbench?M.openTechWorkbench():window.open((window.__DCI_CUSTOMER_URL__||"http://localhost:3002").replace(/\\/$/,"")+"/desk","_blank")})},[e[53]||(e[53]=a("span",null,"进入工作台",-1)),e[54]||(e[54]=a("span",{class:"arrow"},"→",-1))])):(u(),c("div",{key:1,class:"action-link disabled flex-row align-center"},[e[55]||(e[55]=a("span",null,"敬请期待",-1))]))]),e[56]||(e[56]=a("div",{class:"card-glow-blur"},null,-1))])`;
 
 mustReplace(PROFILE, techStatic, techDynamic, "tech card dynamic");
 
@@ -320,3 +320,13 @@ for (const f of [HEADER, PROFILE, USER_API, MOCK_JS]) {
 }
 
 console.log("DONE mock auth patches");
+
+// Keep customer workbench URL wiring in sync (idempotent)
+try {
+  execSync(
+    'node "c:/WORKING_PLACE/CODE_R/sampleA/apps/home/_mirror_tools/wire-customer-workbench.mjs"',
+    { stdio: "inherit" },
+  );
+} catch (e) {
+  console.warn("wire-customer-workbench skipped", e && e.message);
+}

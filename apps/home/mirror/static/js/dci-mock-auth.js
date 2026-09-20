@@ -133,6 +133,24 @@
     return getUser(currentKey());
   }
 
+  if (typeof window.__DCI_CUSTOMER_URL__ === "undefined") {
+    window.__DCI_CUSTOMER_URL__ = "http://localhost:3002";
+  }
+
+  function customerBase() {
+    return String(window.__DCI_CUSTOMER_URL__ || "http://localhost:3002").replace(/\/$/, "");
+  }
+
+  /** Open tech workbench (customer /desk) with demo user bridge query */
+  function openTechWorkbench() {
+    var key = currentKey();
+    var url = customerBase() + "/desk";
+    if (key) {
+      url += "?from=home&user=" + encodeURIComponent(key);
+    }
+    window.open(url, "_blank");
+  }
+
   window.__DCI_MOCK__ = {
     PASS: PASS,
     SMS: SMS,
@@ -149,5 +167,7 @@
     clearSession: clearSession,
     currentKey: currentKey,
     currentUser: currentUser,
+    customerBase: customerBase,
+    openTechWorkbench: openTechWorkbench,
   };
 })();

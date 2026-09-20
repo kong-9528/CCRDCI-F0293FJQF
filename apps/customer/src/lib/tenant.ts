@@ -33,6 +33,49 @@ export type TenantContract = {
   files: { id: string; name: string; size?: number }[];
 };
 
+const BRIDGE_KEY = "dci-customer-bridge";
+
+/** Demo users aligned with apps/home mock auth */
+const HOME_BRIDGE_USERS: Record<
+  string,
+  {
+    username: string;
+    phonenumber: string;
+    orgName: string;
+    isDciRegistryCenter: boolean;
+    contactName: string;
+  }
+> = {
+  yachang: {
+    username: "yachang",
+    phonenumber: "13900001111",
+    orgName: "",
+    isDciRegistryCenter: false,
+    contactName: "雅昌",
+  },
+  mayi: {
+    username: "mayi",
+    phonenumber: "13800008000",
+    orgName: "太极计算机股份有限公司",
+    isDciRegistryCenter: true,
+    contactName: "张三",
+  },
+  mayi1: {
+    username: "mayi1",
+    phonenumber: "13800008001",
+    orgName: "太极计算机股份有限公司",
+    isDciRegistryCenter: false,
+    contactName: "李四",
+  },
+  mayi2: {
+    username: "mayi2",
+    phonenumber: "13800008002",
+    orgName: "太极计算机股份有限公司",
+    isDciRegistryCenter: true,
+    contactName: "王五",
+  },
+};
+
 export const MOCK_TENANT: TenantProfile = {
   companyName: "太极计算机股份有限公司",
   creditCode: "91110000MA01XXXX3K",
@@ -43,7 +86,7 @@ export const MOCK_TENANT: TenantProfile = {
   inviteCode: "P6R4BHL2",
 };
 
-/** 控制台登录会话（演示） */
+/** 控制台登录会话（演示；可由 home 桥接覆盖） */
 export const MOCK_SESSION = {
   /** 登录用户名（顶栏展示） */
   username: "lisi",
@@ -51,15 +94,95 @@ export const MOCK_SESSION = {
   isDciRegistryCenter: true,
 };
 
-/** 外链门户（账号中心落在 DCI 门户；注册中心等工作台外链） */
-const DCI_PORTAL_URL =
-  (import.meta.env.VITE_DCI_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:3010";
+/** 门户基址：默认指向 apps/home（3020），可用 VITE_DCI_URL 覆盖 */
+export const DCI_PORTAL_URL =
+  (import.meta.env.VITE_DCI_URL as string | undefined)?.replace(/\/$/, "") ||
+  "http://localhost:3020";
 
 export const PORTAL_LINKS = {
-  accountCenter: `${DCI_PORTAL_URL}/account/info/`,
-  dciRegistryWorkbench: "https://app-ck03sng4kykh.appmiaoda.com/dashboard/home",
-  applyDciRegistry: "https://app-ck03sng4kykh.appmiaoda.com/apply",
+  home: `${DCI_PORTAL_URL}/`,
+  accountCenter: `${DCI_PORTAL_URL}/user/profile`,
+  dciRegistryWorkbench: `${DCI_PORTAL_URL}/dashboard/index`,
+  applyDciRegistry: `${DCI_PORTAL_URL}/user/profile?tab=open`,
 } as const;
+
+type BridgePayload = {
+  user: string;
+  username: string;
+  orgName: string;
+  isDciRegistryCenter: boolean;
+  phonenumber: string;
+  contactName: string;
+};
+
+function applyBridgeUser(key: string) {
+  const u = HOME_BRIDGE_USERS[key];
+  if (!u) return false;
+  MOCK_SESSION.username = u.username;
+  MOCK_SESSION.isDciRegistryCenter = u.isDciRegistryCenter;
+  if (u.orgName) MOCK_TENANT.companyName = u.orgName;
+  MOCK_TENANT.contactName = u.contactName;
+  MOCK_TENANT.contactPhone = u.phonenumber;
+  const payload: BridgePayload = {
+    user: key,
+    username: u.username,
+    orgName: u.orgName,
+    isDciRegistryCenter: u.isDciRegistryCenter,
+    phonenumber: u.phonenumber,
+    contactName: u.contactName,
+  };
+  try {
+    localStorage.setItem(BRIDGE_KEY, JSON.stringify(payload));
+  } catch {
+    /* ignore */
+  }
+  return true;
+}
+
+function restoreBridge() {
+  try {
+    const raw = localStorage.getItem(BRIDGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw) as BridgePayload;
+    if (!data?.username) return;
+    MOCK_SESSION.username = data.username;
+    MOCK_SESSION.isDciRegistryCenter = !!data.isDciRegistryCenter;
+    if (data.orgName) MOCK_TENANT.companyName = data.orgName;
+    if (data.contactName) MOCK_TENANT.contactName = data.contactName;
+    if (data.phonenumber) MOCK_TENANT.contactPhone = data.phonenumber;
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Call once at boot: accept ?from=home&user=mayi1 then strip query */
+export function initPortalBridge() {
+  if (typeof window === "undefined") return;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    const user = (params.get("user") || "").trim().toLowerCase();
+    if (from === "home" && user && applyBridgeUser(user)) {
+      params.delete("from");
+      params.delete("user");
+      const qs = params.toString();
+      const next = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", next);
+      return;
+    }
+  } catch {
+    /* ignore */
+  }
+  restoreBridge();
+}
+
+export function clearPortalBridge() {
+  try {
+    localStorage.removeItem(BRIDGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export const MOCK_TENANT_SERVICES: TenantService[] = [
   {

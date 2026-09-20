@@ -1,0 +1,53 @@
+[
+  {
+    "check": "customer-up",
+    "ok": true
+  },
+  {
+    "check": "yachang-no-tech-menu",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "申请接入技术服务中心",
+      "退出登录"
+    ]
+  },
+  {
+    "check": "mayi-no-tech-menu",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "退出登录"
+    ]
+  },
+  {
+    "check": "mayi1-tech-url",
+    "ok": true,
+    "url": "http://localhost:3002/desk?from=home&user=mayi1"
+  },
+  {
+    "check": "mayi1-bridge-username",
+    "ok": true
+  },
+  {
+    "check": "mayi1-account-link-home",
+    "ok": true,
+    "acctHref": "http://localhost:3020/user/profile"
+  },
+  {
+    "check": "mayi2-tech-url",
+    "ok": true,
+    "url": "http://localhost:3002/desk?from=home&user=mayi2"
+  },
+  {
+    "check": "mayi2-bridge-username",
+    "ok": true
+  },
+  {
+    "check": "openTechWorkbench-helper",
+    "ok": true,
+    "stillCcopy": false
+  }
+]

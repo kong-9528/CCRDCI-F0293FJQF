@@ -3,7 +3,12 @@ import { Link, NavLink } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
-import { MOCK_SESSION, MOCK_TENANT, PORTAL_LINKS } from "@/lib/tenant";
+import {
+  clearPortalBridge,
+  MOCK_SESSION,
+  MOCK_TENANT,
+  PORTAL_LINKS,
+} from "@/lib/tenant";
 
 type Props = {
   pathname: string;
@@ -165,7 +170,8 @@ export function CustomerHeader({ pathname }: Props) {
         onCancel={() => setLogoutConfirm(false)}
         onConfirm={() => {
           setLogoutConfirm(false);
-          window.alert("演示环境：已模拟退出登录");
+          clearPortalBridge();
+          window.location.href = PORTAL_LINKS.home;
         }}
       />
     </header>
