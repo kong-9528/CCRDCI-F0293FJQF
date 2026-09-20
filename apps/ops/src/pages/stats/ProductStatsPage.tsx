@@ -73,7 +73,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
   });
 
   const trendDates = sliceDates(trendRange);
-  const trendSeries = categoryProducts.map((p, idx) => {
+  const productTrendSeries = categoryProducts.map((p, idx) => {
     const values = trendDates.map((date) => {
       const row = data.productDays.find((r) => r.date === date && r.product === p.code);
       if (!row) return 0;
@@ -83,10 +83,22 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
     return {
       id: p.code,
       label: p.name,
-      color: chartColor(idx),
+      color: chartColor(idx + 1),
       values,
     };
   });
+  const allTrendValues = trendDates.map((_, i) =>
+    productTrendSeries.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
+  );
+  const trendSeries = [
+    {
+      id: "all",
+      label: "全部",
+      color: chartColor(0),
+      values: allTrendValues,
+    },
+    ...productTrendSeries,
+  ];
 
   const rankDates = sliceDates(rankRange);
   const rankRows = categoryProducts
