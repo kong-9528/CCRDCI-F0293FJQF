@@ -1,0 +1,53 @@
+[
+  {
+    "key": "yachang",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "申请接入技术服务中心",
+      "退出登录"
+    ],
+    "openedOk": true,
+    "openOk": true,
+    "menuPass": true
+  },
+  {
+    "key": "mayi",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "退出登录"
+    ],
+    "openedOk": true,
+    "openOk": true,
+    "menuPass": true
+  },
+  {
+    "key": "mayi1",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "技术服务中心工作台",
+      "退出登录"
+    ],
+    "openedOk": true,
+    "openOk": true,
+    "menuPass": true
+  },
+  {
+    "key": "mayi2",
+    "ok": true,
+    "menu": [
+      "账号中心",
+      "DCI注册中心工作台",
+      "技术服务中心工作台",
+      "退出登录"
+    ],
+    "openedOk": true,
+    "openOk": true,
+    "menuPass": true
+  }
+]
