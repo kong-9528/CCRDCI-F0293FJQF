@@ -51,6 +51,121 @@
   font-weight: 600 !important;
 }
 
+/* —— 1b. Forgot password: two-step + title 20 / label 16 + captcha one row —— */
+.auth-card-body.is-forgot-mode[data-v-8c430319] {
+  min-height: 460px !important;
+  height: auto !important;
+}
+
+.auth-card-body.is-forgot-mode .register-header .reg-title[data-v-8c430319],
+.auth-card-body.is-forgot-mode .reg-title[data-v-8c430319] {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  font-weight: 700 !important;
+  color: #1d2129 !important;
+}
+
+.auth-card-body.is-forgot-mode .register-header .reg-subtitle[data-v-8c430319],
+.auth-card-body.is-forgot-mode .reg-subtitle[data-v-8c430319] {
+  font-size: 13px !important;
+  line-height: 20px !important;
+  color: #86909c !important;
+  margin-top: 6px !important;
+}
+
+.auth-card-body.is-forgot-mode .pure-form .form-group .form-label[data-v-8c430319] {
+  display: block !important;
+  font-size: 16px !important;
+  line-height: 22px !important;
+  font-weight: 400 !important;
+  color: #1d2129 !important;
+  margin-bottom: 6px !important;
+}
+
+.auth-card-body.is-forgot-mode .captcha-flex-row[data-v-8c430319] {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.auth-card-body.is-forgot-mode .captcha-flex-row .captcha-img-btn[data-v-8c430319] {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  height: 40px !important;
+  object-fit: fill !important;
+}
+
+.auth-card-body.is-forgot-mode .captcha-flex-row .captcha-input-flex[data-v-8c430319] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+.auth-card-body.is-forgot-mode .login-main-btn.el-button {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 44px !important;
+  margin-top: 8px !important;
+  border-radius: 8px !important;
+  background: #5b8def !important;
+  border-color: #5b8def !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.auth-card-body.is-forgot-mode .login-main-btn.el-button.is-disabled,
+.auth-card-body.is-forgot-mode .login-main-btn.el-button.is-disabled:hover {
+  background: #c9cdd4 !important;
+  border-color: #c9cdd4 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+}
+
+.forgot-step-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.forgot-back-link {
+  align-self: flex-start;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  color: #5b8def;
+  cursor: pointer;
+  line-height: 20px;
+  user-select: none;
+  pointer-events: auto;
+  z-index: 2;
+  position: relative;
+}
+
+.forgot-back-link:hover {
+  text-decoration: underline;
+  color: #4a7fe0;
+}
+
+.auth-card-body.is-forgot-mode .login-main-btn.el-button:not(.is-disabled) {
+  background: #5b8def !important;
+  border-color: #5b8def !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
 /* —— 2. Register page: portal nav + flat body + centered card + page scroll —— */
 .register-layout[data-v-367e7859] {
   min-height: 100vh;
