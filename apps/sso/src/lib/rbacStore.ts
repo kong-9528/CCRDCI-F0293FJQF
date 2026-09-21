@@ -5,7 +5,7 @@
  * - Role 归属某一子系统（含 SSO 平台本身 subsystemId = "sso"）
  * - 用户可绑定多个子系统下的多个角色 → 开通多系统权限
  * - 演示子系统：SSO / DCI管理中心运营后台 / DCI®技术服务中心运营后台
- *   （C端用户中心运营后台暂下线）
+ *   （技术服务中心 customer 不走 SSO，只能从 home 工作台进入；C端用户中心运营后台暂下线）
  * - DCI管理中心（ops）权限树 / 角色与 apps/ops 对齐；首页不展示本平台入口
  */
 
@@ -14,11 +14,14 @@ import {
   OPS_SEED_ROLES,
   OPS_SUBSYSTEM_ID,
 } from "@/lib/opsPermissionSeed";
-import { CUSTOMER_URL, OPS_URL, UCENTER_URL } from "@/lib/publicEnv";
+import { OPS_DCI_URL, OPS_URL, UCENTER_URL } from "@/lib/publicEnv";
 
 export type EntityStatus = "active" | "disabled";
 
 export { OPS_SUBSYSTEM_ID };
+
+/** DCI管理中心运营后台（apps/ops-dci 镜像） */
+export const OPS_DCI_SUBSYSTEM_ID = "sys-ops-dci";
 
 /** DCI®技术服务中心（客户控制台 apps/customer） */
 export const CUSTOMER_SUBSYSTEM_ID = "sys-customer";
@@ -159,22 +162,22 @@ let subsystems: Subsystem[] = [
     sort: 0,
   },
   {
-    id: OPS_SUBSYSTEM_ID,
-    code: "ops",
+    id: OPS_DCI_SUBSYSTEM_ID,
+    code: "ops-dci",
     name: "DCI管理中心运营后台",
-    description: "运营管理后台：客户、合同、产品上架、内容与系统配置",
-    entryUrl: OPS_URL,
-    accent: "#0B62B8",
+    description: "DCI 注册中心审核、发码统计、码管理与门户内容（镜像演示）",
+    entryUrl: OPS_DCI_URL,
+    accent: "#1449b2",
     status: "active",
     sort: 10,
   },
   {
-    id: CUSTOMER_SUBSYSTEM_ID,
-    code: "customer",
+    id: OPS_SUBSYSTEM_ID,
+    code: "ops",
     name: "DCI®技术服务中心运营后台",
-    description: "客户控制台：核验服务、API 接入、用量与帮助中心",
-    entryUrl: CUSTOMER_URL,
-    accent: "#0075c1",
+    description: "运营管理后台：客户、合同、产品上架、内容与系统配置",
+    entryUrl: OPS_URL,
+    accent: "#0B62B8",
     status: "active",
     sort: 20,
   },
@@ -500,6 +503,21 @@ let permissions: Permission[] = [
     routePath: "api-docs",
     component: "pages/api-docs/ApiDocsOverviewPage",
     sort: 30,
+    visible: true,
+  },
+  // DCI管理中心运营管理平台（ops-dci）
+  {
+    id: "p-ops-dci-home",
+    code: "ops_dci.home",
+    name: "运营管理平台首页",
+    subsystemId: OPS_DCI_SUBSYSTEM_ID,
+    description: "进入 DCI 管理中心运营管理平台",
+    apiIds: [],
+    menuType: "menu",
+    parentId: null,
+    routePath: "/",
+    component: "index",
+    sort: 10,
     visible: true,
   },
   // 用户中心运营
@@ -1108,6 +1126,15 @@ let roles: Role[] = [
     status: "active" as const,
   })),
   {
+    id: "r-ops-dci-admin",
+    code: "ops_dci_admin",
+    name: "DCI运营管理平台管理员",
+    subsystemId: OPS_DCI_SUBSYSTEM_ID,
+    description: "访问 DCI 管理中心运营管理平台（镜像演示）",
+    permissionIds: ["p-ops-dci-home"],
+    status: "active",
+  },
+  {
     id: "r-tsc-user",
     code: "tsc_user",
     name: "技术服务中心用户",
@@ -1163,7 +1190,7 @@ let users: SsoUser[] = [
     roleBindings: [
       { roleId: "r-sso-admin", orgUnitIds: ["org-root"] },
       { roleId: "role-super", orgUnitIds: ["org-ops"] },
-      { roleId: "r-tsc-admin", orgUnitIds: ["org-root"] },
+      { roleId: "r-ops-dci-admin", orgUnitIds: ["org-ops"] },
       { roleId: "r-uco-admin", orgUnitIds: ["org-root"] },
     ],
     createdAt: "2026-01-01 10:00:00",
@@ -1179,6 +1206,7 @@ let users: SsoUser[] = [
     roleBindings: [
       { roleId: "r-sso-user", orgUnitIds: ["org-ops-content"] },
       { roleId: "role-ops", orgUnitIds: ["org-ops-content", "org-ops-biz"] },
+      { roleId: "r-ops-dci-admin", orgUnitIds: ["org-ops-content"] },
     ],
     createdAt: "2026-02-01 09:00:00",
     updatedAt: "2026-02-01 09:00:00",
@@ -1193,6 +1221,7 @@ let users: SsoUser[] = [
     roleBindings: [
       { roleId: "r-sso-user", orgUnitIds: ["org-ops-biz"] },
       { roleId: "role-ops", orgUnitIds: ["org-ops-biz"] },
+      { roleId: "r-ops-dci-admin", orgUnitIds: ["org-ops-biz"] },
     ],
     createdAt: "2026-02-05 10:00:00",
     updatedAt: "2026-02-05 10:00:00",

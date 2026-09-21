@@ -7,8 +7,10 @@
 | 变量 | 作用 | 本地默认 |
 |------|------|----------|
 | `VITE_OPS_URL` | 运营后台入口 | `http://localhost:3001` |
-| `VITE_CUSTOMER_URL` | 技术服务中心入口 | `http://localhost:3002` |
+| `VITE_OPS_DCI_URL` | DCI管理中心运营后台 | `http://localhost:3030` |
 | `VITE_UCENTER_URL` | C 端运营后台入口 | `http://localhost:3005` |
+
+技术服务中心（customer）不在 SSO 中。只能从 home 工作台进入。
 
 未配置时回退到默认值。用于子系统入口和登录回跳白名单。
 

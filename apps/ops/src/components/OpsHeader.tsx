@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
+import { useAuth } from "@/lib/auth";
 
 type Props = {
   pathname?: string;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  displayName?: string;
 };
 
 const PLATFORM_NAME = "DCI®技术服务中心";
 
-export function OpsHeader({ collapsed, onToggleCollapse }: Props) {
+export function OpsHeader({ collapsed, onToggleCollapse, displayName }: Props) {
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const { logout } = useAuth();
+  const label = displayName || "运营管理员";
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -43,9 +47,9 @@ export function OpsHeader({ collapsed, onToggleCollapse }: Props) {
 
         <div className="a-header__user">
           <button type="button" className="a-header__user-btn" aria-haspopup="menu">
-            <span className="a-header__avatar">运</span>
+            <span className="a-header__avatar">{label.slice(0, 1)}</span>
             <span className="a-header__user-meta">
-              <span className="a-header__user-role">运营管理员</span>
+              <span className="a-header__user-role">{label}</span>
             </span>
             <span className="a-header__chevron" aria-hidden>
               ▾
@@ -53,7 +57,7 @@ export function OpsHeader({ collapsed, onToggleCollapse }: Props) {
           </button>
           <div className="a-header__user-dropdown">
             <div className="a-header__user-menu" role="menu">
-              <div className="a-header__user-menu-name">运营管理员</div>
+              <div className="a-header__user-menu-name">{label}</div>
               <button
                 type="button"
                 role="menuitem"
@@ -70,13 +74,13 @@ export function OpsHeader({ collapsed, onToggleCollapse }: Props) {
       <ConfirmDialog
         open={logoutConfirm}
         title="确认退出登录"
-        description="退出后需重新登录才能继续使用运营后台。"
+        description="退出后将回到统一认证门户，需重新进入应用。"
         confirmText="退出"
         danger
         onCancel={() => setLogoutConfirm(false)}
         onConfirm={() => {
           setLogoutConfirm(false);
-          window.location.reload();
+          logout();
         }}
       />
     </header>
