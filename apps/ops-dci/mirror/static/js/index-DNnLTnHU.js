@@ -1,0 +1,1 @@
+import{_ as a}from"./index.vue_vue_type_script_setup_true_lang-PBgyEprO.js";import{d as s,r as o,o as t,c as l,i,A as c,k as u}from"./index-DsYmzmNg.js";const _=s({__name:"index",setup(d){const e=o("/api/v1/dciManage/druid/login.html");return(m,n)=>(t(),l("div",null,[i(a,{src:u(e),"onUpdate:src":n[0]||(n[0]=r=>c(e)?e.value=r:null)},null,8,["src"])]))}});export{_ as default};

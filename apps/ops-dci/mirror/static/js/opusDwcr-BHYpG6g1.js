@@ -1,0 +1,1 @@
+import{a8 as t}from"./index-DsYmzmNg.js";function a(e){return t({url:"/apply/pageList",method:"get",params:e})}function r(e){return t({url:"/apply/detail/"+e,method:"get"})}function l(e){return t({url:"/apply/sampleList/"+e,method:"get"})}function o(e){return t({url:"/apply/downloadSample",method:"get",params:e,responseType:"blob"})}export{l as a,o as d,r as g,a as p};

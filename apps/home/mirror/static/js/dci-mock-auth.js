@@ -96,17 +96,30 @@
     };
   }
   function orgPayload(u) {
+    var body;
     if (u.auditStatus === null || u.auditStatus === undefined) {
-      return { code: 200, data: null };
+      body = { code: 200, data: null };
+    } else {
+      var code = "ORG-" + String(u.username || "demo").toUpperCase();
+      body = {
+        code: 200,
+        data: {
+          id: u.userId,
+          auditStatus: u.auditStatus,
+          orgName: u.orgName,
+          regOrgName: u.orgName,
+          orgCode: code,
+          dciRegOrgCode: code,
+          accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
+          accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
+          dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",
+        },
+      };
     }
-    return {
-      code: 200,
-      data: {
-        auditStatus: u.auditStatus,
-        orgName: u.orgName,
-        regOrgName: u.orgName,
-      },
-    };
+    if (window.__DCI_RCX_DEMO__ && typeof window.__DCI_RCX_DEMO__.shapeOrg === "function") {
+      return window.__DCI_RCX_DEMO__.shapeOrg(body);
+    }
+    return body;
   }
 
   function tokenFor(k) {

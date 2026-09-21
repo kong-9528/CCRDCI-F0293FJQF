@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3003",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node spa-fallback.mjs",
     "preview": "vite preview --port 3003",
     "lint": "tsc -b --pretty false"
   },

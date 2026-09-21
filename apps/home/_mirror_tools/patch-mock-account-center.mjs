@@ -118,12 +118,19 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
     if (u.auditStatus === null || u.auditStatus === undefined) {
       return { code: 200, data: null };
     }
+    var code = "ORG-" + String(u.username || "demo").toUpperCase();
     return {
       code: 200,
       data: {
+        id: u.userId,
         auditStatus: u.auditStatus,
         orgName: u.orgName,
         regOrgName: u.orgName,
+        orgCode: code,
+        dciRegOrgCode: code,
+        accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
+        accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
+        dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",
       },
     };
   }

@@ -1,0 +1,73 @@
+{
+  "code": 1000000,
+  "msg": "成功",
+  "data": [
+    {
+      "id": "2080588010370920449",
+      "interfaceName": "实名同步修改接口",
+      "interfaceDesc": "用于修改权利人（含著作权人）的实名认证信息，包含权利人ID、权利人名称、证件有效起始期、证件有效终止期、手机号、联系人、证件图名称、证件图格式、身份证正面照文件路径、身份证反面照文件路径、手持身份证文件路径、证件图下载权限。",
+      "interfaceAddr": "/api/v1/dciManage/realName/modify",
+      "requestMethod": null,
+      "requestParams": "详见接口文档",
+      "responseParams": "详见接口文档",
+      "docFileName": null,
+      "docFilePath": null,
+      "docFileUrl": null,
+      "bucketName": null,
+      "status": "1",
+      "createdAt": "2026-07-24 09:36:51",
+      "updatedAt": "2026-09-03 09:38:49"
+    },
+    {
+      "id": "2080587923100037121",
+      "interfaceName": "实名信息接口",
+      "interfaceDesc": "权利人（含著作权人）的实名信息接口。",
+      "interfaceAddr": "/api/v1/dciManage/realName/verify",
+      "requestMethod": null,
+      "requestParams": "详见接口文档",
+      "responseParams": "详见接口文档",
+      "docFileName": null,
+      "docFilePath": null,
+      "docFileUrl": null,
+      "bucketName": null,
+      "status": "1",
+      "createdAt": "2026-07-24 09:36:30",
+      "updatedAt": "2026-09-02 20:38:45"
+    },
+    {
+      "id": "2070330053367017473",
+      "interfaceName": "数据同步接口",
+      "interfaceDesc": "向DCI管理中心同步DCI业务数据。",
+      "interfaceAddr": "/upload/api/v1",
+      "requestMethod": null,
+      "requestParams": "详见接口文档",
+      "responseParams": "详见接口文档",
+      "docFileName": "平台系统架构与功能设计-1.pdf",
+      "docFilePath": "dciManage/interfaceDoc/20260626/2070330053367017473/2070330282266857472/平台系统架构与功能设计-1.pdf",
+      "docFileUrl": "https://ccpc-tj-test-81c4927da51f1137b1cf0409ff4600791a-ossalias.oss-cn-wulanchabu.aliyuncs.com/dciManage%2FinterfaceDoc%2F20260626%2F2070330053367017473%2F2070330282266857472%2F%E5%B9%B3%E5%8F%B0%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1-1.pdf",
+      "bucketName": "ccpc-tj-test-81c4927da51f1137b1cf0409ff4600791a-ossalias",
+      "status": "1",
+      "createdAt": "2026-06-26 02:15:24",
+      "updatedAt": "2026-07-22 07:20:09"
+    },
+    {
+      "id": "2055556104074723330",
+      "interfaceName": "DCI撤销接口",
+      "interfaceDesc": "申请撤销DCI码接口，完成DCI码撤销。",
+      "interfaceAddr": "/api/v1/dciManage/apply/revokeInfo2",
+      "requestMethod": null,
+      "requestParams": "详见接口文档",
+      "responseParams": "详见接口文档",
+      "docFileName": "DCI注册管理中心 - 接口调用手册V1.0 (5).pdf",
+      "docFilePath": "dciManage/interfaceDoc/20260520/2055556104074723330/2056909982733754368/DCI注册管理中心 - 接口调用手册V1.0 (5).pdf",
+      "docFileUrl": "https://ccpc-tj-test-81c4927da51f1137b1cf0409ff4600791a-ossalias.oss-cn-wulanchabu.aliyuncs.com/dciManage%2FinterfaceDoc%2F20260520%2F2055556104074723330%2F2056909982733754368%2FDCI%E6%B3%A8%E5%86%8C%E7%AE%A1%E7%90%86%E4%B8%AD%E5%BF%83%20-%20%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8%E6%89%8B%E5%86%8CV1.0%20%285%29.pdf",
+      "bucketName": "ccpc-tj-test-81c4927da51f1137b1cf0409ff4600791a-ossalias",
+      "status": "1",
+      "createdAt": "2026-05-16 15:49:00",
+      "updatedAt": "2026-07-22 07:20:15"
+    }
+  ],
+  "traceId": "",
+  "timestamp": "2026-09-21T07:36:43.545928721",
+  "success": true
+}

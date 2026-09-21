@@ -1,0 +1,112 @@
+[
+  {
+    "path": "/",
+    "url": "http://8.145.60.215:9020/dci-manage/index",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n首页\n\nDCI注册中心数据统计\n\n38\n个\n\nDCI注册中心总数\n\n78\n个\n\n待审DCI注册中心总数\n\n24\n个\n\nDCI申领平台总数\n\nDCI业务数据统计\n\n0\n个\n\nDCI编码申领总数\n\n0\n个\n\nDCI编码撤销总数\n\n权利人数量统计\n\n0\n个\n\n个人权利人\n\n0\n个\n\n机构权利人\n\nDCI申领业务趋势分析\n至\n按月\n\n单位：条\n\nDCI注册中心数据统计\n\n单位：条\n\nDCI申领业务作品类型占比\n权利人占比分析\n查询权利人类型统计服务调用失败\n查询作品类型占比服务调用失败\n查询申请机构排名服务调用失败\n查询数据趋势分析服务调用失败\n查询数据趋势分析服务调用失败"
+  },
+  {
+    "path": "/index",
+    "url": "http://8.145.60.215:9020/dci-manage/index",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n首页\n\nDCI注册中心数据统计\n\n38\n个\n\nDCI注册中心总数\n\n78\n个\n\n待审DCI注册中心总数\n\n24\n个\n\nDCI申领平台总数\n\nDCI业务数据统计\n\n0\n个\n\nDCI编码申领总数\n\n0\n个\n\nDCI编码撤销总数\n\n权利人数量统计\n\n0\n个\n\n个人权利人\n\n0\n个\n\n机构权利人\n\nDCI申领业务趋势分析\n至\n按月\n\n单位：条\n\nDCI注册中心数据统计\n\n单位：条\n\nDCI申领业务作品类型占比\n权利人占比分析\n查询权利人类型统计服务调用失败\n查询作品类型占比服务调用失败\n查询申请机构排名服务调用失败\n查询数据趋势分析服务调用失败\n查询数据趋势分析服务调用失败"
+  },
+  {
+    "path": "/dashboard",
+    "url": "http://8.145.60.215:9020/dci-manage/dashboard",
+    "text": "404错误!\n找不到网页！\n对不起，您正在寻找的页面不存在。尝试检查URL的错误，然后按浏览器上的刷新按钮或尝试在我们的应用程序中找到其他内容。\n返回首页"
+  },
+  {
+    "path": "/system/user",
+    "url": "http://8.145.60.215:9020/dci-manage/system/user",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n邀请码管理\n业务接口管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n用户管理\n账号名\n手机号码\n状态\n全部\n搜索\n重置\n新增\n编辑\n删除\n\t\n序号\n\t\n账号名\n\t\n姓名\n\t\n角色\n\t\n状态\n\t\n创建时间\n\t\n最后登录时间\n\t\n操作\n\t\n1\n\t\nkevin\n\t\n谢凯斌\n\t\n中心-业务员\n\t\n\t\n2026-05-16 14:09:16\n\t\n2026-08-07 16:55:48\n\t\n\n\n\t\n2\n\t\nceshi\n\t\n测试\n\t\n管理员\n\t\n\t\n2026-04-28 07:30:43\n\t\n-\n\t\n\n\n\t\n3\n\t\ncs22\n\t\n测11\n\t\n中心-业务员\n\t\n\t\n2026-09-10 02:33:03\n\t\n-\n\t\n\n\n\t\n4\n\t\nkoko1\n\t\nkoko\n\t\n-\n\t\n\t\n2026-09-04 06:57:18\n\t\n-\n\t\n\n\n\t\n5\n\t\nfj9hfaow\n\t\n附件违法\n\t\n中心-业务员\n\t\n\t\n2026-09-14 07:06:33\n\t\n-\n\t\n\n\n\t\n6\n\t\nuser5\n\t\n业务组长\n\t\n中心-业务组长\n\t\n\t\n2026-08-31 17:17:08\n\t\n2026-09-02 01:28:35\n\t\n\n\n\t\n7\n\t\nuser2\n\t\n用户2\n\t\n中心-业务员\n\t\n\t\n2026-08-29 03:51:35\n\t\n2026-09-09 07:51:22\n\t\n\n\n\t\n8\n\t\n分配1\n\t\n分配1\n\t\n中心-业务员\n\t\n\t\n2026-09-04 06:35:30\n\t\n2026-09-04 06:49:06\n\t\n\n\n\t\n9\n\t\nlvbomeng\n\t\n吕总\n\t\n中心-业务员\n\t\n\t\n2026-07-03 06:18:05\n\t\n2026-08-14 08:20:28\n\t\n\n\n\t\n10\n\t\nuser1\n\t\n业务人员\n\t\n中心-业务员\n\t\n\t\n2026-04-23 13:54:47\n\t\n2026-09-20 09:50:59\n\t\n共 13 条\n10条/页\n1\n2\n前往\n页"
+  },
+  {
+    "path": "/system/role",
+    "url": "http://8.145.60.215:9020/dci-manage/system/role",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n邀请码管理\n业务接口管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n角色管理\n角色名称\n状态\n全部\n搜索\n重置\n新增\n编辑\n删除\n\t\n序号\n\t\n角色名称\n\t\n权限\n\t\n状态\n\t\n创建时间\n\t\n操作\n\t\n1\n\t\n中心-业务员\n\t\n注册中心管理\nDCI发码统计\nDCI码管理\n+13\n\t\n\t\n2026-04-23 14:04:25\n\t\n\n\n\t\n2\n\t\n中心-业务组长\n\t\n注册中心管理\nDCI码管理\n门户内容管理\n+6\n\t\n\t\n2026-08-31 17:16:19\n\t\n\n\n\t\n3\n\t\nces\n\t\n注册中心管理\n待审核\n我的审核\n+1\n\t\n\t\n2026-09-09 08:30:12\n\t\n\n\n\t\n4\n\t\n中心-业务员1\n\t\n系统管理\n用户管理\n角色管理\n+7\n\t\n\t\n2026-09-10 02:30:08\n\t\n\n\n\t\n5\n\t\n123\n\t\n系统管理\n注册中心管理\nDCI发码统计\n+16\n\t\n\t\n2026-09-14 15:51:02\n\t\n\n\n\t\n6\n\t\nceshi0001\n\t\n注册中心管理\n待审核\n我的审核\n+1\n\t\n\t\n2026-09-15 02:49:32\n\t\n\n\n\t\n7\n\t\n管理员\n\t\n系统管理\n注册中心管理\nDCI发码统计\n+23\n\t\n\t\n2026-04-28 01:25:39\n\t\n\n\n\t\n8\n\t\nceshi111\n\t\n系统管理\n注册中心管理\nDCI发码统计\n+16\n\t\n\t\n2026-09-09 08:31:01\n\t\n\n\n\t\n9\n\t\nDCI运营管理\n\t\n注册中心管理\n全部审核\n申领平台备案\n\t\n\t\n2026-07-02 10:40:59\n\t\n\n\n\t\n10\n\t\nDCI业务运营\n\t\nDCI发码统计\nDCI申领业务查询详情-作品登记\nDCI发码列表\n+1\n\t\n\t\n2026-07-02 10:41:24\n\t\n共 11 条\n10条/页\n1\n2\n前往\n页"
+  },
+  {
+    "path": "/system/log/operlog",
+    "url": "http://8.145.60.215:9020/dci-manage/system/log/operlog",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n操作日志\n登录日志\n邀请码管理\n业务接口管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n日志管理 /\n操作日志\n全部日志\n门户系统日志\n工作台系统日志\n运营管理系统日志\n操作地址\n系统模块\n操作人员\n类型\n操作类型\n状态\n操作状态\n操作时间\n-\n搜索\n重置\n\t\n序号\n\t\n所属系统\n\t\n系统模块\n\t\n操作类型\n\t\n操作人员\n\t\n操作地址\n\t\n操作状态\n\t\n操作日期\n\t\n消耗时间\n\t\n操作\n\t\n1\n\t\n运营管理系统\n\t\n我的审核\n\t\n配置\n\t\nroot\n\t\n106.39.82.66\n\t\n成功\n\t\n2026-09-20 10:25:40\n\t\n4毫秒\n\t\n详细\n\n\n\t\n2\n\t\n门户系统\n\t\nDCI查询\n\t\n查询\n\t\nyanshi\n\t\n106.39.82.66\n\t\n失败\n\t\n2026-09-20 08:35:14\n\t\n7毫秒\n\t\n详细\n\n\n\t\n3\n\t\n门户系统\n\t\nDCI码查询\n\t\n查询\n\t\nroot\n\t\n106.39.82.66\n\t\n成功\n\t\n2026-09-20 03:24:41\n\t\n41毫秒\n\t\n详细\n\n\n\t\n4\n\t\n运营管理系统\n\t\n我的审核\n\t\n配置\n\t\nroot\n\t\n106.39.82.66\n\t\n成功\n\t\n2026-09-20 03:24:18\n\t\n3毫秒\n\t\n详细\n\n\n\t\n5\n\t\n工作台系统\n\t\n注册中心申请\n\t\n新增\n\t\ncs1\n\t\n111.202.140.154\n\t\n失败\n\t\n2026-09-20 02:36:32\n\t\n3毫秒\n\t\n详细\n\n\n\t\n6\n\t\n门户系统\n\t\nDCI码查询\n\t\n查询\n\t\nuser1\n\t\n127.0.0.1\n\t\n失败\n\t\n2026-09-20 09:51:18\n\t\n448毫秒\n\t\n详细\n\n\n\t\n7\n\t\n运营管理系统\n\t\n我的审核\n\t\n配置\n\t\nroot\n\t\n111.202.140.154\n\t\n成功\n\t\n2026-09-20 01:43:14\n\t\n4毫秒\n\t\n详细\n\n\n\t\n8\n\t\n运营管理系统\n\t\n我的审核\n\t\n配置\n\t\nuser1\n\t\n111.202.140.154\n\t\n成功\n\t\n2026-09-18 08:10:44\n\t\n5毫秒\n\t\n详细\n\n\n\t\n9\n\t\n工作台系统\n\t\n注册中心重新提交\n\t\n编辑\n\t\nAAAAA1\n\t\n106.39.82.66\n\t\n成功\n\t\n2026-09-18 08:10:32\n\t\n9毫秒\n\t\n详细\n\n\n\t\n10\n\t\n运营管理系统\n\t\n注册中心审核\n\t\n配置\n\t\nroot\n\t\n106.39.82.66\n\t\n成功\n\t\n2026-09-18 08:09:30\n\t\n13毫秒\n\t\n详细\n共 378 条\n10条/页\n1\n2\n3\n4\n5\n6\n38\n前往\n页"
+  },
+  {
+    "path": "/system/log/logininfor",
+    "url": "http://8.145.60.215:9020/dci-manage/system/log/logininfor",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n操作日志\n登录日志\n邀请码管理\n业务接口管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n日志管理 /\n登录日志\n全部\n门户系统\n运营管理系统\n登录地址\n用户名称\n状态\n登录状态\n登录时间\n-\n搜索\n重置\n解锁\n\t\n序号\n\t\n用户名称\n\t\n所属系统\n\t\n地址\n\t\n登录地点\n\t\n操作系统\n\t\n浏览器\n\t\n登录状态\n\t\n描述\n\t\n访问时间\n\t\n1\n\t\nroot\n\t\n运营管理系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows >=10\n\t\nChrome 131.0.6778.33\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 08:12:30\n\n\n\t\n2\n\t\nroot\n\t\n运营管理系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows >=10\n\t\nEdge 153\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 07:56:07\n\n\n\t\n3\n\t\nroot\n\t\n运营管理系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows >=10\n\t\nEdge 153\n\t\n失败\n\t\n图形验证码已失效，请刷新重试！\n\t\n2026-09-21 07:56:04\n\n\n\t\n4\n\t\nyanshi\n\t\n门户系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows >=10\n\t\nChrome 131.0.6778.33\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 07:36:41\n\n\n\t\n5\n\t\nyanshi\n\t\n门户系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows10\n\t\nChrome 153\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 07:21:06\n\n\n\t\n6\n\t\nyanshi\n\t\n门户系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows10\n\t\nChrome 153\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 06:35:57\n\n\n\t\n7\n\t\nyanshi\n\t\n门户系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows10\n\t\nChrome 153\n\t\n失败\n\t\n图形验证码不正确，请重新输入！\n\t\n2026-09-21 06:35:55\n\n\n\t\n8\n\t\nyanshi\n\t\n门户系统\n\t\n106.39.82.66\n\t\nXX XX\n\t\nWindows >=10\n\t\nChrome 132\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 03:29:01\n\n\n\t\n9\n\t\nyanshi\n\t\n门户系统\n\t\n111.202.140.154\n\t\nXX XX\n\t\nWindows >=10\n\t\nChrome 132\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 02:33:23\n\n\n\t\n10\n\t\nlvhaha11\n\t\n门户系统\n\t\n111.202.140.154\n\t\nXX XX\n\t\nWindows10\n\t\nChrome 147\n\t\n成功\n\t\n登录成功\n\t\n2026-09-21 01:51:53\n共 607 条\n10条/页\n1\n2\n3\n4\n5\n6\n61\n前往\n页"
+  },
+  {
+    "path": "/system/invitationCode",
+    "url": "http://8.145.60.215:9020/dci-manage/system/invitationCode",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n邀请码管理\n业务接口管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n邀请码管理\n邀请码\n状态\n全部\n搜索\n重置\n新增\n序号\n\t\n邀请码\n\t\n备注\n\t\n状态\n\t\nDCI注册中心\n\t\n操作\n1\n\t\nKU4M67VX\n\t\n-\n\t\n已使用\n\t\n-\n\t\n-\n\n\n2\n\t\nS6G6WWTF\n\t\n-\n\t\n已作废\n\t\nAAAAA1\n\t\n-\n\n\n3\n\t\nJU4CZ83N\n\t\n-\n\t\n未使用\n\t\n-\n\t\n编辑\n删除\n\n\n4\n\t\nKFQLR6AG\n\t\n雅昌用户\n\t\n已使用\n\t\n深圳市雅昌艺术网股份有限公司\n\t\n-\n\n\n5\n\t\nK26LM5AF\n\t\n-\n\t\n未使用\n\t\n-\n\t\n编辑\n删除\n\n\n6\n\t\nMWHWGDY2\n\t\n-\n\t\n已使用\n\t\n测试21212\n\t\n-\n\n\n7\n\t\nJ4PHTMDB\n\t\n-\n\t\n未使用\n\t\n-\n\t\n编辑\n删除\n\n\n8\n\t\nFW7CRFL4\n\t\n-\n\t\n已使用\n\t\n测试季候9.7\n\t\n-\n\n\n9\n\t\nP6R4BHL2\n\t\n给Z的码\n\t\n已使用\n\t\n-\n\t\n-\n\n\n10\n\t\nNLN8V9FG\n\t\n-\n\t\n已使用\n\t\n测试机构9.4-111\n\t\n-\n共 36 条\n10条/页\n1\n2\n3\n4\n前往\n页"
+  },
+  {
+    "path": "/system/busPort/BusinessInterfaceManage",
+    "url": "http://8.145.60.215:9020/dci-manage/system/busPort/BusinessInterfaceManage",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n邀请码管理\n业务接口管理\n接口上下架管理\n接口调用记录\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n业务接口管理 /\n接口上下架管理\n接口名称\n搜索\n重置\n新增\n序号\n\t\n接口名称\n\t\n请求地址\n\t\n请求方式\n\t\n接口描述\n\t\n状态\n\t\n接口文档\n\t\n创建时间\n\t\n操作\n1\n\t\nDCI撤销数据同步接口11\n\t\n/api/v1/dciManage/apply/revokeInfo\n\t\nPOST\n\t\n调用此接口用于向DCI管理中心提交DCI撤销的信息。\n\t\n已上架\n\t\n未上传\n\t\n2026-07-24 09:39:56\n\t\n编辑\n下架\n\n\n2\n\t\nDCI数据同步接口\n\t\n/api/v1/dciManage/apply/applyInfo\n\t\nPOST\n\t\n调用此接口用于向DCI管理中心提交DCI申领信息，包括：DCI码基本信息、作品基本信息、作品样本信息、权利人信息、关联登记信息、数字版权链信息。\n\t\n已上架\n\t\n未上传\n\t\n2026-07-24 09:39:32\n\t\n编辑\n下架\n\n\n3\n\t\n实名同步修改接口\n\t\n/api/v1/dciManage/realName/modify\n\t\nPOST\n\t\n用于修改权利人（含著作权人）的实名认证信息，包含权利人ID、权利人名称、证件有效起始期、证件有效终止期、手机号、联系人、证件图名称、证件图格式、身份证正面照文件路径、身份证反面照文件路径、手持身份证文件路径、证件图下载权限。\n\t\n已上架\n\t\n未上传\n\t\n2026-07-24 09:36:51\n\t\n编辑\n下架\n\n\n4\n\t\n实名信息接口\n\t\n/api/v1/dciManage/realName/verify\n\t\nPOST\n\t\n权利人（含著作权人）的实名信息接口。\n\t\n已上架\n\t\n未上传\n\t\n2026-07-24 09:36:30\n\t\n编辑\n下架\n\n\n5\n\t\n数据同步接口\n\t\n/upload/api/v1\n\t\nPOST\n\t\n向DCI管理中心同步DCI业务数据。\n\t\n已上架\n\t\n平台系统架构与功能设计-1.pdf\n\t\n2026-06-26 02:15:24\n\t\n编辑\n下架\n\n\n6\n\t\nDCI申领接口\n\t\n/api.example.com/v1/orders\n\t\nPOST\n\t\n通过调用DCI申领接口，发起DCI申领业务，审核通过后，DCI码数据完成下发。\n\t\n已上架\n\t\nDoc1.pdf\n\t\n2026-05-26 08:23:51\n\t\n编辑\n下架\n\n\n7\n\t\nDCI撤销接口\n\t\n/api/v1/dciManage/apply/revokeInfo2\n\t\nPOST\n\t\n申请撤销DCI码接口，完成DCI码撤销。\n\t\n已上架\n\t\nDCI注册管理中心 - 接口调用手册V1.0 (5).pdf\n\t\n2026-05-16 15:49:00\n\t\n编辑\n下架\n共 7 条\n10条/页\n1\n前往\n页"
+  },
+  {
+    "path": "/system/busPort/InterfaceCallQuery",
+    "url": "http://8.145.60.215:9020/dci-manage/system/busPort/InterfaceCallQuery",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n用户管理\n角色管理\n日志管理\n邀请码管理\n业务接口管理\n接口上下架管理\n接口调用记录\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n系统管理 /\n业务接口管理 /\n接口调用记录\n接口名称\nDCI 注册中心\n调用结果\n全部\n查询\n重置\n序号\n\t\n接口名称\n\t\nDCI注册中心\n\t\n调用IP\n\t\n调用时间\n\t\n调用结果\n\t\n操作\n1\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-09 01:35:57\n\t\n成功\n\t\n详情\n\n\n2\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-09 01:35:33\n\t\n接口已下架，请联系DCI管理中心\n\t\n详情\n\n\n3\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:50:44\n\t\n接口已下架，请联系DCI管理中心\n\t\n详情\n\n\n4\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:50:31\n\t\n成功\n\t\n详情\n\n\n5\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:50:15\n\t\n接口已下架，请联系DCI管理中心\n\t\n详情\n\n\n6\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:24:05\n\t\n成功\n\t\n详情\n\n\n7\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:19:43\n\t\n成功\n\t\n详情\n\n\n8\n\t\nDCI撤销数据同步接口11\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:15:00\n\t\n成功\n\t\n详情\n\n\n9\n\t\n实名信息接口\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:08:28\n\t\n成功\n\t\n详情\n\n\n10\n\t\n实名信息接口\n\t\n雅昌12\n\t\n-\n\t\n2026-09-08 10:00:40\n\t\n请求访问：/dciManage/realName/verify，认证失败，无法访问系统资源\n\t\n详情\n共 135 条\n10条/页\n1\n2\n3\n4\n5\n6\n14\n前往\n页"
+  },
+  {
+    "path": "/registrOrg/pending",
+    "url": "http://8.145.60.215:9020/dci-manage/registrOrg/pending",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\n待审核\n我的审核\n全部审核\nDCI发码统计\nDCI码管理\n门户内容管理\n注册中心管理 /\n待审核\nDCI注册中心\nDCI注册中心类型\n全部\n申请时间\n至\n搜索\n重置\n序号\n\t\n申请类型\n\t\nDCI注册中心\n\t\nDCI注册中心类型\n\t\n合同开始日期\n\t\n合同结束日期\n\t\n申请时间\n\t\n操作\n1\n\t\n首次入驻申请\n\t\nAAAAA1\n\t\n内容平台\n\t\n2026-09-18\n\t\n2026-09-30\n\t\n2026-09-18 08:07:45\n\t\n详情\n审核\n\n\n2\n\t\n首次入驻申请\n\t\n01\n\t\n内容平台\n\t\n2026-09-06\n\t\n2026-09-16\n\t\n2026-09-03 16:34:42\n\t\n详情\n审核\n\n\n3\n\t\n首次入驻申请\n\t\n00\n\t\n内容平台\n\t\n2026-09-14\n\t\n2026-09-23\n\t\n2026-09-01 19:54:44\n\t\n详情\n审核\n\n\n4\n\t\n首次入驻申请\n\t\nt3\n\t\n-\n\t\n2026-09-02\n\t\n2026-09-05\n\t\n2026-09-02 07:16:34\n\t\n详情\n审核\n\n\n5\n\t\n首次入驻申请\n\t\n测试机构9.2-1\n\t\n-\n\t\n2026-09-27\n\t\n2026-09-30\n\t\n2026-09-02 07:09:59\n\t\n详情\n审核\n\n\n6\n\t\n首次入驻申请\n\t\n测试机构8311\n\t\n内容平台\n\t\n2026-08-09\n\t\n2027-08-26\n\t\n2026-08-31 03:12:28\n\t\n详情\n审核\n\n\n7\n\t\n首次入驻申请\n\t\n自动化注册机构150028\n\t\n-\n\t\n2026-01-01\n\t\n2027-12-31\n\t\n2026-08-14 07:00:32\n\t\n详情\n审核\n\n\n8\n\t\n首次入驻申请\n\t\n自动化注册机构145744\n\t\n-\n\t\n2026-01-01\n\t\n2027-12-31\n\t\n2026-08-14 06:57:46\n\t\n详情\n审核\n\n\n9\n\t\n首次入驻申请\n\t\n自动化测试机构_1786612419\n\t\n-\n\t\n2026-01-01\n\t\n2026-12-31\n\t\n2026-08-13 09:13:38\n\t\n详情\n审核\n\n\n10\n\t\n首次入驻申请\n\t\n自动化测试机构_1786612161\n\t\n-\n\t\n2026-01-01\n\t\n2026-12-31\n\t\n2026-08-13 09:09:20\n\t\n详情\n审核\n共 78 条\n10条/页\n1\n2\n3\n4\n5\n6\n8\n前往\n页"
+  },
+  {
+    "path": "/registrOrg/my",
+    "url": "http://8.145.60.215:9020/dci-manage/registrOrg/my",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\n待审核\n我的审核\n全部审核\nDCI发码统计\nDCI码管理\n门户内容管理\n注册中心管理 /\n我的审核\n通过\n不通过\nDCI注册中心\nDCI注册中心类型\n全部\nDCI码权限\n全部\n状态\n全部\n搜索\n重置\n序号\n\t\nDCI注册中心\n\t\nDCI注册中心类型\n\t\n合同开始日期\n\t\n合同结束日期\n\t\n联系人\n\t\nDCI注册中心标识码\n\t\nDCI码权限\n\t\n状态\n\t\n操作\n1\n\t\n测试21212\n\t\n内容平台\n\t\n2026-09-06\n\t\n2026-09-01\n\t\n德芙\n\t\nsdassdas\n\t\n原始分配\n\t\n启用\n\t\n详情\n配置\n停用\n\n\n2\n\t\n深圳市雅昌艺术网股份有限公司\n\t\n内容平台\n\t\n2026-08-01\n\t\n2027-08-01\n\t\n李明\n\t\nART\n\t\n原始分配\n\t\n启用\n\t\n详情\n配置\n停用\n\n\n3\n\t\n太极计算机股份有限公司\n\t\n-\n\t\n2026-06-17\n\t\n2027-06-25\n\t\n姚立明\n\t\n5\n\t\n-\n\t\n启用\n\t\n详情\n配置\n停用\n共 3 条\n10条/页\n1\n前往\n页"
+  },
+  {
+    "path": "/registrOrg/all",
+    "url": "http://8.145.60.215:9020/dci-manage/registrOrg/all",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\n待审核\n我的审核\n全部审核\nDCI发码统计\nDCI码管理\n门户内容管理\n注册中心管理 /\n全部审核\n通过\n不通过\nDCI注册中心\nDCI注册中心类型\n全部\nDCI码权限\n全部\n状态\n全部\n搜索\n重置\n序号\n\t\n申请类型\n\t\nDCI注册中心\n\t\nDCI注册中心类型\n\t\nDCI注册中心标识码\n\t\nDCI码权限\n\t\n接口权限\n\t\n状态\n\t\n审核人\n\t\n审核时间\n\t\n操作\n1\n\t\n首次入驻申请\n\t\nAAAAA\n\t\n内容平台\n\t\n-\n\t\n-\n\t\n-\n\t\n启用\n\t\nroot\n\t\n2026-09-18 07:59:14\n\t\n详情\n\n\n2\n\t\n首次入驻申请\n\t\n机构Z\n\t\n内容平台\n\t\n-\n\t\n-\n\t\n-\n\t\n启用\n\t\n-\n\t\n2026-09-15 11:27:05\n\t\n详情\n\n\n3\n\t\n首次入驻申请\n\t\n88222333\n\t\n内容平台\n\t\nddd\n\t\n原始分配、其他\n\t\nDCI数据同步接口、实名同步修改接口\n\t\n启用\n\t\nyachang88\n\t\n2026-09-11 13:52:33\n\t\n详情\n\n\n4\n\t\n首次入驻申请\n\t\n测试季候9.7\n\t\n内容平台\n\t\n-\n\t\n-\n\t\n-\n\t\n启用\n\t\ncjiu1122\n\t\n2026-09-11 08:36:46\n\t\n详情\n\n\n5\n\t\n首次入驻申请\n\t\n测试21212\n\t\n内容平台\n\t\nsdassdas\n\t\n原始分配\n\t\nDCI撤销数据同步接口11、实名同步修改接口\n\t\n启用\n\t\n3\n\t\n2026-09-10 01:46:34\n\t\n详情\n\n\n6\n\t\n首次入驻申请\n\t\n深圳市雅昌艺术网股份有限公司\n\t\n内容平台\n\t\nART\n\t\n原始分配\n\t\n实名同步修改接口、实名信息接口、数据同步接口、DCI撤销接口\n\t\n启用\n\t\n4\n\t\n2026-09-09 08:26:22\n\t\n详情\n\n\n7\n\t\n首次入驻申请\n\t\n测试831\n\t\n-\n\t\nfadf423414\n\t\n原始分配\n\t\n2082016982640128002\n\t\n启用\n\t\nlvhaha11\n\t\n2026-09-09 07:31:43\n\t\n详情\n\n\n8\n\t\n首次入驻申请\n\t\n雅昌12\n\t\n内容平台\n\t\nYC12\n\t\n授权分配、原始分配\n\t\n2082016982640128002、DCI撤销数据同步接口11、DCI数据同步接口、实名同步修改接口、实名信息接口、数据同步接口、DCI申领接口、DCI撤销接口\n\t\n启用\n\t\n3\n\t\n2026-09-08 16:13:28\n\t\n详情\n\n\n9\n\t\n首次入驻申请\n\t\n测试机构9.4-111\n\t\n内容平台\n\t\nas1111\n\t\n原始分配\n\t\nDCI申领接口、DCI撤销接口\n\t\n启用\n\t\n3\n\t\n2026-09-04 02:31:08\n\t\n详情\n\n\n10\n\t\n首次入驻申请\n\t\nceshi6.1\n\t\n内容平台\n\t\nsfsfs\n\t\n原始分配\n\t\n2059948230564302850\n\t\n启用\n\t\n3\n\t\n2026-09-03 02:13:26\n\t\n详情\n共 48 条\n10条/页\n1\n2\n3\n4\n5\n前往\n页"
+  },
+  {
+    "path": "/dci/stat/code",
+    "url": "http://8.145.60.215:9020/dci-manage/dci/stat/code",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码统计\nDCI注册中心统计\n著作权人统计\n关联登记数据统计\nDCI码管理\n门户内容管理\nDCI发码统计 /\n数据状态统计\n统计时间\n至\n查询\n重置\nDCI申领数量\n0 条\nDCI撤销数量\n0 条\n发码数据走势分析\n单位：条\n按月\nDCI码类型占比\nDCI申领业务作品类型占比\n查询DCI码类型占比服务调用失败\n查询数据趋势分析服务调用失败\n查询数据趋势分析服务调用失败\n查询作品类型占比服务调用失败"
+  },
+  {
+    "path": "/dci/stat/org",
+    "url": "http://8.145.60.215:9020/dci-manage/dci/stat/org",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码统计\nDCI注册中心统计\n著作权人统计\n关联登记数据统计\nDCI码管理\n门户内容管理\nDCI发码统计 /\n注册中心统计\n统计时间\n至\n查询\n重置\n新增DCI注册中心数\n11 家\n新增DCI申领平台数\n0 个\nDCI注册中心发码统计(TOP10)\n单位：条\nDCI申领平台发码统计(TOP10)\n单位：条\nDCI注册中心发码数据走势\n单位：条\n全部注册中心\n按月\n查询申领平台发码统计服务调用失败\n查询申请机构排名服务调用失败\n查询数据趋势分析服务调用失败"
+  },
+  {
+    "path": "/dci/stat/ownerStat",
+    "url": "http://8.145.60.215:9020/dci-manage/dci/stat/ownerStat",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码统计\nDCI注册中心统计\n著作权人统计\n关联登记数据统计\nDCI码管理\n门户内容管理\nDCI发码统计 /\n著作权人统计\n统计时间\n至\n查询\n重置\n新增著作权人\n0 位\n著作权人占比分析"
+  },
+  {
+    "path": "/dci/stat/related",
+    "url": "http://8.145.60.215:9020/dci-manage/dci/stat/related",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码统计\nDCI注册中心统计\n著作权人统计\n关联登记数据统计\nDCI码管理\n门户内容管理\nDCI发码统计 /\n关联版权登记统计\n统计时间\n至\n查询\n重置\n关联登记数据统计\n单位：条\n查询关联登记数据统计服务调用失败"
+  },
+  {
+    "path": "/dciCodeManage/query",
+    "url": "http://8.145.60.215:9020/dci-manage/dciCodeManage/query",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\nDCI码查询\nDCI码分配\n著作权人管理\n门户内容管理\nDCI码管理 /\nDCI码查询\n查询\n请输入DCI码后点击查询，查看对应DCI数据信息"
+  },
+  {
+    "path": "/dciCodeManage/allocation",
+    "url": "http://8.145.60.215:9020/dci-manage/dciCodeManage/allocation",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\nDCI码查询\nDCI码分配\n著作权人管理\n门户内容管理\nDCI码管理 /\nDCI码分配\n作品\n软件\n数据集\nDCI码\n作品名称\n作品类别\n全部\n著作权人\nDCI注册中心\nDCI申领平台\n关联登记号\n状态\n全部\n码类型\n全部\nDCI分配时间\n~\n搜索\n重置\n导出\n\t\n序号\n\t\nDCI码\n\t\n作品名称\n\t\n作品类别\n\t\n著作权人\n\t\nDCI注册中心\n\t\nDCI申领平台\n\t\nDCI分配时间\n\t\n状态\n\t\n操作\n\t\n1\n\t\nDCI-SH-20260820010\n\t\n智能版权监测系统\n\t\n文字作品\n\t\n吴十 郑一\n\t\n江苏省版权局\n\t\n江苏版权服务中心\n\t\n2026-09-01 14:02:21\n\t\n撤销\n\t\n详情\n下载样本\n关联DCI\n\n\n\t\n2\n\t\nDCI-SH-20260820010\n\t\n智能版权监测系统\n\t\n文字作品\n\t\n吴十 郑一\n\t\n江苏省版权局\n\t\n江苏版权服务中心\n\t\n2026-09-01 13:58:30\n\t\n撤销\n\t\n详情\n下载样本\n关联DCI\n\n\n\t\n3\n\t\nDCI-SH-20260820010\n\t\n智能版权监测系统\n\t\n文字作品\n\t\n吴十 郑一\n\t\n江苏省版权局\n\t\n江苏版权服务中心\n\t\n2026-09-01 13:56:48\n\t\n撤销\n\t\n详情\n下载样本\n关联DCI\n10 条/页"
+  },
+  {
+    "path": "/dciCodeManage/owner",
+    "url": "http://8.145.60.215:9020/dci-manage/dciCodeManage/owner",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\nDCI码查询\nDCI码分配\n著作权人管理\n门户内容管理\nDCI码管理 /\n著作权人管理\n个人\n机构\n著作权人名称\n著作权人类型\n请选择\n证件类型\n请选择\n查询\n重置\n序号\n\t\n著作权人名称\n\t\n著作权人类型\n\t\n证件类型\n\t\n操作\n1\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n2\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n3\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n4\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n5\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n6\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n7\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n8\n\t\n权利人A02\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n9\n\t\n张三（更新后）111\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n\n\n10\n\t\n权利人A03\n\t\n⾃然⼈\n\t\n居⺠⾝份证\n\t\n详情\n共 43 条\n10条/页\n1\n2\n3\n4\n5\n前往\n页"
+  },
+  {
+    "path": "/contentManag/bizConsult",
+    "url": "http://8.145.60.215:9020/dci-manage/contentManag/bizConsult",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n业务咨询管理\n门户用户管理\n门户内容管理 /\n业务咨询管理\n机构名称\n咨询类型\n全部\n搜索\n重置\n序号\n\t\n机构名称\n\t\n联系人\n\t\n咨询类型\n\t\n描述\n\t\n提交时间\n\t\n操作\n1\n\t\n测试003\n\t\n马强\n\t\n合作意向\n\t\n大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大概答复大发啊大哥东方闪电阿道夫AFEREWRV水电费是的大\n\t\n2026-09-09 06:14:40\n\t\n详情\n\n\n2\n\t\n测试002\n\t\n李珊\n\t\n合作意向\n\t\n页面报错\n\t\n2026-09-09 06:09:35\n\t\n详情\n\n\n3\n\t\n测试001\n\t\n王三\n\t\n合作意向\n\t\n页面报错\n\t\n2026-09-09 06:05:27\n\t\n详情\n\n\n4\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全\n\t\n问题咨询\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v\n\t\n2026-09-02 05:42:51\n\t\n详情\n\n\n5\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全\n\t\n合作意向\n\t\n发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v额潜伏期恶妇全额返全额返全额返全额返浮球阀全额返全额废气阀浮球阀全额返全额返全额返啊发发阿是发顺丰阿法守法阿萨法发发发v在v在v\n\t\n2026-09-02 05:41:06\n\t\n详情\n\n\n6\n\t\n测试机构0011\n\t\n赵思思\n\t\n问题咨询\n\t\n电风扇地方\n\t\n2026-09-01 06:07:13\n\t\n详情\n\n\n7\n\t\n撒大声地阿阿斯顿阿萨德阿是阿是啊收到阿是打算阿是打算大实打实大收到阿萨德阿是大实打实打算打算打算打算的阿是大收到阿是打算\n\t\n阿萨德\n\t\n合作意向\n\t\n阿萨德\n\t\n2026-08-31 19:08:05\n\t\n详情\n\n\n8\n\t\n根深蒂固\n\t\n大概\n\t\n合作意向\n\t\n多福多寿\n\t\n2026-08-31 09:08:06\n\t\n详情\n\n\n9\n\t\n机构主体名称\n\t\n机构主体名称\n\t\n问题咨询\n\t\n阿斯达阿萨德阿萨德啊\n\t\n2026-08-29 14:13:33\n\t\n详情\n共 9 条\n10条/页\n1\n前往\n页"
+  },
+  {
+    "path": "/contentManag/account",
+    "url": "http://8.145.60.215:9020/dci-manage/contentManag/account",
+    "text": "DCI管理中心运营管理平台\n78\n管理员\n首页\n系统管理\n注册中心管理\nDCI发码统计\nDCI码管理\n门户内容管理\n业务咨询管理\n门户用户管理\n门户内容管理 /\n门户用户管理\n账号名\n账号状态\n全部\nDCI注册中心\n注册时间\n至\n搜索\n重置\n序号\n\t\n账号名\n\t\n注册时间\n\t\n账号状态\n\t\nDCI注册中心\n\t\n最后登录时间\n\t\n操作\n1\n\t\naaad\n\t\n2026-09-20 18:26\n\t\n普通用户\n\t\n-\n\t\n2026-09-20 18:26\n\t\n详情\n\n\n2\n\t\naaaac\n\t\n2026-09-20 09:00\n\t\n普通用户\n\t\n-\n\t\n2026-09-20 14:49\n\t\n详情\n\n\n3\n\t\ncs1\n\t\n2026-09-18 16:39\n\t\n普通用户\n\t\n-\n\t\n2026-09-20 11:21\n\t\n详情\n\n\n4\n\t\nAAAAA1\n\t\n2026-09-18 16:04\n\t\n普通用户\n\t\nAAAAA1\n\t\n2026-09-18 16:05\n\t\n详情\n\n\n5\n\t\naaaaa\n\t\n2026-09-18 15:56\n\t\nDCI注册中心用户\n\t\nAAAAA\n\t\n2026-09-18 15:56\n\t\n详情\n\n\n6\n\t\nuser111\n\t\n2026-09-15 19:13\n\t\n普通用户\n\t\n-\n\t\n2026-09-15 19:13\n\t\n详情\n\n\n7\n\t\nyanshi\n\t\n2026-09-09 16:11\n\t\nDCI注册中心用户\n\t\n深圳市雅昌艺术网股份有限公司\n\t\n2026-09-21 15:36\n\t\n详情\n\n\n8\n\t\nceshizhuxiao\n\t\n2026-09-09 15:08\n\t\nDCI注册中心用户\n\t\n测试21212\n\t\n2026-09-09 16:11\n\t\n详情\n\n\n9\n\t\nceshizhanghao1122\n\t\n2026-09-09 14:17\n\t\n普通用户\n\t\n-\n\t\n2026-09-09 14:25\n\t\n详情\n\n\n10\n\t\nceshizhanghao\n\t\n2026-09-09 11:09\n\t\n普通用户\n\t\n-\n\t\n2026-09-14 10:44\n\t\n详情\n共 168 条\n10条/页\n1\n2\n3\n4\n5\n6\n17\n前往\n页"
+  }
+]

@@ -1,0 +1,1 @@
+import{_ as a}from"./index.vue_vue_type_script_setup_true_lang-PBgyEprO.js";import{d as n,r as o,o as t,m as i,A as c,k as l}from"./index-DsYmzmNg.js";const _=n({__name:"index",setup(m){const e=o("/api/v1/dciManage/swagger-ui/index.html");return(p,r)=>(t(),i(a,{src:l(e),"onUpdate:src":r[0]||(r[0]=s=>c(e)?e.value=s:null)},null,8,["src"]))}});export{_ as default};

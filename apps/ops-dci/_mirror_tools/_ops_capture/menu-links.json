@@ -1,0 +1,162 @@
+[
+  {
+    "href": "/dci-manage/index",
+    "text": "首页"
+  },
+  {
+    "href": "/dci-manage/system/user",
+    "text": "用户管理"
+  },
+  {
+    "href": "/dci-manage/system/role",
+    "text": "角色管理"
+  },
+  {
+    "href": "/dci-manage/system/log/operlog",
+    "text": "操作日志"
+  },
+  {
+    "href": "/dci-manage/system/log/logininfor",
+    "text": "登录日志"
+  },
+  {
+    "href": "/dci-manage/system/invitationCode",
+    "text": "邀请码管理"
+  },
+  {
+    "href": "/dci-manage/system/busPort/BusinessInterfaceManage",
+    "text": "接口上下架管理"
+  },
+  {
+    "href": "/dci-manage/system/busPort/InterfaceCallQuery",
+    "text": "接口调用记录"
+  },
+  {
+    "href": "/dci-manage/registrOrg/pending",
+    "text": "待审核"
+  },
+  {
+    "href": "/dci-manage/registrOrg/my",
+    "text": "我的审核"
+  },
+  {
+    "href": "/dci-manage/registrOrg/all",
+    "text": "全部审核"
+  },
+  {
+    "href": "/dci-manage/dci/stat/code",
+    "text": "DCI码统计"
+  },
+  {
+    "href": "/dci-manage/dci/stat/org",
+    "text": "DCI注册中心统计"
+  },
+  {
+    "href": "/dci-manage/dci/stat/ownerStat",
+    "text": "著作权人统计"
+  },
+  {
+    "href": "/dci-manage/dci/stat/related",
+    "text": "关联登记数据统计"
+  },
+  {
+    "href": "/dci-manage/dciCodeManage/query",
+    "text": "DCI码查询"
+  },
+  {
+    "href": "/dci-manage/dciCodeManage/allocation",
+    "text": "DCI码分配"
+  },
+  {
+    "href": "/dci-manage/dciCodeManage/owner",
+    "text": "著作权人管理"
+  },
+  {
+    "href": "/dci-manage/contentManag/bizConsult",
+    "text": "业务咨询管理"
+  },
+  {
+    "href": "/dci-manage/contentManag/account",
+    "text": "门户用户管理"
+  },
+  {
+    "href": "",
+    "text": "首页"
+  },
+  {
+    "href": "",
+    "text": "用户管理"
+  },
+  {
+    "href": "",
+    "text": "角色管理"
+  },
+  {
+    "href": "",
+    "text": "操作日志"
+  },
+  {
+    "href": "",
+    "text": "登录日志"
+  },
+  {
+    "href": "",
+    "text": "邀请码管理"
+  },
+  {
+    "href": "",
+    "text": "接口上下架管理"
+  },
+  {
+    "href": "",
+    "text": "接口调用记录"
+  },
+  {
+    "href": "",
+    "text": "待审核"
+  },
+  {
+    "href": "",
+    "text": "我的审核"
+  },
+  {
+    "href": "",
+    "text": "全部审核"
+  },
+  {
+    "href": "",
+    "text": "DCI码统计"
+  },
+  {
+    "href": "",
+    "text": "DCI注册中心统计"
+  },
+  {
+    "href": "",
+    "text": "著作权人统计"
+  },
+  {
+    "href": "",
+    "text": "关联登记数据统计"
+  },
+  {
+    "href": "",
+    "text": "DCI码查询"
+  },
+  {
+    "href": "",
+    "text": "DCI码分配"
+  },
+  {
+    "href": "",
+    "text": "著作权人管理"
+  },
+  {
+    "href": "",
+    "text": "业务咨询管理"
+  },
+  {
+    "href": "",
+    "text": "门户用户管理"
+  }
+]

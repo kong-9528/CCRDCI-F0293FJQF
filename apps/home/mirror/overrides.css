@@ -494,3 +494,53 @@
   text-decoration: underline;
 }
 
+.app-container .apporg-ops {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.app-container .apporg-record-btn.el-button,
+.app-container .apporg-status-btn.el-button {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px !important;
+  height: 28px !important;
+  font-size: 13px !important;
+  font-weight: 500;
+}
+
+.app-container .apporg-ico {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+}
+
+.app-container .apporg-ico svg {
+  display: block;
+}
+
+.app-container .apporg-record-btn.el-button {
+  color: #4e5969 !important;
+}
+
+.app-container .apporg-record-btn.el-button:hover {
+  color: #1449b2 !important;
+}
+
+.app-container .apporg-status-btn.is-start.el-button {
+  color: #1449b2 !important;
+}
+
+.app-container .apporg-status-btn.is-stop.el-button {
+  color: #f53f3f !important;
+}
+
+.app-container .apporg-status-btn.el-button.is-disabled {
+  color: #c0c4cc !important;
+}
+
+

@@ -1,0 +1,1 @@
+import{d as e,f as a,o as r,m as s,j as _}from"./index-DsYmzmNg.js";const p=e({name:"StatType"}),u=e({...p,setup(c){function n(){}return(f,t)=>{const o=a("StatContainer");return r(),s(o,{onQuery:n},{default:_(()=>[...t[0]||(t[0]=[])]),_:1})}}});export{u as default};

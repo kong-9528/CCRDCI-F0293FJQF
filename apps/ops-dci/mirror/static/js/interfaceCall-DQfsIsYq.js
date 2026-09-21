@@ -1,0 +1,1 @@
+import{a8 as t}from"./index-DsYmzmNg.js";function r(e){return t({url:"/interfaceCall/page",method:"post",data:e})}function l(e){return t({url:"/interfaceCall/details/"+e,method:"get"})}export{l as g,r as l};

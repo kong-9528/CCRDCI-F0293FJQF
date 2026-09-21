@@ -1,0 +1,1 @@
+import{a8 as e}from"./index-DsYmzmNg.js";function i(t){return e({url:"/dci/applyRightOwner/list",method:"get",params:t})}function n(t){return e({url:"/dci/applyRightOwner/detail/"+t,method:"get"})}export{n as g,i as l};
