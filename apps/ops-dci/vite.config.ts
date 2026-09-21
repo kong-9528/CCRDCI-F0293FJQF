@@ -77,20 +77,25 @@ function fallback(urlPath: string) {
 }
 
 /** Rewrite leftover /dci-manage/* + answer /api/* from mock store (no real backend).
- *  Inject VITE_SSO_URL into index.html for the SSO bridge.
+ *  Inject VITE_PUBLIC_URL / VITE_SSO_URL into index.html.
  */
-function offlineMockPlugin(ssoUrl: string): Plugin {
-  const snippet = `window.__OPS_DCI_SSO_URL__ = ${JSON.stringify(ssoUrl)};`;
+function offlineMockPlugin(publicUrl: string, ssoUrl: string): Plugin {
+  const publicSnippet = `window.__OPS_DCI_PUBLIC_URL__ = ${JSON.stringify(publicUrl)};`;
+  const ssoSnippet = `window.__OPS_DCI_SSO_URL__ = ${JSON.stringify(ssoUrl)};`;
   return {
     name: "ops-dci-offline-mock",
     transformIndexHtml(html) {
-      if (html.includes("window.__OPS_DCI_SSO_URL__")) {
-        return html.replace(
-          /window\.__OPS_DCI_SSO_URL__\s*=\s*[^;]+;/,
-          snippet,
+      let next = html;
+      if (next.includes("window.__OPS_DCI_PUBLIC_URL__")) {
+        next = next.replace(
+          /window\.__OPS_DCI_PUBLIC_URL__\s*=\s*[^;]+;/,
+          publicSnippet,
         );
       }
-      return html;
+      if (next.includes("window.__OPS_DCI_SSO_URL__")) {
+        next = next.replace(/window\.__OPS_DCI_SSO_URL__\s*=\s*[^;]+;/, ssoSnippet);
+      }
+      return next;
     },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
@@ -153,12 +158,13 @@ function offlineMockPlugin(ssoUrl: string): Plugin {
 /** Serve the mirrored DCI管理运营后台 (static Vue build) */
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "VITE_");
+  const publicUrl = (env.VITE_PUBLIC_URL || "http://localhost:3030").replace(/\/$/, "");
   const ssoUrl = (env.VITE_SSO_URL || "http://localhost:3003").replace(/\/$/, "");
   return {
     root: path.join(__dirname, "mirror"),
     envDir: __dirname,
     publicDir: false,
-    plugins: [offlineMockPlugin(ssoUrl)],
+    plugins: [offlineMockPlugin(publicUrl, ssoUrl)],
     server: {
       port: 3030,
       strictPort: true,

@@ -12,7 +12,16 @@ DCI 管理中心运营管理平台本地镜像（静态 Vue + 全量 mock，无�
 
 未携带 ticket 且无会话时，会自动跳回 SSO 登录（`return_url` 回跳）。
 
-可选环境变量：`VITE_SSO_URL`（默认 `http://localhost:3003`）。
+## 域名（环境变量，不提交 git）
+
+本地写在 gitignore 的 `.env.local`；部署时在平台上配置同名变量后重新构建。
+
+| 变量 | 作用 | 本地默认 |
+|------|------|----------|
+| `VITE_PUBLIC_URL` | 本应用对外地址 | `http://localhost:3030` |
+| `VITE_SSO_URL` | 统一认证门户 | `http://localhost:3003` |
+
+未配置时回退到上表默认值。`pnpm dev` / `pnpm build` 会写入 `window.__OPS_DCI_PUBLIC_URL__` 与 `window.__OPS_DCI_SSO_URL__`。SSO 侧对应入口是 `VITE_OPS_DCI_URL`，应与这里的 `VITE_PUBLIC_URL` 一致。
 
 ## 开发
 

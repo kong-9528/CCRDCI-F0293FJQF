@@ -199,7 +199,9 @@
     }
   </style>
   <script>
+    window.__OPS_DCI_PUBLIC_URL__ = window.__OPS_DCI_PUBLIC_URL__ || "http://localhost:3030";
     window.__OPS_DCI_SSO_URL__ = window.__OPS_DCI_SSO_URL__ || "http://localhost:3003";
+    document.documentElement.dataset.publicOrigin = window.__OPS_DCI_PUBLIC_URL__;
   </script>
   <script src="./static/js/ops-sso-bridge.js"></script>
   <script src="./static/js/ops-mock-store.js"></script>
