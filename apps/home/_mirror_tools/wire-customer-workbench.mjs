@@ -47,7 +47,7 @@ if (!mock.includes("openTechWorkbench")) {
     if (key) {
       url += "?from=home&user=" + encodeURIComponent(key);
     }
-    window.open(url, "_blank");
+    window.location.href = url;
   }
 
   window.__DCI_MOCK__ = {

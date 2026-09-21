@@ -1,13 +1,21 @@
 /**
  * Copy mirror/ → dist/ for static deploy (no bundling; assets already built).
+ * Customer URL comes from VITE_CUSTOMER_URL (deploy platform or gitignored .env.local).
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const src = path.resolve(__dirname, "..", "mirror");
-const dest = path.resolve(__dirname, "..", "dist");
+const appRoot = path.resolve(__dirname, "..");
+const src = path.join(appRoot, "mirror");
+const dest = path.join(appRoot, "dist");
+const env = loadEnv("production", appRoot, "VITE_");
+const customerUrl = (env.VITE_CUSTOMER_URL || "http://localhost:3002").replace(
+  /\/$/,
+  "",
+);
 
 function rm(dir) {
   if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
@@ -25,6 +33,21 @@ function copy(from, to) {
   }
 }
 
+function injectIndexHtml(file) {
+  let html = fs.readFileSync(file, "utf8");
+  const snippet = `window.__DCI_CUSTOMER_URL__ = ${JSON.stringify(customerUrl)};`;
+  if (html.includes("window.__DCI_CUSTOMER_URL__")) {
+    html = html.replace(/window\.__DCI_CUSTOMER_URL__\s*=\s*[^;]+;/, snippet);
+  } else {
+    html = html.replace(
+      /<script src="\.\/static\/js\/dci-mock-auth\.js"><\/script>/,
+      `<script>${snippet}</script>\n  <script src="./static/js/dci-mock-auth.js"></script>`,
+    );
+  }
+  fs.writeFileSync(file, html, "utf8");
+}
+
 rm(dest);
 copy(src, dest);
-console.log("built dist from mirror");
+injectIndexHtml(path.join(dest, "index.html"));
+console.log("built dist from mirror; VITE_CUSTOMER_URL=", customerUrl);

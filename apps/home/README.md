@@ -12,9 +12,19 @@ pnpm --filter @ctp/home dev
 
 浏览器访问：http://localhost:3020/
 
+### 跨应用域名（环境变量，不提交 git）
+
+本地写在 gitignore 的 `.env.local`；部署时在平台上配置同名变量后重新构建。
+
+| 变量 | 作用 | 本地默认 |
+|------|------|----------|
+| `VITE_CUSTOMER_URL` | 技术服务中心地址 | `http://localhost:3002` |
+
+未配置时回退到上表默认值。`pnpm dev` / `pnpm build` 会写入 `window.__DCI_CUSTOMER_URL__`。
+
 ### 技术服务中心工作台（@ctp/customer）
 
-「技术服务中心工作台」指向独立应用 `@ctp/customer`（默认 `http://localhost:3002/desk`）。
+「技术服务中心工作台」打开 `VITE_CUSTOMER_URL` 下的 `/desk`。
 
 本地需同时启动：
 
@@ -29,8 +39,6 @@ pnpm --filter @ctp/customer dev
 |------|----------------|
 | `yachang` / `mayi` | 无入口（未开通） |
 | `mayi1` / `mayi2` | 菜单与开通管理可进入 customer |
-
-可在页面加载前覆盖地址：`window.__DCI_CUSTOMER_URL__ = "https://your-customer-host"`。
 
 ## 重新拉取远端
 

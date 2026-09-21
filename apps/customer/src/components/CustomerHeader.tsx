@@ -7,6 +7,7 @@ import {
   clearPortalBridge,
   MOCK_SESSION,
   MOCK_TENANT,
+  portalHref,
   PORTAL_LINKS,
 } from "@/lib/tenant";
 
@@ -44,6 +45,7 @@ export function CustomerHeader({ pathname }: Props) {
   const username = MOCK_SESSION.username;
   const companyName = MOCK_TENANT.companyName;
   const isDciCenter = MOCK_SESSION.isDciRegistryCenter;
+  const isTech = MOCK_SESSION.isTechService;
   const apiActive = pathname === "/api" || pathname.startsWith("/api/");
 
   return (
@@ -107,9 +109,7 @@ export function CustomerHeader({ pathname }: Props) {
                   </div>
                   <div className="a-header__user-menu-divider" />
                   <a
-                    href={PORTAL_LINKS.accountCenter}
-                    target="_blank"
-                    rel="noreferrer"
+                    href={portalHref(PORTAL_LINKS.accountCenter)}
                     role="menuitem"
                     className="a-header__user-menu-link"
                   >
@@ -117,33 +117,23 @@ export function CustomerHeader({ pathname }: Props) {
                   </a>
                   {isDciCenter ? (
                     <a
-                      href={PORTAL_LINKS.dciRegistryWorkbench}
-                      target="_blank"
-                      rel="noreferrer"
+                      href={portalHref(PORTAL_LINKS.dciRegistryWorkbench)}
                       role="menuitem"
                       className="a-header__user-menu-link"
                     >
                       DCI注册中心工作台
                     </a>
-                  ) : (
-                    <a
-                      href={PORTAL_LINKS.applyDciRegistry}
-                      target="_blank"
-                      rel="noreferrer"
+                  ) : null}
+                  {isTech ? (
+                    <Link
+                      to="/desk"
                       role="menuitem"
-                      className="a-header__user-menu-link"
+                      className="a-header__user-menu-link a-header__user-menu-link--with-note is-current"
                     >
-                      申请成为DCI注册中心
-                    </a>
-                  )}
-                  <Link
-                    to="/desk"
-                    role="menuitem"
-                    className="a-header__user-menu-link a-header__user-menu-link--with-note is-current"
-                  >
-                    <span>技术服务中心工作台</span>
-                    <span className="a-header__user-menu-note">当前平台</span>
-                  </Link>
+                      <span>技术服务中心工作台</span>
+                      <span className="a-header__user-menu-note">当前平台</span>
+                    </Link>
+                  ) : null}
                   <div className="a-header__user-menu-divider" />
                   <button
                     type="button"
@@ -171,7 +161,7 @@ export function CustomerHeader({ pathname }: Props) {
         onConfirm={() => {
           setLogoutConfirm(false);
           clearPortalBridge();
-          window.location.href = PORTAL_LINKS.home;
+          window.location.href = `${PORTAL_LINKS.home}?logout=1`;
         }}
       />
     </header>

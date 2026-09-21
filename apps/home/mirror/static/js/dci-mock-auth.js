@@ -141,15 +141,46 @@
     return String(window.__DCI_CUSTOMER_URL__ || "http://localhost:3002").replace(/\/$/, "");
   }
 
-  /** Open tech workbench (customer /desk) with demo user bridge query */
+  /** Open tech workbench in the current tab, carrying the demo user */
   function openTechWorkbench() {
     var key = currentKey();
     var url = customerBase() + "/desk";
     if (key) {
       url += "?from=home&user=" + encodeURIComponent(key);
     }
-    window.open(url, "_blank");
+    window.location.href = url;
   }
+
+  /** Returning from customer: restore mock session, or log out, before the SPA boots */
+  try {
+    var inbound = new URLSearchParams(location.search);
+    if (inbound.get("logout") === "1") {
+      clearSession();
+      document.cookie = "Admin-Token=; path=/; max-age=0";
+      inbound.delete("logout");
+      var logoutQs = inbound.toString();
+      history.replaceState(
+        null,
+        "",
+        location.pathname + (logoutQs ? "?" + logoutQs : "") + location.hash,
+      );
+    } else if (inbound.get("from") === "customer") {
+      var inboundUser = String(inbound.get("user") || "").trim().toLowerCase();
+      if (USERS[inboundUser]) {
+        setSession(inboundUser);
+        document.cookie =
+          "Admin-Token=" + encodeURIComponent(tokenFor(inboundUser)) + "; path=/";
+        inbound.delete("from");
+        inbound.delete("user");
+        var inboundQs = inbound.toString();
+        history.replaceState(
+          null,
+          "",
+          location.pathname + (inboundQs ? "?" + inboundQs : "") + location.hash,
+        );
+      }
+    }
+  } catch (err) {}
 
   window.__DCI_MOCK__ = {
     PASS: PASS,

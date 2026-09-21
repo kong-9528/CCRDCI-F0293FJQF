@@ -12,7 +12,8 @@ const USERS = [
     key: "yachang",
     user: "yachang",
     pass: "Abcd1234",
-    expectMenu: ["账号中心", "DCI注册中心工作台", "申请接入技术服务中心", "退出登录"],
+    expectMenu: ["账号中心", "退出登录"],
+    forbid: ["DCI注册中心工作台", "技术服务中心工作台", "申请接入"],
     expectOpened: "暂无",
     expectOpen: ["未开通", "申请成为注册中心", "敬请期待"],
   },
@@ -21,6 +22,7 @@ const USERS = [
     user: "mayi",
     pass: "Abcd1234",
     expectMenu: ["账号中心", "DCI注册中心工作台", "退出登录"],
+    forbid: ["技术服务中心工作台", "申请接入"],
     expectOpened: "DCI注册中心",
     expectOpen: ["已通过", "进入工作台", "敬请期待"],
     noApplyTech: true,
@@ -29,7 +31,8 @@ const USERS = [
     key: "mayi1",
     user: "mayi1",
     pass: "Abcd1234",
-    expectMenu: ["账号中心", "DCI注册中心工作台", "技术服务中心工作台", "退出登录"],
+    expectMenu: ["账号中心", "技术服务中心工作台", "退出登录"],
+    forbid: ["DCI注册中心工作台", "申请接入"],
     expectOpened: "技术服务中心",
     expectOpen: ["未开通", "已通过", "进入工作台"],
     noApplyTech: true,
@@ -39,6 +42,7 @@ const USERS = [
     user: "mayi2",
     pass: "Abcd1234",
     expectMenu: ["账号中心", "DCI注册中心工作台", "技术服务中心工作台", "退出登录"],
+    forbid: ["申请接入"],
     expectOpened: "DCI注册中心",
     expectOpen: ["已通过", "进入工作台"],
     noApplyTech: true,
@@ -123,7 +127,9 @@ async function main() {
       for (const m of u.expectMenu) {
         if (!menuHas(m)) menuPass = false;
       }
-      if (u.noApplyTech && menuHas("申请接入")) menuPass = false;
+      for (const m of u.forbid || []) {
+        if (menuHas(m)) menuPass = false;
+      }
 
       const openedOk = infoText.includes(u.expectOpened);
       const openOk = u.expectOpen.every((s) => openText.includes(s));

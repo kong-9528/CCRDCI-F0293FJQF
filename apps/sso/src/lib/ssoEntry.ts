@@ -1,11 +1,8 @@
 import type { SsoUser, Subsystem } from "@/lib/rbacStore";
+import { SUBSYSTEM_ORIGINS } from "@/lib/publicEnv";
 
-/** 允许回跳的子系统 origin（演示防开放重定向） */
-const ALLOWED_RETURN_ORIGINS = new Set([
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "http://localhost:3005",
-]);
+/** 允许回跳的子系统 origin（来自 VITE_* 环境变量） */
+const ALLOWED_RETURN_ORIGINS = new Set(SUBSYSTEM_ORIGINS);
 
 export function isAllowedReturnUrl(url: string) {
   try {

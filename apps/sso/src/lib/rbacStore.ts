@@ -14,6 +14,7 @@ import {
   OPS_SEED_ROLES,
   OPS_SUBSYSTEM_ID,
 } from "@/lib/opsPermissionSeed";
+import { CUSTOMER_URL, OPS_URL, UCENTER_URL } from "@/lib/publicEnv";
 
 export type EntityStatus = "active" | "disabled";
 
@@ -162,7 +163,7 @@ let subsystems: Subsystem[] = [
     code: "ops",
     name: "DCI管理中心运营后台",
     description: "运营管理后台：客户、合同、产品上架、内容与系统配置",
-    entryUrl: "http://localhost:3001",
+    entryUrl: OPS_URL,
     accent: "#0B62B8",
     status: "active",
     sort: 10,
@@ -172,7 +173,7 @@ let subsystems: Subsystem[] = [
     code: "customer",
     name: "DCI®技术服务中心运营后台",
     description: "客户控制台：核验服务、API 接入、用量与帮助中心",
-    entryUrl: "http://localhost:3002",
+    entryUrl: CUSTOMER_URL,
     accent: "#0075c1",
     status: "active",
     sort: 20,
@@ -182,7 +183,7 @@ let subsystems: Subsystem[] = [
     code: "uc-ops",
     name: "C端用户中心运营后台",
     description: "C 端注册用户运营：账号状态、安全审计、入驻关系只读汇总",
-    entryUrl: "http://localhost:3005",
+    entryUrl: UCENTER_URL,
     accent: "#0f3786",
     // 暂时下线：不在启动器展示；子系统管理仍可见（停用）
     status: "disabled",

@@ -43,6 +43,7 @@ const HOME_BRIDGE_USERS: Record<
     phonenumber: string;
     orgName: string;
     isDciRegistryCenter: boolean;
+    isTechService: boolean;
     contactName: string;
   }
 > = {
@@ -51,6 +52,7 @@ const HOME_BRIDGE_USERS: Record<
     phonenumber: "13900001111",
     orgName: "",
     isDciRegistryCenter: false,
+    isTechService: false,
     contactName: "雅昌",
   },
   mayi: {
@@ -58,6 +60,7 @@ const HOME_BRIDGE_USERS: Record<
     phonenumber: "13800008000",
     orgName: "太极计算机股份有限公司",
     isDciRegistryCenter: true,
+    isTechService: false,
     contactName: "张三",
   },
   mayi1: {
@@ -65,6 +68,7 @@ const HOME_BRIDGE_USERS: Record<
     phonenumber: "13800008001",
     orgName: "太极计算机股份有限公司",
     isDciRegistryCenter: false,
+    isTechService: true,
     contactName: "李四",
   },
   mayi2: {
@@ -72,6 +76,7 @@ const HOME_BRIDGE_USERS: Record<
     phonenumber: "13800008002",
     orgName: "太极计算机股份有限公司",
     isDciRegistryCenter: true,
+    isTechService: true,
     contactName: "王五",
   },
 };
@@ -90,11 +95,15 @@ export const MOCK_TENANT: TenantProfile = {
 export const MOCK_SESSION = {
   /** 登录用户名（顶栏展示） */
   username: "lisi",
-  /** 是否已是 DCI 注册中心（决定下拉菜单文案与跳转） */
+  /** 与 home 演示账号对齐；未桥接时按独立控制台演示 */
+  bridgeUser: "" as string,
+  /** 是否已开通 DCI 注册中心 */
   isDciRegistryCenter: true,
+  /** 是否已开通技术服务中心（本应用即该工作台） */
+  isTechService: true,
 };
 
-/** 门户基址：默认指向 apps/home（3020），可用 VITE_DCI_URL 覆盖 */
+/** 门户基址：VITE_DCI_URL，来自部署平台或本地 .env.local */
 export const DCI_PORTAL_URL =
   (import.meta.env.VITE_DCI_URL as string | undefined)?.replace(/\/$/, "") ||
   "http://localhost:3020";
@@ -111,6 +120,7 @@ type BridgePayload = {
   username: string;
   orgName: string;
   isDciRegistryCenter: boolean;
+  isTechService: boolean;
   phonenumber: string;
   contactName: string;
 };
@@ -118,8 +128,10 @@ type BridgePayload = {
 function applyBridgeUser(key: string) {
   const u = HOME_BRIDGE_USERS[key];
   if (!u) return false;
+  MOCK_SESSION.bridgeUser = key;
   MOCK_SESSION.username = u.username;
   MOCK_SESSION.isDciRegistryCenter = u.isDciRegistryCenter;
+  MOCK_SESSION.isTechService = u.isTechService;
   if (u.orgName) MOCK_TENANT.companyName = u.orgName;
   MOCK_TENANT.contactName = u.contactName;
   MOCK_TENANT.contactPhone = u.phonenumber;
@@ -128,6 +140,7 @@ function applyBridgeUser(key: string) {
     username: u.username,
     orgName: u.orgName,
     isDciRegistryCenter: u.isDciRegistryCenter,
+    isTechService: u.isTechService,
     phonenumber: u.phonenumber,
     contactName: u.contactName,
   };
@@ -144,15 +157,36 @@ function restoreBridge() {
     const raw = localStorage.getItem(BRIDGE_KEY);
     if (!raw) return;
     const data = JSON.parse(raw) as BridgePayload;
+    if (data?.user && HOME_BRIDGE_USERS[data.user]) {
+      const u = HOME_BRIDGE_USERS[data.user];
+      MOCK_SESSION.bridgeUser = data.user;
+      MOCK_SESSION.username = u.username;
+      MOCK_SESSION.isDciRegistryCenter = u.isDciRegistryCenter;
+      MOCK_SESSION.isTechService = u.isTechService;
+      if (u.orgName) MOCK_TENANT.companyName = u.orgName;
+      MOCK_TENANT.contactName = u.contactName;
+      MOCK_TENANT.contactPhone = u.phonenumber;
+      return;
+    }
     if (!data?.username) return;
     MOCK_SESSION.username = data.username;
     MOCK_SESSION.isDciRegistryCenter = !!data.isDciRegistryCenter;
+    MOCK_SESSION.isTechService = data.isTechService !== false;
     if (data.orgName) MOCK_TENANT.companyName = data.orgName;
     if (data.contactName) MOCK_TENANT.contactName = data.contactName;
     if (data.phonenumber) MOCK_TENANT.contactPhone = data.phonenumber;
   } catch {
     /* ignore */
   }
+}
+
+/** 跳回 home 时带上演示用户，并在当前页打开 */
+export function portalHref(href: string) {
+  if (!MOCK_SESSION.bridgeUser) return href;
+  const url = new URL(href);
+  url.searchParams.set("from", "customer");
+  url.searchParams.set("user", MOCK_SESSION.bridgeUser);
+  return url.toString();
 }
 
 /** Call once at boot: accept ?from=home&user=mayi1 then strip query */
