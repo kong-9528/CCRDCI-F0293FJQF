@@ -422,7 +422,39 @@
       return ok(Object.assign({}, target), { msg: "状态已更新（演示）" });
     }
     if (path === "/dci/applyDoc/listByDciCodeAndKeyword" && m === "GET") {
-      return page([]);
+      // 与页面「例如：…」提示一致 → 有结果；否则无结果（UI 读 data，不用 rows）
+      var tipCode = "DCI:RQZ010ANT.156.202607012098976446";
+      var tipKeyword = "《数字版权保护技术规范》";
+      function normQuery(s) {
+        return String(s || "")
+          .trim()
+          .replace(/[\s\u3000]+/g, "")
+          .toUpperCase();
+      }
+      function normKeyword(s) {
+        return String(s || "")
+          .trim()
+          .replace(/[\s\u3000]+/g, "")
+          .replace(/[《》]/g, "");
+      }
+      var hit =
+        normQuery(q.dciCode) === normQuery(tipCode) &&
+        normKeyword(q.keyword) === normKeyword(tipKeyword);
+      if (!hit) return ok([]);
+      return ok([
+        {
+          id: "mock-apply-doc-tip-1",
+          dciCode: tipCode,
+          dciStatus: "1",
+          caseName: tipKeyword,
+          caseCategoryCode: "01",
+          dciApplyTime: "2026-07-01 10:28:36",
+          registerName: "中国版权保护中心",
+          ownerName: "中国版权保护中心",
+          regOrgName: "太极计算机股份有限公司",
+          applyOrgName: "太极计算机股份有限公司",
+        },
+      ]);
     }
     if (path === "/businessInterface/listByIds" && m === "GET") {
       var ids = String((q && q.ids) || "")
@@ -440,6 +472,33 @@
     if (path.indexOf("/system/dict/data/type/") === 0 && m === "GET") {
       if (path.indexOf("rcx_type") >= 0 && window.__DCI_RCX_DEMO__ && __DCI_RCX_DEMO__.dict) {
         return ok(__DCI_RCX_DEMO__.dict());
+      }
+      if (path.indexOf("dci_opus_category") >= 0) {
+        return ok([
+          { dictLabel: "文字", dictValue: "01" },
+          { dictLabel: "口述", dictValue: "02" },
+          { dictLabel: "音乐", dictValue: "03" },
+          { dictLabel: "戏剧", dictValue: "04" },
+          { dictLabel: "曲艺", dictValue: "05" },
+          { dictLabel: "舞蹈", dictValue: "06" },
+          { dictLabel: "杂技艺术", dictValue: "07" },
+          { dictLabel: "美术", dictValue: "08" },
+          { dictLabel: "建筑", dictValue: "09" },
+          { dictLabel: "摄影", dictValue: "10" },
+          { dictLabel: "电影和类似摄制电影方法创作的作品", dictValue: "11" },
+          { dictLabel: "图形", dictValue: "12" },
+          { dictLabel: "模型", dictValue: "13" },
+          { dictLabel: "录音制品", dictValue: "14" },
+          { dictLabel: "录像制品", dictValue: "15" },
+          { dictLabel: "其他", dictValue: "99" },
+        ]);
+      }
+      if (path.indexOf("dci_status") >= 0) {
+        return ok([
+          { dictLabel: "已审理", dictValue: "1" },
+          { dictLabel: "已撤销", dictValue: "2" },
+          { dictLabel: "审理中", dictValue: "0" },
+        ]);
       }
       return ok([]);
     }
