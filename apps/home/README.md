@@ -54,6 +54,25 @@ pnpm --filter @ctp/customer dev
 
 路径 `/dci/info-management/index`（`tab=identity` / `tab=apporg`）左下角有悬浮切换，用于演示当前用户 DCI 码权限的不同状态；两个 tab 共用同一选择（`sessionStorage`）。
 
+## 腾讯云 / 云开发静态托管（必做）
+
+本项目是 History 路由 SPA。直接打开 `/dashboard/index` 等子路径时，托管会去找同名对象；找不到就返回 `NoSuchKey` 404。
+
+请在静态网站托管里配置：
+
+1. **索引文档**：`index.html`
+2. **错误文档**：`index.html`（相对键名，不要填 URL）
+3. **错误文档响应码**：`200`
+4. 用静态网站 / webapps 访问域名打开子路径
+
+若报错里还有 `An Error Occured While Attempting to Retrieve a Custom Error Document` / `Key: index.html`：
+
+- 确认你部署的根目录（截图里是 `ccrdci-home/`）下确实有 `index.html`
+- 错误文档填 `index.html`，并确认它相对的是**该应用根**，不是桶里别的前缀
+- 对象键不要出现双斜杠（例如 `ccrdci-home//dashboard/index`）
+
+`pnpm build`（`prepare-dist`）还会把 `index.html` 复制到常见路由键上（含无扩展名的 `dashboard/index`），作为错误文档未配好时的兜底。重新 build 并**全量上传** `dist/` 后再访问深链接。
+
 ## 重新拉取远端
 
 ```bash

@@ -5,6 +5,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { spawnSync } from "child_process";
 import { loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -50,4 +51,12 @@ function injectIndexHtml(file) {
 rm(dest);
 copy(src, dest);
 injectIndexHtml(path.join(dest, "index.html"));
+
+const spa = spawnSync(
+  process.execPath,
+  [path.join(__dirname, "spa-fallback.mjs"), dest],
+  { stdio: "inherit" },
+);
+if (spa.status !== 0) process.exit(spa.status || 1);
+
 console.log("built dist from mirror; VITE_CUSTOMER_URL=", customerUrl);
