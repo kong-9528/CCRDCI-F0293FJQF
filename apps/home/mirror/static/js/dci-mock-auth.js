@@ -116,7 +116,14 @@
         },
       };
     }
-    if (window.__DCI_RCX_DEMO__ && typeof window.__DCI_RCX_DEMO__.shapeOrg === "function") {
+    // DCI码权限演示只应改写标识管理页的机构字段，不能污染账号开通状态
+    // （默认 mode=none 会把 auditStatus 打成 0，导致 mayi2 菜单丢掉注册中心入口）
+    if (
+      window.__DCI_RCX_DEMO__ &&
+      typeof window.__DCI_RCX_DEMO__.shapeOrg === "function" &&
+      typeof window.__DCI_RCX_DEMO__.isInfoPage === "function" &&
+      window.__DCI_RCX_DEMO__.isInfoPage()
+    ) {
       return window.__DCI_RCX_DEMO__.shapeOrg(body);
     }
     return body;

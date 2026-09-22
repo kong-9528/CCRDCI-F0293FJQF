@@ -331,16 +331,18 @@
         });
       }
       if (!ou) {
-        if (window.__DCI_RCX_DEMO__ && __DCI_RCX_DEMO__.shapeOrg) {
+        if (
+          window.__DCI_RCX_DEMO__ &&
+          __DCI_RCX_DEMO__.shapeOrg &&
+          __DCI_RCX_DEMO__.isInfoPage &&
+          __DCI_RCX_DEMO__.isInfoPage()
+        ) {
           return __DCI_RCX_DEMO__.shapeOrg({ code: 200, data: null });
         }
         return ok(null);
       }
-      var body = M.orgPayload(ou);
-      if (window.__DCI_RCX_DEMO__ && __DCI_RCX_DEMO__.shapeOrg) {
-        return __DCI_RCX_DEMO__.shapeOrg(body);
-      }
-      return body;
+      // orgPayload 在标识管理页会自行 shape；此处勿再全局改写 auditStatus
+      return M.orgPayload(ou);
     }
     if (path.indexOf("/dci/regorg/getRealPhone/") === 0) {
       return ok({ phonenumber: (user && user.phonenumber) || "13800000000" });

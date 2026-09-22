@@ -236,6 +236,7 @@
     getModeId: getModeId,
     setModeId: setModeId,
     shapeOrg: shapeOrg,
+    isInfoPage: isInfoPage,
     allowAppOrg: allowAppOrg,
     dict: dict,
     EVENT: EVENT,
