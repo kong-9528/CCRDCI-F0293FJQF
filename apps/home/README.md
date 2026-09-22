@@ -56,7 +56,7 @@ pnpm --filter @ctp/customer dev
 
 ## 腾讯云 / 云开发静态托管（必做）
 
-本项目是 History 路由 SPA。直接打开 `/dashboard/index` 等子路径时，托管会去找同名对象；找不到就返回 `NoSuchKey` 404。
+本项目是 History 路由 SPA。直接打开 `/dashboard/index`、`/user/profile` 等子路径时，托管会去找同名对象；找不到就返回 `NoSuchKey` 404。
 
 请在静态网站托管里配置：
 
@@ -67,11 +67,19 @@ pnpm --filter @ctp/customer dev
 
 若报错里还有 `An Error Occured While Attempting to Retrieve a Custom Error Document` / `Key: index.html`：
 
-- 确认你部署的根目录（截图里是 `ccrdci-home/`）下确实有 `index.html`
+- 确认你部署的根目录（例如 `ccrdci-home/`）下确实有 `index.html`
 - 错误文档填 `index.html`，并确认它相对的是**该应用根**，不是桶里别的前缀
 - 对象键不要出现双斜杠（例如 `ccrdci-home//dashboard/index`）
 
-`pnpm build`（`prepare-dist`）还会把 `index.html` 复制到常见路由键上（含无扩展名的 `dashboard/index`），作为错误文档未配好时的兜底。重新 build 并**全量上传** `dist/` 后再访问深链接。
+### 深链接常见故障
+
+| 现象 | 原因 | 处理 |
+|------|------|------|
+| 打开 `/dashboard/index` 会**下载**一个 `index.html` | 桶里有无扩展名对象 `dashboard/index`，MIME 被当成二进制 | **不要**上传无扩展名的 `…/index`；删掉已有对象后全量重传 `dist/` |
+| `/user/profile` 一直「正在加载系统资源」 | HTML 已返回，但 `./static/…` 相对当前路径解析成 `/user/profile/static/…` 404 | `index.html` 使用 `<base href="/">` 与绝对路径 `/static/…`（`pnpm build` 已保证） |
+| 首页 `/` 正常、子路径异常 | 同上；错误文档未配好时深链拿不到 SPA 壳 | 配好错误文档 200，并全量上传含 `user/profile/index.html` 等兜底文件的 `dist/` |
+
+`pnpm build`（`prepare-dist`）会：把资源改成根路径绝对引用、把 `index.html` 复制到常见路由的 `…/index.html`（**不会**再写无扩展名键），并删除会触发下载的根目录 `index` 文件。重新 build 后请**全量上传** `dist/`（并删除桶里旧的无扩展名 `dashboard/index` 等对象）。
 
 ## 重新拉取远端
 

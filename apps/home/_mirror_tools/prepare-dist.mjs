@@ -25,7 +25,9 @@ function rm(dir) {
 function copy(from, to) {
   fs.mkdirSync(to, { recursive: true });
   for (const name of fs.readdirSync(from)) {
+    // Skip meta and root no-extension `index` (COS serves it as a download).
     if (name === "_mirror-meta.json") continue;
+    if (name === "index" && from === src) continue;
     const a = path.join(from, name);
     const b = path.join(to, name);
     const st = fs.statSync(a);
@@ -41,10 +43,17 @@ function injectIndexHtml(file) {
     html = html.replace(/window\.__DCI_CUSTOMER_URL__\s*=\s*[^;]+;/, snippet);
   } else {
     html = html.replace(
-      /<script src="\.\/static\/js\/dci-mock-auth\.js"><\/script>/,
-      `<script>${snippet}</script>\n  <script src="./static/js/dci-mock-auth.js"></script>`,
+      /<script src="\/static\/js\/dci-mock-auth\.js"><\/script>/,
+      `<script>${snippet}</script>\n  <script src="/static/js/dci-mock-auth.js"></script>`,
     );
   }
+  // Deep links must load assets from site root, never relative to /user/profile etc.
+  if (!/<base\s+href=["']\/["']\s*\/?>/i.test(html)) {
+    html = html.replace(/<head>/i, '<head>\n  <base href="/">');
+  }
+  html = html
+    .replace(/(href|src)="\.\/(static\/[^"]+|favicon\.png|overrides\.css)"/g, '$1="/$2"')
+    .replace(/(href|src)="(?!\/|https?:|data:)(static\/[^"]+|favicon\.png|overrides\.css)"/g, '$1="/$2"');
   fs.writeFileSync(file, html, "utf8");
 }
 

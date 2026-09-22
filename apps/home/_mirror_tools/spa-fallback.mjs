@@ -1,10 +1,14 @@
 /**
  * After prepare-dist, copy index.html into known SPA route paths so
- * COS / 云开发静态托管 can serve deep links (e.g. /dashboard/index).
+ * COS / 云开发静态托管 can serve deep links (e.g. /user/profile).
  *
- * COS looks up the exact object key for `/dashboard/index` as
- * `…/dashboard/index` (no `.html`). We therefore write a no-extension
- * file for routes whose last segment is `index`, instead of a folder.
+ * IMPORTANT: never write no-extension keys like `dashboard/index`.
+ * COS serves those as application/octet-stream → browser downloads
+ * "index.html". Always write `…/index.html` (and optional `.html`
+ * siblings). Exact keys like `/dashboard/index` still need the
+ * hosting "错误文档 = index.html / 200" (assets use absolute `/…`).
+ *
+ * Usage: node spa-fallback.mjs [distDir]
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -63,7 +67,6 @@ function ensureParent(filePath) {
 function writeFile(rel, buf) {
   const abs = path.join(distDir, ...rel.split("/"));
   ensureParent(abs);
-  // If a directory already occupies this path, skip the file write.
   try {
     if (fs.existsSync(abs) && fs.statSync(abs).isDirectory()) return;
   } catch {}
@@ -71,24 +74,32 @@ function writeFile(rel, buf) {
   written.push(rel);
 }
 
-for (const route of ROUTES) {
-  const parts = route.split("/").filter(Boolean);
-  const last = parts[parts.length - 1];
-
-  if (last === "index") {
-    // Exact COS key for /…/index  →  file "…/index" (no extension)
-    writeFile(parts.join("/"), html);
-    // Also …/index.html
-    writeFile(parts.join("/") + ".html", html);
-  } else {
-    // /route and /route/  →  route/index.html
-    writeFile([...parts, "index.html"].join("/"), html);
-    writeFile(parts.join("/") + ".html", html);
-  }
+/** Remove leftover no-extension keys that would trigger downloads. */
+function removeNoExtTrap(rel) {
+  const abs = path.join(distDir, ...rel.split("/"));
+  try {
+    if (fs.existsSync(abs) && fs.statSync(abs).isFile()) {
+      fs.unlinkSync(abs);
+      written.push(`(removed) ${rel}`);
+    }
+  } catch {}
 }
 
-// Root no-extension `index` (mirror often ships this alongside index.html)
-writeFile("index", html);
+for (const route of ROUTES) {
+  const parts = route.split("/").filter(Boolean);
+  // Always: route/index.html  (and route.html for hosts that map .html)
+  writeFile([...parts, "index.html"].join("/"), html);
+  writeFile(parts.join("/") + ".html", html);
+}
+
+// Root no-extension `index` (copied from mirror) downloads as a file — delete it.
+removeNoExtTrap("index");
+for (const route of ROUTES) {
+  const parts = route.split("/").filter(Boolean);
+  if (parts[parts.length - 1] === "index") {
+    removeNoExtTrap(parts.join("/"));
+  }
+}
 
 console.log(
   JSON.stringify(
