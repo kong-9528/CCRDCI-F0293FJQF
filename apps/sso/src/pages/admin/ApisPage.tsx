@@ -448,10 +448,10 @@ function ApiDialog({
                   </div>
                 </div>
               ) : (
-                <div className="sso-hint">无匹配权限点，请调整关键词。</div>
+                <div className="sso-hint">无匹配权限，请调整关键词。</div>
               )
             ) : (
-              <div className="sso-hint">该子系统暂无权限点，请先在「菜单管理」中维护。</div>
+              <div className="sso-hint">该子系统暂无权限，请先在「菜单管理」中维护。</div>
             )}
           </section>
 

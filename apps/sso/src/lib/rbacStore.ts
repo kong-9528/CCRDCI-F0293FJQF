@@ -77,12 +77,12 @@ export type Role = {
   subsystemId: string;
   description: string;
   permissionIds: string[];
-  /** 该角色可负责的业务范围（同子系统下的 BusinessScope.id，可空） */
+  /** 该角色可负责的业务权限（同子系统下的 BusinessScope.id，可空） */
   businessScopeIds: string[];
   status: EntityStatus;
 };
 
-/** 业务范围：按子系统维护的业务线目录，供角色勾选 */
+/** 业务权限：按子系统维护的业务线目录，供角色勾选 */
 export type BusinessScope = {
   id: string;
   code: string;
@@ -359,7 +359,7 @@ let permissions: Permission[] = [
     routePath: "permissions",
     component: "pages/admin/PermissionsPage",
     sort: 40,
-    description: "查看菜单与权限点定义",
+    description: "查看菜单与权限定义",
     apiIds: ["api-sso-perms-list"],
   }),
   ssoPerm({
@@ -369,7 +369,7 @@ let permissions: Permission[] = [
     menuType: "button",
     parentId: "p-sso-perms",
     sort: 10,
-    description: "维护菜单权限点及关联接口",
+    description: "维护菜单权限及关联接口",
     apiIds: ["api-sso-perms-create", "api-sso-perms-update"],
   }),
   ssoPerm({
@@ -381,17 +381,17 @@ let permissions: Permission[] = [
     routePath: "business-scopes",
     component: "pages/admin/BusinessScopesPage",
     sort: 45,
-    description: "维护各子系统可勾选的业务范围",
+    description: "维护各子系统可勾选的业务权限",
     apiIds: ["api-sso-biz-scopes-list"],
   }),
   ssoPerm({
     id: "p-sso-biz-scopes-write",
     code: "sso.bizScopes.write",
-    name: "业务范围编辑",
+    name: "业务权限编辑",
     menuType: "button",
     parentId: "p-sso-biz-scopes",
     sort: 10,
-    description: "新增/编辑业务范围",
+    description: "新增/编辑业务权限",
     apiIds: ["api-sso-biz-scopes-create", "api-sso-biz-scopes-update"],
   }),
   ssoPerm({
@@ -921,7 +921,7 @@ let apiEndpoints: ApiEndpoint[] = [
     id: "api-sso-perms-create",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.perms.create",
-    name: "创建权限点",
+    name: "创建菜单权限",
     method: "POST",
     path: "/api/v1/permissions",
     tags: "权限",
@@ -931,7 +931,7 @@ let apiEndpoints: ApiEndpoint[] = [
     id: "api-sso-perms-update",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.perms.update",
-    name: "更新权限点",
+    name: "更新菜单权限",
     method: "PUT",
     path: "/api/v1/permissions/{id}",
     tags: "权限",
@@ -942,30 +942,30 @@ let apiEndpoints: ApiEndpoint[] = [
     id: "api-sso-biz-scopes-list",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.bizScopes.list",
-    name: "业务范围列表",
+    name: "业务权限列表",
     method: "GET",
     path: "/api/v1/business-scopes",
-    tags: "业务范围",
+    tags: "业务权限",
     sort: 35,
   }),
   api({
     id: "api-sso-biz-scopes-create",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.bizScopes.create",
-    name: "创建业务范围",
+    name: "创建业务权限",
     method: "POST",
     path: "/api/v1/business-scopes",
-    tags: "业务范围",
+    tags: "业务权限",
     sort: 36,
   }),
   api({
     id: "api-sso-biz-scopes-update",
     subsystemId: SSO_SUBSYSTEM_ID,
     code: "sso.bizScopes.update",
-    name: "更新业务范围",
+    name: "更新业务权限",
     method: "PUT",
     path: "/api/v1/business-scopes/{id}",
-    tags: "业务范围",
+    tags: "业务权限",
     sort: 37,
   }),
   api({
@@ -1141,7 +1141,7 @@ permissions = permissions.map((p) => {
   return p;
 });
 
-/** 业务范围种子：技术服务运营后台 */
+/** 业务权限种子：技术服务运营后台 */
 export const BS_OPS_BANQUAN_ID = "bs-ops-banquan";
 export const BS_OPS_ZHINENG_ID = "bs-ops-zhineng";
 
@@ -1452,7 +1452,7 @@ export function getBusinessScope(id: string) {
   return businessScopes.find((b) => b.id === id) ?? null;
 }
 
-/** 引用该业务范围的角色数量 */
+/** 引用该业务权限的角色数量 */
 export function countRolesForBusinessScope(scopeId: string) {
   return roles.filter((r) => r.businessScopeIds.includes(scopeId)).length;
 }
@@ -1464,9 +1464,9 @@ function validateRoleBusinessScopes(
   const unique = [...new Set(ids.filter(Boolean))];
   for (const id of unique) {
     const scope = getBusinessScope(id);
-    if (!scope) return { ok: false, message: "业务范围不存在" };
+    if (!scope) return { ok: false, message: "业务权限不存在" };
     if (scope.subsystemId !== subsystemId) {
-      return { ok: false, message: "只能选择本子系统下的业务范围" };
+      return { ok: false, message: "只能选择本子系统下的业务权限" };
     }
   }
   return { ok: true, ids: unique };
@@ -1484,7 +1484,7 @@ export function createBusinessScope(input: {
   if (!input.subsystemId) return { ok: false, message: "请选择所属子系统" };
   if (!getSubsystem(input.subsystemId)) return { ok: false, message: "子系统不存在" };
   if (!code) return { ok: false, message: "请填写编码" };
-  if (!name) return { ok: false, message: "请填写业务范围名称" };
+  if (!name) return { ok: false, message: "请填写业务权限名称" };
   if (businessScopes.some((b) => b.subsystemId === input.subsystemId && b.code === code)) {
     return { ok: false, message: "该子系统下编码已存在" };
   }
@@ -1516,13 +1516,13 @@ export function updateBusinessScope(
   },
 ): { ok: true } | { ok: false; message: string } {
   const existing = getBusinessScope(id);
-  if (!existing) return { ok: false, message: "业务范围不存在" };
+  if (!existing) return { ok: false, message: "业务权限不存在" };
   const code = input.code.trim();
   const name = input.name.trim();
   if (!input.subsystemId) return { ok: false, message: "请选择所属子系统" };
   if (!getSubsystem(input.subsystemId)) return { ok: false, message: "子系统不存在" };
   if (!code) return { ok: false, message: "请填写编码" };
-  if (!name) return { ok: false, message: "请填写业务范围名称" };
+  if (!name) return { ok: false, message: "请填写业务权限名称" };
   if (
     businessScopes.some(
       (b) => b.id !== id && b.subsystemId === input.subsystemId && b.code === code,
@@ -1532,7 +1532,7 @@ export function updateBusinessScope(
   }
   const subsystemChanged = existing.subsystemId !== input.subsystemId;
   if (subsystemChanged && countRolesForBusinessScope(id) > 0) {
-    return { ok: false, message: "已有角色引用该业务范围，不能更换所属子系统" };
+    return { ok: false, message: "已有角色引用该业务权限，不能更换所属子系统" };
   }
   const businessCount = Math.max(
     0,

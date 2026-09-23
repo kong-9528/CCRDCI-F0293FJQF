@@ -316,7 +316,7 @@ function RoleDialog({
           {scopeOptions.length > 0 ? (
             <div className="sso-field">
               <label>
-                业务范围
+                业务权限
                 <span className="sso-field__meta">非必填 · 已选 {businessScopeIds.length}</span>
               </label>
               <div className="sso-check-grid sso-check-grid--compact">

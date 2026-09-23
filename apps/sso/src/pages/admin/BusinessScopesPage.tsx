@@ -99,7 +99,7 @@ function BusinessScopesPageInner() {
         {can("sso.bizScopes.write") ? (
           <div className="sso-filters__end">
             <button type="button" className="sso-btn sso-btn--primary" onClick={() => setCreating(true)}>
-              新增业务范围
+              新增业务权限
             </button>
           </div>
         ) : null}
@@ -110,7 +110,7 @@ function BusinessScopesPageInner() {
           <thead>
             <tr>
               <th>编码</th>
-              <th>业务范围名称</th>
+              <th>业务权限名称</th>
               <th>所属子系统</th>
               <th>业务数</th>
               <th>操作</th>
@@ -139,7 +139,7 @@ function BusinessScopesPageInner() {
             {!pager.total ? (
               <tr>
                 <td colSpan={5}>
-                  <div className="sso-empty">暂无业务范围</div>
+                  <div className="sso-empty">暂无业务权限</div>
                 </td>
               </tr>
             ) : null}
@@ -209,7 +209,7 @@ function BusinessScopeDialog({
         aria-modal
         onClick={(e) => e.stopPropagation()}
       >
-        <h3>{mode === "create" ? "新增业务范围" : "编辑业务范围"}</h3>
+        <h3>{mode === "create" ? "新增业务权限" : "编辑业务权限"}</h3>
         <div className="sso-form">
           <div className="sso-field">
             <label>
@@ -235,7 +235,7 @@ function BusinessScopeDialog({
           </div>
           <div className="sso-field">
             <label>
-              业务范围名称 <span className="sso-required">*</span>
+              业务权限名称 <span className="sso-required">*</span>
             </label>
             <input className="sso-input" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
