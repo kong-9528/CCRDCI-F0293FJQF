@@ -4,6 +4,7 @@ import { AppLayout } from "@/layouts/AppLayout";
 import { LauncherPage } from "@/pages/LauncherPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { PermissionsPage } from "@/pages/admin/PermissionsPage";
+import { BusinessScopesPage } from "@/pages/admin/BusinessScopesPage";
 import { RolesPage } from "@/pages/admin/RolesPage";
 import { OrgPage } from "@/pages/admin/OrgPage";
 import { ApisPage } from "@/pages/admin/ApisPage";
@@ -35,6 +36,7 @@ export function App() {
         <Route path="/admin/portal-users/:id" element={<PortalUserDetailPage />} />
         <Route path="/admin/roles" element={<RolesPage />} />
         <Route path="/admin/permissions" element={<PermissionsPage />} />
+        <Route path="/admin/business-scopes" element={<BusinessScopesPage />} />
         <Route path="/admin/subsystems" element={<SubsystemsPage />} />
         <Route path="/admin/apis" element={<ApisPage />} />
         <Route path="/admin/logs" element={<SystemLogsPage />} />

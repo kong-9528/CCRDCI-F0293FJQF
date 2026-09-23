@@ -888,6 +888,11 @@ code {
   color: var(--n-400);
 }
 
+.sso-required {
+  color: #cf1322;
+  font-weight: 600;
+}
+
 .sso-form-actions {
   display: flex;
   justify-content: flex-end;

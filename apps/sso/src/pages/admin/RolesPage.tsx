@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import {
   createRole,
   getSubsystem,
+  listBusinessScopes,
   listRoles,
   listSubsystems,
   updateRole,
@@ -200,21 +201,45 @@ function RoleDialog({
   const [description, setDescription] = useState(role?.description ?? "");
   const [status, setStatus] = useState<EntityStatus>(role?.status ?? "active");
   const [permissionIds, setPermissionIds] = useState<string[]>(role?.permissionIds ?? []);
+  const [businessScopeIds, setBusinessScopeIds] = useState<string[]>(
+    () => role?.businessScopeIds ?? [],
+  );
   const [error, setError] = useState("");
 
   const permTree = useMemo(() => getPermissionTreeForSubsystem(subsystemId), [subsystemId]);
   const selected = useMemo(() => new Set(permissionIds), [permissionIds]);
+  const scopeOptions = useMemo(() => listBusinessScopes(subsystemId), [subsystemId]);
+  const selectedScopes = useMemo(() => new Set(businessScopeIds), [businessScopeIds]);
+
+  const toggleScope = (id: string) => {
+    setBusinessScopeIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
 
   const submit = () => {
     setError("");
     if (mode === "create") {
-      const result = createRole({ code, name, subsystemId, description, permissionIds });
+      const result = createRole({
+        code,
+        name,
+        subsystemId,
+        description,
+        permissionIds,
+        businessScopeIds,
+      });
       if (!result.ok) {
         setError(result.message);
         return;
       }
     } else if (role) {
-      const result = updateRole(role.id, { name, description, permissionIds, status });
+      const result = updateRole(role.id, {
+        name,
+        description,
+        permissionIds,
+        businessScopeIds,
+        status,
+      });
       if (!result.ok) {
         setError(result.message);
         return;
@@ -243,6 +268,7 @@ function RoleDialog({
                   onChange={(e) => {
                     setSubsystemId(e.target.value);
                     setPermissionIds([]);
+                    setBusinessScopeIds([]);
                   }}
                 >
                   {listSubsystems(true).map((s) => (
@@ -285,6 +311,29 @@ function RoleDialog({
                 <option value="active">启用</option>
                 <option value="disabled">停用</option>
               </select>
+            </div>
+          ) : null}
+          {scopeOptions.length > 0 ? (
+            <div className="sso-field">
+              <label>
+                业务范围
+                <span className="sso-field__meta">非必填 · 已选 {businessScopeIds.length}</span>
+              </label>
+              <div className="sso-check-grid sso-check-grid--compact">
+                {scopeOptions.map((s) => (
+                  <label key={s.id} className="sso-check">
+                    <input
+                      type="checkbox"
+                      checked={selectedScopes.has(s.id)}
+                      onChange={() => toggleScope(s.id)}
+                    />
+                    <span>
+                      <strong>{s.name}</strong>
+                      <small>{s.code}</small>
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           ) : null}
           <div className="sso-field">
