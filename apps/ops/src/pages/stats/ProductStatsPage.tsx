@@ -54,7 +54,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
   const categoryProducts = statsProductsForScope(scope);
   const productCodes = categoryProducts.map((p) => p.code) as ProductCode[];
   const showChannelMetrics = scope === "verify";
-  const entityLabel = scope === "audit" ? "审核能力" : "核验服务";
+  const entityLabel = scope === "audit" ? "审核能力" : "版权核验服务";
 
   const productCards = categoryProducts.map((p) => {
     const all = data.productDays.filter((r) => r.product === p.code);

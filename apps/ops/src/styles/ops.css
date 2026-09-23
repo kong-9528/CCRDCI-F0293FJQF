@@ -4934,10 +4934,16 @@ body,
 
 .a-service-package__title-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px 14px;
   width: 100%;
+}
+
+.a-verify-product-card__product-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-800, #1f2937);
 }
 
 .a-service-package__title-row .a-field--inline {

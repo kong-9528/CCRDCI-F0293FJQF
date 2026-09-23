@@ -87,7 +87,7 @@ export type QuotaType = "unlimited" | "total";
  * - 额度仅在 startDate~endDate 内可消耗；过期后 usedCount / 剩余次数均不清零，但不可再调用（WebUI / API）。
  * - 合同服务期仅用于提醒与展示，不参与登录或调用控制。
  * - 账号能否登录仅取决于账号状态（启用/停用）。
- * - 新模型下额度与有效期归属「技术服务套餐包」；本结构仍用于列表兼容展平。
+ * - 核验服务额度/有效期/停用均在产品级；本结构仍用于列表兼容展平。
  */
 export type ProductServiceConfig = {
   product: ProductCode;
@@ -104,28 +104,36 @@ export type ProductServiceConfig = {
   businessTypes?: BusinessType[];
   /** 核验类产品：使用方式 */
   usageChannels?: UsageChannel[];
+  /** 核验类产品：每作品消耗次数 */
+  consumePerWork?: number;
 };
 
-/** 套餐包内的技术服务项（业务类型 / 使用方式挂在服务上） */
+/** 核验技术服务项（停用、每作品消耗挂在产品上；额度/时间由所属单元共享） */
 export type PackageServiceItem = {
   product: ProductCode;
   businessTypes?: BusinessType[];
   usageChannels?: UsageChannel[];
+  /** 每作品消耗次数 */
+  consumePerWork?: number;
+  /** 产品级停用（核验）；缺省时回退到包级 stopped */
+  stopped?: boolean;
 };
 
 /**
- * 技术服务套餐包：统一额度与生效起止；包内可含多个技术服务。
- * 同一机构下，技术服务不可跨包重复。
+ * 技术服务配置单元。
+ * 核验：至多一个单元，其内可含多个核验产品，共享额度与生效起止；产品各自停用。
+ * 审核：单服务 workReview 单元。
  */
 export type ServicePackage = {
   id: string;
-  /** 展示名，缺省时 UI 用「套餐 N」 */
+  /** 展示名 */
   name?: string;
   quotaType: QuotaType;
   quotaTotal: number | null;
   usedCount: number;
   startDate: string;
   endDate: string;
+  /** 包级停用（审核沿用；核验以产品 stopped 为准，包级恒为 false） */
   stopped: boolean;
   services: PackageServiceItem[];
 };
@@ -250,28 +258,85 @@ export function customerHasProduct(
   return services.some((s) => normalizeProductCode(s.product) === target);
 }
 
-/** 将套餐包展平为兼容用的 productServices（额度/有效期取自所属包） */
+/** 将配置单元展平为兼容用的 productServices（额度/有效期取自所属单元） */
 export function flattenServicePackages(packages: ServicePackage[]): ProductServiceConfig[] {
   const out: ProductServiceConfig[] = [];
   for (const pkg of packages) {
     for (const svc of pkg.services) {
+      const product = normalizeProductCode(svc.product);
       const item: ProductServiceConfig = {
-        product: normalizeProductCode(svc.product),
+        product,
         quotaType: pkg.quotaType,
         quotaTotal: pkg.quotaTotal,
         usedCount: pkg.usedCount,
         startDate: pkg.startDate,
         endDate: pkg.endDate,
-        stopped: pkg.stopped,
+        stopped: isVerifyProduct(product)
+          ? Boolean(svc.stopped ?? pkg.stopped)
+          : pkg.stopped,
       };
       if (isVerifyProduct(item.product)) {
         item.businessTypes = svc.businessTypes ? [...svc.businessTypes] : [];
         item.usageChannels = svc.usageChannels ? [...svc.usageChannels] : [];
+        item.consumePerWork =
+          typeof svc.consumePerWork === "number" && svc.consumePerWork > 0
+            ? Math.floor(svc.consumePerWork)
+            : 1;
       }
       out.push(item);
     }
   }
   return out;
+}
+
+/**
+ * 将多个历史核验包合并为唯一的核验配置单元（共享额度/时间；产品去重）。
+ */
+export function mergeVerifyPackagesToOne(packages: ServicePackage[]): ServicePackage | null {
+  const list = packages
+    .map((pkg) => ({
+      ...pkg,
+      services: pkg.services
+        .map((s) => ({ ...s, product: normalizeProductCode(s.product) }))
+        .filter((s) => isVerifyProduct(s.product)),
+    }))
+    .filter((pkg) => pkg.services.length > 0);
+
+  if (list.length === 0) return null;
+
+  const primary = list[0]!;
+  const seen = new Set<string>();
+  const services: PackageServiceItem[] = [];
+
+  for (const pkg of list) {
+    for (const svc of pkg.services) {
+      if (seen.has(svc.product)) continue;
+      seen.add(svc.product);
+      services.push({
+        product: svc.product,
+        businessTypes: svc.businessTypes ? [...svc.businessTypes] : [],
+        usageChannels: svc.usageChannels ? [...svc.usageChannels] : [],
+        consumePerWork:
+          typeof svc.consumePerWork === "number" && svc.consumePerWork > 0
+            ? Math.floor(svc.consumePerWork)
+            : 1,
+        // 历史包级 stopped 迁到产品；已有产品级字段优先
+        stopped: Boolean(svc.stopped ?? pkg.stopped),
+      });
+    }
+  }
+
+  return {
+    id: primary.id.includes("__") ? primary.id.split("__")[0]! : primary.id,
+    name: "版权核验服务",
+    quotaType: primary.quotaType,
+    quotaTotal: primary.quotaTotal,
+    usedCount: primary.usedCount,
+    startDate: primary.startDate,
+    endDate: primary.endDate,
+    stopped: false,
+    services,
+  };
 }
 
 /**
@@ -281,22 +346,27 @@ export function getRawServicePackages(customer: CustomerAccount): ServicePackage
   if (customer.servicePackages && customer.servicePackages.length > 0) {
     return customer.servicePackages;
   }
-  return customer.productServices.map((s, index) => {
+  return customer.productServices.map((s) => {
     const product = normalizeProductCode(s.product);
     const item: PackageServiceItem = { product };
     if (isVerifyProduct(product)) {
       item.businessTypes = s.businessTypes ? [...s.businessTypes] : [];
       item.usageChannels = s.usageChannels ? [...s.usageChannels] : [];
+      item.consumePerWork =
+        typeof s.consumePerWork === "number" && s.consumePerWork > 0
+          ? Math.floor(s.consumePerWork)
+          : 1;
+      item.stopped = s.stopped;
     }
     return {
       id: `legacy-${customer.id}-${product}`,
-      name: isVerifyProduct(product) ? `套餐 ${index + 1}` : productName(product),
+      name: isVerifyProduct(product) ? "版权核验服务" : productName(product),
       quotaType: s.quotaType,
       quotaTotal: s.quotaTotal,
       usedCount: s.usedCount,
       startDate: s.startDate,
       endDate: s.endDate,
-      stopped: s.stopped,
+      stopped: isVerifyProduct(product) ? false : s.stopped,
       services: [item],
     } satisfies ServicePackage;
   });
@@ -310,17 +380,21 @@ export function isAuditServicePackage(pkg: ServicePackage): boolean {
 }
 
 /**
- * 读取机构「核验」套餐包。
- * 审核类服务（作品智能辅助审核）不进入核验套餐列表。
+ * 读取机构「核验」配置：始终至多一个共享额度/时间的单元。
  */
 export function resolveServicePackages(customer: CustomerAccount): ServicePackage[] {
-  return getRawServicePackages(customer)
-    .filter((pkg) => !isAuditServicePackage(pkg))
-    .map((pkg) => ({
-      ...pkg,
-      services: pkg.services.filter((s) => isVerifyProduct(normalizeProductCode(s.product))),
-    }))
-    .filter((pkg) => pkg.services.length > 0 || pkg.stopped);
+  const verifyPkgs = getRawServicePackages(customer).filter(
+    (pkg) => !isAuditServicePackage(pkg),
+  );
+  const merged = mergeVerifyPackagesToOne(verifyPkgs);
+  return merged ? [merged] : [];
+}
+
+/** 读取唯一核验配置单元（无则 null） */
+export function resolveVerifyServicePackage(
+  customer: CustomerAccount,
+): ServicePackage | null {
+  return resolveServicePackages(customer)[0] ?? null;
 }
 
 /** 读取机构「作品智能辅助审核」套餐（至多一个；底层仍是单服务套餐包） */

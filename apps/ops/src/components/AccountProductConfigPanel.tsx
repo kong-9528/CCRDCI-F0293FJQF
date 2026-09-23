@@ -16,7 +16,7 @@ type Props = {
 };
 
 const VERIFY_RULES_TEXT =
-  "规则：以「套餐包」设定授权总量与生效起止；包内仅可配置三类核验技术服务（DCI核验、版权登记信息核验、版权登记证书核验），不支持配置作品智能辅助审核。同一技术服务不可出现在多个套餐包中。业务类型与 Web页面/API 使用方式配置在技术服务上。套餐额度仅在生效期内可消耗。包内技术服务可随时增减；已停止的套餐包允许暂无技术服务。 已有套餐包不可整包删除，可停止/恢复；本次新增的套餐包可移除。";
+  "规则：版权核验服务共用一套授权总量与生效起止（与作品智能辅助审核同样为单套配置）。其下可从三类核验产品中选择（DCI核验、版权登记信息核验、版权登记证书核验），同一产品不可重复。每个产品需填写每作品消耗次数（正整数），并配置业务类型与 Web页面/API 使用方式；停止/恢复针对单个核验产品。额度仅在生效期内可消耗。已开通的核验服务单元不可整单删除；本次新增可移除。已开通产品不可删除，可停止/恢复；本次新增产品可移除。";
 
 function ConfigRulesTip() {
   const [open, setOpen] = useState(false);
@@ -30,14 +30,14 @@ function ConfigRulesTip() {
       <button
         type="button"
         className={`a-config-rules-tip__trigger${open ? " is-open" : ""}`}
-        aria-label="查看核验套餐配置规则"
+        aria-label="查看核验服务配置规则"
         aria-expanded={open}
       >
         <IconFaq className="a-config-rules-tip__icon" />
       </button>
       {open ? (
         <div className="a-config-rules-tip__bubble" role="tooltip">
-          <div className="a-config-rules-tip__bubble-title">核验套餐规则</div>
+          <div className="a-config-rules-tip__bubble-title">版权核验服务规则</div>
           <p className="a-config-rules-tip__bubble-body">{VERIFY_RULES_TEXT}</p>
         </div>
       ) : null}
@@ -66,7 +66,7 @@ export function AccountProductConfigPanel({
             aria-selected={tab === "verify"}
             onClick={() => setTab("verify")}
           >
-            核验服务
+            版权核验服务
           </button>
           <button
             type="button"

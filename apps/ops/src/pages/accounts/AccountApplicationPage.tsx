@@ -95,44 +95,76 @@ function ApprovedServicesSection({ customerId }: { customerId?: string }) {
   return (
     <div className="o-app-detail-services a-stack">
       {packages.map((pkg) => {
-        const status = deriveServiceStatus(pkg);
+        const unitStatus = deriveServiceStatus({
+          stopped: false,
+          startDate: pkg.startDate,
+          endDate: pkg.endDate,
+          quotaType: pkg.quotaType,
+          quotaTotal: pkg.quotaTotal,
+          usedCount: pkg.usedCount,
+        });
         return (
           <div key={pkg.id} className="o-app-detail-svc-block">
             <div className="o-app-detail-svc-block__meta">
-              <strong>{pkg.name || "核验套餐"}</strong>
+              <strong>版权核验服务</strong>
               <span>{formatQuota(pkg)}</span>
               <span>
                 {pkg.startDate} ~ {pkg.endDate}
               </span>
-              <span className="a-tag a-tag--muted">{SERVICE_STATUS_LABEL[status]}</span>
+              <span className="a-tag a-tag--muted">{SERVICE_STATUS_LABEL[unitStatus]}</span>
             </div>
             {pkg.services.length === 0 ? (
-              <div className="a-field__hint">暂无包内技术服务</div>
+              <div className="a-field__hint">暂无核验产品</div>
             ) : (
               <table className="a-table a-table--compact">
                 <thead>
                   <tr>
-                    <th>技术服务</th>
+                    <th>核验产品</th>
                     <th>开通明细</th>
+                    <th>每作品消耗</th>
+                    <th>状态</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pkg.services.map((svc) => (
-                    <tr key={svc.product}>
-                      <td>{productName(svc.product)}</td>
-                      <td>
-                        {isVerifyProduct(svc.product) ? (
-                          <ProductVerifyOptions
-                            readonly
-                            businessTypes={svc.businessTypes ?? []}
-                            usageChannels={svc.usageChannels ?? []}
-                          />
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {pkg.services.map((svc) => {
+                    const stopped = Boolean(svc.stopped);
+                    const status = deriveServiceStatus({
+                      product: svc.product,
+                      stopped,
+                      startDate: pkg.startDate,
+                      endDate: pkg.endDate,
+                      quotaType: pkg.quotaType,
+                      quotaTotal: pkg.quotaTotal,
+                      usedCount: pkg.usedCount,
+                    });
+                    return (
+                      <tr key={svc.product}>
+                        <td>{productName(svc.product)}</td>
+                        <td>
+                          {isVerifyProduct(svc.product) ? (
+                            <ProductVerifyOptions
+                              readonly
+                              businessTypes={svc.businessTypes ?? []}
+                              usageChannels={svc.usageChannels ?? []}
+                            />
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td>
+                          {typeof svc.consumePerWork === "number" && svc.consumePerWork > 0
+                            ? svc.consumePerWork
+                            : 1}
+                          次
+                        </td>
+                        <td>
+                          <span className="a-tag a-tag--muted">
+                            {SERVICE_STATUS_LABEL[status]}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}

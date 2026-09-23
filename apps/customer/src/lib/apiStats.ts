@@ -24,7 +24,7 @@ export const STATS_METRICS: MetricCard[] = [
 ];
 
 export const SERVICE_TABS: { key: ServiceTab; label: string }[] = [
-  { key: "verify", label: "核验服务" },
+  { key: "verify", label: "版权核验服务" },
   { key: "review", label: "作品智能辅助审核服务" },
 ];
 

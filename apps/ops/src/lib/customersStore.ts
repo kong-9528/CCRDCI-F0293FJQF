@@ -6,6 +6,7 @@ import {
   deriveServiceStatus,
   ensureCustomerContracts,
   flattenServicePackages,
+  isVerifyProduct,
   mergePackageAndStandaloneServices,
   productName,
   resolveAuditServicePackage,
@@ -18,6 +19,7 @@ import {
   type CustomerOpLog,
   type ProductServiceConfig,
   type ProductUsageStat,
+  type ServicePackage,
 } from "@/lib/catalog";
 import {
   diffProductConfig,
@@ -391,8 +393,13 @@ export function setCustomerPackageStopped(
   const packages = [...verifyPkgs, ...(auditPkg ? [auditPkg] : [])];
   const pkg = packages.find((p) => p.id === packageId);
   if (!pkg || pkg.stopped === stopped) return false;
-  // 核验套餐恢复时包内须至少一项技术服务
   if (!stopped && pkg.services.length === 0) return false;
+
+  // 核验单元不走包级停用（请用 setCustomerProductStopped）
+  const isVerify =
+    pkg.services.length > 0 &&
+    pkg.services.every((s) => isVerifyProduct(s.product));
+  if (isVerify) return false;
 
   const nextPackages = packages.map((p) =>
     p.id === pkg.id ? { ...p, stopped } : p,
@@ -407,13 +414,13 @@ export function setCustomerPackageStopped(
     next,
     [
       {
-        field: pkg.name || "技术服务套餐",
+        field: pkg.name || "作品智能辅助审核",
         before: pkg.stopped ? "已停止" : "可使用",
         after: stopped ? "已停止" : "已恢复",
       },
     ],
     "service",
-    stopped ? "停止技术服务套餐" : "恢复技术服务套餐",
+    stopped ? "停止技术服务" : "恢复技术服务",
   );
   return true;
 }
@@ -427,12 +434,48 @@ export function setCustomerProductStopped(
   if (!cur) return false;
   const verifyPkgs = resolveServicePackages(cur);
   const auditPkg = resolveAuditServicePackage(cur);
-  const packages = [...verifyPkgs, ...(auditPkg ? [auditPkg] : [])];
-  const pkg = packages.find((p) =>
-    p.services.some((s) => s.product === product),
+
+  if (product === "workReview" && auditPkg) {
+    return setCustomerPackageStopped(customerId, auditPkg.id, stopped);
+  }
+
+  const verify = verifyPkgs[0];
+  if (!verify) return false;
+  const svc = verify.services.find((s) => s.product === product);
+  if (!svc) return false;
+  const curStopped = Boolean(svc.stopped);
+  if (curStopped === stopped) return false;
+
+  const nextVerify: ServicePackage = {
+    ...verify,
+    stopped: false,
+    services: verify.services.map((s) =>
+      s.product === product ? { ...s, stopped } : s,
+    ),
+  };
+  const nextPackages = [
+    nextVerify,
+    ...(auditPkg ? [auditPkg] : []),
+  ];
+  const next: CustomerAccount = {
+    ...cur,
+    servicePackages: nextPackages,
+    productServices: mergePackageAndStandaloneServices(nextPackages),
+  };
+  updateCustomer(
+    customerId,
+    next,
+    [
+      {
+        field: productName(product),
+        before: curStopped ? "已停止" : "可使用",
+        after: stopped ? "已停止" : "已恢复",
+      },
+    ],
+    "service",
+    stopped ? "停止核验产品" : "恢复核验产品",
   );
-  if (!pkg) return false;
-  return setCustomerPackageStopped(customerId, pkg.id, stopped);
+  return true;
 }
 
 function appendLog(
@@ -491,7 +534,12 @@ export function saveCustomerProductConfig(
   const beforeAudit = resolveAuditServicePackage(cur);
   const beforePkgs = [...beforeVerify, ...(beforeAudit ? [beforeAudit] : [])];
   const nextPackages = parsed.value.map((pkg) => {
-    const existing = beforePkgs.find((p) => p.id === pkg.id);
+    const isAudit = pkg.services.some((s) => s.product === "workReview");
+    const existing = beforePkgs.find((p) => {
+      if (p.id === pkg.id) return true;
+      const pAudit = p.services.some((s) => s.product === "workReview");
+      return isAudit === pAudit;
+    });
     return {
       ...pkg,
       usedCount: existing?.usedCount ?? 0,
@@ -500,7 +548,7 @@ export function saveCustomerProductConfig(
 
   for (const pkg of nextPackages) {
     if (pkg.quotaType === "total" && pkg.quotaTotal != null && pkg.quotaTotal < pkg.usedCount) {
-      return `套餐「${pkg.name || pkg.id}」的新额度不能小于已用次数 ${pkg.usedCount}`;
+      return `「${pkg.name || pkg.id}」的新额度不能小于已用次数 ${pkg.usedCount}`;
     }
   }
 

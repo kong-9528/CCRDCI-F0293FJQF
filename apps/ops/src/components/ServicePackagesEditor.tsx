@@ -28,10 +28,11 @@ type Props = {
   mode?: "create" | "edit";
 };
 
-function packageStatusTagClass(status: keyof typeof SERVICE_STATUS_LABEL) {
+function statusTagClass(status: keyof typeof SERVICE_STATUS_LABEL) {
   if (status === "active") return "a-tag--ok";
   if (status === "pending") return "a-tag--wn";
   if (status === "stopped") return "a-tag--er";
+  if (status === "over_quota") return "a-tag--wn";
   return "a-tag--muted";
 }
 
@@ -104,7 +105,7 @@ function ProductCombobox({
         aria-haspopup="listbox"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="a-combobox__value">{selectedLabel || "请选择技术服务"}</span>
+        <span className="a-combobox__value">{selectedLabel || "请选择核验产品"}</span>
         <span className="a-combobox__caret" aria-hidden>
           ▾
         </span>
@@ -152,24 +153,6 @@ function ProductCombobox({
   );
 }
 
-function patchServiceProduct(
-  row: PackageServiceFormRow,
-  product: ProductCode,
-): Partial<PackageServiceFormRow> {
-  if (isVerifyProduct(product)) {
-    return {
-      product,
-      businessTypes: row.businessTypes,
-      usageChannels: row.usageChannels,
-    };
-  }
-  return {
-    product,
-    businessTypes: [],
-    usageChannels: [],
-  };
-}
-
 export function ServicePackagesEditor({
   packages,
   onChange,
@@ -179,327 +162,297 @@ export function ServicePackagesEditor({
   mode = "create",
 }: Props) {
   const isEdit = mode === "edit";
+  const unit = packages[0] ?? null;
   const [pendingToggle, setPendingToggle] = useState<{
-    key: string;
+    svcKey: string;
     name: string;
     nextStopped: boolean;
   } | null>(null);
 
+  const setUnit = (next: PackageFormRow | null) => {
+    onChange(next ? [next] : []);
+  };
+
+  const updateUnit = (patch: Partial<PackageFormRow>) => {
+    if (!unit) return;
+    setUnit({ ...unit, ...patch });
+  };
+
+  const updateSvc = (svcKey: string, patch: Partial<PackageServiceFormRow>) => {
+    if (!unit) return;
+    setUnit({
+      ...unit,
+      services: unit.services.map((s) => (s.key === svcKey ? { ...s, ...patch } : s)),
+    });
+  };
+
   const takenProducts = new Set(
-    packages.flatMap((pkg) =>
-      pkg.services.map((s) => s.product).filter(Boolean),
-    ) as string[],
+    (unit?.services ?? []).map((s) => s.product).filter(Boolean) as string[],
   );
-  const packageServiceCap = PACKAGE_TECH_SERVICES.length;
-  const atServiceCap = takenProducts.size >= packageServiceCap;
+  const atCap = takenProducts.size >= PACKAGE_TECH_SERVICES.length;
 
-  const updatePkg = (key: string, patch: Partial<PackageFormRow>) => {
-    onChange(packages.map((p) => (p.key === key ? { ...p, ...patch } : p)));
-  };
-
-  const updateSvc = (
-    pkgKey: string,
-    svcKey: string,
-    patch: Partial<PackageServiceFormRow>,
-  ) => {
-    onChange(
-      packages.map((pkg) =>
-        pkg.key !== pkgKey
-          ? pkg
-          : {
-              ...pkg,
-              services: pkg.services.map((s) =>
-                s.key === svcKey ? { ...s, ...patch } : s,
-              ),
-            },
-      ),
+  if (!unit) {
+    return (
+      <div className="a-stack a-service-packages-editor">
+        <div className="a-empty" style={{ padding: "28px 16px" }}>
+          尚未开通版权核验服务
+          <div style={{ marginTop: 12 }}>
+            <button
+              type="button"
+              className="a-btn a-btn--sm a-btn--primary"
+              onClick={() =>
+                setUnit(
+                  emptyPackageRow({
+                    startDate: defaultRange?.startDate,
+                    endDate: defaultRange?.endDate,
+                  }),
+                )
+              }
+            >
+              开通服务
+            </button>
+          </div>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const removePkg = (key: string) => {
-    const target = packages.find((p) => p.key === key);
-    if (isEdit && target && !target.isNew) return;
-    const next = packages.filter((p) => p.key !== key);
-    onChange(
-      next.length
-        ? next
-        : [
-            emptyPackageRow({
-              startDate: defaultRange?.startDate,
-              endDate: defaultRange?.endDate,
-              name: "套餐 1",
-            }),
-          ],
-    );
-  };
-
-  const addPkg = () => {
-    onChange([
-      ...packages,
-      emptyPackageRow({
-        startDate: defaultRange?.startDate,
-        endDate: defaultRange?.endDate,
-        name: `套餐 ${packages.length + 1}`,
-      }),
-    ]);
-  };
-
-  const addService = (pkgKey: string) => {
-    onChange(
-      packages.map((pkg) =>
-        pkg.key !== pkgKey
-          ? pkg
-          : { ...pkg, services: [...pkg.services, emptyPackageServiceRow()] },
-      ),
-    );
-  };
-
-  const removeService = (pkgKey: string, svcKey: string) => {
-    onChange(
-      packages.map((pkg) => {
-        if (pkg.key !== pkgKey) return pkg;
-        const next = pkg.services.filter((s) => s.key !== svcKey);
-        // 已停止的套餐允许清空全部技术服务；未停止时保留一行便于继续配置
-        if (next.length > 0) return { ...pkg, services: next };
-        if (pkg.stopped) return { ...pkg, services: [] };
-        return { ...pkg, services: [emptyPackageServiceRow()] };
-      }),
-    );
-  };
+  const locked = isEdit && !unit.isNew;
+  const quotaTotalNum = unit.quotaTotal.trim() ? Number(unit.quotaTotal) : null;
+  const unitStatus = unit.isNew
+    ? null
+    : deriveServiceStatus({
+        stopped: false,
+        startDate: unit.startDate,
+        endDate: unit.endDate,
+        quotaType: "total",
+        quotaTotal: Number.isFinite(quotaTotalNum) ? quotaTotalNum : null,
+        usedCount: unit.usedCount,
+      });
 
   return (
-      <div className="a-stack a-service-packages-editor">
-      {packages.map((pkg, pkgIndex) => {
-        const pkgLocked = isEdit && !pkg.isNew;
-        const canRemovePkg = isEdit ? Boolean(pkg.isNew) : packages.length > 1;
-        const pkgStatus = pkg.isNew
-          ? null
-          : deriveServiceStatus({
-              stopped: pkg.stopped,
-              startDate: pkg.startDate,
-              endDate: pkg.endDate,
-            });
+    <div className="a-stack a-service-packages-editor">
+      <section className="a-service-package a-verify-service-card">
+        <header className="a-service-package__head">
+          <div className="a-service-package__title-row">
+            <label className="a-field a-field--inline a-service-package__quota">
+              <span className="a-field__label">授权总量</span>
+              <input
+                className="a-input a-input--sm"
+                style={{ width: 110 }}
+                inputMode="numeric"
+                placeholder="次数"
+                value={unit.quotaTotal}
+                onChange={(e) =>
+                  updateUnit({ quotaTotal: e.target.value.replace(/\D/g, "") })
+                }
+              />
+            </label>
 
-        return (
-          <section key={pkg.key} className="a-service-package">
-            <header className="a-service-package__head">
-              <div className="a-service-package__title-row">
-                <span className="a-service-package__badge">套餐包</span>
+            {showUsed ? (
+              <div className="a-field a-field--inline">
+                <span className="a-field__label">已用</span>
+                <span className="a-service-package__used">
+                  {unit.isNew ? "—" : unit.usedCount.toLocaleString()}
+                </span>
+              </div>
+            ) : null}
+
+            <label className="a-field a-field--inline a-service-package__period">
+              <span className="a-field__label">生效起止</span>
+              <div className="a-date-range">
                 <input
-                  className="a-input a-service-package__name"
-                  placeholder={`套餐 ${pkgIndex + 1}`}
-                  value={pkg.name}
-                  onChange={(e) => updatePkg(pkg.key, { name: e.target.value })}
+                  type="date"
+                  className="a-input"
+                  value={unit.startDate}
+                  onChange={(e) => updateUnit({ startDate: e.target.value })}
                 />
-                <label className="a-field a-field--inline a-service-package__quota">
-                  <span className="a-field__label">授权总量</span>
-                  <input
-                    className="a-input a-input--sm"
-                    style={{ width: 110 }}
-                    inputMode="numeric"
-                    placeholder="次数"
-                    value={pkg.quotaTotal}
-                    onChange={(e) =>
-                      updatePkg(pkg.key, {
-                        quotaTotal: e.target.value.replace(/\D/g, ""),
-                      })
-                    }
-                  />
-                </label>
-                {showUsed ? (
-                  <div className="a-field a-field--inline">
-                    <span className="a-field__label">已用</span>
-                    <span className="a-service-package__used">
-                      {pkg.isNew ? "—" : pkg.usedCount.toLocaleString()}
-                    </span>
-                  </div>
-                ) : null}
-                <label className="a-field a-field--inline a-service-package__period">
-                  <span className="a-field__label">生效起止</span>
-                  <div className="a-date-range">
-                    <input
-                      type="date"
-                      className="a-input"
-                      value={pkg.startDate}
-                      onChange={(e) => updatePkg(pkg.key, { startDate: e.target.value })}
-                    />
-                    <span>至</span>
-                    <input
-                      type="date"
-                      className="a-input"
-                      value={pkg.endDate}
-                      onChange={(e) => updatePkg(pkg.key, { endDate: e.target.value })}
-                    />
-                  </div>
-                </label>
-                {showStatus ? (
-                  <div className="a-field a-field--inline">
-                    <span className="a-field__label">状态</span>
-                    {pkgStatus == null ? (
-                      <span className="a-service-package__placeholder">—</span>
-                    ) : (
-                      <span className={`a-tag ${packageStatusTagClass(pkgStatus)}`}>
-                        {SERVICE_STATUS_LABEL[pkgStatus]}
-                      </span>
-                    )}
-                  </div>
-                ) : null}
-                <div className="a-service-package__title-actions a-actions a-actions--nowrap">
-                  {pkgLocked ? (
-                    <TableAction
-                      icon={pkg.stopped ? <IconEnable /> : <IconDisable />}
-                      onClick={() =>
-                        setPendingToggle({
-                          key: pkg.key,
-                          name: pkg.name.trim() || `套餐 ${pkgIndex + 1}`,
-                          nextStopped: !pkg.stopped,
-                        })
-                      }
-                    >
-                      {pkg.stopped ? "恢复" : "停止"}
-                    </TableAction>
-                  ) : null}
-                  {canRemovePkg ? (
-                    <TableAction
-                      icon={<IconTrash />}
-                      danger
-                      onClick={() => removePkg(pkg.key)}
-                    >
-                      移除套餐包
-                    </TableAction>
-                  ) : null}
-                </div>
+                <span>至</span>
+                <input
+                  type="date"
+                  className="a-input"
+                  value={unit.endDate}
+                  onChange={(e) => updateUnit({ endDate: e.target.value })}
+                />
               </div>
-            </header>
+            </label>
 
-            <div className="a-service-package__body">
-              <div className="a-service-package__section-label">包内技术服务</div>
-              <div className="a-service-package__table-wrap">
-                <table className="a-table a-table--compact a-service-package__table">
-                  <colgroup>
-                    <col className="a-service-package__col-svc" />
-                    <col className="a-service-package__col-cfg" />
-                    <col className="a-service-package__col-act" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>技术服务</th>
-                      <th>功能配置</th>
-                      <th>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pkg.services.length === 0 ? (
-                      <tr>
-                        <td colSpan={3}>
-                          <div className="a-empty" style={{ padding: "12px 0" }}>
-                            暂无技术服务
-                            {pkg.stopped ? "（已停止的套餐包允许为空）" : ""}
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      pkg.services.map((svc) => {
-                        const canRemoveSvc =
-                          pkg.stopped || pkg.services.length > 1 || Boolean(svc.product);
-                        const hasCfg = Boolean(svc.product && isVerifyProduct(svc.product));
-
-                        return (
-                          <tr key={svc.key}>
-                            <td className="a-service-package__cell-svc">
-                              <ProductCombobox
-                                value={svc.product}
-                                taken={takenProducts}
-                                onChange={(code) =>
-                                  updateSvc(pkg.key, svc.key, patchServiceProduct(svc, code))
-                                }
-                              />
-                            </td>
-                            <td className="a-service-package__cell-cfg">
-                              {hasCfg ? (
-                                <ProductVerifyOptions
-                                  businessTypes={svc.businessTypes}
-                                  usageChannels={svc.usageChannels}
-                                  onChange={(patch) => updateSvc(pkg.key, svc.key, patch)}
-                                />
-                              ) : (
-                                <span className="a-field__hint">—</span>
-                              )}
-                            </td>
-                            <td className="a-service-package__cell-act">
-                              <div className="a-actions">
-                                {canRemoveSvc ? (
-                                  <TableAction
-                                    icon={<IconTrash />}
-                                    danger
-                                    onClick={() => removeService(pkg.key, svc.key)}
-                                  >
-                                    移除
-                                  </TableAction>
-                                ) : (
-                                  <span style={{ color: "var(--n-400)" }}>—</span>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+            {showStatus ? (
+              <div className="a-field a-field--inline">
+                <span className="a-field__label">状态</span>
+                {unitStatus == null ? (
+                  <span className="a-service-package__placeholder">—</span>
+                ) : (
+                  <span className={`a-tag ${statusTagClass(unitStatus)}`}>
+                    {SERVICE_STATUS_LABEL[unitStatus]}
+                  </span>
+                )}
               </div>
-              <div className="a-inline-actions" style={{ marginTop: 10 }}>
-                <button
-                  type="button"
-                  className="a-btn a-btn--sm"
-                  disabled={atServiceCap}
-                  onClick={() => {
-                    if (pkg.services.length === 0) {
-                      updatePkg(pkg.key, { services: [emptyPackageServiceRow()] });
-                      return;
-                    }
-                    addService(pkg.key);
-                  }}
+            ) : null}
+
+            <div className="a-service-package__title-actions a-actions a-actions--nowrap">
+              {!locked || unit.isNew ? (
+                <TableAction
+                  icon={<IconTrash />}
+                  danger
+                  onClick={() => setUnit(null)}
                 >
-                  添加技术服务
-                </button>
-              </div>
+                  移除
+                </TableAction>
+              ) : null}
             </div>
-          </section>
-        );
-      })}
+          </div>
+        </header>
 
-      <div className="a-inline-actions">
-        <button
-          type="button"
-          className="a-btn a-btn--sm a-btn--primary"
-          disabled={atServiceCap}
-          onClick={addPkg}
-        >
-          新增套餐包
-        </button>
-        {takenProducts.size > 0 ? (
-          <span className="a-field__hint">
-            已配置核验服务：
-            {[...takenProducts].map((code) => productName(code as ProductCode)).join("、")}
-          </span>
-        ) : null}
-      </div>
+        <div className="a-service-package__body">
+          <div className="a-service-package__section-label">核验产品</div>
+          <div className="a-service-package__table-wrap">
+            <table className="a-table a-table--compact a-service-package__table">
+              <colgroup>
+                <col className="a-service-package__col-svc" />
+                <col className="a-service-package__col-cfg" />
+                <col style={{ width: 120 }} />
+                <col className="a-service-package__col-act" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>核验产品</th>
+                  <th>功能配置</th>
+                  <th>每作品消耗次数</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unit.services.map((svc) => {
+                  const svcLocked = locked && !svc.isNew;
+                  const canRemove =
+                    unit.services.length > 1 || Boolean(svc.product) || Boolean(svc.isNew);
+                  const hasCfg = Boolean(svc.product && isVerifyProduct(svc.product));
+                  const displayName = svc.product
+                    ? productName(svc.product)
+                    : "未选择产品";
+
+                  return (
+                    <tr key={svc.key}>
+                      <td className="a-service-package__cell-svc">
+                        {svcLocked && svc.product ? (
+                          <strong>{displayName}</strong>
+                        ) : (
+                          <ProductCombobox
+                            value={svc.product}
+                            taken={takenProducts}
+                            onChange={(code) =>
+                              updateSvc(svc.key, {
+                                product: code,
+                              })
+                            }
+                          />
+                        )}
+                      </td>
+                      <td className="a-service-package__cell-cfg">
+                        {hasCfg ? (
+                          <ProductVerifyOptions
+                            businessTypes={svc.businessTypes}
+                            usageChannels={svc.usageChannels}
+                            onChange={(patch) => updateSvc(svc.key, patch)}
+                          />
+                        ) : (
+                          <span className="a-field__hint">—</span>
+                        )}
+                      </td>
+                      <td>
+                        <input
+                          className="a-input a-input--sm"
+                          style={{ width: 88 }}
+                          inputMode="numeric"
+                          placeholder="整数"
+                          value={svc.consumePerWork}
+                          onChange={(e) =>
+                            updateSvc(svc.key, {
+                              consumePerWork: e.target.value.replace(/\D/g, ""),
+                            })
+                          }
+                        />
+                      </td>
+                      <td className="a-service-package__cell-act">
+                        <div className="a-actions">
+                          {svcLocked && svc.product ? (
+                            <TableAction
+                              icon={svc.stopped ? <IconEnable /> : <IconDisable />}
+                              onClick={() =>
+                                setPendingToggle({
+                                  svcKey: svc.key,
+                                  name: displayName,
+                                  nextStopped: !svc.stopped,
+                                })
+                              }
+                            >
+                              {svc.stopped ? "恢复" : "停止"}
+                            </TableAction>
+                          ) : null}
+                          {canRemove && (!svcLocked || svc.isNew) ? (
+                            <TableAction
+                              icon={<IconTrash />}
+                              danger
+                              onClick={() => {
+                                const next = unit.services.filter((s) => s.key !== svc.key);
+                                updateUnit({
+                                  services:
+                                    next.length > 0 ? next : [emptyPackageServiceRow()],
+                                });
+                              }}
+                            >
+                              移除
+                            </TableAction>
+                          ) : !svcLocked ? (
+                            <span style={{ color: "var(--n-400)" }}>—</span>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="a-inline-actions" style={{ marginTop: 10 }}>
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              disabled={atCap}
+              onClick={() =>
+                updateUnit({
+                  services: [...unit.services, emptyPackageServiceRow()],
+                })
+              }
+            >
+              添加核验产品
+            </button>
+            {takenProducts.size > 0 ? (
+              <span className="a-field__hint">
+                已配置：
+                {[...takenProducts].map((c) => productName(c as ProductCode)).join("、")}
+                {atCap ? "（已达上限）" : ""}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </section>
 
       <ConfirmDialog
         open={Boolean(pendingToggle)}
-        title={pendingToggle?.nextStopped ? "确认停止套餐包" : "确认恢复套餐包"}
+        title={pendingToggle?.nextStopped ? "确认停止产品" : "确认恢复产品"}
         description={
           pendingToggle?.nextStopped
-            ? `确定停止「${pendingToggle.name}」吗？停止后，该套餐包内全部技术服务将不可调用，已用额度仍会保留。`
-            : `确定恢复「${pendingToggle?.name ?? ""}」吗？恢复后，在生效期内且额度未用尽时，包内技术服务可继续使用。恢复时包内须至少配置一项核验技术服务。`
+            ? `确定停止「${pendingToggle.name}」吗？停止后该产品不可调用；共享额度与其它产品不受影响。`
+            : `确定恢复「${pendingToggle?.name ?? ""}」吗？恢复后，在共享生效期内且额度未用尽时可继续使用。`
         }
         confirmText={pendingToggle?.nextStopped ? "停止" : "恢复"}
         danger={Boolean(pendingToggle?.nextStopped)}
         onCancel={() => setPendingToggle(null)}
         onConfirm={() => {
           if (!pendingToggle) return;
-          updatePkg(pendingToggle.key, { stopped: pendingToggle.nextStopped });
+          updateSvc(pendingToggle.svcKey, { stopped: pendingToggle.nextStopped });
           setPendingToggle(null);
         }}
       />

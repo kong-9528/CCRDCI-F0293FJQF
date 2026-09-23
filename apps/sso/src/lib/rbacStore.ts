@@ -480,7 +480,7 @@ let permissions: Permission[] = [
   {
     id: "p-tsc-verify",
     code: "tsc.verify",
-    name: "核验服务",
+    name: "版权核验服务",
     subsystemId: CUSTOMER_SUBSYSTEM_ID,
     description: "使用 DCI / 信息 / 证书核验",
     apiIds: ["api-tsc-verify"],
