@@ -398,7 +398,7 @@ function ApiDialog({
 
           <section className="sso-api-dialog__perms">
             <div className="sso-api-dialog__section-head">
-              <h4 className="sso-api-dialog__section-title">关联的菜单权限</h4>
+              <h4 className="sso-api-dialog__section-title">关联的功能权限</h4>
               <span className="sso-hint">
                 已选 {permissionIds.length}
                 {permKeyword.trim()

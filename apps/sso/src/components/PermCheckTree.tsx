@@ -40,7 +40,7 @@ export function PermCheckTree({
   const root = tree ?? nodes;
 
   if (!nodes.length) {
-    return <div className="sso-hint">该系统暂无菜单权限</div>;
+    return <div className="sso-hint">该系统暂无功能权限</div>;
   }
 
   return (

@@ -338,7 +338,7 @@ function RoleDialog({
           ) : null}
           <div className="sso-field">
             <label>
-              权限点
+              功能权限
               <span className="sso-field__meta">已选 {permissionIds.length}</span>
             </label>
             <div className="sso-perm-panel">
