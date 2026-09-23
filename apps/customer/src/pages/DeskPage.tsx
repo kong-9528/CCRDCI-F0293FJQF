@@ -120,11 +120,11 @@ export function DeskPage() {
                   ) : null}
                   {shared && svc.quotaTotal != null ? (
                     <p className="c-desk-svc__pool-hint">
-                      共享池合计已用 {verifyPoolUsed.toLocaleString("zh-CN")} /{" "}
+                      版权核验合计已用 {verifyPoolUsed.toLocaleString("zh-CN")} /{" "}
                       {svc.quotaTotal.toLocaleString("zh-CN")}
-                      {svc.consumePerWork != null
+                      {/* {svc.consumePerWork != null
                         ? ` · 每作品消耗 ${svc.consumePerWork} 次`
-                        : ""}
+                        : ""} */}
                     </p>
                   ) : null}
                 </div>
