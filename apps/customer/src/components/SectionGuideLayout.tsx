@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export type GuideSection = {
   id: string;
@@ -24,11 +25,25 @@ export function SectionGuideLayout({
   defaultSectionId,
   className,
 }: Props) {
-  const initial =
-    defaultSectionId && sections.some((s) => s.id === defaultSectionId)
-      ? defaultSectionId
-      : sections[0]?.id;
-  const [activeId, setActiveId] = useState(initial);
+  const [searchParams] = useSearchParams();
+  const sectionFromUrl = (searchParams.get("section") || "").trim();
+
+  const resolveId = (preferred?: string | null) => {
+    if (preferred && sections.some((s) => s.id === preferred)) return preferred;
+    if (defaultSectionId && sections.some((s) => s.id === defaultSectionId)) {
+      return defaultSectionId;
+    }
+    return sections[0]?.id;
+  };
+
+  const [activeId, setActiveId] = useState(() => resolveId(sectionFromUrl));
+
+  useEffect(() => {
+    if (!sectionFromUrl) return;
+    if (!sections.some((s) => s.id === sectionFromUrl)) return;
+    setActiveId(sectionFromUrl);
+  }, [sectionFromUrl, sections]);
+
   const active = sections.find((s) => s.id === activeId) ?? sections[0];
 
   if (!sections.length || !active) return null;

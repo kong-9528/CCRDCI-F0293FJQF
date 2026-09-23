@@ -35,6 +35,25 @@ function groupStatus(services: TenantService[]): TenantService["status"] {
   return services[0]?.status ?? "active";
 }
 
+function QuotaValue({
+  used,
+  total,
+}: {
+  used: number;
+  total: number | null | undefined;
+}) {
+  return (
+    <span className="c-desk-svc__usage-value">
+      {formatNum(used)}
+      {total != null ? (
+        <span className="c-desk-svc__quota"> / {formatNum(total)}</span>
+      ) : (
+        <span className="c-desk-svc__quota"> / 不限量</span>
+      )}
+    </span>
+  );
+}
+
 export function DeskPage() {
   const hour = new Date().getHours();
   const greeting = greetingByHour(hour);
@@ -42,8 +61,7 @@ export function DeskPage() {
 
   const verifyServices = MOCK_TENANT_SERVICES.filter((s) => s.entitlement === "verify");
   const auditService = MOCK_TENANT_SERVICES.find((s) => s.entitlement === "audit") ?? null;
-  const openedGroups =
-    (verifyServices.length > 0 ? 1 : 0) + (auditService ? 1 : 0);
+  const openedCount = verifyServices.length + (auditService ? 1 : 0);
 
   const verifyQuota = verifyServices[0]?.quotaTotal ?? null;
   const verifyPeriod = verifyServices[0]
@@ -70,7 +88,7 @@ export function DeskPage() {
         </div>
         <div className="c-desk-hero__stats" aria-label="开通概况">
           <div className="c-desk-stat">
-            <span className="c-desk-stat__value c-desk-stat__value--primary">{openedGroups}</span>
+            <span className="c-desk-stat__value c-desk-stat__value--primary">{openedCount}</span>
             <span className="c-desk-stat__label">已开通技术服务</span>
           </div>
         </div>
@@ -95,22 +113,14 @@ export function DeskPage() {
                     {statusLabel(verifyStatus)}
                   </span>
                 </div>
-                <p className="c-desk-group__period">
-                  服务周期：{verifyPeriod.start} ~ {verifyPeriod.end}
-                </p>
-                <div className="c-desk-group__quota">
-                  <div className="c-desk-svc__usage-row">
-                    <span className="c-desk-svc__usage-label">共享授权额度</span>
-                    <span className="c-desk-svc__usage-value">
-                      {formatNum(verifyUsed)}
-                      {verifyQuota != null ? (
-                        <span className="c-desk-svc__quota"> / {formatNum(verifyQuota)}</span>
-                      ) : (
-                        <span className="c-desk-svc__quota"> / 不限量</span>
-                      )}
-                    </span>
-                  </div>
-                  {verifyPct != null ? (
+                <div className="c-desk-group__meta">
+                  <p className="c-desk-group__period">
+                    服务周期：{verifyPeriod.start} ~ {verifyPeriod.end}
+                  </p>
+                  <QuotaValue used={verifyUsed} total={verifyQuota} />
+                </div>
+                {verifyPct != null ? (
+                  <div className="c-desk-group__quota">
                     <div className="c-desk-svc__bar" aria-hidden>
                       <div
                         className={`c-desk-svc__fill${
@@ -119,35 +129,58 @@ export function DeskPage() {
                         style={{ width: `${verifyPct}%` }}
                       />
                     </div>
-                  ) : null}
-                </div>
+                  </div>
+                ) : null}
               </header>
 
               <div className="c-desk-group__body">
-                <div className="c-desk-group__sub-label">子产品用量</div>
                 <ul
                   className="c-desk-sublist"
                   style={{ ["--desk-sub-cols" as string]: String(verifyServices.length) }}
                 >
                   {verifyServices.map((svc) => (
-                    <li key={svc.product} className="c-desk-sub">
+                    <li
+                      key={svc.product}
+                      className={`c-desk-sub${svc.status === "stopped" ? " is-stopped" : ""}`}
+                    >
                       <div className="c-desk-sub__main">
                         <div className="c-desk-sub__name-row">
-                          <span className="c-desk-sub__name">{productName(svc.product)}</span>
+                          <div className="c-desk-sub__name-group">
+                            <span className="c-desk-sub__name">{productName(svc.product)}</span>
+                            {svc.status === "stopped" ? (
+                              <span className="c-desk-sub__demo-tip">
+                                <button
+                                  type="button"
+                                  className="c-desk-sub__demo-btn"
+                                  aria-label="演示说明"
+                                >
+                                  演示说明
+                                </button>
+                                <span className="c-desk-sub__demo-tooltip" role="tooltip">
+                                  停用/过期后，实际技术服务页面中会隐藏提交核验的功能，保留核验记录查询功能。
+                                </span>
+                              </span>
+                            ) : null}
+                          </div>
                           <span className={`c-desk-svc__status c-desk-svc__status--${svc.status}`}>
                             {statusLabel(svc.status)}
                           </span>
                         </div>
                         <div className="c-desk-sub__usage">
-                          本产品用量 {formatNum(svc.usedCount)}
-                          {svc.consumePerWork != null
-                            ? ` · 每作品消耗 ${svc.consumePerWork} 次`
-                            : ""}
+                          本技术服务用量{" "}
+                          <strong className="c-desk-sub__usage-num">
+                            {formatNum(svc.usedCount)}
+                          </strong>
                         </div>
                       </div>
                       <div className="c-desk-sub__action">
                         {svc.status === "stopped" ? (
-                          <span className="c-desk-svc__disabled">已停用</span>
+                          <Link
+                            to={`${productPath(svc.product)}?section=records`}
+                            className="c-desk-svc__link"
+                          >
+                            查看核验记录 →
+                          </Link>
                         ) : (
                           <Link to={productPath(svc.product)} className="c-desk-svc__link">
                             进入服务 →
@@ -163,11 +196,11 @@ export function DeskPage() {
 
           {auditService ? (
             <article
-              className={`c-desk-group${auditService.status === "stopped" ? " is-stopped" : ""}${
-                auditService.status === "expiring" ? " is-expiring" : ""
-              }`}
+              className={`c-desk-group c-desk-group--solo${
+                auditService.status === "stopped" ? " is-stopped" : ""
+              }${auditService.status === "expiring" ? " is-expiring" : ""}`}
             >
-              <header className="c-desk-group__head">
+              <header className="c-desk-group__head c-desk-group__head--solo">
                 <div className="c-desk-group__title-row">
                   <h3 className="c-desk-group__title">作品智能辅助审核</h3>
                   <span
@@ -176,25 +209,17 @@ export function DeskPage() {
                     {statusLabel(auditService.status)}
                   </span>
                 </div>
-                <p className="c-desk-group__period">
-                  服务周期：{auditService.openedAt} ~ {auditService.expireAt}
-                </p>
-                <div className="c-desk-group__quota">
-                  <div className="c-desk-svc__usage-row">
-                    <span className="c-desk-svc__usage-label">授权额度</span>
-                    <span className="c-desk-svc__usage-value">
-                      {formatNum(auditService.usedCount)}
-                      {auditService.quotaTotal != null ? (
-                        <span className="c-desk-svc__quota">
-                          {" "}
-                          / {formatNum(auditService.quotaTotal)}
-                        </span>
-                      ) : (
-                        <span className="c-desk-svc__quota"> / 不限量</span>
-                      )}
-                    </span>
-                  </div>
-                  {auditPct != null ? (
+                <div className="c-desk-group__meta">
+                  <p className="c-desk-group__period">
+                    服务周期：{auditService.openedAt} ~ {auditService.expireAt}
+                  </p>
+                  <QuotaValue
+                    used={auditService.usedCount}
+                    total={auditService.quotaTotal}
+                  />
+                </div>
+                {auditPct != null ? (
+                  <div className="c-desk-group__quota">
                     <div className="c-desk-svc__bar" aria-hidden>
                       <div
                         className={`c-desk-svc__fill${
@@ -203,12 +228,8 @@ export function DeskPage() {
                         style={{ width: `${Math.min(100, auditPct)}%` }}
                       />
                     </div>
-                  ) : null}
-                </div>
-              </header>
-
-              <div className="c-desk-group__body c-desk-group__body--solo">
-                <p className="c-desk-group__solo-hint">独立产品，无子产品拆分</p>
+                  </div>
+                ) : null}
                 <div className="c-desk-group__solo-action">
                   {auditService.status === "stopped" ? (
                     <span className="c-desk-svc__disabled">服务已停用，请联系商务续期</span>
@@ -218,7 +239,7 @@ export function DeskPage() {
                     </Link>
                   )}
                 </div>
-              </div>
+              </header>
             </article>
           ) : null}
         </div>

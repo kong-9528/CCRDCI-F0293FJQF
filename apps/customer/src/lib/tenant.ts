@@ -265,7 +265,7 @@ export const MOCK_TENANT_SERVICES: TenantService[] = [
     quotaTotal: VERIFY_ENTITLEMENT.quotaTotal,
     usedCount: 8432,
     consumePerWork: 1,
-    status: "active",
+    status: "stopped",
   },
   {
     product: "certificate",
