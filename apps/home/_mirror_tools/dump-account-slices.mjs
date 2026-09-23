@@ -22,7 +22,7 @@ for (const [name, p] of [
     "进入工作台",
     "申请成为",
     "敬请期待",
-    "已开通服务",
+    "已开通",
     "注销账号",
     "tech",
     "registry",
@@ -48,7 +48,7 @@ fs.writeFileSync(
   p.slice(Math.max(0, j - 200), j + 2500),
   "utf8",
 );
-const k = p.indexOf("已开通服务");
+const k = p.indexOf("已开通");
 fs.writeFileSync(
   "c:/WORKING_PLACE/CODE_R/sampleA/apps/home/_mirror_tools/_profile-info-slice.txt",
   p.slice(Math.max(0, k - 300), k + 2000),

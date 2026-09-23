@@ -299,7 +299,7 @@ export function AccountInfoPanel() {
               </div>
             </FieldRow>
 
-            <FieldRow label="已开通服务">
+            <FieldRow label="已开通技术服务">
               <span className="d-account__text">{services}</span>
             </FieldRow>
           </div>

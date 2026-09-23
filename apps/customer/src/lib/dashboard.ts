@@ -1,6 +1,7 @@
 import type { ProductCode } from "@/lib/catalog";
 import { productName } from "@/lib/catalog";
 import { WORK_REVIEW_ENTITLEMENT } from "@/lib/review";
+import { MOCK_TENANT_SERVICES } from "@/lib/tenant";
 
 export type ServiceStatus = "active" | "expiring" | "stopped";
 
@@ -14,6 +15,9 @@ export type DashboardProduct = {
   expireAt: string;
   daysLeft: number;
   quotaUsagePct: number;
+  /** 与工作台一致：核验共享 / 审核独立 */
+  entitlement?: "verify" | "audit";
+  consumePerWork?: number;
 };
 
 export type ProductWarning =
@@ -33,41 +37,43 @@ export type RecentVerifyRow = {
 
 export type ChartRange = "7d" | "30d";
 
-/** 6 产品配额与状态（对齐原型演示数据） */
+function daysLeftUntil(expireAt: string): number {
+  const end = new Date(`${expireAt}T23:59:59`);
+  const now = new Date();
+  return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000));
+}
+
+function fromTenantService(
+  code: ProductCode,
+  extras: { monthCalls: number; momPercent: number | null },
+): DashboardProduct | null {
+  const row = MOCK_TENANT_SERVICES.find((s) => s.product === code);
+  if (!row) return null;
+  const quotaTotal = row.quotaTotal;
+  const quotaUsagePct =
+    quotaTotal && quotaTotal > 0
+      ? Math.round((row.usedCount / quotaTotal) * 1000) / 10
+      : 0;
+  return {
+    code,
+    status: row.status,
+    usedCount: row.usedCount,
+    quotaTotal,
+    monthCalls: extras.monthCalls,
+    momPercent: extras.momPercent,
+    expireAt: row.expireAt,
+    daysLeft: daysLeftUntil(row.expireAt),
+    quotaUsagePct,
+    entitlement: row.entitlement,
+    consumePerWork: row.consumePerWork,
+  };
+}
+
+/** 产品配额与状态（核验三类共用 VERIFY_ENTITLEMENT；审核自有额度） */
 export const DASHBOARD_PRODUCTS: DashboardProduct[] = [
-  {
-    code: "dci",
-    status: "active",
-    usedCount: 12847,
-    quotaTotal: 50000,
-    monthCalls: 3421,
-    momPercent: 12.5,
-    expireAt: "2026-09-30",
-    daysLeft: 30,
-    quotaUsagePct: 25.7,
-  },
-  {
-    code: "info",
-    status: "active",
-    usedCount: 8432,
-    quotaTotal: 30000,
-    monthCalls: 2156,
-    momPercent: 8.3,
-    expireAt: "2026-09-30",
-    daysLeft: 26,
-    quotaUsagePct: 28.1,
-  },
-  {
-    code: "certificate",
-    status: "active",
-    usedCount: 3000,
-    quotaTotal: 10000,
-    monthCalls: 892,
-    momPercent: -2.1,
-    expireAt: "2026-12-31",
-    daysLeft: 133,
-    quotaUsagePct: 30,
-  },
+  fromTenantService("dci", { monthCalls: 3421, momPercent: 12.5 })!,
+  fromTenantService("info", { monthCalls: 2156, momPercent: 8.3 })!,
+  fromTenantService("certificate", { monthCalls: 892, momPercent: -2.1 })!,
   {
     code: "workReview",
     status: WORK_REVIEW_ENTITLEMENT.status,
@@ -76,8 +82,9 @@ export const DASHBOARD_PRODUCTS: DashboardProduct[] = [
     monthCalls: 1200,
     momPercent: 12.8,
     expireAt: WORK_REVIEW_ENTITLEMENT.expireAt,
-    daysLeft: 5,
+    daysLeft: daysLeftUntil(WORK_REVIEW_ENTITLEMENT.expireAt),
     quotaUsagePct: WORK_REVIEW_ENTITLEMENT.quotaUsagePct,
+    entitlement: "audit",
   },
 ];
 

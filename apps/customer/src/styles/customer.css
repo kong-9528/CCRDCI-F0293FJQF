@@ -913,11 +913,17 @@ body,
   color: #8c8c8c;
 }
 
-.c-desk-svc__period {
-  margin: 10px 0 0;
-  font-size: 13px;
+.c-desk-svc__period-note {
+  margin-left: 4px;
+  color: #bfbfbf;
+  font-size: 12px;
+}
+
+.c-desk-svc__pool-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
   color: #8c8c8c;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .c-desk-svc__usage {

@@ -18,9 +18,37 @@ export type TenantService = {
   product: ProductCode;
   openedAt: string;
   expireAt: string;
+  /** 授权总量；核验三类产品共用同一额度池 */
   quotaTotal: number | null;
+  /** 该产品自身累计用量（核验产品各自统计） */
   usedCount: number;
   status: "active" | "expiring" | "stopped";
+  /**
+   * verify = 核验共享池（额度/起止与其它核验产品相同）
+   * audit = 独立产品（作品智能辅助审核自有额度与时间）
+   */
+  entitlement: "verify" | "audit";
+  /** 核验产品：每作品消耗次数 */
+  consumePerWork?: number;
+};
+
+/**
+ * 核验服务共享授权（对齐 ops：三类核验产品共用额度与生效起止）。
+ * 各产品 usedCount 仍独立。
+ */
+export const VERIFY_ENTITLEMENT = {
+  startDate: "2025-01-01",
+  endDate: "2026-09-30",
+  quotaTotal: 50000,
+} as const;
+
+/** 作品智能辅助审核：独立额度与时间（与 review 页 WORK_REVIEW_ENTITLEMENT 对齐） */
+export const AUDIT_ENTITLEMENT = {
+  startDate: "2025-06-01",
+  endDate: "2026-08-25",
+  quotaTotal: 100000,
+  usedCount: 105230,
+  status: "expiring" as const,
 };
 
 export type TenantContract = {
@@ -221,37 +249,53 @@ export function clearPortalBridge() {
 export const MOCK_TENANT_SERVICES: TenantService[] = [
   {
     product: "dci",
-    openedAt: "2025-01-01",
-    expireAt: "2026-09-30",
-    quotaTotal: 50000,
+    entitlement: "verify",
+    openedAt: VERIFY_ENTITLEMENT.startDate,
+    expireAt: VERIFY_ENTITLEMENT.endDate,
+    quotaTotal: VERIFY_ENTITLEMENT.quotaTotal,
     usedCount: 12847,
+    consumePerWork: 1,
     status: "active",
   },
   {
     product: "info",
-    openedAt: "2025-01-01",
-    expireAt: "2026-09-30",
-    quotaTotal: 30000,
+    entitlement: "verify",
+    openedAt: VERIFY_ENTITLEMENT.startDate,
+    expireAt: VERIFY_ENTITLEMENT.endDate,
+    quotaTotal: VERIFY_ENTITLEMENT.quotaTotal,
     usedCount: 8432,
+    consumePerWork: 1,
     status: "active",
   },
   {
     product: "certificate",
-    openedAt: "2025-02-01",
-    expireAt: "2026-12-31",
-    quotaTotal: 20000,
+    entitlement: "verify",
+    openedAt: VERIFY_ENTITLEMENT.startDate,
+    expireAt: VERIFY_ENTITLEMENT.endDate,
+    quotaTotal: VERIFY_ENTITLEMENT.quotaTotal,
     usedCount: 3188,
+    consumePerWork: 2,
     status: "active",
   },
   {
     product: "workReview",
-    openedAt: "2025-06-01",
-    expireAt: "2026-08-25",
-    quotaTotal: 100000,
-    usedCount: 48230,
-    status: "expiring",
+    entitlement: "audit",
+    openedAt: AUDIT_ENTITLEMENT.startDate,
+    expireAt: AUDIT_ENTITLEMENT.endDate,
+    quotaTotal: AUDIT_ENTITLEMENT.quotaTotal,
+    usedCount: AUDIT_ENTITLEMENT.usedCount,
+    status: AUDIT_ENTITLEMENT.status,
   },
 ];
+
+/** 核验共享池已用合计（各产品用量之和） */
+export function verifyPoolUsedTotal(
+  services: TenantService[] = MOCK_TENANT_SERVICES,
+): number {
+  return services
+    .filter((s) => s.entitlement === "verify")
+    .reduce((sum, s) => sum + s.usedCount, 0);
+}
 
 export const MOCK_TENANT_CONTRACTS: TenantContract[] = [
   {
