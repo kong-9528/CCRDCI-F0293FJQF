@@ -9,6 +9,7 @@ import {
   IconPlus,
   IconTrash,
 } from "@/components/icons/UiIcons";
+import { TrademarkText } from "@/lib/trademark";
 import {
   CONTENT_CHANNEL_LABEL,
   CONTENT_CHANNEL_OPTIONS,
@@ -339,7 +340,7 @@ export function ContentManagePage() {
                       <td>
                         <span style={{ paddingLeft: row.depth * 16 }}>
                           {row.depth > 0 ? "└ " : ""}
-                          {a.title}
+                          <TrademarkText text={a.title} />
                         </span>
                       </td>
                       <td>{articleTypeLabel}</td>

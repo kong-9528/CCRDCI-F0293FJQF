@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { getRole, getUserRoleIds } from "@/lib/rbacStore";
 import { buildSubsystemEntryUrl } from "@/lib/ssoEntry";
+import { TrademarkText } from "@/lib/trademark";
 
 export function LauncherPage() {
   const { user, subsystems, can } = useAuth();
@@ -50,7 +51,9 @@ export function LauncherPage() {
                 style={{ ["--sso-accent" as string]: sys.accent }}
               >
                 <div className="sso-app-card__body">
-                  <h2>{sys.name}</h2>
+                  <h2>
+                    <TrademarkText text={sys.name} />
+                  </h2>
                   {roles.length ? (
                     <div className="sso-app-card__tags">
                       {roles.map((r) => (

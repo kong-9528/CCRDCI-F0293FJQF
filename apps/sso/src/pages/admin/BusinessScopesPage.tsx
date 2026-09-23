@@ -10,6 +10,7 @@ import {
   updateBusinessScope,
   type BusinessScope,
 } from "@/lib/rbacStore";
+import { TrademarkText } from "@/lib/trademark";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
@@ -123,7 +124,9 @@ function BusinessScopesPageInner() {
                   <code>{b.code}</code>
                 </td>
                 <td>{b.name}</td>
-                <td>{getSubsystem(b.subsystemId)?.name ?? "—"}</td>
+                <td>
+                  <TrademarkText text={getSubsystem(b.subsystemId)?.name ?? "—"} />
+                </td>
                 <td>{b.businessCount}</td>
                 <td>
                   {can("sso.bizScopes.write") ? (

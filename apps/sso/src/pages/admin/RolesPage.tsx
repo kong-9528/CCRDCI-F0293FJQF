@@ -13,6 +13,7 @@ import {
   type EntityStatus,
   type Role,
 } from "@/lib/rbacStore";
+import { TrademarkText } from "@/lib/trademark";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
@@ -140,7 +141,11 @@ function RolesPageInner() {
                   <code>{r.code}</code>
                 </td>
                 <td>{r.name}</td>
-                <td>{getSubsystem(r.subsystemId)?.name ?? "—"}</td>
+                <td>{getSubsystem(r.subsystemId)?.name ? (
+                  <TrademarkText text={getSubsystem(r.subsystemId)!.name} />
+                ) : (
+                  "—"
+                )}</td>
                 <td>{r.permissionIds.length}</td>
                 <td>
                   <span className={`sso-tag${r.status === "active" ? " is-ok" : ""}`}>

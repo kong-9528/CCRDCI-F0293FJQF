@@ -7,6 +7,7 @@ import {
   type OpLogFilters,
   type OpLogScope,
 } from "@/lib/opLogsStore";
+import { TrademarkText } from "@/lib/trademark";
 
 const EMPTY_FILTERS: OpLogFilters = {
   actionType: "",
@@ -41,7 +42,7 @@ export function OpLogsPage() {
             className={`a-tabs__item${scope === key ? " is-active" : ""}`}
             onClick={() => switchScope(key)}
           >
-            {OP_LOG_SCOPE_LABEL[key]}
+            <TrademarkText text={OP_LOG_SCOPE_LABEL[key]} />
           </button>
         ))}
       </div>

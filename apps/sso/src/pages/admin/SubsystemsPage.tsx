@@ -10,6 +10,7 @@ import {
   type EntityStatus,
   type Subsystem,
 } from "@/lib/rbacStore";
+import { TrademarkText } from "@/lib/trademark";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
@@ -121,7 +122,7 @@ function SubsystemsPageInner() {
                 </td>
                 <td>
                   <span className="sso-sys-dot" style={{ background: s.accent }} />
-                  {s.name}
+                  <TrademarkText text={s.name} />
                 </td>
                 <td className="sso-cell-ellipsis">{s.entryUrl || "—（本平台）"}</td>
                 <td>{s.sort}</td>

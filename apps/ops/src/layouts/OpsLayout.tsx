@@ -4,6 +4,7 @@ import { OpsSidebar } from "@/components/OpsSidebar";
 import { OpsHeader } from "@/components/OpsHeader";
 import { findNavLabel } from "@/lib/nav";
 import { useAuth } from "@/lib/auth";
+import { TrademarkText } from "@/lib/trademark";
 
 const PLATFORM_NAME = "DCI®技术服务中心";
 
@@ -38,7 +39,9 @@ export function OpsLayout() {
         <OpsSidebar collapsed={collapsed} />
         <div className="a-main">
           <div className="a-breadcrumb" aria-label="面包屑">
-            <span className="a-breadcrumb__root">{PLATFORM_NAME}</span>
+            <span className="a-breadcrumb__root">
+              <TrademarkText text={PLATFORM_NAME} />
+            </span>
             <span className="a-breadcrumb__sep">/</span>
             <span className="a-breadcrumb__current">{pageTitle}</span>
           </div>

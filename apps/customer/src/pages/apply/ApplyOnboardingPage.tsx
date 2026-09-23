@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TrademarkText } from "@/lib/trademark";
 import {
   EXTERNAL_LOGIN_ACCOUNT,
   applicationToForm,
@@ -164,7 +165,9 @@ export function ApplyOnboardingPage() {
 
       <div className={`a-apply__banner a-apply__banner--${statusBanner.tone}`}>
         <strong>{statusBanner.title}</strong>
-        <p>{statusBanner.desc}</p>
+        <p>
+          <TrademarkText text={statusBanner.desc} />
+        </p>
       </div>
 
       {viewApp ? (

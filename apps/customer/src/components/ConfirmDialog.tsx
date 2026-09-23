@@ -1,7 +1,9 @@
+import type { ReactNode } from "react";
+
 type Props = {
   open: boolean;
   title: string;
-  description: string;
+  description: ReactNode;
   confirmText?: string;
   danger?: boolean;
   onConfirm: () => void;

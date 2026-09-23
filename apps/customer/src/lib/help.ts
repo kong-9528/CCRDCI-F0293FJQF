@@ -29,7 +29,7 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
         id: "ch-quickstart",
         title: "快速开始",
         html: `
-          <p>欢迎使用 DCI®技术服务中心。本文档将帮助您快速了解平台功能并完成 API 接入。</p>
+          <p>欢迎使用 DCI<sup class="a-tm">®</sup>技术服务中心。本文档将帮助您快速了解平台功能并完成 API 接入。</p>
           <h3>第一步：获取 API 密钥</h3>
           <p>登录工作台后，进入「API管理 → API key管理」创建密钥。每个注册中心仅可创建一个 API key；创建后 AK 固定不变，可随时显示/复制 SK、DEK，并通过编辑重新生成 SK / DEK。</p>
           <p><a href="/api/keys">前往 API key管理 →</a></p>

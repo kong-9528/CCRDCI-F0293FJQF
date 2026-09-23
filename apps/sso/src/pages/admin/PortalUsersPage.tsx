@@ -9,6 +9,7 @@ import {
   listPortalUsers,
   type PortalUserStatus,
 } from "@/lib/portalUserStore";
+import { TrademarkText } from "@/lib/trademark";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { usePortalTick } from "@/lib/usePortalTick";
 
@@ -153,7 +154,7 @@ function PortalUsersPageInner() {
                     </span>
                   </td>
                   <td className="sso-cell-ellipsis" title={settled || "未入驻"}>
-                    {settled || "—"}
+                    {settled ? <TrademarkText text={settled} /> : "—"}
                   </td>
                   <td>{u.createdAt}</td>
                   <td>{u.lastLoginAt ?? "—"}</td>

@@ -124,3 +124,15 @@
   --z-modal: 1300;
   --z-toast: 1400;
 }
+
+/* Registered trademark ® — superscript display */
+sup.a-tm,
+.a-tm {
+  font-size: 0.55em;
+  font-weight: inherit;
+  font-style: normal;
+  line-height: 0;
+  vertical-align: super;
+  position: relative;
+  top: -0.08em;
+}

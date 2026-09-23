@@ -14,6 +14,7 @@ import {
   type EntityStatus,
   type HttpMethod,
 } from "@/lib/rbacStore";
+import { TrademarkText } from "@/lib/trademark";
 import { useClientPagination } from "@/lib/useClientPagination";
 import { useRbacTick } from "@/lib/useRbacTick";
 
@@ -156,7 +157,9 @@ function ApisPageInner() {
                     <code>{a.code}</code>
                   </td>
                   <td>{a.name}</td>
-                  <td>{getSubsystem(a.subsystemId)?.name ?? "—"}</td>
+                  <td>
+                    <TrademarkText text={getSubsystem(a.subsystemId)?.name ?? "—"} />
+                  </td>
                   <td>{linked ? `${linked} 个` : "—"}</td>
                   <td>{a.authRequired ? "是" : "否"}</td>
                   <td>

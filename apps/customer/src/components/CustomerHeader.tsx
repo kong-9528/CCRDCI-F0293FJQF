@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PLATFORM_NAME } from "@/lib/catalog";
 import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
+import { TrademarkText } from "@/lib/trademark";
 import {
   clearPortalBridge,
   MOCK_SESSION,
@@ -53,7 +54,9 @@ export function CustomerHeader({ pathname }: Props) {
       <div className="a-header__inner">
         <div className="a-header__brand">
           <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
-          <span className="a-header__logo-text">{PLATFORM_NAME}</span>
+          <span className="a-header__logo-text">
+            <TrademarkText text={PLATFORM_NAME} />
+          </span>
         </div>
 
         <div className="a-header__right">
@@ -154,7 +157,13 @@ export function CustomerHeader({ pathname }: Props) {
       <ConfirmDialog
         open={logoutConfirm}
         title="确认退出登录"
-        description="退出后需重新登录才能访问DCI®技术服务中心。确定要退出吗？"
+        description={
+          <>
+            退出后需重新登录才能访问
+            <TrademarkText text="DCI®技术服务中心" />
+            。确定要退出吗？
+          </>
+        }
         confirmText="退出登录"
         danger
         onCancel={() => setLogoutConfirm(false)}

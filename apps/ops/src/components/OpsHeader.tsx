@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
 import { useAuth } from "@/lib/auth";
+import { TrademarkText } from "@/lib/trademark";
 
 type Props = {
   pathname?: string;
@@ -29,7 +30,9 @@ export function OpsHeader({ collapsed, onToggleCollapse, displayName }: Props) {
     <header className="a-header">
       <div className="a-header__brand">
         <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
-        <span className="a-header__logo-text">{PLATFORM_NAME}</span>
+        <span className="a-header__logo-text">
+          <TrademarkText text={PLATFORM_NAME} />
+        </span>
         <button
           type="button"
           className="a-header__icon-btn"

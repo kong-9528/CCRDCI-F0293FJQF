@@ -543,4 +543,18 @@
   color: #c0c4cc !important;
 }
 
+/* Registered trademark ® — superscript (match product brand mark) */
+sup.a-tm,
+.a-tm,
+.tc-hero__reg {
+  font-size: 0.55em !important;
+  font-weight: inherit !important;
+  font-style: normal !important;
+  line-height: 0 !important;
+  vertical-align: super !important;
+  position: relative;
+  top: -0.08em;
+  margin: 0 !important;
+}
+
 

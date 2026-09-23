@@ -11,6 +11,7 @@ import {
   getPortalUser,
   unfreezePortalUser,
 } from "@/lib/portalUserStore";
+import { TrademarkText } from "@/lib/trademark";
 import { usePortalTick } from "@/lib/usePortalTick";
 
 type PendingAction = "freeze" | "unfreeze" | null;
@@ -120,7 +121,9 @@ function PortalUserDetailInner() {
           <tbody>
             {user.memberships.map((m) => (
               <tr key={m.consoleId}>
-                <td>{m.consoleName}</td>
+                <td>
+                  <TrademarkText text={m.consoleName} />
+                </td>
                 <td>{MEMBERSHIP_LABEL[m.status]}</td>
                 <td>{m.tenantName ?? "—"}</td>
                 <td>{m.updatedAt ?? "—"}</td>
