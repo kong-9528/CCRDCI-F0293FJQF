@@ -36,7 +36,7 @@ export const SERVICE_ENTRIES: ServiceEntry[] = [
     kind: "tech",
     name: "DCI®技术服务中心",
     description:
-      "基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务。",
+      "DCI®技术服务中心以DCI国家标准为引领、以DCI体系4.0（全球版权数据中心）版权数智基础设施为底层支撑，基于DCI可信版权数据构建的技术服务支撑能力。",
     applyHref: "/account/apply/tech/",
     workbenchHref: CUSTOMER_CONSOLE_URL,
     workbenchExternal: true,

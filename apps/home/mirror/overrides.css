@@ -543,6 +543,84 @@
   color: #c0c4cc !important;
 }
 
+/* Portal header: Chinese full name of DCI after logo */
+.portal-header-wrapper .nav-left .portal-logo-name,
+.portal-logo-name[data-v-37d02473],
+.portal-logo-name {
+  margin-left: 12px;
+  color: #0075c1;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Portal nav: full-height track + soft fill + brand underline (avoids clashing with blue banners) */
+.portal-header-wrapper .nav-left,
+.portal-header-wrapper .nav-links,
+.nav-links[data-v-37d02473] {
+  align-self: stretch;
+  height: 100%;
+}
+
+.portal-header-wrapper .nav-links,
+.nav-links[data-v-37d02473] {
+  display: flex !important;
+  align-items: stretch;
+  margin-left: 40px !important;
+}
+
+.portal-header-wrapper .nav-links .nav-link,
+.nav-links .nav-link[data-v-37d02473] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 72px;
+  padding: 0 18px;
+  margin-right: 0 !important;
+  border-radius: 0;
+  color: #4e5969 !important;
+  font-weight: 400 !important;
+  background: transparent;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.portal-header-wrapper .nav-links .nav-link:hover,
+.nav-links .nav-link[data-v-37d02473]:hover {
+  color: #0075c1 !important;
+  background: rgba(0, 117, 193, 0.06);
+}
+
+.portal-header-wrapper .nav-links .nav-link.active,
+.nav-links .nav-link.active[data-v-37d02473] {
+  color: #0075c1 !important;
+  font-weight: 600 !important;
+  background: rgba(0, 117, 193, 0.14) !important;
+  box-shadow: none;
+}
+
+.portal-header-wrapper .nav-links .nav-link.active::after,
+.nav-links .nav-link.active[data-v-37d02473]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: #0075c1;
+}
+
+.portal-header-wrapper .nav-links .nav-link.active:hover,
+.nav-links .nav-link.active[data-v-37d02473]:hover {
+  color: #0075c1 !important;
+  background: rgba(0, 117, 193, 0.16) !important;
+}
+
 /* Registered trademark ® — superscript (match product brand mark) */
 sup.a-tm,
 .a-tm,
