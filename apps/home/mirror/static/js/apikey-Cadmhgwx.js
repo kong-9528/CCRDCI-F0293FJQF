@@ -1,7 +1,9 @@
 import{d as U,b as G,r as p,e as J,ae as Q,f as u,o as r,c as b,h as t,n as k,w as c,j as _,p as E,i as o,A as S,E as d,av as W,_ as X}from"./index-DA8BAxJb.js";
 
 const Y={class:"apikey-container"};
-const Z={class:"header-area"};
+const Z={class:"header-area card-header"};
+const headerLeft={class:"header-left"};
+const headerIcon={class:"header-icon-wrapper"};
 const ee={class:"main-card"};
 const te={key:0,style:{"min-height":"200px"}};
 const ae={key:1,class:"empty-state"};
@@ -104,12 +106,13 @@ const be=U({...Se,setup(Ee){
   function T(a){return a?a.length<=8?a.slice(0,4)+"****":a.slice(0,8)+"*".repeat(25):""}
 
   return(a,e)=>{
-    const s=u("el-button"),g=u("el-icon"),D=u("CopyDocument"),F=u("View"),L=u("Hide"),V=u("el-input"),w=u("el-form-item"),O=u("el-form"),q=u("el-dialog");
+    const s=u("el-button"),g=u("el-icon"),D=u("CopyDocument"),F=u("View"),L=u("Hide"),KeyIcon=u("Key"),V=u("el-input"),w=u("el-form-item"),O=u("el-form"),q=u("el-dialog");
     return r(),b("div",Y,[
       t("div",Z,[
-        e[10]||(e[10]=t("div",{class:"title-box"},[
-          t("h2",{class:"title"},"API key管理")
-        ],-1)),
+        t("div",headerLeft,[
+          t("div",headerIcon,[o(g,null,{default:c(()=>[o(KeyIcon)]),_:1})]),
+          e[10]||(e[10]=t("span",{class:"header-title"},"API key管理",-1))
+        ]),
         t("div",{class:"header-actions"},[
           f.value
             ?(r(),k(s,{key:0,type:"primary",icon:"Edit",class:"edit-btn",onClick:$},{
@@ -194,6 +197,10 @@ const be=U({...Se,setup(Ee){
               ])
             ]),_:1}),
             t("div",_e,[
+              e[25]||(e[25]=t("div",{class:"dialog-regen-warn"},[
+                t("span",{class:"dialog-regen-warn__label"},"注意"),
+                t("span",{class:"dialog-regen-warn__text"},"请勿频繁或随意更换密钥。密钥一经更换，使用旧密钥的接口调用将立即失败，需同步将业务系统更新为新密钥后方可恢复正常调用。")
+              ],-1)),
               o(s,{class:"regen-all-btn",icon:"MagicStick",style:{width:"100%",height:"38px","border-radius":"6px","font-weight":"500"},onClick:j},{
                 default:c(()=>[...e[20]||(e[20]=[_(" 重新生成 SK / DEK ",-1)])]),
                 _:1

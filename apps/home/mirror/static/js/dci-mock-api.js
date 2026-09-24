@@ -182,10 +182,10 @@
       totalCount: 15600,
       dates: dates,
       seriesList: [
-        series("实名认证数据接口", "#165dff", 10),
-        series("实名认证变更数据接口", "#d97706", 6),
-        series("作品原始分配数据接口", "#1e40af", 8),
-        series("撤销业务数据接口", "#38bdf8", 4),
+        series("实名信息接口", "#165dff", 10),
+        series("实名信息修改接口", "#d97706", 6),
+        series("DCI申领数据同步接口", "#1e40af", 8),
+        series("DCI撤销数据同步接口", "#38bdf8", 4),
       ],
     };
   }

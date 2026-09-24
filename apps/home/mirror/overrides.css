@@ -936,6 +936,67 @@ sup.a-tm,
   min-height: calc(100vh - 112px);
 }
 
+/* Match identity page title: icon + 16px header-title */
+.api-management-container .header-area.card-header,
+.api-management-container .apikey-container .header-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 16px;
+}
+
+.api-management-container .statistics-container .header-area {
+  margin-bottom: 15px;
+}
+
+.api-management-container .header-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.api-management-container .header-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  background: #e6f1fc;
+  border-radius: 8px;
+  color: #1449b2;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.api-management-container .header-icon-wrapper .el-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.api-management-container .header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.api-management-container .statistics-container .title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin-bottom: 6px;
+}
+
+.api-management-container .statistics-container .header-area .subtitle {
+  margin-left: 44px; /* align under title text (32 icon + 12 gap) */
+}
+
 .api-management-container .apikey-container {
   padding: 24px !important;
   background: transparent !important;
@@ -947,6 +1008,34 @@ sup.a-tm,
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
+}
+
+/* Statistics tab: flush inside right white card */
+.api-management-container .statistics-container {
+  padding: 24px !important;
+  background: transparent !important;
+  box-sizing: border-box;
+  min-height: 0 !important;
+}
+
+.api-management-container .statistics-container .metric-card,
+.api-management-container .statistics-container .chart-card {
+  background: #f8fafc !important;
+  border: 1px solid #e8eef5 !important;
+  box-shadow: none !important;
+}
+
+.api-management-container .statistics-container .chart-box {
+  width: 100% !important;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.api-management-container .statistics-container .org-tag.el-tag {
+  color: #0075c1 !important;
+  background: #e8f3fa !important;
+  border-color: #b7d8ee !important;
+  font-weight: 600;
 }
 
 .api-management-container .apikey-notice {
