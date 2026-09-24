@@ -128,8 +128,9 @@
         dciRegOrgCode: code || "",
         dciCodeType: configured ? ALL_CODE_TYPES.join(",") : "",
         dciDataInterface: configured ? ALL_DATA_APIS.join(",") : "",
-        apiPermissions:
-          '[{"interfaceId":"2080588010370920449","startDate":"2026-09-09"},{"interfaceId":"2080587923100037121","startDate":"2026-09-09"},{"interfaceId":"2070330053367017473","startDate":"2026-09-09"},{"interfaceId":"2055556104074723330","startDate":"2026-09-09"}]',
+        apiPermissions: configured
+          ? '[{"interfaceId":"2080587923100037121","startDate":"2026-09-09"},{"interfaceId":"2080588010370920449","startDate":"2026-09-09"},{"interfaceId":"2070330053367017473","startDate":"2026-09-09"},{"interfaceId":"2055556104074723330","startDate":"2026-09-09"}]'
+          : "",
         accessKey: prev.accessKey || "AKDEMOMOCK000000000000001",
         accessSecret: prev.accessSecret || "SKDEMOMOCKSECRET000000001",
         dataEncrypKey: prev.dataEncrypKey || "DEKDEMOMOCK0000000000001",
@@ -147,6 +148,22 @@
 
   function isInfoPage() {
     return /\/dci\/info-management/.test(location.pathname);
+  }
+
+  function isDemoPage() {
+    return (
+      /\/dci\/info-management/.test(location.pathname) ||
+      /\/dci\/dciapi/.test(location.pathname)
+    );
+  }
+
+  function wantsApiPermissions() {
+    var id = getModeId();
+    return id === "configured" || id === "coded" || id === "basic" || id === "full";
+  }
+
+  function apiPermissionsJson() {
+    return wantsApiPermissions() ? '[{"interfaceId":"2080587923100037121","startDate":"2026-09-09"},{"interfaceId":"2080588010370920449","startDate":"2026-09-09"},{"interfaceId":"2070330053367017473","startDate":"2026-09-09"},{"interfaceId":"2055556104074723330","startDate":"2026-09-09"}]' : "";
   }
 
   function ensureStyles() {
@@ -188,12 +205,13 @@
   }
 
   function renderPanel() {
-    ensureStyles();
-    var existing = document.getElementById(PANEL_ID);
-    if (!isInfoPage()) {
-      if (existing) existing.remove();
+    if (!isDemoPage()) {
+      var dead = document.getElementById(PANEL_ID);
+      if (dead && dead.parentNode) dead.parentNode.removeChild(dead);
       return;
     }
+    ensureStyles();
+    var existing = document.getElementById(PANEL_ID);
     var modeId = getModeId();
     var panel = existing || document.createElement("div");
     panel.id = PANEL_ID;
@@ -245,6 +263,9 @@
     setModeId: setModeId,
     shapeOrg: shapeOrg,
     isInfoPage: isInfoPage,
+    isDemoPage: isDemoPage,
+    wantsApiPermissions: wantsApiPermissions,
+    apiPermissionsJson: apiPermissionsJson,
     allowAppOrg: allowAppOrg,
     dict: dict,
     subscribe: subscribe,
@@ -261,7 +282,7 @@
     renderPanel();
   }
   setInterval(function () {
-    if (isInfoPage() && !document.getElementById(PANEL_ID)) renderPanel();
-    if (!isInfoPage() && document.getElementById(PANEL_ID)) renderPanel();
+    if (isDemoPage() && !document.getElementById(PANEL_ID)) renderPanel();
+    if (!isDemoPage() && document.getElementById(PANEL_ID)) renderPanel();
   }, 800);
 })();

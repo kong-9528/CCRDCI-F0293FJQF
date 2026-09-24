@@ -1,0 +1,11 @@
+const fs = require("fs");
+const s = fs.readFileSync("apps/home/mirror/static/js/index-DTpd2dgU.js", "utf8");
+const i = s.indexOf("api-accordion");
+console.log("--- accordion area ---");
+console.log(s.slice(Math.max(0, i - 200), i + 1500));
+const j = s.indexOf("暂无已授权");
+console.log("\n--- empty ---");
+console.log(s.slice(j - 100, j + 200));
+const k = s.indexOf("const O=");
+console.log("\n--- sample O ---");
+console.log(s.slice(k, k + 800));

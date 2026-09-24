@@ -132,6 +132,18 @@
     ) {
       return window.__DCI_RCX_DEMO__.shapeOrg(body);
     }
+    // 文档页：仅按演示开关注入/清空接口权限，不改写开通状态
+    if (
+      body &&
+      body.data &&
+      window.__DCI_RCX_DEMO__ &&
+      typeof window.__DCI_RCX_DEMO__.isDemoPage === "function" &&
+      window.__DCI_RCX_DEMO__.isDemoPage() &&
+      /\/dci\/dciapi/.test(location.pathname) &&
+      typeof window.__DCI_RCX_DEMO__.apiPermissionsJson === "function"
+    ) {
+      body.data.apiPermissions = window.__DCI_RCX_DEMO__.apiPermissionsJson();
+    }
     return body;
   }
 

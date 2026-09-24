@@ -1,0 +1,10 @@
+const fs = require("fs");
+const s = fs.readFileSync("apps/home/mirror/static/js/index-DTpd2dgU.js", "utf8");
+const w = s.indexOf("w=j(()=>");
+console.log(s.slice(w, w + 2000));
+console.log("\n--- function h ---");
+const h = s.indexOf("function h(");
+console.log(s.slice(h, h + 600));
+console.log("\n--- O array start ---");
+const O = s.indexOf("O=[{id:1");
+console.log(s.slice(O, O + 2500));

@@ -1140,6 +1140,243 @@ sup.a-tm,
   color: #909399;
 }
 
+/* DCI API docs interfaces: match customer /docs accordion look */
+.doc-management-container .api-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.doc-management-container .api-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.doc-management-container .api-item-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.doc-management-container .api-item-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.doc-management-container .api-item-toggle .chevron {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  color: #9ca3af;
+  transition: transform 0.2s;
+}
+
+.doc-management-container .api-item-toggle .chevron.open {
+  transform: rotate(90deg);
+}
+
+.doc-management-container .api-item-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.doc-management-container .api-item-titles h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.4;
+}
+
+.doc-management-container .api-item-titles p {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.doc-management-container .doc-download-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.doc-management-container .doc-download-btn:hover {
+  border-color: #1449b2;
+  color: #1449b2;
+  background: #fff;
+}
+
+.doc-management-container .api-item-body {
+  padding: 0 16px 18px 40px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.doc-management-container .endpoint-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0;
+  width: auto;
+  border: none;
+  background: transparent;
+  flex-wrap: wrap;
+}
+
+.doc-management-container .method-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 4px;
+  background: rgba(20, 73, 178, 0.1);
+  color: #1449b2;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.doc-management-container .method-badge.PUT,
+.doc-management-container .method-badge.put {
+  background: rgba(217, 119, 6, 0.12);
+  color: #d97706;
+}
+
+.doc-management-container .path-text {
+  font-size: 13px;
+  color: #1f2937;
+  background: #f9fafb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.doc-management-container .param-block {
+  margin-bottom: 18px;
+}
+
+.doc-management-container .param-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.doc-management-container .param-table-wrap {
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.doc-management-container .param-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.doc-management-container .param-table th,
+.doc-management-container .param-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: top;
+}
+
+.doc-management-container .param-table th {
+  background: #f9fafb;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.doc-management-container .param-table tr:last-child td {
+  border-bottom: none;
+}
+
+.doc-management-container .param-table .mono,
+.doc-management-container .param-table code {
+  font-size: 12px;
+  color: #1449b2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.doc-management-container .list-hint {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Doc module titles: match identity (icon + 16px header-title) */
+.doc-management-container .panel-header.card-header,
+.doc-management-container .card-header.panel-header {
+  display: flex;
+  align-items: center;
+  margin: 0 0 15px;
+  gap: 0;
+}
+
+.doc-management-container .panel-header .header-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.doc-management-container .panel-header .header-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  background: #e6f1fc;
+  border-radius: 8px;
+  color: #1449b2;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-management-container .panel-header .header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  white-space: nowrap;
+  margin: 0;
+  line-height: 1.4;
+}
+
+
+
 /* Disable route page enter/leave animation when switching modules */
 .fade-transform-enter-active,
 .fade-transform-leave-active,
