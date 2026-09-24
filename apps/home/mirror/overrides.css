@@ -635,4 +635,87 @@ sup.a-tm,
   margin: 0 !important;
 }
 
+/* ===== 账号中心：开通管理 / 账号信息 ===== */
+
+/* 1) 已通过：绿色盾牌认证风图标 */
+.verified-icon[data-v-96ef2aa1],
+.el-icon.verified-icon {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-left: 8px !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  vertical-align: middle;
+}
+
+.verified-icon[data-v-96ef2aa1] svg,
+.el-icon.verified-icon svg {
+  display: none !important;
+}
+
+.verified-icon[data-v-96ef2aa1]::before,
+.el-icon.verified-icon::before {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300b42a'%3E%3Cpath d='M12 1.5L3.5 5v6.2c0 5.35 3.55 10.35 8.5 11.55 4.95-1.2 8.5-6.2 8.5-11.55V5L12 1.5zm-1.1 14.2L7.2 11.9l1.45-1.4 2.25 2.3 4.55-4.6 1.4 1.45-5.95 6.05z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* 2) 已通过状态标签：实心绿色胶囊，更突出 */
+.right-content-card .service-cards-grid .service-card .card-top .status-badge-wrap .status-tag.approved[data-v-96ef2aa1],
+.status-tag.approved[data-v-96ef2aa1],
+.status-tag.approved {
+  background: #00b42a !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  border: none !important;
+  box-shadow: 0 1px 4px rgba(0, 180, 42, 0.28);
+  letter-spacing: 0.02em;
+}
+
+/* 3) 账号信息标题旁用户图标：修复裁切与对齐 */
+.right-content-card .pane-header .header-icon-circle[data-v-96ef2aa1],
+.header-icon-circle[data-v-96ef2aa1],
+.header-icon-circle {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: #e8f3ff !important;
+  color: #165dff !important;
+  margin-right: 10px !important;
+  overflow: visible !important;
+  flex-shrink: 0;
+}
+
+.header-icon-circle[data-v-96ef2aa1] .el-icon,
+.header-icon-circle .el-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+.header-icon-circle[data-v-96ef2aa1] .el-icon svg,
+.header-icon-circle .el-icon svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
 
