@@ -925,6 +925,66 @@ sup.a-tm,
   align-self: flex-start !important;
 }
 
+/* API management: right pane white card flush to top (match identity/apporg) */
+.api-management-container .right-content-card[data-v-9b3fb548],
+.api-management-container .right-content-card {
+  background: #fff !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  align-self: stretch !important;
+  min-height: calc(100vh - 112px);
+}
+
+.api-management-container .apikey-container {
+  padding: 24px !important;
+  background: transparent !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+}
+
+.api-management-container .apikey-container .main-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.api-management-container .apikey-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff6e8;
+  border: 1px solid #f0dfc2;
+}
+
+.api-management-container .apikey-notice__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.api-management-container .apikey-notice__label {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b86a00;
+  background: #ffe9c7;
+}
+
+.api-management-container .apikey-notice__text {
+  color: #6b5535;
+}
+
 /* 账号中心左右布局同理 */
 .profile-layout-inner[data-v-96ef2aa1],
 .profile-layout-inner {
