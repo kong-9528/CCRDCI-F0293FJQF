@@ -144,6 +144,16 @@
     ) {
       body.data.apiPermissions = window.__DCI_RCX_DEMO__.apiPermissionsJson();
     }
+    // 机构信息页：按演示开关注入 changeStatus / 补齐字段
+    if (
+      body &&
+      window.__DCI_ORGINFO_DEMO__ &&
+      typeof window.__DCI_ORGINFO_DEMO__.shapePayload === "function" &&
+      typeof window.__DCI_ORGINFO_DEMO__.isOrgInfoPage === "function" &&
+      window.__DCI_ORGINFO_DEMO__.isOrgInfoPage()
+    ) {
+      return window.__DCI_ORGINFO_DEMO__.shapePayload(body);
+    }
     return body;
   }
 

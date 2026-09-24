@@ -1377,6 +1377,24 @@ sup.a-tm,
 
 
 
+/* Org-info: full-width primary action; edit mode = two equal buttons */
+.apply-console-container .submit-action {
+  width: 100%;
+}
+.apply-console-container .submit-action .submit-btn.el-button {
+  width: 100%;
+}
+.apply-console-container .submit-action:has(.el-button + .el-button) .submit-btn.el-button,
+.apply-console-container .submit-action:has(.el-button + .el-button) > .el-button {
+  width: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
 /* Disable route page enter/leave animation when switching modules */
 .fade-transform-enter-active,
 .fade-transform-leave-active,

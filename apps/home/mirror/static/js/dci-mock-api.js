@@ -371,8 +371,8 @@
     }
     if (path === "/dci/orgtype/listAll" && m === "GET") {
       return ok([
-        { id: 1, typeName: "企业", typeCode: "enterprise" },
-        { id: 2, typeName: "个人", typeCode: "person" },
+        { id: 1, typeName: "专业服务", typeCode: "ZYFW" },
+        { id: 2, typeName: "内容平台", typeCode: "NRPT" },
       ]);
     }
 
