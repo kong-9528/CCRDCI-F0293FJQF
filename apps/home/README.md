@@ -50,9 +50,9 @@ pnpm --filter @ctp/customer dev
 
 门户顶栏与**注册中心工作台**右上角菜单均按上表动态显示入口；未开通的平台不展示对应项（也不再出现「申请接入技术服务中心」硬编码项）。
 
-### 标识管理 · DCI码权限演示
+### 标识管理 · 配置状态演示
 
-路径 `/dci/info-management/index`（`tab=identity` / `tab=apporg`）左下角有悬浮切换，用于演示当前用户 DCI 码权限的不同状态；两个 tab 共用同一选择（`sessionStorage`）。
+路径 `/dci/info-management/index`（`tab=identity` / `tab=apporg`）左下角有悬浮切换，用于演示「未配置 / 已配置」两种状态；两个 tab 共用同一选择（`sessionStorage`）。`mayi` / `mayi2` 在已配置时标识码为 `ANT`。
 
 ## 腾讯云 / 云开发静态托管（必做）
 

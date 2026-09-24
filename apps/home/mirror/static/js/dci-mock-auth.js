@@ -100,7 +100,10 @@
     if (u.auditStatus === null || u.auditStatus === undefined) {
       body = { code: 200, data: null };
     } else {
-      var code = "ORG-" + String(u.username || "demo").toUpperCase();
+      var code =
+        u.username === "mayi" || u.username === "mayi2"
+          ? "ANT"
+          : "ORG-" + String(u.username || "demo").toUpperCase();
       body = {
         code: 200,
         data: {
@@ -110,6 +113,9 @@
           regOrgName: u.orgName,
           orgCode: code,
           dciRegOrgCode: code,
+          dciCodeType: "原始分配,授权分配,其他",
+          dciDataInterface:
+            "实名信息接口,实名信息修改接口,DCI申领数据同步接口,DCI撤销数据同步接口",
           accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
           accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
           dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",
