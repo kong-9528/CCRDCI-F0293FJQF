@@ -1,1 +1,195 @@
-import{W as O,d as q,H as Z,b as ee,r as m,a0 as te,aw as ae,f as d,X as P,o as _,c as le,h as n,Y as b,n as C,w as a,j as p,k as s,i as t,A as U,M as T,ae as oe,_ as ne}from"./index-DA8BAxJb.js";function re(u){return O({url:"/dci/apporg/list",method:"get",params:u})}function se(u){return O({url:"/dci/apporg/record/"+u,method:"get"})}function ie(u){return O({url:"/dci/apporg",method:"post",data:u})}function de(u,c){const id=u&&typeof u=="object"?u.id:u;const st=u&&typeof u=="object"?u.appOrgStatus:c;return O({url:"/dci/apporg/changeStatus",method:"put",data:{id:id,appOrgStatus:st}})}const DCI_ICO_HISTORY='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 12a7.4 7.4 0 1 0 2.1-5.2"/><path d="M4.2 4.4v4.3h4.3"/><path d="M12 8.4V12h3.4"/></svg>';const DCI_ICO_START='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M10.2 8.7v6.6l5.4-3.3z" fill="currentColor" stroke="none"/></svg>';const DCI_ICO_STOP='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 12h6"/></svg>';const pe={class:"app-container",style:{"background-color":"#f0f2f5","min-height":"calc(100vh - 84px)",padding:"20px"}},ue={style:{display:"flex","justify-content":"flex-end","margin-bottom":"20px"}},ce={class:"table-card"},ge={class:"card-header"},me={class:"header-left"},fe={class:"header-icon-wrapper"},_e={class:"dialog-footer"},ve={style:{"text-align":"center"}},ye=q({name:"AppOrgInfo"}),Ce=q({...ye,setup(u){const{proxy:c}=Z(),F=ee(),k=m([]),f=m(!1),h=m(!0),v=m(!1),D=m([]),y=m(!1),w=m("");function L(){return oe(F.id).then(o=>{if((o.code===200||o.code===1e6)&&o.data){const e=o.data.auditStatus??"";y.value=String(e)==="1";const r={0:"待审核",1:"审核通过",2:"审核不通过"};w.value=r[e]||r[String(e)]||"未审核"}else y.value=!1,w.value="未绑定注册中心"}).catch(()=>{y.value=!1,w.value="获取审核状态失败"})}const j=te({form:{},queryParams:{},rules:{appOrgName:[{required:!0,message:"DCI申领平台名称不能为空",trigger:"blur"}],appOrgCode:[{required:!0,message:"DCI申领平台标识码不能为空",trigger:"blur"}]}}),{queryParams:M,form:g,rules:W}=ae(j);function S(){h.value=!0,re(M.value).then(o=>{k.value=o.rows,h.value=!1})}function E(){f.value=!1,I()}function I(){g.value={id:void 0,appOrgName:void 0,appOrgCode:void 0,appOrgStatus:"正常",remark:void 0},c.resetForm("applyOrgRef")}function H(){I(),f.value=!0}function X(){c.$refs.applyOrgRef.validate(o=>{o&&ie(g.value).then(()=>{c.$modal.msgSuccess("新增成功"),f.value=!1,S()})})}function Y(o){v.value=!0,se(o.id).then(e=>{D.value=e.data||[]})}function V(o){const e=o.appOrgStatus==="正常"?"停用":"正常",r=e==="停用"?"停用":"启用";c.$modal.confirm(`是否确认${r}【${o.appOrgName}】？`).then(()=>de({...o,appOrgStatus:e})).then(()=>{S(),c.$modal.msgSuccess(`${r}成功`)}).catch(()=>{})}function reloadDemo(){L().finally(()=>{S()})}return reloadDemo(),typeof window<"u"&&window.addEventListener("dci-rcx-demo-change",reloadDemo),(o,e)=>{const r=d("el-button"),G=d("CopyDocument"),J=d("el-icon"),i=d("el-table-column"),N=d("el-tag"),$=d("el-table"),A=d("el-input"),R=d("el-form-item"),K=d("el-form"),B=d("el-dialog"),x=P("hasPermi"),Q=P("loading");return _(),le("div",pe,[n("div",ue,[b((_(),C(r,{type:"primary",icon:"Plus",disabled:!s(y),onClick:H},{default:a(()=>[...e[5]||(e[5]=[p("新增",-1)])]),_:1},8,["disabled"])),[[x,["dci:apporg:add"]]])]),n("div",ce,[n("div",ge,[n("div",me,[n("div",fe,[t(J,null,{default:a(()=>[t(G)]),_:1})]),e[6]||(e[6]=n("span",{class:"header-title"},"DCI申领平台列表",-1))]),e[7]||(e[7]=n("div",{class:"header-right"},[n("span",{class:"tip-label"},"提示："),n("span",{class:"tip-text"},"请正确、及时维护 DCI 申领平台管理信息，否则数据将无法同步至 DCI 管理中心。")],-1))]),b((_(),C($,{data:s(k),"header-cell-style":{background:"#f4f5f8",color:"#666",fontWeight:"bold"},style:{width:"100%"}},{default:a(()=>[t(i,{type:"index",label:"序号",width:"80",align:"center"}),t(i,{label:"DCI申领平台名称",align:"center",prop:"appOrgName","min-width":"180"}),t(i,{label:"DCI申领平台标识码",align:"center",prop:"appOrgCode","min-width":"180"}),t(i,{label:"创建日期",align:"center",prop:"createTime","min-width":"160"}),t(i,{label:"状态",align:"center",prop:"appOrgStatus",width:"100"},{default:a(l=>[t(N,{type:l.row.appOrgStatus==="正常"?"primary":"info",size:"small",effect:"light"},{default:a(()=>[p(U(l.row.appOrgStatus),1)]),_:2},1032,["type"])]),_:1}),t(i,{label:"操作",align:"center","class-name":"small-padding fixed-width",width:"220"},{default:a(l=>[n("div",{class:"apporg-ops"},[t(r,{class:"apporg-record-btn",link:"",type:"primary",size:"small",onClick:z=>Y(l.row)},{default:a(()=>[n("span",{class:"apporg-ico",innerHTML:DCI_ICO_HISTORY}),p("记录")]),_:1},8,["onClick"]),t(r,{class:"apporg-status-btn"+(l.row.appOrgStatus==="正常"?" is-stop":" is-start"),link:"",type:l.row.appOrgStatus==="正常"?"danger":"success",size:"small",disabled:!s(y),title:s(y)?"切换启停状态":"审核通过后可操作",onClick:()=>s(y)&&V(l.row)},{default:a(()=>[n("span",{class:"apporg-ico",innerHTML:l.row.appOrgStatus==="正常"?DCI_ICO_STOP:DCI_ICO_START}),p(l.row.appOrgStatus==="正常"?"停用":"启用")]),_:1},8,["class","type","disabled","title","onClick"])])]),_:1})]),_:1},8,["data"])),[[Q,s(h)]])]),t(B,{title:"新增",modelValue:s(f),"onUpdate:modelValue":e[2]||(e[2]=l=>T(f)?f.value=l:null),width:"600px","append-to-body":""},{footer:a(()=>[n("div",_e,[t(r,{type:"primary",onClick:X},{default:a(()=>[...e[12]||(e[12]=[p("确 定",-1)])]),_:1}),t(r,{onClick:E},{default:a(()=>[...e[13]||(e[13]=[p("取 消",-1)])]),_:1})])]),default:a(()=>[e[14]||(e[14]=n("div",{class:"header-right"},[n("span",{class:"tip-label"},"提示："),n("span",{class:"tip-text"},"新增后信息不可修改和删除，请谨慎操作！")],-1)),t(K,{ref:"applyOrgRef",model:s(g),rules:s(W),"label-width":"150px"},{default:a(()=>[t(R,{label:"DCI申领平台名称",prop:"appOrgName"},{default:a(()=>[t(A,{modelValue:s(g).appOrgName,"onUpdate:modelValue":e[0]||(e[0]=l=>s(g).appOrgName=l),placeholder:"请输入DCI申领平台名称"},null,8,["modelValue"])]),_:1}),t(R,{label:"DCI申领平台标识码",prop:"appOrgCode","label-width":"150px"},{default:a(()=>[t(A,{modelValue:s(g).appOrgCode,"onUpdate:modelValue":e[1]||(e[1]=l=>s(g).appOrgCode=l),placeholder:"请输入DCI申领平台标识码"},null,8,["modelValue"])]),_:1})]),_:1},8,["model","rules"])]),_:1},8,["modelValue"]),t(B,{title:"停启用记录",modelValue:s(v),"onUpdate:modelValue":e[4]||(e[4]=l=>T(v)?v.value=l:null),width:"800px","append-to-body":""},{footer:a(()=>[n("div",ve,[t(r,{onClick:e[3]||(e[3]=l=>v.value=!1)},{default:a(()=>[...e[15]||(e[15]=[p("关 闭",-1)])]),_:1})])]),default:a(()=>[t($,{data:s(D),border:"",style:{width:"100%"}},{default:a(()=>[t(i,{label:"序号",type:"index",width:"60",align:"center"}),t(i,{label:"DCI申领平台名称",align:"center",prop:"appOrgName","min-width":"160"}),t(i,{label:"平台标识码",align:"center",prop:"appOrgCode","min-width":"120"}),t(i,{label:"停启用状态",align:"center",width:"110"},{default:a(l=>[t(N,{type:l.row.appOrgStatus==="正常"?"primary":"info",size:"small",effect:"light"},{default:a(()=>[p(U(l.row.appOrgStatus),1)]),_:2},1032,["type"])]),_:1}),t(i,{label:"操作人",align:"center",prop:"createBy",width:"120"}),t(i,{label:"操作时间",align:"center",prop:"createTime",width:"180"})]),_:1},8,["data"])]),_:1},8,["modelValue"])])}}}),Oe=ne(Ce,[["__scopeId","data-v-7018682c"]]);export{Oe as default};
+import{W as O,d as q,H as Z,b as ee,r as m,a0 as te,aw as ae,f as d,X as P,o as _,c as le,h as n,Y as b,n as C,w as a,j as p,k as s,i as t,A as U,M as T,ae as oe,_ as ne}from"./index-DA8BAxJb.js";
+
+function re(u){return O({url:"/dci/apporg/list",method:"get",params:u})}
+function se(u){return O({url:"/dci/apporg/record/"+u,method:"get"})}
+function ie(u){return O({url:"/dci/apporg",method:"post",data:u})}
+function de(u,c){
+  const id=u&&typeof u=="object"?u.id:u;
+  const st=u&&typeof u=="object"?u.appOrgStatus:c;
+  return O({url:"/dci/apporg/changeStatus",method:"put",data:{id:id,appOrgStatus:st}});
+}
+
+const DCI_ICO_HISTORY='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 12a7.4 7.4 0 1 0 2.1-5.2"/><path d="M4.2 4.4v4.3h4.3"/><path d="M12 8.4V12h3.4"/></svg>';
+const DCI_ICO_START='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M10.2 8.7v6.6l5.4-3.3z" fill="currentColor" stroke="none"/></svg>';
+const DCI_ICO_STOP='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9 12h6"/></svg>';
+
+const pe={class:"app-container apporg-page"};
+const ce={class:"table-card"};
+const ge={class:"card-header"};
+const me={class:"header-left"};
+const fe={class:"header-icon-wrapper"};
+const he={class:"header-right"};
+const neNotice={class:"apporg-notice"};
+const _e={class:"dialog-footer"};
+const ve={style:{"text-align":"center"}};
+
+const ye=q({name:"AppOrgInfo"});
+const Ce=q({...ye,setup(u){
+  const{proxy:c}=Z(),F=ee(),k=m([]),f=m(!1),h=m(!0),v=m(!1),D=m([]),y=m(!1),w=m("");
+  function L(){
+    return oe(F.id).then(o=>{
+      if((o.code===200||o.code===1e6)&&o.data){
+        const e=o.data.auditStatus??"";
+        y.value=String(e)==="1";
+        const r={0:"待审核",1:"审核通过",2:"审核不通过"};
+        w.value=r[e]||r[String(e)]||"未审核";
+      }else y.value=!1,w.value="未绑定注册中心";
+    }).catch(()=>{y.value=!1,w.value="获取审核状态失败"});
+  }
+  const j=te({
+    form:{},
+    queryParams:{},
+    rules:{
+      appOrgName:[{required:!0,message:"DCI申领平台名称不能为空",trigger:"blur"}],
+      appOrgCode:[{required:!0,message:"DCI申领平台标识码不能为空",trigger:"blur"}]
+    }
+  });
+  const{queryParams:M,form:g,rules:W}=ae(j);
+  function S(){h.value=!0,re(M.value).then(o=>{k.value=o.rows,h.value=!1})}
+  function E(){f.value=!1,I()}
+  function I(){
+    g.value={id:void 0,appOrgName:void 0,appOrgCode:void 0,appOrgStatus:"正常",remark:void 0};
+    c.resetForm("applyOrgRef");
+  }
+  function H(){I(),f.value=!0}
+  function X(){
+    c.$refs.applyOrgRef.validate(o=>{
+      o&&ie(g.value).then(()=>{c.$modal.msgSuccess("新增成功"),f.value=!1,S()});
+    });
+  }
+  function Y(o){v.value=!0,se(o.id).then(e=>{D.value=e.data||[]})}
+  function V(o){
+    const e=o.appOrgStatus==="正常"?"停用":"正常";
+    const r=e==="停用"?"停用":"启用";
+    c.$modal.confirm(`是否确认${r}【${o.appOrgName}】？`)
+      .then(()=>de({...o,appOrgStatus:e}))
+      .then(()=>{S(),c.$modal.msgSuccess(`${r}成功`)})
+      .catch(()=>{});
+  }
+  function reloadDemo(){L().finally(()=>{S()})}
+  return reloadDemo(),typeof window<"u"&&window.addEventListener("dci-rcx-demo-change",reloadDemo),(o,e)=>{
+    const r=d("el-button"),G=d("CopyDocument"),J=d("el-icon"),i=d("el-table-column"),N=d("el-tag"),$=d("el-table"),A=d("el-input"),R=d("el-form-item"),K=d("el-form"),B=d("el-dialog"),x=P("hasPermi"),Q=P("loading");
+    return _(),le("div",pe,[
+      n("div",ce,[
+        n("div",ge,[
+          n("div",me,[
+            n("div",fe,[t(J,null,{default:a(()=>[t(G)]),_:1})]),
+            e[6]||(e[6]=n("span",{class:"header-title"},"DCI申领平台列表",-1))
+          ]),
+          n("div",he,[
+            b((_(),C(r,{type:"primary",icon:"Plus",disabled:!s(y),onClick:H},{
+              default:a(()=>[...e[5]||(e[5]=[p("新增",-1)])]),
+              _:1
+            },8,["disabled"])),[[x,["dci:apporg:add"]]])
+          ])
+        ]),
+        e[7]||(e[7]=n("div",neNotice,[
+          n("div",{class:"apporg-notice__item"},[
+            n("span",{class:"apporg-notice__label is-tip"},"维护提示"),
+            n("span",{class:"apporg-notice__text"},"请正确、及时维护 DCI 申领平台信息；信息有误或未及时更新时，相关数据将无法同步至 DCI 管理中心。")
+          ]),
+          n("div",{class:"apporg-notice__item"},[
+            n("span",{class:"apporg-notice__label is-security"},"安全提醒"),
+            n("span",{class:"apporg-notice__text"},"申领平台标识码等关键信息请妥善保管，勿向无关人员或第三方泄露，防止被盗用或滥用。")
+          ])
+        ],-1)),
+        b((_(),C($,{
+          data:s(k),
+          "header-cell-style":{background:"#f4f5f8",color:"#666",fontWeight:"bold"},
+          style:{width:"100%"}
+        },{default:a(()=>[
+          t(i,{type:"index",label:"序号",width:"80",align:"center"}),
+          t(i,{label:"DCI申领平台名称",align:"center",prop:"appOrgName","min-width":"180"}),
+          t(i,{label:"DCI申领平台标识码",align:"center",prop:"appOrgCode","min-width":"180"}),
+          t(i,{label:"创建日期",align:"center",prop:"createTime","min-width":"160"}),
+          t(i,{label:"状态",align:"center",prop:"appOrgStatus",width:"100"},{default:a(l=>[
+            t(N,{type:l.row.appOrgStatus==="正常"?"primary":"info",size:"small",effect:"light"},{
+              default:a(()=>[p(U(l.row.appOrgStatus),1)]),
+              _:2
+            },1032,["type"])
+          ]),_:1}),
+          t(i,{label:"操作",align:"center","class-name":"small-padding fixed-width",width:"220"},{default:a(l=>[
+            n("div",{class:"apporg-ops"},[
+              t(r,{class:"apporg-record-btn",link:"",type:"primary",size:"small",onClick:z=>Y(l.row)},{
+                default:a(()=>[n("span",{class:"apporg-ico",innerHTML:DCI_ICO_HISTORY}),p("记录")]),
+                _:1
+              },8,["onClick"]),
+              t(r,{
+                class:"apporg-status-btn"+(l.row.appOrgStatus==="正常"?" is-stop":" is-start"),
+                link:"",
+                type:l.row.appOrgStatus==="正常"?"danger":"success",
+                size:"small",
+                disabled:!s(y),
+                title:s(y)?"切换启停状态":"审核通过后可操作",
+                onClick:()=>s(y)&&V(l.row)
+              },{
+                default:a(()=>[
+                  n("span",{class:"apporg-ico",innerHTML:l.row.appOrgStatus==="正常"?DCI_ICO_STOP:DCI_ICO_START}),
+                  p(l.row.appOrgStatus==="正常"?"停用":"启用")
+                ]),
+                _:1
+              },8,["class","type","disabled","title","onClick"])
+            ])
+          ]),_:1})
+        ]),_:1},8,["data"])),[[Q,s(h)]])
+      ]),
+      t(B,{
+        title:"新增",
+        modelValue:s(f),
+        "onUpdate:modelValue":e[2]||(e[2]=l=>T(f)?f.value=l:null),
+        width:"600px",
+        "append-to-body":""
+      },{
+        footer:a(()=>[n("div",_e,[
+          t(r,{type:"primary",onClick:X},{default:a(()=>[...e[12]||(e[12]=[p("确 定",-1)])]),_:1}),
+          t(r,{onClick:E},{default:a(()=>[...e[13]||(e[13]=[p("取 消",-1)])]),_:1})
+        ])]),
+        default:a(()=>[
+          e[14]||(e[14]=n("div",{class:"header-right dialog-tip"},[
+            n("span",{class:"tip-label"},"提示："),
+            n("span",{class:"tip-text"},"新增后信息不可修改和删除，请谨慎操作！")
+          ],-1)),
+          t(K,{ref:"applyOrgRef",model:s(g),rules:s(W),"label-width":"150px"},{default:a(()=>[
+            t(R,{label:"DCI申领平台名称",prop:"appOrgName"},{default:a(()=>[
+              t(A,{modelValue:s(g).appOrgName,"onUpdate:modelValue":e[0]||(e[0]=l=>s(g).appOrgName=l),placeholder:"请输入DCI申领平台名称"},null,8,["modelValue"])
+            ]),_:1}),
+            t(R,{label:"DCI申领平台标识码",prop:"appOrgCode","label-width":"150px"},{default:a(()=>[
+              t(A,{modelValue:s(g).appOrgCode,"onUpdate:modelValue":e[1]||(e[1]=l=>s(g).appOrgCode=l),placeholder:"请输入DCI申领平台标识码"},null,8,["modelValue"])
+            ]),_:1})
+          ]),_:1},8,["model","rules"])
+        ]),
+        _:1
+      },8,["modelValue"]),
+      t(B,{
+        title:"停启用记录",
+        modelValue:s(v),
+        "onUpdate:modelValue":e[4]||(e[4]=l=>T(v)?v.value=l:null),
+        width:"800px",
+        "append-to-body":""
+      },{
+        footer:a(()=>[n("div",ve,[
+          t(r,{onClick:e[3]||(e[3]=l=>v.value=!1)},{default:a(()=>[...e[15]||(e[15]=[p("关 闭",-1)])]),_:1})
+        ])]),
+        default:a(()=>[
+          t($,{data:s(D),border:"",style:{width:"100%"}},{default:a(()=>[
+            t(i,{label:"序号",type:"index",width:"60",align:"center"}),
+            t(i,{label:"DCI申领平台名称",align:"center",prop:"appOrgName","min-width":"160"}),
+            t(i,{label:"平台标识码",align:"center",prop:"appOrgCode","min-width":"120"}),
+            t(i,{label:"停启用状态",align:"center",width:"110"},{default:a(l=>[
+              t(N,{type:l.row.appOrgStatus==="正常"?"primary":"info",size:"small",effect:"light"},{
+                default:a(()=>[p(U(l.row.appOrgStatus),1)]),
+                _:2
+              },1032,["type"])
+            ]),_:1}),
+            t(i,{label:"操作人",align:"center",prop:"createBy",width:"120"}),
+            t(i,{label:"操作时间",align:"center",prop:"createTime",width:"180"})
+          ]),_:1},8,["data"])
+        ]),
+        _:1
+      },8,["modelValue"])
+    ]);
+  };
+}});
+
+const Oe=ne(Ce,[["__scopeId","data-v-7018682c"]]);
+export{Oe as default};

@@ -501,6 +501,69 @@
   gap: 4px;
 }
 
+/* AppOrg page: flush with right white card like identity */
+.info-management-container .right-content-card .apporg-page,
+.info-management-container .right-content-card .app-container.apporg-page {
+  padding: 24px !important;
+  background: transparent !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+}
+
+.info-management-container .right-content-card .apporg-page .table-card {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.info-management-container .apporg-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f7fafc;
+  border: 1px solid #e6eef6;
+}
+
+.info-management-container .apporg-notice__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.info-management-container .apporg-notice__label {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.info-management-container .apporg-notice__label.is-tip {
+  color: #0075c1;
+  background: #e8f3fa;
+}
+
+.info-management-container .apporg-notice__label.is-security {
+  color: #b86a00;
+  background: #fff6e8;
+}
+
+.info-management-container .apporg-notice__text {
+  color: #5c6b7a;
+}
+
+.info-management-container .apporg-page .card-header .header-right {
+  margin-left: auto;
+}
+
 .app-container .apporg-record-btn.el-button,
 .app-container .apporg-status-btn.el-button {
   display: inline-flex !important;

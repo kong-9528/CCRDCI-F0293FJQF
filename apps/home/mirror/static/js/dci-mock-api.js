@@ -105,26 +105,26 @@
   }
 
   var APPORG_ROWS = [
-    { id: 1, appOrgName: "版权云创作平台", appOrgCode: "APPLY-CCY-0001", appOrgStatus: "正常", createTime: "2025-11-08 09:20:11" },
-    { id: 2, appOrgName: "华数数字版权中心", appOrgCode: "APPLY-WASU-0002", appOrgStatus: "正常", createTime: "2025-12-02 14:35:46" },
-    { id: 3, appOrgName: "星图内容确权系统", appOrgCode: "APPLY-XT-0003", appOrgStatus: "停用", createTime: "2026-01-18 10:05:22" },
-    { id: 4, appOrgName: "映像媒资管理平台", appOrgCode: "APPLY-YX-0004", appOrgStatus: "正常", createTime: "2026-02-26 16:48:03" },
+    { id: 1, appOrgName: "版权云创作平台", appOrgCode: "CCY8K21", appOrgStatus: "正常", createTime: "2025-11-08 09:20:11" },
+    { id: 2, appOrgName: "华数数字版权中心", appOrgCode: "WASU39A", appOrgStatus: "正常", createTime: "2025-12-02 14:35:46" },
+    { id: 3, appOrgName: "星图内容确权系统", appOrgCode: "XT4P920", appOrgStatus: "停用", createTime: "2026-01-18 10:05:22" },
+    { id: 4, appOrgName: "映像媒资管理平台", appOrgCode: "YX7M358", appOrgStatus: "正常", createTime: "2026-02-26 16:48:03" },
   ];
   var APPORG_RECORDS = {
     1: [
-      { appOrgName: "版权云创作平台", appOrgCode: "APPLY-CCY-0001", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-03-01 11:12:08" },
-      { appOrgName: "版权云创作平台", appOrgCode: "APPLY-CCY-0001", appOrgStatus: "停用", createBy: "mayi", createTime: "2026-02-12 09:40:21" },
-      { appOrgName: "版权云创作平台", appOrgCode: "APPLY-CCY-0001", appOrgStatus: "正常", createBy: "mayi", createTime: "2025-11-08 09:20:11" },
+      { appOrgName: "版权云创作平台", appOrgCode: "CCY8K21", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-03-01 11:12:08" },
+      { appOrgName: "版权云创作平台", appOrgCode: "CCY8K21", appOrgStatus: "停用", createBy: "mayi", createTime: "2026-02-12 09:40:21" },
+      { appOrgName: "版权云创作平台", appOrgCode: "CCY8K21", appOrgStatus: "正常", createBy: "mayi", createTime: "2025-11-08 09:20:11" },
     ],
     2: [
-      { appOrgName: "华数数字版权中心", appOrgCode: "APPLY-WASU-0002", appOrgStatus: "正常", createBy: "mayi2", createTime: "2025-12-02 14:35:46" },
+      { appOrgName: "华数数字版权中心", appOrgCode: "WASU39A", appOrgStatus: "正常", createBy: "mayi2", createTime: "2025-12-02 14:35:46" },
     ],
     3: [
-      { appOrgName: "星图内容确权系统", appOrgCode: "APPLY-XT-0003", appOrgStatus: "停用", createBy: "mayi2", createTime: "2026-03-10 15:22:40" },
-      { appOrgName: "星图内容确权系统", appOrgCode: "APPLY-XT-0003", appOrgStatus: "正常", createBy: "mayi1", createTime: "2026-01-18 10:05:22" },
+      { appOrgName: "星图内容确权系统", appOrgCode: "XT4P920", appOrgStatus: "停用", createBy: "mayi2", createTime: "2026-03-10 15:22:40" },
+      { appOrgName: "星图内容确权系统", appOrgCode: "XT4P920", appOrgStatus: "正常", createBy: "mayi1", createTime: "2026-01-18 10:05:22" },
     ],
     4: [
-      { appOrgName: "映像媒资管理平台", appOrgCode: "APPLY-YX-0004", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-02-26 16:48:03" },
+      { appOrgName: "映像媒资管理平台", appOrgCode: "YX7M358", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-02-26 16:48:03" },
     ],
   };
   var apporgSeq = 5;
@@ -397,7 +397,7 @@
       var created = {
         id: apporgSeq++,
         appOrgName: data.appOrgName || "未命名申领平台",
-        appOrgCode: data.appOrgCode || "APPLY-NEW",
+        appOrgCode: data.appOrgCode || "NEW9K42",
         appOrgStatus: "正常",
         createTime: nowStamp(),
       };
