@@ -621,6 +621,79 @@
   background: rgba(0, 117, 193, 0.16) !important;
 }
 
+/* Workbench top nav (.topmenu-container): match portal focus
+   (full-height soft fill + brand underline). Original styles use !important. */
+.dci-navbar .navbar-center,
+.dci-navbar .navbar-center[data-v-49b10b49],
+.dci-navbar #topmenu-container,
+.topmenu-container.el-menu--horizontal {
+  align-self: stretch;
+  height: 64px !important;
+}
+
+.topmenu-container.el-menu--horizontal {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  border-bottom: none !important;
+  background: transparent !important;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item,
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
+  position: relative;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 64px !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  border-radius: 0 !important;
+  border-bottom: none !important;
+  color: #4e5969 !important;
+  font-weight: 400 !important;
+  background: transparent !important;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
+  color: #0075c1 !important;
+  background: rgba(0, 117, 193, 0.06) !important;
+  border-radius: 0 !important;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
+.el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
+  color: #0075c1 !important;
+  font-weight: 600 !important;
+  background: rgba(0, 117, 193, 0.14) !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active::after,
+.el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: #0075c1;
+  z-index: 1;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active:hover,
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active:focus {
+  color: #0075c1 !important;
+  background: rgba(0, 117, 193, 0.16) !important;
+}
+
 /* Registered trademark ® — superscript (match product brand mark) */
 sup.a-tm,
 .a-tm,
@@ -717,5 +790,113 @@ sup.a-tm,
   width: 16px !important;
   height: 16px !important;
 }
+
+/* DCI 注册中心工作台：hero 标题前标识改为 DCI logo mark */
+.dashboard-container .hero-banner .hero-icon[data-v-c8cd1345],
+.dashboard-container .hero-banner .hero-icon,
+.hero-banner .hero-icon[data-v-c8cd1345],
+.hero-banner .hero-icon {
+  gap: 10px;
+  padding: 8px 18px;
+  font-size: 15px;
+  border-radius: 22px;
+}
+
+.dashboard-container .hero-banner .hero-icon .hero-dci-mark,
+.hero-banner .hero-icon .hero-dci-mark,
+.hero-dci-mark {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 5px;
+}
+
+/* Left-right pages: left white menu fills column height (match customer);
+   right stays content-sized. Use explicit vh min-height — % min-height fails
+   when parent only has min-height, not height. */
+.info-management-container[data-v-740fb281],
+.api-management-container[data-v-9b3fb548],
+.doc-management-container[data-v-39bf64b8],
+.info-management-container,
+.api-management-container,
+.doc-management-container {
+  box-sizing: border-box;
+}
+
+.info-management-container .info-layout[data-v-740fb281],
+.api-management-container .api-layout[data-v-9b3fb548],
+.doc-management-container .doc-layout[data-v-39bf64b8],
+.doc-layout[data-v-39bf64b8],
+.info-management-container .info-layout,
+.api-management-container .api-layout,
+.doc-management-container .doc-layout,
+.doc-layout {
+  display: flex !important;
+  align-items: stretch !important;
+  min-height: calc(100vh - 112px) !important; /* 64 header + 24*2 page padding */
+}
+
+.info-management-container .left-menu-card[data-v-740fb281],
+.api-management-container .left-menu-card[data-v-9b3fb548],
+.doc-management-container .left-menu-card[data-v-39bf64b8],
+.left-menu-card[data-v-39bf64b8],
+.info-management-container .left-menu-card,
+.api-management-container .left-menu-card,
+.doc-management-container .left-menu-card,
+.left-menu-card {
+  align-self: stretch !important;
+  min-height: calc(100vh - 112px) !important;
+  box-sizing: border-box !important;
+}
+
+.info-management-container .right-content-card[data-v-740fb281],
+.api-management-container .right-content-card[data-v-9b3fb548],
+.doc-management-container .right-content-card[data-v-39bf64b8],
+.right-content-card[data-v-39bf64b8],
+.info-management-container .right-content-card,
+.api-management-container .right-content-card,
+.doc-management-container .right-content-card,
+.right-content-card {
+  align-self: flex-start !important;
+}
+
+/* 账号中心左右布局同理 */
+.profile-layout-inner[data-v-96ef2aa1],
+.profile-layout-inner {
+  align-items: stretch !important;
+  min-height: calc(100vh - 128px) !important;
+}
+
+.left-sidebar-card[data-v-96ef2aa1],
+.left-sidebar-card {
+  align-self: stretch !important;
+  min-height: calc(100vh - 128px) !important;
+  box-sizing: border-box !important;
+}
+
+.profile-layout-inner > .right-content-card {
+  align-self: flex-start !important;
+}
+
+/* Disable route page enter/leave animation when switching modules */
+.fade-transform-enter-active,
+.fade-transform-leave-active,
+.fade-transform--move,
+.fade-transform-enter-from,
+.fade-transform-leave-to,
+.breadcrumb-enter-active,
+.breadcrumb-leave-active,
+.breadcrumb-enter-from,
+.breadcrumb-leave-active,
+.breadcrumb-move {
+  transition: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+
+
 
 
