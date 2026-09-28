@@ -1,5 +1,5 @@
 /**
- * Org-info page demo: 无状态 / 审核中
+ * Org-info page demo: 正常 / 审核中
  */
 (function () {
   var STORE_KEY = "dci-orginfo-demo-mode";
@@ -7,7 +7,7 @@
   var PANEL_ID = "dci-orginfo-demo-panel";
 
   var MODES = [
-    { id: "idle", label: "无状态", changeStatus: "0" },
+    { id: "idle", label: "正常", changeStatus: "0" },
     { id: "reviewing", label: "审核中", changeStatus: "1" },
   ];
 
@@ -92,6 +92,63 @@
     if (!d.linkName) d.linkName = "张三";
     if (!d.linkPhone) d.linkPhone = "13800008002";
     return body;
+  }
+
+  /**
+   * History rows (oldest → newest). Caller may reverse for UI.
+   * Base: 已撤回 / 不通过 / 已通过. When demo=审核中, append 审核中 as latest.
+   */
+  function buildHistoryRecords(orgId) {
+    var base = {
+      id: orgId || "mock-mayi2",
+      regOrgName: "太极计算机股份有限公司",
+      orgName: "太极计算机股份有限公司",
+      regOrgNamePy: "Taiji Computer Co Ltd",
+      regOrgAddress: "北京市海淀区北四环中路211号",
+      invitationCode: "DCI-INVITE-2026",
+      regOrgType: "ZYFW",
+      orgTypeName: "专业服务",
+      cooperationField: "数字版权确权、DCI码申领与同步",
+      contractStartDate: "2026-01-01",
+      contractEndDate: "2027-12-31",
+      linkName: "张三",
+      linkPhone: "13800008002",
+    };
+    var rows = [
+      Object.assign({}, base, {
+        id: "hist-withdrawn",
+        auditStatus: "3",
+        auditRemark: "申请人主动撤回本次信息变更申请",
+        createTime: "2026-03-08 14:22:10",
+      }),
+      Object.assign({}, base, {
+        id: "hist-rejected",
+        auditStatus: "2",
+        auditRemark: "合作领域描述不清晰，请补充业务范围后重新提交",
+        rejectReason: "合作领域描述不清晰，请补充业务范围后重新提交",
+        createTime: "2026-05-16 10:05:33",
+        cooperationField: "数字版权相关业务",
+      }),
+      Object.assign({}, base, {
+        id: "hist-approved",
+        auditStatus: "1",
+        auditRemark: "审核通过",
+        createTime: "2026-07-02 16:48:21",
+      }),
+    ];
+    if (getModeId() === "reviewing") {
+      rows.push(
+        Object.assign({}, base, {
+          id: "hist-reviewing",
+          auditStatus: "0",
+          auditRemark: "用户提交申请，等待审核中",
+          createTime: "2026-09-28 09:30:00",
+          cooperationField: "数字版权确权、DCI码申领与同步、作品监测",
+          linkName: "李四",
+        }),
+      );
+    }
+    return rows;
   }
 
   function ensureStyles() {
@@ -188,6 +245,7 @@
     setModeId: setModeId,
     apply: apply,
     shapePayload: shapePayload,
+    buildHistoryRecords: buildHistoryRecords,
     isOrgInfoPage: isOrgInfoPage,
     subscribe: subscribe,
     EVENT: EVENT,

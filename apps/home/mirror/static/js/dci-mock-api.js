@@ -1,9 +1,12 @@
 /**
- * Offline mock for ALL /api/v1/dciManage requests (XHR + fetch).
- * Loaded after dci-mock-auth.js; never falls through to the network.
+ * Offline mock for project API requests (XHR + fetch).
+ * Loaded after dci-mock-auth.js; never falls through to external backends.
  */
 (function () {
   var API_PREFIX = "/api/v1/dciManage";
+  /** Hosts that must never be reached from this offline mirror */
+  var BLOCKED_HOST_RE =
+    /(^|\.)aliyuncs\.com$|(^|\.)ccopyright\.com\.cn$|^8\.145\.60\.215$|^(\d{1,3}\.){3}\d{1,3}:9020$/i;
   var BUSINESS_INTERFACES = [{"id":"2080587923100037121","interfaceName":"实名信息接口","interfaceAddr":"/api/v1/dciManage/realName/verify","requestParams":"详见接口文档","responseParams":"详见接口文档","docFileName":"","docFileUrl":"","status":"1","remark":"","interfaceDesc":"该接口用于同步著作权人的实名信息数据。"},{"id":"2080588010370920449","interfaceName":"实名信息修改接口","interfaceAddr":"/api/v1/dciManage/realName/modify","requestParams":"详见接口文档","responseParams":"详见接口文档","docFileName":"","docFileUrl":"","status":"1","remark":"","interfaceDesc":"该接口用于修改著作权人的实名认证信息，包含著作权人ID、著作权人名称、证件有效起始期、证件有效终止期、联系人、手机号、证件名称、证件格式、证件正面照文件路径、证件反面照文件路径。"},{"id":"2070330053367017473","interfaceName":"DCI申领数据同步接口","interfaceAddr":"/api/v1/dciManage/apply/applyInfo","requestParams":"详见接口文档","responseParams":"详见接口文档","docFileName":"","docFileUrl":"","status":"1","remark":"","interfaceDesc":"该接口用于向DCI管理中心提交DCI申领业务数据信息，包括：DCI码基本信息、作品基本信息、作品样本信息、著作权人信息、关联登记信息、数字版权链信息。"},{"id":"2055556104074723330","interfaceName":"DCI撤销数据同步接口","interfaceAddr":"/api/v1/dciManage/apply/revokeInfo2","requestParams":"详见接口文档","responseParams":"详见接口文档","docFileName":"","docFileUrl":"","status":"1","remark":"","interfaceDesc":"该接口用于向DCI管理中心同步DCI撤销的信息。"}];
 
 
@@ -41,9 +44,30 @@
     };
   }
 
+  function isBlockedExternal(raw) {
+    try {
+      var s = String(raw || "");
+      if (!/^https?:\/\//i.test(s)) return false;
+      var u = new URL(s, location.href);
+      if (u.origin === location.origin) return false;
+      // Allow intentional monorepo customer bridge only via top-level navigation,
+      // never via XHR/fetch API calls.
+      if (BLOCKED_HOST_RE.test(u.hostname) || BLOCKED_HOST_RE.test(u.host)) return true;
+      // Any other absolute cross-origin API-ish call is also blocked offline
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /** Intercept project APIs + block any non-same-origin network calls */
   function isDciApi(raw) {
-    var p = parseUrl(raw).path;
-    return p.indexOf(API_PREFIX) === 0 || p === API_PREFIX;
+    var parsed = parseUrl(raw);
+    var p = parsed.path || "";
+    if (p.indexOf(API_PREFIX) === 0 || p === API_PREFIX) return true;
+    if (p.indexOf("/api/") === 0 || p === "/api") return true;
+    if (isBlockedExternal(raw)) return true;
+    return false;
   }
 
   function apiPath(raw) {
@@ -192,6 +216,13 @@
 
   function handle(method, rawUrl, body) {
     var m = String(method || "GET").toUpperCase();
+    // Absolute cross-origin → never leave this offline app
+    if (isBlockedExternal(rawUrl)) {
+      try {
+        console.warn("[dci-mock] blocked external request:", method, rawUrl);
+      } catch (eBlk) {}
+      return fail("演示环境已阻断外部接口调用", 500);
+    }
     var path = apiPath(rawUrl);
     var q = queryObject(rawUrl);
     // axios folds get params into url before send
@@ -281,6 +312,24 @@
     if (path === "/register/contract/upload" && m === "POST") {
       return ok({ url: "/mock/contract.pdf", fileName: "contract.pdf" });
     }
+    if (path === "/common/upload" && m === "POST") {
+      var upName = "upload-demo.pdf";
+      try {
+        if (typeof FormData !== "undefined" && body instanceof FormData) {
+          var f = body.get("file") || body.get("files");
+          if (f && f.name) upName = f.name;
+        } else if (data && data.fileName) upName = data.fileName;
+      } catch (eUp) {}
+      return ok({
+        url: "/mock/" + encodeURIComponent(upName),
+        fileName: upName,
+        newFileName: upName,
+        originalFilename: upName,
+      }, { msg: "上传成功（演示）" });
+    }
+    if (path.indexOf("/common/download") === 0) {
+      return ok(null, { msg: "演示环境不提供远端文件下载" });
+    }
     if (path === "/password/reset/sendSmsCode" && m === "POST") {
       return ok(true, { msg: "验证码已发送（演示码 123456）" });
     }
@@ -356,7 +405,21 @@
     if (path.indexOf("/dci/regorg/revoke/") === 0) {
       return ok(null, { msg: "已撤销（演示）" });
     }
-    if (path === "/dci/regorg/auditList" && m === "GET") {
+    if (path === "/dci/regorg/auditList" && (m === "GET" || m === "POST")) {
+      if (
+        window.__DCI_ORGINFO_DEMO__ &&
+        typeof window.__DCI_ORGINFO_DEMO__.isOrgInfoPage === "function" &&
+        window.__DCI_ORGINFO_DEMO__.isOrgInfoPage() &&
+        typeof window.__DCI_ORGINFO_DEMO__.buildHistoryRecords === "function"
+      ) {
+        var histId =
+          (data && (data.orgId || data.id)) ||
+          q.orgId ||
+          (user && user.userId) ||
+          "";
+        var hist = window.__DCI_ORGINFO_DEMO__.buildHistoryRecords(histId);
+        return page(hist, hist.length);
+      }
       return page([]);
     }
     if (path === "/dci/regorg/updateApiKey" && m === "POST") {
