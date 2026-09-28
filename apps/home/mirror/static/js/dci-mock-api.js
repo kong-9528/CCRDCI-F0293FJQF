@@ -355,7 +355,8 @@
       return ok(true, { msg: "验证码已发送（演示码 123456）" });
     }
     if (path === "/system/user/profile/getRealPhone" && m === "GET") {
-      return ok({ phonenumber: (user && user.phonenumber) || "13800000000" });
+      // UI expects data as phone string (not { phonenumber })
+      return ok((user && user.phonenumber) || "13800000000");
     }
     if (path === "/system/user/profile/updatePwd" && m === "PUT") {
       return ok(null, { msg: "密码修改成功（演示）" });
@@ -394,7 +395,11 @@
       return M.orgPayload(ou);
     }
     if (path.indexOf("/dci/regorg/getRealPhone/") === 0) {
-      return ok({ phonenumber: (user && user.phonenumber) || "13800000000" });
+      // UI expects data as phone string (not { phonenumber })
+      var realPhone =
+        (user && user.phonenumber) ||
+        "13800008002";
+      return ok(realPhone);
     }
     if (path === "/dci/regorg/apply" && m === "POST") {
       return ok(null, { msg: "申请已提交（演示）" });

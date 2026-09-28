@@ -1140,6 +1140,146 @@ sup.a-tm,
   color: #909399;
 }
 
+/*
+ * Descriptions table tokens — match /dci/info-management?tab=identity
+ * .custom-descriptions: label #fafafa / 200px / 16px 20px; content 16px 20px #303133
+ */
+.identity-container .main-card .custom-descriptions .el-descriptions__label,
+.history-dialog .custom-descriptions .el-descriptions__label {
+  width: 200px !important;
+  min-width: 200px;
+  background-color: #fafafa !important;
+  color: #606266 !important;
+  font-weight: 500 !important;
+  padding: 16px 20px !important;
+}
+.identity-container .main-card .custom-descriptions .el-descriptions__content,
+.history-dialog .custom-descriptions .el-descriptions__content {
+  padding: 16px 20px !important;
+  color: #303133 !important;
+}
+.history-dialog .custom-descriptions {
+  margin-top: 4px;
+}
+.history-dialog .custom-descriptions .el-descriptions__table {
+  table-layout: fixed;
+}
+
+/*
+ * Org-info browse mode: form-text-value rows → same descriptions table look
+ * (edit mode keeps normal form because inputs replace .form-text-value)
+ */
+/* Browse attachment: always has .upload-wrapper (even when file list is empty) */
+.apply-console-container .apply-form .el-form-item:has(.form-text-value),
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) {
+  margin-bottom: 0;
+  margin-top: 0;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #ebeef5;
+  border-bottom: none;
+  background: #fff;
+}
+.apply-console-container .apply-form .section-title + .el-form-item:has(.form-text-value),
+.apply-console-container .apply-form .section-title + .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) {
+  border-top: 1px solid #ebeef5;
+}
+.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__label-wrap,
+.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__label,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__label-wrap,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__label {
+  width: 200px !important;
+  max-width: 200px !important;
+  min-width: 200px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 16px 20px !important;
+  line-height: 1.5 !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  box-sizing: border-box;
+  background-color: #fafafa !important;
+  color: #606266 !important;
+  font-weight: 500 !important;
+  border-right: 1px solid #ebeef5;
+}
+.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__content,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__content {
+  margin-left: 0 !important;
+  flex: 1;
+  min-width: 0;
+  padding: 16px 20px !important;
+  line-height: 1.5;
+  color: #303133;
+}
+/* Empty attachment: show "-" like other empty fields */
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.file-item)) .upload-wrapper::before {
+  content: "-";
+  color: #303133;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+/* Contract attachment with file: compact + vertically centered */
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label-wrap,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label {
+  align-items: center !important;
+  padding: 12px 20px !important;
+}
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content {
+  display: flex !important;
+  align-items: center !important;
+  padding: 12px 20px !important;
+}
+/* Browse mode still renders .file-list.margin-top-12 — kill asymmetric top push */
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-list {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-item {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 6px 12px !important;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .upload-wrapper,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__content > div {
+  width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .upload-wrapper,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content > div {
+  display: flex;
+  align-items: center;
+}
+.apply-console-container .apply-form .el-form-item:has(.form-text-value) .form-text-value {
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  font-weight: 400;
+  color: #303133;
+  font-size: 14px;
+}
+/* Close table bottom border: last field before divider / section / actions */
+.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .section-title),
+.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .submit-action),
+.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .el-divider),
+.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .custom-divider),
+.apply-console-container .apply-form .el-form-item:has(.form-text-value):last-child,
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .section-title),
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .submit-action),
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .el-divider),
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .custom-divider),
+.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):last-child {
+  border-bottom: 1px solid #ebeef5 !important;
+}
+.apply-console-container .apply-form .custom-divider,
+.apply-console-container .apply-form .el-divider.custom-divider {
+  margin: 20px 0 16px;
+}
+
 /* DCI API docs interfaces: match customer /docs accordion look */
 .doc-management-container .api-accordion {
   display: flex;
@@ -1377,22 +1517,112 @@ sup.a-tm,
 
 
 
-/* Org-info: full-width primary action; edit mode = two equal buttons */
+/* Org-info title: match apporg (icon + 16px title), different icon */
+.apply-console-container:not(.is-embedded-container) .main-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 14px;
+  gap: 16px;
+  border-bottom: none;
+  padding: 0;
+}
+.apply-console-container:not(.is-embedded-container) .main-card .card-header .header-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0;
+}
+.apply-console-container .header-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  background: #e6f1fc;
+  color: #0075c1;
+  border-radius: 6px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.apply-console-container .header-icon-wrapper .el-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.apply-console-container:not(.is-embedded-container) .main-card .card-header .header-left .header-title,
+.apply-console-container:not(.is-embedded-container) .header-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+  white-space: nowrap;
+}
+
+/* History button: keep look, match apporg default button height (32px) */
+.apply-console-container .main-card .card-header .history-btn.el-button {
+  height: 32px !important;
+  padding: 0 14px;
+}
+
+/* Org-info: match info-management spacing
+   - page edge → card: 24px (info-management-container padding)
+   - card edge → title: 24px (identity/apporg inner padding)
+   - info-layout column gap reference: 20px (no left submenu here; keep page padding only) */
+.apply-console-container:not(.is-embedded-container) {
+  padding: 24px !important;
+  background-color: #f4f7fc !important;
+  min-height: calc(100vh - 64px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.apply-console-container:not(.is-embedded-container) .main-card:not(.is-embedded-card) {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  /* Match identity-container / apporg-page: 24px to header */
+  padding: 24px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+}
+.apply-console-container:not(.is-embedded-container) .main-card .apply-form {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Org-info: full-width primary action; edit mode = submit dominates row */
 .apply-console-container .submit-action {
   width: 100%;
 }
 .apply-console-container .submit-action .submit-btn.el-button {
   width: 100%;
 }
-.apply-console-container .submit-action:has(.el-button + .el-button) .submit-btn.el-button,
-.apply-console-container .submit-action:has(.el-button + .el-button) > .el-button {
+.apply-console-container .submit-action:has(.el-button + .el-button) {
+  gap: 12px;
+}
+.apply-console-container .submit-action:has(.el-button + .el-button) .submit-btn.el-button {
   width: auto;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
   height: 48px;
   font-size: 16px;
   font-weight: 600;
   border-radius: 4px;
+}
+.apply-console-container .submit-action:has(.el-button + .el-button) > .el-button:not(.submit-btn),
+.apply-console-container .submit-action .cancel-btn.el-button {
+  width: auto;
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 20px !important;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 4px !important;
 }
 
 /* Disable route page enter/leave animation when switching modules */
