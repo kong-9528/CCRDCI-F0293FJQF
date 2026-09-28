@@ -104,6 +104,8 @@
       regOrgName: "太极计算机股份有限公司",
       orgName: "太极计算机股份有限公司",
       regOrgNamePy: "Taiji Computer Co Ltd",
+      creditCode: "91110000710934657Q",
+      orgCode: "ANT",
       regOrgAddress: "北京市海淀区北四环中路211号",
       invitationCode: "DCI-INVITE-2026",
       regOrgType: "ZYFW",
@@ -113,6 +115,7 @@
       contractEndDate: "2027-12-31",
       linkName: "张三",
       linkPhone: "13800008002",
+      contractFileList: [{ name: "2025RQL0001594.pdf", url: "/demo/2025RQL0001594.pdf" }],
     };
     var rows = [
       Object.assign({}, base, {

@@ -1,0 +1,10 @@
+const fs = require("fs");
+const s = fs.readFileSync("apps/home/mirror/static/js/info-0k0-BfNc.js", "utf8");
+const i = s.indexOf('view="history"');
+console.log("btn patch idx", i);
+console.log(s.slice(Math.max(0, i - 150), i + 220));
+const j = s.indexOf("__DCI_ORGINFO_HISTORY__");
+console.log("\nbridge idx", j);
+console.log(s.slice(Math.max(0, j - 60), j + 400));
+console.log("\nbroken ternary", s.includes(':x("",!0):'));
+console.log("history-btn still opens dialog only", /history-btn[^}]*M\.value=!0\}/.test(s) && !s.includes('view="history"'));
