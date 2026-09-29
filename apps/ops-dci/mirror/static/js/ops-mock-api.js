@@ -268,20 +268,35 @@
     }
 
     if (path === "/logout" && (m === "POST" || m === "GET")) {
+      var sessionAge = 0;
+      try {
+        var raw = sessionStorage.getItem("ops-dci-sso-session");
+        var parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && parsed.at) sessionAge = Date.now() - Number(parsed.at);
+      } catch (e) {}
       try {
         sessionStorage.removeItem("ops-dci-mock-user");
         sessionStorage.removeItem("ops-dci-sso-session");
         document.cookie = "Admin-Token=; path=/; Max-Age=0";
-      } catch (e) {}
-      setTimeout(function () {
-        var sso =
-          (typeof window.__OPS_DCI_SSO_URL__ === "string" && window.__OPS_DCI_SSO_URL__) ||
-          "http://localhost:3003";
-        location.href =
-          sso.replace(/\/$/, "") +
-          "/login?return_url=" +
-          encodeURIComponent(location.origin + "/");
-      }, 30);
+      } catch (e2) {}
+      // Only bounce to SSO on intentional logout (session lived >3s).
+      // Boot-time getInfo/logOut failures must NOT redirect — that loops with SSO auto-return.
+      if (sessionAge > 3000) {
+        setTimeout(function () {
+          if (window.__OPS_DCI_SSO__ && typeof window.__OPS_DCI_SSO__.goSso === "function") {
+            window.__OPS_DCI_SSO__.goSso();
+            return;
+          }
+          var sso =
+            (typeof window.__OPS_DCI_SSO_URL__ === "string" && window.__OPS_DCI_SSO_URL__) ||
+            "http://localhost:3003";
+          location.replace(
+            sso.replace(/\/$/, "") +
+              "/login?return_url=" +
+              encodeURIComponent(location.origin + "/"),
+          );
+        }, 30);
+      }
       return ok100(null);
     }
 

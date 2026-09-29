@@ -5,6 +5,7 @@
 (function () {
   var TOKEN = "mock-root";
   var COOKIE = "Admin-Token";
+  var BOUNCE_KEY = "ops-dci-sso-bounce-at";
   var SSO =
     (typeof window.__OPS_DCI_SSO_URL__ === "string" && window.__OPS_DCI_SSO_URL__) ||
     "http://localhost:3003";
@@ -12,7 +13,7 @@
   function hasToken() {
     try {
       var m = document.cookie.match(/(?:^|;\s*)Admin-Token=([^;]*)/);
-      return !!(m && m[1] && m[1] !== "undefined");
+      return !!(m && m[1] && m[1] !== "undefined" && m[1] !== "");
     } catch (e) {
       return false;
     }
@@ -20,7 +21,12 @@
 
   function setSession(username) {
     try {
-      document.cookie = COOKIE + "=" + TOKEN + "; path=/";
+      // Match js-cookie path=/ used by the Vue app
+      document.cookie =
+        encodeURIComponent(COOKIE) +
+        "=" +
+        encodeURIComponent(TOKEN) +
+        "; path=/";
       sessionStorage.setItem("ops-dci-mock-user", username || "root");
       sessionStorage.setItem(
         "ops-dci-sso-session",
@@ -38,6 +44,18 @@
   }
 
   function goSso() {
+    try {
+      var last = Number(sessionStorage.getItem(BOUNCE_KEY) || "0");
+      if (last && Date.now() - last < 4000) {
+        // Break SSO↔ops-dci redirect loops: keep a local demo session instead
+        setSession("root");
+        if (/\/login\/?$/.test(location.pathname)) {
+          location.replace("/");
+        }
+        return;
+      }
+      sessionStorage.setItem(BOUNCE_KEY, String(Date.now()));
+    } catch (e) {}
     var returnUrl = location.origin + "/";
     location.replace(
       SSO.replace(/\/$/, "") +
@@ -76,6 +94,9 @@
   var url = new URL(location.href);
   var hit = readTicket(url);
   if (hit) {
+    try {
+      sessionStorage.removeItem(BOUNCE_KEY);
+    } catch (e) {}
     setSession(hit.username);
     url.searchParams.delete("sso_ticket");
     url.searchParams.delete("username");
@@ -83,9 +104,10 @@
     url.searchParams.delete("redirect");
     var path = hit.cleanPath || url.pathname;
     if (/\/login\/?$/.test(path)) path = "/";
-    history.replaceState({}, "", path + (url.search || "") + url.hash);
-    if (/\/login\/?$/.test(location.pathname)) {
-      location.replace(path || "/");
+    var next = path + (url.search || "") + url.hash;
+    // Full navigation so Vue boots with cookie already present
+    if (location.pathname + location.search + location.hash !== next) {
+      location.replace(next);
       return;
     }
     window.__OPS_DCI_SSO__ = { clearSession: clearSession, goSso: goSso, hasToken: hasToken };

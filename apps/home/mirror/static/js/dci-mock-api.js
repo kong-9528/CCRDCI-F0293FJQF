@@ -519,8 +519,8 @@
           dciApplyTime: "2026-07-01 10:28:36",
           registerName: "中国版权保护中心",
           ownerName: "中国版权保护中心",
-          regOrgName: "太极计算机股份有限公司",
-          applyOrgName: "太极计算机股份有限公司",
+          regOrgName: "蚂蚁科技集团股份有限公司",
+          applyOrgName: "蚂蚁科技集团股份有限公司",
         },
       ]);
     }

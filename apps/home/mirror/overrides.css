@@ -876,6 +876,172 @@ sup.a-tm,
   border-radius: 5px;
 }
 
+/* Hero banner: elegant thematic decor (国家标准 / 可信 / 唯一标识 / 数字身份证) */
+.dashboard-container .hero-banner,
+.hero-banner[data-v-c8cd1345],
+.hero-banner {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 70% 90% at 8% 20%, rgba(255, 255, 255, 0.14), transparent 55%),
+    radial-gradient(ellipse 55% 70% at 92% 78%, rgba(10, 40, 120, 0.35), transparent 60%),
+    linear-gradient(135deg, #1b53c0 0%, #2568e8 48%, #2a78f6 100%) !important;
+}
+
+.dashboard-container .hero-banner .hero-decor,
+.hero-banner .hero-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+}
+
+.dashboard-container .hero-banner .hero-content,
+.hero-banner .hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Soft orbs — atmosphere, not noise */
+.hero-decor__orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(2px);
+}
+.hero-decor__orb--a {
+  width: 220px;
+  height: 220px;
+  top: -60px;
+  left: -40px;
+  animation: hero-decor-drift 14s ease-in-out infinite alternate;
+}
+.hero-decor__orb--b {
+  width: 180px;
+  height: 180px;
+  right: -30px;
+  bottom: -50px;
+  opacity: 0.7;
+  animation: hero-decor-drift 18s ease-in-out infinite alternate-reverse;
+}
+.hero-decor__orb--c {
+  width: 120px;
+  height: 120px;
+  top: 40%;
+  left: 55%;
+  opacity: 0.45;
+  animation: hero-decor-pulse 10s ease-in-out infinite;
+}
+
+/* Certification seal — 国家标准 / 可信 */
+.hero-decor__seal {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: -18px;
+  right: 6%;
+  opacity: 0.22;
+  animation: hero-decor-spin 48s linear infinite;
+}
+
+/* Digital ID card — 数字身份证 */
+.hero-decor__idcard {
+  position: absolute;
+  width: 168px;
+  height: 105px;
+  left: 4%;
+  bottom: 10%;
+  opacity: 0.2;
+  transform: rotate(-8deg);
+  animation: hero-decor-float 9s ease-in-out infinite;
+}
+
+/* Fingerprint arcs — 唯一标识符 */
+.hero-decor__fingerprint {
+  position: absolute;
+  width: 88px;
+  height: 110px;
+  right: 5%;
+  bottom: 8%;
+  opacity: 0.2;
+  animation: hero-decor-float 11s ease-in-out infinite reverse;
+}
+
+/* Network nodes — 数智基础设施 */
+.hero-decor__network {
+  position: absolute;
+  width: 240px;
+  height: 160px;
+  left: -20px;
+  top: 8%;
+  opacity: 0.18;
+}
+
+/* Shield — 保护创作者权益 */
+.hero-decor__shield {
+  position: absolute;
+  width: 78px;
+  height: 96px;
+  right: 22%;
+  top: 18%;
+  opacity: 0.18;
+  animation: hero-decor-float 12s ease-in-out infinite 1s;
+}
+
+@keyframes hero-decor-drift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(18px, 12px); }
+}
+@keyframes hero-decor-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.08); }
+}
+@keyframes hero-decor-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes hero-decor-float {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-8px) rotate(-6deg); }
+}
+.hero-decor__fingerprint {
+  animation-name: hero-decor-float-fp;
+}
+@keyframes hero-decor-float-fp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.hero-decor__shield {
+  animation-name: hero-decor-float-sh;
+}
+@keyframes hero-decor-float-sh {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@media (max-width: 768px) {
+  .hero-decor__seal { width: 110px; height: 110px; right: -10px; opacity: 0.16; }
+  .hero-decor__idcard { width: 120px; height: 75px; opacity: 0.14; }
+  .hero-decor__fingerprint { width: 64px; height: 80px; opacity: 0.14; }
+  .hero-decor__network { width: 160px; height: 110px; opacity: 0.12; }
+  .hero-decor__shield { display: none; }
+  .hero-decor__orb--c { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-decor__seal,
+  .hero-decor__idcard,
+  .hero-decor__fingerprint,
+  .hero-decor__shield,
+  .hero-decor__orb {
+    animation: none !important;
+  }
+}
+
+
 /* Left-right pages: left white menu fills column height (match customer);
    right stays content-sized. Use explicit vh min-height — % min-height fails
    when parent only has min-height, not height. */

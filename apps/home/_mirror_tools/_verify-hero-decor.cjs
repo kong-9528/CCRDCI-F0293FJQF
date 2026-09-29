@@ -1,0 +1,10 @@
+const fs = require("fs");
+const s = fs.readFileSync("apps/home/mirror/static/js/index-D_FAjFVe.js", "utf8");
+const i = s.indexOf("hero-decor");
+console.log("idx", i);
+console.log(s.slice(i - 40, i + 200));
+console.log("has seal", s.includes("hero-decor__seal"));
+console.log("has idcard", s.includes("hero-decor__idcard"));
+console.log("has fingerprint", s.includes("hero-decor__fingerprint"));
+console.log("has network", s.includes("hero-decor__network"));
+console.log("has shield", s.includes("hero-decor__shield"));

@@ -70,6 +70,10 @@ const HOME_BRIDGE_USERS: Record<
     username: string;
     phonenumber: string;
     orgName: string;
+    orgNamePy: string;
+    creditCode: string;
+    address: string;
+    orgTypeName: string;
     isDciRegistryCenter: boolean;
     isTechService: boolean;
     contactName: string;
@@ -78,7 +82,11 @@ const HOME_BRIDGE_USERS: Record<
   yachang: {
     username: "yachang",
     phonenumber: "13900001111",
-    orgName: "",
+    orgName: "深圳市雅昌艺术网股份有限公司",
+    orgNamePy: "yachangyishu",
+    creditCode: "91440300724726181Q",
+    address: "深圳市南山区深云路19号",
+    orgTypeName: "内容平台",
     isDciRegistryCenter: false,
     isTechService: false,
     contactName: "雅昌",
@@ -86,7 +94,11 @@ const HOME_BRIDGE_USERS: Record<
   mayi: {
     username: "mayi",
     phonenumber: "13800008000",
-    orgName: "太极计算机股份有限公司",
+    orgName: "蚂蚁科技集团股份有限公司",
+    orgNamePy: "mayikeji",
+    creditCode: "913301067046373179",
+    address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+    orgTypeName: "专业服务",
     isDciRegistryCenter: true,
     isTechService: false,
     contactName: "张三",
@@ -94,7 +106,11 @@ const HOME_BRIDGE_USERS: Record<
   mayi1: {
     username: "mayi1",
     phonenumber: "13800008001",
-    orgName: "太极计算机股份有限公司",
+    orgName: "蚂蚁科技集团股份有限公司",
+    orgNamePy: "mayikeji",
+    creditCode: "913301067046373179",
+    address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+    orgTypeName: "专业服务",
     isDciRegistryCenter: false,
     isTechService: true,
     contactName: "李四",
@@ -102,7 +118,11 @@ const HOME_BRIDGE_USERS: Record<
   mayi2: {
     username: "mayi2",
     phonenumber: "13800008002",
-    orgName: "太极计算机股份有限公司",
+    orgName: "蚂蚁科技集团股份有限公司",
+    orgNamePy: "mayikeji",
+    creditCode: "913301067046373179",
+    address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+    orgTypeName: "专业服务",
     isDciRegistryCenter: true,
     isTechService: true,
     contactName: "王五",
@@ -110,11 +130,11 @@ const HOME_BRIDGE_USERS: Record<
 };
 
 export const MOCK_TENANT: TenantProfile = {
-  companyName: "太极计算机股份有限公司",
-  creditCode: "91110000MA01XXXX3K",
+  companyName: "蚂蚁科技集团股份有限公司",
+  creditCode: "913301067046373179",
   contactName: "李四",
   contactPhone: "13800001234",
-  address: "北京市海淀区中关村大街1号",
+  address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
   cooperationField: "数字版权核验、内容安全审核",
   inviteCode: "P6R4BHL2",
 };
@@ -151,6 +171,8 @@ type BridgePayload = {
   isTechService: boolean;
   phonenumber: string;
   contactName: string;
+  creditCode?: string;
+  address?: string;
 };
 
 function applyBridgeUser(key: string) {
@@ -161,6 +183,8 @@ function applyBridgeUser(key: string) {
   MOCK_SESSION.isDciRegistryCenter = u.isDciRegistryCenter;
   MOCK_SESSION.isTechService = u.isTechService;
   if (u.orgName) MOCK_TENANT.companyName = u.orgName;
+  if (u.creditCode) MOCK_TENANT.creditCode = u.creditCode;
+  if (u.address) MOCK_TENANT.address = u.address;
   MOCK_TENANT.contactName = u.contactName;
   MOCK_TENANT.contactPhone = u.phonenumber;
   const payload: BridgePayload = {
@@ -171,6 +195,8 @@ function applyBridgeUser(key: string) {
     isTechService: u.isTechService,
     phonenumber: u.phonenumber,
     contactName: u.contactName,
+    creditCode: u.creditCode,
+    address: u.address,
   };
   try {
     localStorage.setItem(BRIDGE_KEY, JSON.stringify(payload));
@@ -192,6 +218,8 @@ function restoreBridge() {
       MOCK_SESSION.isDciRegistryCenter = u.isDciRegistryCenter;
       MOCK_SESSION.isTechService = u.isTechService;
       if (u.orgName) MOCK_TENANT.companyName = u.orgName;
+      if (u.creditCode) MOCK_TENANT.creditCode = u.creditCode;
+      if (u.address) MOCK_TENANT.address = u.address;
       MOCK_TENANT.contactName = u.contactName;
       MOCK_TENANT.contactPhone = u.phonenumber;
       return;
@@ -201,6 +229,8 @@ function restoreBridge() {
     MOCK_SESSION.isDciRegistryCenter = !!data.isDciRegistryCenter;
     MOCK_SESSION.isTechService = data.isTechService !== false;
     if (data.orgName) MOCK_TENANT.companyName = data.orgName;
+    if (data.creditCode) MOCK_TENANT.creditCode = data.creditCode;
+    if (data.address) MOCK_TENANT.address = data.address;
     if (data.contactName) MOCK_TENANT.contactName = data.contactName;
     if (data.phonenumber) MOCK_TENANT.contactPhone = data.phonenumber;
   } catch {

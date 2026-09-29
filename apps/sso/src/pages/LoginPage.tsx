@@ -1,8 +1,33 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { listUsers } from "@/lib/rbacStore";
 import { isAllowedReturnUrl, redirectWithSsoTicket } from "@/lib/ssoEntry";
+
+const RETURN_GUARD_KEY = "ctp.sso.return-guard";
+
+function shouldSkipReturnRedirect(returnUrl: string) {
+  try {
+    const raw = sessionStorage.getItem(RETURN_GUARD_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { url?: string; at?: number };
+    if (!parsed?.url || parsed.url !== returnUrl) return false;
+    return Date.now() - Number(parsed.at || 0) < 5000;
+  } catch {
+    return false;
+  }
+}
+
+function markReturnRedirect(returnUrl: string) {
+  try {
+    sessionStorage.setItem(
+      RETURN_GUARD_KEY,
+      JSON.stringify({ url: returnUrl, at: Date.now() }),
+    );
+  } catch {
+    /* ignore */
+  }
+}
 
 export function LoginPage() {
   const { user, ready, login } = useAuth();
@@ -16,13 +41,32 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const redirectedRef = useRef(false);
 
   const homeTarget = (target: string) =>
     target === "/login" || target === "/" ? "/home" : target;
 
+  // Auto-return only once per visit; never during render (avoids SSO↔subsystem loops)
+  useEffect(() => {
+    if (!ready || !user || !returnUrl) return;
+    if (!isAllowedReturnUrl(returnUrl)) return;
+    if (redirectedRef.current) return;
+    if (shouldSkipReturnRedirect(returnUrl)) {
+      navigate(homeTarget(from), { replace: true });
+      return;
+    }
+    redirectedRef.current = true;
+    setRedirecting(true);
+    markReturnRedirect(returnUrl);
+    redirectWithSsoTicket(returnUrl, user);
+  }, [ready, user, returnUrl, from, navigate]);
+
   if (ready && user) {
     if (returnUrl && isAllowedReturnUrl(returnUrl)) {
-      redirectWithSsoTicket(returnUrl, user);
+      if (shouldSkipReturnRedirect(returnUrl) && !redirecting) {
+        return <Navigate to={homeTarget(from)} replace />;
+      }
       return (
         <div className="sso-login">
           <div className="sso-login__panel">
@@ -52,6 +96,7 @@ export function LoginPage() {
     if (returnUrl && isAllowedReturnUrl(returnUrl)) {
       const matched = listUsers().find((u) => u.username === username.trim());
       if (matched) {
+        markReturnRedirect(returnUrl);
         redirectWithSsoTicket(returnUrl, matched);
         return;
       }

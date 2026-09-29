@@ -29,7 +29,12 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
       phonenumber: "13900001111",
       auditStatus: null,
       techStatus: null,
-      orgName: "",
+      orgName: "深圳市雅昌艺术网股份有限公司",
+      orgNamePy: "yachangyishu",
+      creditCode: "91440300724726181Q",
+      orgAddress: "深圳市南山区深云路19号",
+      orgTypeCode: "NRPT",
+      orgTypeName: "内容平台",
     },
     mayi: {
       userId: "mock-mayi",
@@ -38,7 +43,12 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
       phonenumber: "13800008000",
       auditStatus: 1,
       techStatus: null,
-      orgName: "太极计算机股份有限公司",
+      orgName: "蚂蚁科技集团股份有限公司",
+      orgNamePy: "mayikeji",
+      creditCode: "913301067046373179",
+      orgAddress: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+      orgTypeCode: "ZYFW",
+      orgTypeName: "专业服务",
     },
     mayi1: {
       userId: "mock-mayi1",
@@ -47,7 +57,12 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
       phonenumber: "13800008001",
       auditStatus: null,
       techStatus: 1,
-      orgName: "太极计算机股份有限公司",
+      orgName: "蚂蚁科技集团股份有限公司",
+      orgNamePy: "mayikeji",
+      creditCode: "913301067046373179",
+      orgAddress: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+      orgTypeCode: "ZYFW",
+      orgTypeName: "专业服务",
     },
     mayi2: {
       userId: "mock-mayi2",
@@ -56,7 +71,12 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
       phonenumber: "13800008002",
       auditStatus: 1,
       techStatus: 1,
-      orgName: "太极计算机股份有限公司",
+      orgName: "蚂蚁科技集团股份有限公司",
+      orgNamePy: "mayikeji",
+      creditCode: "913301067046373179",
+      orgAddress: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+      orgTypeCode: "ZYFW",
+      orgTypeName: "专业服务",
     },
   };
   var PHONE_MAP = {};
@@ -118,7 +138,10 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
     if (u.auditStatus === null || u.auditStatus === undefined) {
       return { code: 200, data: null };
     }
-    var code = "ORG-" + String(u.username || "demo").toUpperCase();
+    var code =
+      u.username === "mayi" || u.username === "mayi2"
+        ? "ANT"
+        : "ORG-" + String(u.username || "demo").toUpperCase();
     return {
       code: 200,
       data: {
@@ -126,8 +149,19 @@ const MOCK_SRC = `/** DCI home mirror — demo auth users (offline) */
         auditStatus: u.auditStatus,
         orgName: u.orgName,
         regOrgName: u.orgName,
+        orgNamePy: u.orgNamePy || "",
+        regOrgNamePy: u.orgNamePy || "",
+        creditCode: u.creditCode || "",
+        orgAddress: u.orgAddress || "",
+        regOrgAddress: u.orgAddress || "",
+        orgTypeCode: u.orgTypeCode || "",
+        regOrgType: u.orgTypeCode || "",
+        orgTypeName: u.orgTypeName || "",
         orgCode: code,
         dciRegOrgCode: code,
+        dciCodeType: "原始分配,授权分配,其他",
+        dciDataInterface:
+          "实名信息接口,实名信息修改接口,DCI申领数据同步接口,DCI撤销数据同步接口",
         accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
         accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
         dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",

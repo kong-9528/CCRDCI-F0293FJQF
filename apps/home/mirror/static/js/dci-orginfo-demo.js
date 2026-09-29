@@ -77,15 +77,20 @@
     var d = body.data;
     d.changeStatus = m.changeStatus;
     d.auditStatus = 1;
-    // Fill demo fields if sparse
-    if (!d.orgName && !d.regOrgName) d.orgName = "太极计算机股份有限公司";
+    // Fill demo fields if sparse（默认对齐 mayi 机构：蚂蚁科技）
+    if (!d.orgName && !d.regOrgName) d.orgName = "蚂蚁科技集团股份有限公司";
     if (!d.regOrgName) d.regOrgName = d.orgName;
-    if (!d.orgNamePy && !d.regOrgNamePy) d.orgNamePy = "Taiji Computer Co Ltd";
-    if (!d.creditCode) d.creditCode = "91110000710934657Q";
-    if (!d.orgAddress && !d.regOrgAddress) d.orgAddress = "北京市海淀区北四环中路211号";
+    if (!d.orgNamePy && !d.regOrgNamePy) d.orgNamePy = "mayikeji";
+    if (!d.regOrgNamePy) d.regOrgNamePy = d.orgNamePy;
+    if (!d.creditCode) d.creditCode = "913301067046373179";
+    if (!d.orgAddress && !d.regOrgAddress)
+      d.orgAddress = "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室";
+    if (!d.regOrgAddress) d.regOrgAddress = d.orgAddress;
     if (!d.invitationCode) d.invitationCode = "DCI-INVITE-2026";
     if (!d.orgCode) d.orgCode = "ANT";
     if (!d.orgTypeCode && !d.regOrgType) d.orgTypeCode = "ZYFW";
+    if (!d.orgTypeName) d.orgTypeName = "专业服务";
+    if (!d.regOrgType) d.regOrgType = d.orgTypeCode;
     if (!d.cooperationField) d.cooperationField = "数字版权确权、DCI码申领与同步";
     if (!d.contractStartDate) d.contractStartDate = "2026-01-01";
     if (!d.contractEndDate) d.contractEndDate = "2027-12-31";
@@ -101,14 +106,17 @@
   function buildHistoryRecords(orgId) {
     var base = {
       id: orgId || "mock-mayi2",
-      regOrgName: "太极计算机股份有限公司",
-      orgName: "太极计算机股份有限公司",
-      regOrgNamePy: "Taiji Computer Co Ltd",
-      creditCode: "91110000710934657Q",
+      regOrgName: "蚂蚁科技集团股份有限公司",
+      orgName: "蚂蚁科技集团股份有限公司",
+      regOrgNamePy: "mayikeji",
+      orgNamePy: "mayikeji",
+      creditCode: "913301067046373179",
       orgCode: "ANT",
-      regOrgAddress: "北京市海淀区北四环中路211号",
+      regOrgAddress: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+      orgAddress: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
       invitationCode: "DCI-INVITE-2026",
       regOrgType: "ZYFW",
+      orgTypeCode: "ZYFW",
       orgTypeName: "专业服务",
       cooperationField: "数字版权确权、DCI码申领与同步",
       contractStartDate: "2026-01-01",
