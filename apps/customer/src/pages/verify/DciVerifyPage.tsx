@@ -9,10 +9,12 @@ import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import { DciConfirmModal } from "@/components/verify/DciConfirmModal";
 import { DciDetailDrawer } from "@/components/verify/DciDetailDrawer";
 import { VerifyOutcomeCard } from "@/components/verify/VerifyOutcomeCard";
+import { PaneIconSearch } from "@/components/PaneHeader";
 import {
   CHANNEL_LABEL,
   DCI_BATCH_LIMIT,
   DCI_DEFAULT_DAYS,
+  DCI_MOCK,
   DCI_NAME_LABEL,
   MOCK_DCI_RECORDS,
   PAGE_SIZES,
@@ -358,14 +360,11 @@ export function DciVerifyPage() {
           {
             id: "verify",
             label: "DCI核验",
+            icon: <PaneIconSearch />,
+            headerActions: <ApiDocLink productId="dci" />,
             content: (
       <div className="a-card">
         <div className="a-card__body a-stack">
-          <div className="c-verify-panel-head">
-            <h2 className="c-verify-panel-head__title">DCI核验</h2>
-            <ApiDocLink productId="dci" />
-          </div>
-
           <div className="c-dci-submit">
             {!selected ? (
               <>
@@ -526,7 +525,7 @@ export function DciVerifyPage() {
             <p className="a-field__hint">
               {selected
                 ? "已选择文件：请确认后核验。删除文件后可恢复填写核验与批量核验。"
-                : `可填写信息核验，或上传文件识别后核验 · 填写项均为必填 · 文本演示：DCI-SWDEMO0001 / DCI-WKDEMO0001 / DCI-DSDEMO0001，第二项任意填写即返回核验通过 · 单次批量上限 ${DCI_BATCH_LIMIT} 条`}
+                : `可填写信息核验，或上传文件识别后核验 · 填写项均为必填 · 文本演示：${DCI_MOCK.swDemo} / ${DCI_MOCK.wkDemo} / ${DCI_MOCK.dsDemo}，第二项任意填写即返回核验通过 · 单次批量上限 ${DCI_BATCH_LIMIT} 条`}
             </p>
           </div>
 
@@ -567,17 +566,14 @@ export function DciVerifyPage() {
           {
             id: "quota",
             label: "用量统计",
-            content: <ProductUsagePanel product="dci" />,
+            content: <ProductUsagePanel product="dci" hideHead />,
           },
           {
             id: "records",
             label: "核验记录",
+            description: `默认近 ${DCI_DEFAULT_DAYS} 天`,
             content: (
       <div className="a-card">
-        <div className="a-card__head">
-          核验记录
-          <div className="a-card__extra">默认近 {DCI_DEFAULT_DAYS} 天</div>
-        </div>
         <div className="a-toolbar">
           <div className="a-field">
             <span className="a-field__label">时间范围</span>

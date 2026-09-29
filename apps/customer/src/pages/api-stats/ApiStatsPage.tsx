@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import { PaneHeader, PaneIconChart } from "@/components/PaneHeader";
 import {
   CHANNEL_FILTERS,
   SERVICE_TABS,
@@ -220,6 +221,13 @@ export function ApiStatsPage() {
 
   return (
     <div className="c-stats-page">
+      <PaneHeader
+        as="h1"
+        title="调用统计"
+        icon={<PaneIconChart />}
+        subtitle="查看接口调用总数与最近30天调用趋势"
+      />
+
       <div className="c-stats-service-tabs" role="tablist" aria-label="服务类型">
         {SERVICE_TABS.map((tab) => (
           <button

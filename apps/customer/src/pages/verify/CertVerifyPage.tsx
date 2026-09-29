@@ -8,6 +8,7 @@ import { CertConfirmModal } from "@/components/verify/CertConfirmModal";
 import { CertDetailDrawer } from "@/components/verify/CertDetailDrawer";
 import { CertFilePreviewModal } from "@/components/verify/CertFilePreviewModal";
 import { CertInlineResult } from "@/components/verify/CertInlineResult";
+import { PaneIconShield } from "@/components/PaneHeader";
 import {
   CERT_DEFAULT_DAYS,
   CERT_STATUS_LABEL,
@@ -222,17 +223,12 @@ export function CertVerifyPage() {
           {
             id: "verify",
             label: "版权登记证书核验",
+            icon: <PaneIconShield />,
+            headerActions: <ApiDocLink productId="certificate" />,
+            description: "仅支持单文件单证书核验",
             content: (
               <div className="a-card">
                 <div className="a-card__body a-stack">
-                  <div className="c-verify-panel-head">
-                    <div className="c-verify-panel-head__main">
-                      <h2 className="c-verify-panel-head__title">版权登记证书核验</h2>
-                      <p className="c-verify-hint">仅支持单文件单证书核验</p>
-                    </div>
-                    <ApiDocLink productId="certificate" />
-                  </div>
-
                   <div className="c-cert-submit">
                     {!selected ? (
                       <div
@@ -339,17 +335,14 @@ export function CertVerifyPage() {
           {
             id: "quota",
             label: "用量统计",
-            content: <ProductUsagePanel product="certificate" />,
+            content: <ProductUsagePanel product="certificate" hideHead />,
           },
           {
             id: "records",
             label: "核验记录",
+            description: `默认近 ${CERT_DEFAULT_DAYS} 天`,
             content: (
               <div className="a-card">
-                <div className="a-card__head">
-                  核验记录
-                  <div className="a-card__extra">默认近 {CERT_DEFAULT_DAYS} 天</div>
-                </div>
                 <div className="a-toolbar">
                   <div className="a-field">
                     <span className="a-field__label">时间范围</span>

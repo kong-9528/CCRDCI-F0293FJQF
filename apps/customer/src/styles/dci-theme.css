@@ -1018,7 +1018,7 @@ body.a-admin.theme-customer {
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
   box-sizing: border-box;
   align-self: stretch;
   background: #fff;
@@ -1028,7 +1028,7 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-section-guide__intro {
-  padding: 4px 2px 0;
+  display: none;
 }
 
 .theme-customer .c-section-guide__title {
@@ -1040,7 +1040,8 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-section-guide__desc {
-  margin: 6px 0 0;
+  margin: 0 0 15px;
+  margin-left: 44px;
   font-size: 13px;
   color: #909399;
   line-height: 1.5;
@@ -1051,7 +1052,75 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-section-guide__footer {
-  margin-top: 0;
+  margin-top: 16px;
+}
+
+/* ===== 右侧卡片页标题（对齐 home .header-area / .panel-header） ===== */
+.theme-customer .c-pane-header {
+  margin: 0 0 15px;
+}
+
+.theme-customer .c-pane-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+}
+
+.theme-customer .c-pane-header__left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.theme-customer .c-pane-header__icon {
+  width: 32px;
+  height: 32px;
+  background: #e6f1fc;
+  border-radius: 8px;
+  color: #1449b2;
+  margin-right: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-customer .c-pane-header__icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.theme-customer .c-pane-header__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.theme-customer .c-pane-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.theme-customer .c-pane-header__sub {
+  margin: 6px 0 0;
+  margin-left: 44px; /* 32 icon + 12 gap，与标题文字左缘对齐 */
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.5;
+}
+
+.theme-customer .c-verify-panel-head__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
 }
 
 /* API / 帮助 / 文档：左侧白框上下顶满（对齐 home calc(100vh - 112px)） */

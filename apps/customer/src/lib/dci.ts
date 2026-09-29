@@ -92,14 +92,33 @@ export function dciNameLabel(_workType?: DciWorkType): string {
   return DCI_NAME_LABEL;
 }
 
-/** 前端初步合法性：DCI- 前缀 + 8~24 位字母数字 */
+/** 前端初步合法性：DCI:R + ≥5位机构码 + ANT.156. + 8位日期 + 10位字母数字 */
 export function isValidDciCode(code: string): boolean {
-  return /^DCI-[A-Z0-9]{8,24}$/i.test(code.trim());
+  return /^DCI:R[A-Z0-9]{5,}ANT\.156\.\d{8}[A-Z0-9]{10}$/i.test(code.trim());
 }
 
 export function normalizeDciCode(code: string): string {
   return code.trim().toUpperCase();
 }
+
+/** 演示用 DCI 码（格式见 isValidDciCode；日期均为过去） */
+export const DCI_MOCK = {
+  /** 软件 · 演示入口 */
+  swDemo: "DCI:RQZSW0ANT.156.20250115B2C4D6E8F0",
+  /** 作品 · 演示入口 */
+  wkDemo: "DCI:RQZWK0ANT.156.20240620M2N4P6Q8R0",
+  /** 数据汇编 · 演示入口 */
+  dsDemo: "DCI:RQZDS0ANT.156.20250301X2Y4Z6A8B0",
+  /** 软件 · 历史记录 */
+  swRec1: "DCI:RQZ010ANT.156.20240318A7K3M9P2Q1",
+  swRec2: "DCI:RQZ011ANT.156.20230901H4J6K8L0M2",
+  /** 作品 · 历史记录 */
+  wkRec1: "DCI:RQZWK1ANT.156.20240208G1H3J5K7L9",
+  /** 数据汇编 · 历史记录 */
+  dsRec1: "DCI:RQZDS1ANT.156.20240712S1T3U5V7W9",
+  /** 未入库（核验不存在） */
+  unknown: "DCI:RQZUNKANT.156.20240101C0D0E0F0G1",
+} as const;
 
 export function emptyDciForm(): DciVerifyInput {
   return { dciCode: "", owner: "", name: "" };
@@ -109,7 +128,9 @@ export function emptyDciForm(): DciVerifyInput {
 export function validateDciForm(input: DciVerifyInput): string | null {
   const dciCode = normalizeDciCode(input.dciCode);
   if (!dciCode) return "请输入 DCI 码";
-  if (!isValidDciCode(dciCode)) return "DCI 码格式不正确，示例：DCI-SWDEMO0001";
+  if (!isValidDciCode(dciCode)) {
+    return `DCI 码格式不正确，示例：${DCI_MOCK.swDemo}`;
+  }
   const owner = input.owner.trim();
   const name = input.name.trim();
   if (!owner && !name) {
@@ -144,7 +165,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000979",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-SW20240001",
+    dciCode: DCI_MOCK.swRec1,
     workType: "software",
     status: "pass",
     verifiedAt: daysAgo(1),
@@ -163,7 +184,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000980",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-WK20241188",
+    dciCode: DCI_MOCK.wkRec1,
     workType: "work",
     status: "pass",
     verifiedAt: daysAgo(2),
@@ -184,7 +205,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000981",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-DS20240901",
+    dciCode: DCI_MOCK.dsRec1,
     workType: "dataset",
     status: "pass",
     verifiedAt: daysAgo(5),
@@ -206,7 +227,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000982",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-UNKNOWN001",
+    dciCode: DCI_MOCK.unknown,
     workType: "software",
     status: "not_found",
     verifiedAt: daysAgo(3),
@@ -218,7 +239,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000983",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-SW20240001",
+    dciCode: DCI_MOCK.swRec1,
     workType: "software",
     status: "fail",
     verifiedAt: daysAgo(4),
@@ -239,7 +260,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
   {
     verifyCode: "R1138840000984",
     verifier: DCI_DEFAULT_VERIFIER,
-    dciCode: "DCI-SW20238888",
+    dciCode: DCI_MOCK.swRec2,
     workType: "software",
     status: "pass",
     verifiedAt: daysAgo(8),
@@ -265,7 +286,7 @@ export let MOCK_DCI_RECORDS: DciVerifyResult[] = SEED.map((item, i) => ({
 
 /** 演示库：已知通过的 DCI */
 const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: DciWorkType }> = {
-  "DCI-SW20240001": {
+  [DCI_MOCK.swRec1]: {
     workType: "software",
     name: "版权核验助手",
     owner: "艾克米文化传媒有限公司",
@@ -274,7 +295,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
-  "DCI-SWDEMO0001": {
+  [DCI_MOCK.swDemo]: {
     workType: "software",
     name: "演示软件登记",
     owner: "演示著作权人",
@@ -283,7 +304,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
-  "DCI-WK20241188": {
+  [DCI_MOCK.wkRec1]: {
     workType: "work",
     name: "极光之城",
     owner: "北方出版集团股份有限公司",
@@ -294,7 +315,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
-  "DCI-WKDEMO0001": {
+  [DCI_MOCK.wkDemo]: {
     workType: "work",
     name: "演示文字作品",
     owner: "演示著作权人",
@@ -305,7 +326,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
-  "DCI-DS20240901": {
+  [DCI_MOCK.dsRec1]: {
     workType: "dataset",
     name: "开源图像标注集",
     owner: "像素实验室（深圳）有限公司",
@@ -317,7 +338,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
-  "DCI-DSDEMO0001": {
+  [DCI_MOCK.dsDemo]: {
     workType: "dataset",
     name: "演示数据作品",
     owner: "演示著作权人",
@@ -329,6 +350,15 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
     agency: "中国版权保护中心",
     currentStatus: "有效",
   },
+  [DCI_MOCK.swRec2]: {
+    workType: "software",
+    name: "合同比对引擎",
+    owner: "艾克米文化传媒有限公司",
+    version: "V3.0.1",
+    registerDate: "2023-09-01",
+    agency: "中国版权保护中心",
+    currentStatus: "有效",
+  },
 };
 
 function nowStamp() {
@@ -336,8 +366,10 @@ function nowStamp() {
 }
 
 function inferWorkTypeFromCode(dciCode: string): DciWorkType {
-  if (/^DCI-WK/i.test(dciCode)) return "work";
-  if (/^DCI-DS/i.test(dciCode)) return "dataset";
+  const m = /^DCI:R([A-Z0-9]{5,})ANT\.156\./i.exec(dciCode);
+  const org = (m?.[1] ?? "").toUpperCase();
+  if (org.includes("WK")) return "work";
+  if (org.includes("DS")) return "dataset";
   return "software";
 }
 
@@ -574,7 +606,7 @@ export function validateDciBatchRows(rows: DciBatchRow[]): string | null {
 
 export function downloadDciBatchTemplate() {
   const header = DCI_BATCH_TEMPLATE_HEADERS.map(escapeCsvCell).join(",");
-  const sample = ["DCI-SWDEMO0001", "演示著作权人", "演示软件登记"].map(escapeCsvCell).join(",");
+  const sample = [DCI_MOCK.swDemo, "演示著作权人", "演示软件登记"].map(escapeCsvCell).join(",");
   const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {
     type: "text/csv;charset=utf-8",
   });
@@ -713,7 +745,7 @@ export async function ocrDciFile(
       fileUrl,
       fileKind,
       recognition: {
-        dciCode: "DCI-SW20240001",
+        dciCode: DCI_MOCK.swRec1,
         owner: "错误著作权人",
         name: "版权核验助手",
       },
@@ -726,7 +758,7 @@ export async function ocrDciFile(
       fileUrl,
       fileKind,
       recognition: {
-        dciCode: "DCI-WKDEMO0001",
+        dciCode: DCI_MOCK.wkDemo,
         owner: "演示著作权人",
         name: "演示文字作品",
       },
@@ -739,7 +771,7 @@ export async function ocrDciFile(
       fileUrl,
       fileKind,
       recognition: {
-        dciCode: "DCI-DSDEMO0001",
+        dciCode: DCI_MOCK.dsDemo,
         owner: "演示著作权人",
         name: "演示数据作品",
       },
@@ -751,7 +783,7 @@ export async function ocrDciFile(
     fileUrl,
     fileKind,
     recognition: {
-      dciCode: "DCI-SWDEMO0001",
+      dciCode: DCI_MOCK.swDemo,
       owner: "演示著作权人",
       name: "演示软件登记",
     },

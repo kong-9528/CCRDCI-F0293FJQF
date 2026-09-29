@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
+import { PaneIconShield } from "@/components/PaneHeader";
 import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
@@ -114,13 +115,12 @@ export function ReviewServicePage({ product }: Props) {
           {
             id: "intro",
             label: "服务说明",
+            title: WORK_REVIEW_SERVICE_NAME,
+            icon: <PaneIconShield />,
+            headerActions: <ApiDocLink productId={cfg.apiDocId} />,
             content: (
       <div className="a-card c-review-intro">
         <div className="a-card__body">
-          <div className="c-verify-panel-head">
-            <h2 className="c-verify-panel-head__title">{WORK_REVIEW_SERVICE_NAME}</h2>
-            <ApiDocLink productId={cfg.apiDocId} />
-          </div>
           <div className="c-review-intro__body">
             {cfg.intro.map((item, index) => (
               <p
@@ -140,10 +140,6 @@ export function ReviewServicePage({ product }: Props) {
             label: "用量统计",
             content: (
       <div className="a-card">
-        <div className="a-card__head">
-          用量统计
-          <span className="a-card__extra"></span>
-        </div>
         <div className="a-card__body a-stack">
           {overQuota ? (
             <div className="c-review-over-tip" role="status">
@@ -200,14 +196,9 @@ export function ReviewServicePage({ product }: Props) {
           {
             id: "records",
             label: "审核记录",
+            description: `默认近 ${REVIEW_DEFAULT_DAYS} 天`,
             content: (
       <div className="a-card">
-        <div className="a-card__head">
-          审核记录
-          <div className="a-card__extra">
-            默认近 {REVIEW_DEFAULT_DAYS} 天
-          </div>
-        </div>
         <div className="a-toolbar">
           <div className="a-field">
             <span className="a-field__label">提交时间</span>

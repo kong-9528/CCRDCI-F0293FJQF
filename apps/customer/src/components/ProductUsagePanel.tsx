@@ -18,12 +18,12 @@ function formatCount(n: number) {
 
 type Props = {
   product: ProductCode;
-  /** 卡片副标题，默认「用量统计」 */
-  subtitle?: string;
+  /** 隐藏卡片内标题（外层 PaneHeader 已展示时） */
+  hideHead?: boolean;
 };
 
 /** 产品页使用量板块（核验：本产品用量 / 共享额度；审核：独立额度） */
-export function ProductUsagePanel({ product, subtitle = "" }: Props) {
+export function ProductUsagePanel({ product, hideHead = false }: Props) {
   const item = DASHBOARD_PRODUCTS.find((p) => p.code === product);
   if (!item) return null;
 
@@ -33,10 +33,12 @@ export function ProductUsagePanel({ product, subtitle = "" }: Props) {
 
   return (
     <div className="a-card">
-      <div className="a-card__head">
-        {title}
-        <span className="a-card__extra">{subtitle}</span>
-      </div>
+      {hideHead ? null : (
+        <div className="a-card__head">
+          {title}
+          <span className="a-card__extra" />
+        </div>
+      )}
       <div className="a-card__body a-stack">
         <div className="a-desc">
           <div className="a-desc__item">

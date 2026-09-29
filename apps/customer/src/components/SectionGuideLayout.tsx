@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
+import { PaneHeader } from "@/components/PaneHeader";
 
 export type GuideSection = {
   id: string;
@@ -8,6 +9,10 @@ export type GuideSection = {
   title?: string;
   /** 右侧内容区副标题 */
   description?: string;
+  /** 标题左侧图标（对齐 home header-icon-wrapper） */
+  icon?: ReactNode;
+  /** 标题行右侧操作（如 API 文档链接） */
+  headerActions?: ReactNode;
   content: ReactNode;
 };
 
@@ -66,16 +71,12 @@ export function SectionGuideLayout({
       </aside>
 
       <div className="c-section-guide__main">
-        {active.title || active.description ? (
-          <div className="c-section-guide__intro">
-            {active.title ? (
-              <h2 className="c-section-guide__title">{active.title}</h2>
-            ) : null}
-            {active.description ? (
-              <p className="c-section-guide__desc">{active.description}</p>
-            ) : null}
-          </div>
-        ) : null}
+        <PaneHeader
+          title={active.title ?? active.label}
+          icon={active.icon}
+          actions={active.headerActions}
+          subtitle={active.description}
+        />
         <div className="c-section-guide__body a-stack">{active.content}</div>
         {footer ? <div className="c-section-guide__footer">{footer}</div> : null}
       </div>

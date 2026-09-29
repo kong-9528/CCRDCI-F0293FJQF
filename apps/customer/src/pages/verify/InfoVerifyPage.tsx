@@ -7,6 +7,7 @@ import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { BatchInfoModal } from "@/components/verify/BatchInfoModal";
 import { InfoDetailDrawer } from "@/components/verify/InfoDetailDrawer";
 import { VerifyOutcomeCard } from "@/components/verify/VerifyOutcomeCard";
+import { PaneIconSearch } from "@/components/PaneHeader";
 import {
   INFO_BATCH_LIMIT,
   INFO_DEFAULT_DAYS,
@@ -213,6 +214,8 @@ export function InfoVerifyPage() {
           {
             id: "verify",
             label: "版权登记信息核验",
+            icon: <PaneIconSearch />,
+            headerActions: <ApiDocLink productId="info" />,
             content: (
       <div className="a-card">
         <div className="c-verify-tabbar">
@@ -229,16 +232,9 @@ export function InfoVerifyPage() {
               </button>
             ))}
           </div>
-          <ApiDocLink productId="info" />
         </div>
 
         <div className="a-card__body a-stack">
-          <div className="c-verify-panel-head">
-            <h2 className="c-verify-panel-head__title">
-              版权登记信息核验 · {INFO_WORK_TYPE_LABEL[workType]}
-            </h2>
-          </div>
-
           <div className="c-verify-form-row">
             <input
               className="a-input"
@@ -293,17 +289,14 @@ export function InfoVerifyPage() {
           {
             id: "quota",
             label: "用量统计",
-            content: <ProductUsagePanel product="info" />,
+            content: <ProductUsagePanel product="info" hideHead />,
           },
           {
             id: "records",
             label: "核验记录",
+            description: `默认近 ${INFO_DEFAULT_DAYS} 天`,
             content: (
       <div className="a-card">
-        <div className="a-card__head">
-          核验记录
-          <div className="a-card__extra">默认近 {INFO_DEFAULT_DAYS} 天</div>
-        </div>
         <div className="a-toolbar">
           <div className="a-field">
             <span className="a-field__label">时间范围</span>

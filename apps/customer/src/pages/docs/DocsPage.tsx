@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { PaneHeader } from "@/components/PaneHeader";
 import {
   collectRequestParams,
   listApiDocCatalogs,
@@ -232,9 +233,7 @@ export function DocsPage() {
       </aside>
 
       <section className="c-docs-main">
-        <div className="c-docs-main__head">
-          <h1 className="c-docs-main__title">{activeCatalog?.name ?? "接口列表"}</h1>
-        </div>
+        <PaneHeader as="h1" title={activeCatalog?.name ?? "接口列表"} />
 
         <div className="c-docs-list">
           {apis.length === 0 ? (

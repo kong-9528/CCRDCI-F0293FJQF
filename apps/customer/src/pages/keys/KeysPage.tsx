@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal } from "@/components/Modal";
+import { PaneHeader, PaneIconKey } from "@/components/PaneHeader";
 import {
   IconCopy,
   IconEdit,
@@ -118,12 +119,12 @@ export function KeysPage() {
     <div className="a-stack c-keys-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
 
-      <header className="c-keys-hero">
-        <div className="c-keys-hero__text">
-          <h1 className="c-keys-hero__title">API key管理</h1>
-          <p className="c-keys-hero__sub">生成、更新用于接口调用的 AK、SK、DEK 信息</p>
-        </div>
-      </header>
+      <PaneHeader
+        as="h1"
+        title="API key管理"
+        icon={<PaneIconKey />}
+        subtitle="生成、更新用于接口调用的 AK、SK、DEK 信息"
+      />
 
       <div className="c-stats-service-tabs c-keys-service-tabs" role="tablist" aria-label="服务类型">
         {SERVICE_TABS.map((tab) => (
