@@ -93,8 +93,9 @@ body.a-admin.theme-customer {
 .theme-customer .a-main {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  min-height: 0;
+  /* 块级滚动容器：子树按内容增高，由本层 overflow-y 滚动 */
+  display: block;
   background: var(--c-page);
   overflow-x: hidden;
   overflow-y: auto;
@@ -102,7 +103,10 @@ body.a-admin.theme-customer {
   scrollbar-gutter: stable;
 }
 
-/* 对齐 DCI管理中心：max-width:1400 + 左右 padding:24 */
+/*
+ * 滚动约定：仅 .a-main 垂直滚动。
+ * shell/content 随内容增高，短页用 min-height:100% 顶满。
+ */
 .theme-customer .a-main__shell {
   width: 100%;
   max-width: 1400px;
@@ -111,8 +115,8 @@ body.a-admin.theme-customer {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  min-height: 100%;
+  height: auto;
 }
 
 .theme-customer .a-content {
@@ -121,8 +125,9 @@ body.a-admin.theme-customer {
   overflow: visible;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: calc(100vh - var(--ad-header-h) - 48px);
+  flex: 1 0 auto;
+  min-height: 100%;
+  height: auto;
 }
 
 /* ===== 顶栏：对齐 home .dci-navbar ===== */
@@ -1123,14 +1128,16 @@ body.a-admin.theme-customer {
   color: #303133;
 }
 
-/* API / 帮助 / 文档：左侧白框上下顶满（对齐 home calc(100vh - 112px)） */
+/* API / 帮助 / 文档 / 板块引导：短页顶满，长页随内容增高并由 .a-main 滚动 */
 .theme-customer .c-api-manage,
 .theme-customer .c-help-layout,
 .theme-customer .c-docs-layout,
 .theme-customer .c-section-guide {
   align-items: stretch;
-  flex: 1 1 auto;
-  min-height: calc(100vh - 112px);
+  flex: 1 0 auto;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .theme-customer .c-api-manage__side,
@@ -1146,8 +1153,11 @@ body.a-admin.theme-customer {
 
 .theme-customer .c-api-manage__main,
 .theme-customer .c-help-content,
-.theme-customer .c-docs-main {
+.theme-customer .c-docs-main,
+.theme-customer .c-section-guide__main {
   align-self: stretch;
+  min-height: 100%;
+  overflow: visible;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -1160,7 +1170,7 @@ body.a-admin.theme-customer {
 
 .theme-customer .c-help-content {
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .theme-customer .c-help-content.a-card {

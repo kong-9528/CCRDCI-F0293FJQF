@@ -42,7 +42,8 @@ body,
 .a-main {
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .a-header {
@@ -5293,7 +5294,8 @@ body,
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  min-height: calc(100vh - 112px);
+  flex: 1 0 auto;
+  min-height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -5457,7 +5459,8 @@ body,
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  min-height: calc(100vh - 112px);
+  flex: 1 0 auto;
+  min-height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -5518,7 +5521,7 @@ body,
   min-width: 0;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
   background: #fff;
   border-radius: 8px;
@@ -5777,7 +5780,8 @@ body,
   align-items: stretch;
   width: 100%;
   box-sizing: border-box;
-  min-height: calc(100vh - 112px);
+  flex: 1 0 auto;
+  min-height: 100%;
 }
 
 @media (max-width: 900px) {
@@ -6125,4 +6129,64 @@ body,
   overflow: auto;
   white-space: pre-wrap;
 }
+
+/* ========== 页面超长滚动修复（覆盖 dci-theme / 前文旧规则） ==========
+ * 根因：.a-main 作为 flex 容器时，子项 flex:1 + min-height:0 会把高度锁在视口内，
+ * 再叠加 overflow:hidden 导致超长内容被裁切且无法滚动。
+ * 策略：.a-main 保持 flex 子项约束高度并自身滚动；子树改为按内容自然增高。
+ */
+.theme-customer .a-main {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0;
+  min-height: 0 !important;
+  /* 不可 height:auto，否则会随内容撑破父级，反而被父级 overflow:hidden 裁切 */
+  max-height: none;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-customer .a-main__shell {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+  /* 至少顶满滚动视口；内容更高时继续增高以撑开 .a-main 的滚动高度 */
+  min-height: 100%;
+  height: auto;
+}
+
+.theme-customer .a-content {
+  display: flex !important;
+  flex-direction: column;
+  flex: 1 0 auto !important;
+  min-height: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.theme-customer .c-api-manage,
+.theme-customer .c-help-layout,
+.theme-customer .c-docs-layout,
+.theme-customer .c-section-guide {
+  display: flex !important;
+  flex: 1 0 auto !important;
+  min-height: 100% !important;
+  height: auto !important;
+  align-items: stretch;
+}
+
+.theme-customer .c-api-manage__main,
+.theme-customer .c-help-content,
+.theme-customer .c-docs-main,
+.theme-customer .c-section-guide__main {
+  overflow: visible !important;
+  min-height: 100%;
+  height: auto !important;
+}
+
 
