@@ -53,7 +53,15 @@ export function CustomerHeader({ pathname }: Props) {
     <header className="a-header">
       <div className="a-header__inner">
         <div className="a-header__brand">
-          <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
+          <div className="a-header__logo-box" aria-hidden>
+            <img
+              className="a-header__logo"
+              src="/dci-navbar-logo.png"
+              alt=""
+              width={32}
+              height={42}
+            />
+          </div>
           <span className="a-header__logo-text">
             <TrademarkText text={PLATFORM_NAME} />
           </span>

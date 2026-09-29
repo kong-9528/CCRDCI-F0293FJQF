@@ -231,7 +231,7 @@ export function DocsPage() {
         </ul>
       </aside>
 
-      <section className="c-docs-main a-card">
+      <section className="c-docs-main">
         <div className="c-docs-main__head">
           <h1 className="c-docs-main__title">{activeCatalog?.name ?? "接口列表"}</h1>
         </div>

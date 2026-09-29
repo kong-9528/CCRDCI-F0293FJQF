@@ -30,31 +30,31 @@
   --font-sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "SF Mono", "Consolas", "IBM Plex Mono", ui-monospace, monospace;
 
-  /* 字号折中：介于原 14/13/16/15 与过小的 13/12/15/14 之间 */
-  --ad-fs-body: 13.5px;
-  --ad-fs-sm: 12.5px;
-  --ad-fs-h1: 15.5px;
-  --ad-fs-h2: 14.5px;
-  --ad-ctrl-sm: 27px;
-  --ad-ctrl-md: 31px;
-  --ad-ctrl-lg: 35px;
-  --ad-table-row-h: 42px;
-  --ad-header-h: 60px;
+  /* 对齐 home DCI 管理中心工作台字号 */
+  --ad-fs-body: 14px;
+  --ad-fs-sm: 13px;
+  --ad-fs-h1: 16px;
+  --ad-fs-h2: 14px;
+  --ad-ctrl-sm: 28px;
+  --ad-ctrl-md: 32px;
+  --ad-ctrl-lg: 36px;
+  --ad-table-row-h: 44px;
+  --ad-header-h: 64px;
   --ad-sidebar-w: 220px;
   --ad-sidebar-w-min: 64px;
-  --ad-radius: 10px;
+  --ad-radius: 8px;
   --ad-radius-sm: 6px;
-  --ad-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02);
+  --ad-shadow-1: 0 2px 12px rgba(0, 0, 0, 0.04);
   --ad-sp-1: 4px;
   --ad-sp-2: 8px;
   --ad-sp-3: 16px;
   --ad-sp-4: 24px;
 
-  /* 白底顶栏 + 主色品牌 */
+  /* 白底顶栏 + 主色品牌（对齐 .dci-navbar） */
   --c-header: #ffffff;
   --c-header-text: #0075c1;
-  --c-header-hover: rgba(0, 117, 193, 0.08);
-  --c-header-border: #e8e8e8;
+  --c-header-hover: #f0f4f9;
+  --c-header-border: #f0f2f5;
   /* 浅灰画布 + 白色圆角卡片 */
   /* 对齐 DCI管理中心页面底色 */
   --c-page: #f4f7fc;
@@ -125,10 +125,11 @@ body.a-admin.theme-customer {
   min-height: calc(100vh - var(--ad-header-h) - 48px);
 }
 
-/* ===== 顶栏：白底 + #0075c1 品牌色 ===== */
+/* ===== 顶栏：对齐 home .dci-navbar ===== */
 .theme-customer .a-header {
   position: relative;
   z-index: 50;
+  width: 100%;
   height: var(--ad-header-h);
   flex-shrink: 0;
   display: flex;
@@ -136,11 +137,13 @@ body.a-admin.theme-customer {
   padding: 0;
   background: var(--c-header);
   border-bottom: 1px solid var(--c-header-border);
-  color: var(--n-800);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.04);
+  color: #303133;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
 }
 
 .theme-customer .a-header__inner {
+  /* 对齐 home .navbar-inner：1400 居中 + 左右 24 */
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
@@ -149,20 +152,34 @@ body.a-admin.theme-customer {
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+  gap: 0;
 }
 
 .theme-customer .a-header__brand {
+  /* 对齐 home .navbar-left */
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   min-width: 0;
+  flex-shrink: 0;
+  height: 100%;
+  color: #303133;
+}
+
+/* 对齐 home .navbar-logo：42×64 容器内居中 32×42 */
+.theme-customer .a-header__logo-box {
+  width: 42px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
 .theme-customer .a-header__logo {
-  height: 36px;
-  width: auto;
+  width: 32px;
+  height: 42px;
   display: block;
   flex-shrink: 0;
   object-fit: contain;
@@ -174,24 +191,29 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .a-header__logo-text {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--c-header-text);
+  /* 对齐 home .navbar-title-wrap { margin-left: 8px } + .navbar-title */
+  margin-left: 8px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #0075c1;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px;
+  line-height: 1.2;
 }
 
 .theme-customer .a-header__right {
+  /* 对齐 home：中间菜单 + 右侧 right-menu，整体靠右贴齐 24px 内边 */
   display: flex;
   align-items: stretch;
-  gap: 12px;
+  gap: 16px;
   margin-left: auto;
   min-width: 0;
   max-width: 100%;
   height: 100%;
+  flex-shrink: 1;
 }
 
 .theme-customer .a-header__nav {
@@ -217,10 +239,10 @@ body.a-admin.theme-customer {
   justify-content: center;
   height: 100%;
   min-height: var(--ad-header-h);
-  padding: 0 16px;
+  padding: 0 18px;
   border-radius: 0;
   color: #4e5969;
-  font-size: var(--ad-fs-body);
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
   text-decoration: none;
@@ -314,12 +336,15 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .a-header__actions {
+  /* 对齐 home .right-menu */
   display: flex;
   align-items: center;
   align-self: center;
-  gap: 4px;
+  gap: 16px;
   flex-shrink: 0;
   margin-left: 0;
+  margin-right: 0;
+  padding: 0;
 }
 
 .theme-customer .a-header__text-links {
@@ -327,73 +352,126 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .a-header__user {
-  color: var(--n-800);
-  margin-left: 4px;
+  /* 对齐 home .avatar-container：贴齐 inner 右缘（由 padding:0 24px 决定） */
+  color: #303133;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
 }
 
 .theme-customer .a-header__user-btn {
-  height: 36px;
-  padding: 0 8px 0 4px;
+  /* 对齐 home .avatar-wrapper */
+  height: auto;
+  gap: 10px;
+  padding: 4px 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   background: transparent;
-  color: var(--n-800);
+  color: #303133;
+  font-size: 14px;
+  transition: background 0.2s ease;
 }
 
 .theme-customer .a-header__user-btn:hover,
 .theme-customer .a-header__user:focus-within .a-header__user-btn {
-  background: var(--c-header-hover);
+  background: #f0f4f9;
   border-color: transparent;
 }
 
 .theme-customer .a-header__avatar {
-  width: 28px;
-  height: 28px;
+  /* 对齐 home .user-avatar-circle */
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--p-50);
-  color: var(--p-600);
-  font-size: var(--ad-fs-sm);
-  font-weight: 600;
+  background: #e8f3ff;
+  color: #165dff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.theme-customer .a-header__user-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
 }
 
 .theme-customer .a-header__user-role {
-  font-size: var(--ad-fs-sm);
-  color: var(--n-700);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* 对齐 home .user-nickname */
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1.2;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
 .theme-customer .a-header__chevron {
-  color: var(--n-400);
+  /* 对齐 home .arrow-icon */
+  color: #909399;
+  font-size: 13px;
+  line-height: 1;
 }
 
 .theme-customer .a-header__user-dropdown {
   right: 0;
+  min-width: 220px;
 }
 
 .theme-customer .a-header__user-menu {
   background: #fff;
-  border: 1px solid var(--n-200);
+  border: 1px solid #e4e7ed;
   border-radius: 8px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  color: var(--n-800);
-  min-width: 228px;
+  color: #303133;
+  min-width: 220px;
+  padding: 6px;
+}
+
+.theme-customer .a-header__user-menu-head {
+  padding: 10px 12px 8px;
+}
+
+.theme-customer .a-header__user-menu-user {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1.4;
 }
 
 .theme-customer .a-header__user-menu-org {
-  color: var(--n-500);
+  margin-top: 4px;
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.4;
+}
+
+.theme-customer .a-header__user-menu-link,
+.theme-customer .a-header__user-menu-item {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #606266;
+  border-radius: 6px;
+}
+
+.theme-customer .a-header__user-menu-link:hover,
+.theme-customer .a-header__user-menu-item:hover {
+  background: #f5f7fa;
+  color: #303133;
 }
 
 .theme-customer .a-header__user-menu-name {
   padding: 10px 12px 6px;
   font-size: 12px;
-  color: var(--n-500);
-  border-bottom: 1px solid var(--n-100);
+  color: #909399;
+  border-bottom: 1px solid #f0f2f5;
   margin-bottom: 4px;
   word-break: break-all;
 }
@@ -942,7 +1020,11 @@ body.a-admin.theme-customer {
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
-  align-self: flex-start;
+  align-self: stretch;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  padding: 24px 32px 32px;
 }
 
 .theme-customer .c-section-guide__intro {
@@ -951,16 +1033,16 @@ body.a-admin.theme-customer {
 
 .theme-customer .c-section-guide__title {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--n-800);
-  line-height: 1.3;
+  color: #303133;
+  line-height: 1.4;
 }
 
 .theme-customer .c-section-guide__desc {
   margin: 6px 0 0;
-  font-size: var(--ad-fs-sm);
-  color: var(--n-500);
+  font-size: 13px;
+  color: #909399;
   line-height: 1.5;
 }
 
@@ -972,18 +1054,20 @@ body.a-admin.theme-customer {
   margin-top: 0;
 }
 
-/* API / 帮助 / 文档：左侧白框上下顶满，右侧保持内容高度 */
+/* API / 帮助 / 文档：左侧白框上下顶满（对齐 home calc(100vh - 112px)） */
 .theme-customer .c-api-manage,
 .theme-customer .c-help-layout,
-.theme-customer .c-docs-layout {
+.theme-customer .c-docs-layout,
+.theme-customer .c-section-guide {
   align-items: stretch;
   flex: 1 1 auto;
-  min-height: 100%;
+  min-height: calc(100vh - 112px);
 }
 
 .theme-customer .c-api-manage__side,
 .theme-customer .c-help-sidebar,
-.theme-customer .c-docs-sidebar {
+.theme-customer .c-docs-sidebar,
+.theme-customer .c-section-guide__aside {
   align-self: stretch;
   position: static;
   height: auto;
@@ -994,7 +1078,56 @@ body.a-admin.theme-customer {
 .theme-customer .c-api-manage__main,
 .theme-customer .c-help-content,
 .theme-customer .c-docs-main {
-  align-self: flex-start;
+  align-self: stretch;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.theme-customer .c-docs-main {
+  padding: 24px 32px 32px;
+}
+
+.theme-customer .c-help-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+.theme-customer .c-help-content.a-card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.theme-customer .c-help-content__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.theme-customer .c-help-tree__article {
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #606266;
+  border-radius: 6px;
+}
+
+.theme-customer .c-help-tree__article:hover {
+  background: #f5f7fa;
+  color: #1449b2;
+}
+
+.theme-customer .c-help-tree__article.is-active {
+  background: #e6f1fc;
+  color: #1449b2;
+  font-weight: 600;
+}
+
+.theme-customer .c-help-tree__folder {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #606266;
 }
 
 @media (max-width: 900px) {
