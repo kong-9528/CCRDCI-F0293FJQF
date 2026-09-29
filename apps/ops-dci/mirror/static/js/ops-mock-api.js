@@ -247,14 +247,172 @@
           return n;
         });
     }
-    clone.data = filterNodes(clone.data);
+    function reorderSystemChildren(children) {
+      var desired = ["invitationCode", "busPort", "log"];
+      var result = [];
+      var used = [];
+      for (var i = 0; i < desired.length; i += 1) {
+        var p = desired[i];
+        var found = children.find(function (c) {
+          return String(c.path) === p || String(c.name).toLowerCase() === p.toLowerCase();
+        });
+        if (found) {
+          result.push(found);
+          used.push(found);
+        }
+      }
+      for (var j = 0; j < children.length; j += 1) {
+        if (used.indexOf(children[j]) < 0) result.push(children[j]);
+      }
+      return result;
+    }
+    function reorderTop(nodes) {
+      var list = (nodes || []).slice();
+      var sysIdx = -1;
+      for (var i = 0; i < list.length; i += 1) {
+        if (list[i].path === "/system" || list[i].name === "System") {
+          sysIdx = i;
+          break;
+        }
+      }
+      if (sysIdx >= 0) {
+        var sys = list.splice(sysIdx, 1)[0];
+        if (Array.isArray(sys.children)) {
+          sys.children = reorderSystemChildren(sys.children);
+        }
+        list.push(sys);
+      }
+      return list;
+    }
+    clone.data = reorderTop(filterNodes(clone.data));
+    function renameMenus(nodes) {
+      return (nodes || []).map(function (n) {
+        var next = Object.assign({}, n);
+        if (n.meta) {
+          next.meta = Object.assign({}, n.meta);
+          if (next.meta.title === "注册中心管理") next.meta.title = "机构管理";
+          var name = String(n.name || "");
+          var p = String(n.path || "");
+          if (
+            name === "Pending" ||
+            name === "My" ||
+            name === "All" ||
+            p === "pending" ||
+            p === "my" ||
+            p === "all"
+          ) {
+            next.meta.noCache = true;
+          }
+        }
+        if (n.children) next.children = renameMenus(n.children);
+        return next;
+      });
+    }
+    clone.data = renameMenus(clone.data);
     return clone;
+  }
+
+  function findRegOrgById(id) {
+    var store = window.__OPS_MOCK_STORE__ || {};
+    var sid = String(id);
+    for (var key in store) {
+      if (!Object.prototype.hasOwnProperty.call(store, key)) continue;
+      if (key.indexOf("regorg") < 0) continue;
+      var body = store[key];
+      var rows = (body && (body.rows || body.data)) || [];
+      if (!Array.isArray(rows)) continue;
+      for (var i = 0; i < rows.length; i += 1) {
+        if (String(rows[i].id) === sid) {
+          return JSON.parse(JSON.stringify(rows[i]));
+        }
+      }
+    }
+    return null;
+  }
+
+  function mockRegOrgVo(id) {
+    var row = findRegOrgById(id);
+    if (row) return row;
+    return {
+      id: String(id || "demo"),
+      orgName: "演示机构",
+      orgTypeCode: "NRPT",
+      orgTypeName: "内容平台",
+      orgCode: "DEM",
+      creditCode: "91110000MA01234567",
+      accessKey: "demo-ak",
+      accessSecret: "demo-sk",
+      dataEncrypKey: "demo-dek",
+      apiPermissions:
+        '[{"interfaceId":"2080587923100037121","startDate":"2026-01-01"},{"interfaceId":"2080588010370920449","startDate":"2026-01-01"},{"interfaceId":"2080588682629771266","startDate":"2026-01-01"},{"interfaceId":"2080588786392657922","startDate":"2026-01-01"}]',
+      status: "0",
+      auditStatus: "1",
+      contractStartDate: "2026-01-01 00:00:00",
+      contractEndDate: "2027-12-31 00:00:00",
+      contactPerson: "演示联系人",
+      contactPhone: "13800138000",
+      contactEmail: "demo@example.com",
+      orgNamePy: "ysjg",
+      orgAddress: "北京市朝阳区演示路 1 号",
+      cooperationField: "版权服务",
+      contractFiles: null,
+      linkName: "演示联系人",
+      linkPhone: "13800138000",
+      linkEmail: "demo@example.com",
+      loginUsername: "demoorg",
+      loginPhone: "13800138000",
+      rcxType: "R",
+      invitationCode: "DEMOCODE",
+      changeStatus: "0",
+      auditType: "1",
+    };
   }
 
   function handle(method, rawUrl, body) {
     var m = String(method || "GET").toUpperCase();
     var path = apiPath(rawUrl);
     var data = parseBody(body);
+
+    // 机构配置详情：本地 mock，不走真实接口
+    var voMatch = path.match(/^\/dci\/regorg\/([^/]+)\/vo$/);
+    if (m === "GET" && voMatch) {
+      return ok(mockRegOrgVo(decodeURIComponent(voMatch[1])));
+    }
+    var detailMatch = path.match(/^\/dci\/regorg\/(\d+)$/);
+    if (m === "GET" && detailMatch) {
+      return ok(mockRegOrgVo(detailMatch[1]));
+    }
+    if (m === "PUT" && path === "/dci/regorg/editDciRegOrg") {
+      try {
+        var store = window.__OPS_MOCK_STORE__ || {};
+        var sid = data && data.id != null ? String(data.id) : "";
+        if (sid) {
+          for (var key in store) {
+            if (!Object.prototype.hasOwnProperty.call(store, key)) continue;
+            if (key.indexOf("regorg") < 0) continue;
+            var body = store[key];
+            var rows = (body && (body.rows || body.data)) || [];
+            if (!Array.isArray(rows)) continue;
+            for (var i = 0; i < rows.length; i += 1) {
+              if (String(rows[i].id) === sid) {
+                for (var f in data) {
+                  if (Object.prototype.hasOwnProperty.call(data, f) && f !== "params") {
+                    rows[i][f] = data[f];
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {}
+      return ok(null);
+    }
+    if (m === "GET" && path === "/dci/regorg/getRegOrgAccessInfo") {
+      return ok({
+        accessSecret: "mock-sk-" + Date.now().toString(36),
+        dataEncrypKey: "mock-dek-" + Date.now().toString(36),
+      });
+    }
 
     if (path === "/captchaImage" && m === "GET") {
       // UI reads res.data.captchaEnabled / res.data.img (RuoYi-style nested data)

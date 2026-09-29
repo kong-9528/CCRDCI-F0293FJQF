@@ -54,12 +54,122 @@ function sanitize(pathName: string, body: any) {
           ...n,
           children: n.children ? filterNodes(n.children) : n.children,
         }));
-    body.data = filterNodes(body.data);
+
+    /** 系统管理子菜单：邀请码 → 业务接口 → 日志 */
+    const reorderSystemChildren = (children: any[]): any[] => {
+      const desired = ["invitationCode", "busPort", "log"];
+      const result: any[] = [];
+      const used = new Set<any>();
+      for (const p of desired) {
+        const found = children.find(
+          (c) =>
+            String(c.path) === p || String(c.name).toLowerCase() === p.toLowerCase(),
+        );
+        if (found) {
+          result.push(found);
+          used.add(found);
+        }
+      }
+      for (const c of children) {
+        if (!used.has(c)) result.push(c);
+      }
+      return result;
+    };
+
+    /** 系统管理放到侧栏最后 */
+    const reorderTop = (nodes: any[]): any[] => {
+      const list = [...(nodes || [])];
+      const sysIdx = list.findIndex(
+        (n) => n.path === "/system" || n.name === "System",
+      );
+      if (sysIdx >= 0) {
+        const [sys] = list.splice(sysIdx, 1);
+        if (Array.isArray(sys.children)) {
+          sys.children = reorderSystemChildren(sys.children);
+        }
+        list.push(sys);
+      }
+      return list;
+    };
+
+    const renameMenus = (nodes: any[]): any[] =>
+      (nodes || []).map((n) => {
+        const next = { ...n, meta: n.meta ? { ...n.meta } : {} };
+        if (next.meta.title === "注册中心管理") next.meta.title = "机构管理";
+        const name = String(n.name || "");
+        const p = String(n.path || "");
+        if (
+          name === "Pending" ||
+          name === "My" ||
+          name === "All" ||
+          p === "pending" ||
+          p === "my" ||
+          p === "all"
+        ) {
+          next.meta.noCache = true;
+        }
+        if (n.children) next.children = renameMenus(n.children);
+        return next;
+      });
+
+    body.data = renameMenus(reorderTop(filterNodes(body.data)));
   }
   if (body.success === false || (body.code !== 200 && body.code !== 1000000)) {
     return null;
   }
   return body;
+}
+
+function findRegOrgById(id: string) {
+  const store = loadStore() as Record<string, any>;
+  const sid = String(id);
+  for (const key of Object.keys(store)) {
+    if (!/regorg/i.test(key)) continue;
+    const body = store[key];
+    const rows = (body && (body.rows || body.data)) || [];
+    if (!Array.isArray(rows)) continue;
+    const hit = rows.find((r: any) => String(r.id) === sid);
+    if (hit) return JSON.parse(JSON.stringify(hit));
+  }
+  return null;
+}
+
+function mockRegOrgVo(id: string) {
+  const row = findRegOrgById(id);
+  if (row) return row;
+  return {
+    id: String(id || "demo"),
+    orgName: "演示机构",
+    orgTypeCode: "NRPT",
+    orgTypeName: "内容平台",
+    orgCode: "DEM",
+    creditCode: "91110000MA01234567",
+    accessKey: "demo-ak",
+    accessSecret: "demo-sk",
+    dataEncrypKey: "demo-dek",
+    apiPermissions:
+      '[{"interfaceId":"2080587923100037121","startDate":"2026-01-01"},{"interfaceId":"2080588010370920449","startDate":"2026-01-01"},{"interfaceId":"2080588682629771266","startDate":"2026-01-01"},{"interfaceId":"2080588786392657922","startDate":"2026-01-01"}]',
+    status: "0",
+    auditStatus: "1",
+    contractStartDate: "2026-01-01 00:00:00",
+    contractEndDate: "2027-12-31 00:00:00",
+    contactPerson: "演示联系人",
+    contactPhone: "13800138000",
+    contactEmail: "demo@example.com",
+    orgNamePy: "ysjg",
+    orgAddress: "北京市朝阳区演示路 1 号",
+    cooperationField: "版权服务",
+    contractFiles: null,
+    linkName: "演示联系人",
+    linkPhone: "13800138000",
+    linkEmail: "demo@example.com",
+    loginUsername: "demoorg",
+    loginPhone: "13800138000",
+    rcxType: "R",
+    invitationCode: "DEMOCODE",
+    changeStatus: "0",
+    auditType: "1",
+  };
 }
 
 function fallback(urlPath: string) {
@@ -120,6 +230,65 @@ function offlineMockPlugin(publicUrl: string, ssoUrl: string): Plugin {
         }
 
         const method = (req.method || "GET").toUpperCase();
+        const pathname = parsed.pathname;
+        const apiRel = pathname.includes("/api/v1/dciManage")
+          ? pathname.slice(pathname.indexOf("/api/v1/dciManage") + "/api/v1/dciManage".length) || "/"
+          : pathname;
+
+        // 机构配置详情 / 保存：本地 mock
+        const voMatch = apiRel.match(/^\/dci\/regorg\/([^/]+)\/vo$/);
+        if (method === "GET" && voMatch) {
+          const payload = {
+            code: 200,
+            msg: "操作成功",
+            data: mockRegOrgVo(decodeURIComponent(voMatch[1])),
+          };
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json;charset=utf-8");
+          res.end(JSON.stringify(payload));
+          return;
+        }
+        const detailMatch = apiRel.match(/^\/dci\/regorg\/([^/]+)$/);
+        if (
+          method === "GET" &&
+          detailMatch &&
+          detailMatch[1] !== "list" &&
+          detailMatch[1] !== "myList" &&
+          detailMatch[1] !== "pendingCount" &&
+          detailMatch[1] !== "getRegOrgAccessInfo"
+        ) {
+          const payload = {
+            code: 200,
+            msg: "操作成功",
+            data: mockRegOrgVo(decodeURIComponent(detailMatch[1])),
+          };
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json;charset=utf-8");
+          res.end(JSON.stringify(payload));
+          return;
+        }
+        if (method === "PUT" && apiRel === "/dci/regorg/editDciRegOrg") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json;charset=utf-8");
+          res.end(JSON.stringify({ code: 200, msg: "操作成功", data: null }));
+          return;
+        }
+        if (method === "GET" && apiRel === "/dci/regorg/getRegOrgAccessInfo") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json;charset=utf-8");
+          res.end(
+            JSON.stringify({
+              code: 200,
+              msg: "操作成功",
+              data: {
+                accessSecret: `mock-sk-${Date.now().toString(36)}`,
+                dataEncrypKey: `mock-dek-${Date.now().toString(36)}`,
+              },
+            }),
+          );
+          return;
+        }
+
         let body = apiLookup(method, parsed.pathname, parsed.search);
         body = sanitize(parsed.pathname, body);
         if (!body) body = fallback(parsed.pathname);
