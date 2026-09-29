@@ -73,6 +73,7 @@ export function InfoVerifyPage() {
   const [batchRows, setBatchRows] = useState<InfoBatchRow[]>([]);
   const [batchFileName, setBatchFileName] = useState<string | null>(null);
   const [batchOpen, setBatchOpen] = useState(false);
+  const [batchError, setBatchError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [latest, setLatest] = useState<InfoVerifyResult[]>([]);
@@ -104,6 +105,7 @@ export function InfoVerifyPage() {
     setForm(emptyInfoForm(t));
     setLatest([]);
     setError(null);
+    setBatchError(null);
     setBatchOpen(false);
     setBatchRows([]);
     setBatchFileName(null);
@@ -160,10 +162,10 @@ export function InfoVerifyPage() {
   };
 
   const runBatch = async () => {
-    setError(null);
+    setBatchError(null);
     const batchErr = validateInfoBatchRows(workType, batchRows);
     if (batchErr) {
-      setError(batchErr);
+      setBatchError(batchErr);
       return;
     }
     setLoading(true);
@@ -175,6 +177,7 @@ export function InfoVerifyPage() {
       setBatchOpen(false);
       setBatchRows([]);
       setBatchFileName(null);
+      setBatchError(null);
       showToast(`批量核验完成：${results.length} 条（同批已去重）`);
     } finally {
       setLoading(false);
@@ -186,18 +189,24 @@ export function InfoVerifyPage() {
       const rows = await parseInfoBatchFile(file, workType);
       setBatchRows(rows);
       setBatchFileName(file.name);
-      setError(null);
+      const batchErr = validateInfoBatchRows(workType, rows);
+      if (batchErr) {
+        setBatchError(batchErr);
+        return;
+      }
+      setBatchError(null);
       showToast(`已导入 ${rows.length} 条`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "文件解析失败";
       setBatchRows([]);
       setBatchFileName(null);
-      setError(msg);
+      setBatchError(msg);
     }
   };
 
   const openBatchModal = () => {
     setError(null);
+    setBatchError(null);
     setBatchRows([]);
     setBatchFileName(null);
     setBatchOpen(true);
@@ -486,7 +495,11 @@ export function InfoVerifyPage() {
         workType={workType}
         fileName={batchFileName}
         rowCount={batchRows.length}
-        onClose={() => setBatchOpen(false)}
+        error={batchError}
+        onClose={() => {
+          setBatchOpen(false);
+          setBatchError(null);
+        }}
         onSubmit={() => void runBatch()}
         onFile={(f) => void onBatchFile(f)}
       />

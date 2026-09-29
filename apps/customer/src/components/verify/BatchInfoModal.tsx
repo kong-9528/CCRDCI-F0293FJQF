@@ -3,7 +3,7 @@ import {
   INFO_BATCH_LIMIT,
   INFO_WORK_TYPE_LABEL,
   downloadInfoBatchTemplate,
-  infoNameLabel,
+  infoBatchSubjectLabel,
   type InfoBatchRow,
   type InfoWorkType,
 } from "@/lib/verifyInfo";
@@ -14,6 +14,7 @@ type Props = {
   workType: InfoWorkType;
   fileName: string | null;
   rowCount: number;
+  error?: string | null;
   onClose: () => void;
   onSubmit: () => void;
   onFile: (file: File) => void;
@@ -25,11 +26,12 @@ export function BatchInfoModal({
   workType,
   fileName,
   rowCount,
+  error,
   onClose,
   onSubmit,
   onFile,
 }: Props) {
-  const nameLabel = infoNameLabel(workType);
+  const subjectLabel = infoBatchSubjectLabel(workType);
 
   return (
     <Modal
@@ -57,8 +59,8 @@ export function BatchInfoModal({
         <div className="c-dci-batch-intro">
           <p>
             当前页签：<strong>{INFO_WORK_TYPE_LABEL[workType]}</strong>
-            。请下载模板，按列填写 <strong>登记号</strong>、<strong>著作权人</strong>、
-            <strong>{nameLabel}</strong>（均为必填）后上传 Excel 文件。
+            。请下载模板，按列填写 <strong>登记号</strong>、<strong>{subjectLabel}</strong>
+            （均为必填）后上传 Excel 文件。首行为表头，不参与核验。
           </p>
           <button
             type="button"
@@ -90,6 +92,8 @@ export function BatchInfoModal({
             {rowCount > 0 ? ` · 共 ${rowCount} 条待核验数据` : ""}
           </p>
         ) : null}
+
+        {error ? <div className="a-field__error">{error}</div> : null}
 
         <p className="a-field__hint">
           支持 CSV、XLS、XLSX · 单次上限 {INFO_BATCH_LIMIT} 条 · 同批登记号自动去重

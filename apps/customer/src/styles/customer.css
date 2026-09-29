@@ -2268,6 +2268,242 @@ body,
   width: 100%;
 }
 
+.c-dci-mode-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 10px;
+  background: #eef2f8;
+}
+
+.c-dci-mode-tabs__item {
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4e5969;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.c-dci-mode-tabs__item:hover {
+  color: #1449b2;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.c-dci-mode-tabs__item.is-active {
+  color: #1449b2;
+  font-weight: 600;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 40, 80, 0.08);
+}
+
+/* 二级：下划线文字 Tab（与一级胶囊分段明显区分） */
+.c-dci-sample-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 1px solid #e5e6eb;
+}
+
+.c-dci-sample-tabs__item {
+  position: relative;
+  height: auto;
+  margin: 0 24px 0 0;
+  padding: 0 2px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #86909c;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.c-dci-sample-tabs__item:last-child {
+  margin-right: 0;
+}
+
+.c-dci-sample-tabs__item:hover {
+  color: #1449b2;
+  background: transparent;
+}
+
+.c-dci-sample-tabs__item.is-active {
+  color: #1449b2;
+  font-weight: 600;
+  background: transparent;
+  box-shadow: none;
+}
+
+.c-dci-sample-tabs__item.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 1px 1px 0 0;
+  background: #1449b2;
+}
+
+/* 核验记录表：固定其他列宽，提交内容吃剩余空间；overflow 保持 visible 以免裁切表头气泡 */
+.c-dci-records-wrap {
+  overflow: visible !important;
+  max-height: none !important;
+  width: 100%;
+}
+
+.c-dci-records-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.c-dci-records-table thead th {
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.c-dci-records-col--time {
+  width: 168px;
+}
+
+.c-dci-records-col--kind {
+  width: 112px;
+}
+
+.c-dci-records-col--submit {
+  width: auto;
+}
+
+.c-dci-records-col--channel {
+  width: 72px;
+}
+
+.c-dci-records-col--status {
+  width: 100px;
+}
+
+.c-dci-records-col--action {
+  width: 72px;
+}
+
+.c-dci-records-td--time,
+.c-dci-records-td--kind,
+.c-dci-records-td--channel,
+.c-dci-records-td--status,
+.c-dci-records-td--action {
+  white-space: nowrap;
+}
+
+.c-dci-records-td--submit {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.c-dci-records-td--submit .a-cell-clamp {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.c-dci-records-th-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-dci-records-tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+.c-dci-records-tip__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #86909c;
+  cursor: help;
+}
+
+.c-dci-records-tip:hover .c-dci-records-tip__icon,
+.c-dci-records-tip:focus-within .c-dci-records-tip__icon {
+  color: #1449b2;
+}
+
+/* 气泡向下展开，避免被表头上方区域裁切 */
+.c-dci-records-tip__bubble {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  z-index: 40;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-2px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+  white-space: normal;
+}
+
+.c-dci-records-tip__bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom-color: #1f1f1f;
+}
+
+.c-dci-records-tip:hover .c-dci-records-tip__bubble,
+.c-dci-records-tip:focus-within .c-dci-records-tip__bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.c-cert-outcome__note {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fff7f6;
+  border: 1px solid #ffd6d2;
+  color: #a61d24;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .c-dci-submit__actions {
   display: flex;
   flex-wrap: wrap;

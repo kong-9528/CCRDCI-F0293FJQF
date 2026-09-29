@@ -438,8 +438,12 @@ export async function verifyInfoOnce(
 
 export type InfoBatchRow = InfoVerifyInput;
 
+export function infoBatchSubjectLabel(workType: InfoWorkType) {
+  return `著作权人或${infoNameLabel(workType)}`;
+}
+
 export function infoBatchTemplateHeaders(workType: InfoWorkType) {
-  return ["登记号", "著作权人", infoNameLabel(workType)] as const;
+  return ["登记号", infoBatchSubjectLabel(workType)] as const;
 }
 
 const INFO_BATCH_ACCEPT_EXT = ["csv", "xls", "xlsx"] as const;
@@ -472,35 +476,75 @@ function parseCsvLine(line: string): string[] {
   return out;
 }
 
+function stripCell(value: unknown): string {
+  return String(value ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim();
+}
+
 function normalizeRegNo(regNo: string): string {
   return regNo.trim().toUpperCase();
 }
 
-function isInfoHeaderRow(cells: string[], workType: InfoWorkType): boolean {
-  const first = (cells[0] ?? "").trim();
+function isKnownInfoHeaderCell(value: string, workType: InfoWorkType): boolean {
+  const first = stripCell(value);
+  if (!first) return false;
   const headers = infoBatchTemplateHeaders(workType);
   return first === headers[0] || first === "登记号";
 }
 
 function normalizeInfoBatchRows(raw: string[][], workType: InfoWorkType): InfoBatchRow[] {
+  const nonEmpty = raw.filter((cells) => stripCell(cells[0]) || stripCell(cells[1]));
+  if (!nonEmpty.length) return [];
+
+  // 首行固定为表头，不参与核验
+  const dataRows = nonEmpty.slice(1);
+
   const rows: InfoBatchRow[] = [];
-  for (const cells of raw) {
-    const regNo = String(cells[0] ?? "").trim();
-    const owner = String(cells[1] ?? "").trim();
-    const name = String(cells[2] ?? "").trim();
-    if (!regNo && !owner && !name) continue;
-    if (isInfoHeaderRow([regNo, owner, name], workType)) continue;
-    rows.push({ regNo, owner, name });
+  for (const cells of dataRows) {
+    const regNo = stripCell(cells[0]);
+    const subject = stripCell(cells[1]);
+    if (!regNo && !subject) continue;
+    if (isKnownInfoHeaderCell(regNo, workType)) continue;
+    rows.push({ regNo, owner: subject, name: subject });
   }
   return rows;
 }
 
-function parseInfoBatchCsv(text: string, workType: InfoWorkType): InfoBatchRow[] {
+/** Excel 中文环境另存 CSV 多为 GBK；带 BOM 则为 UTF-8 */
+function decodeCsvBuffer(buf: ArrayBuffer, workType: InfoWorkType): string {
+  const bytes = new Uint8Array(buf);
+  if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+    return new TextDecoder("utf-8").decode(bytes.subarray(3));
+  }
+
+  const utf8 = new TextDecoder("utf-8").decode(bytes);
+  let gbk = "";
+  try {
+    gbk = new TextDecoder("gbk").decode(bytes);
+  } catch {
+    return utf8.replace(/^\uFEFF/, "");
+  }
+
+  const utf8Head = stripCell(parseCsvLine(utf8.split(/\r?\n/, 1)[0] ?? "")[0] ?? "");
+  const gbkHead = stripCell(parseCsvLine(gbk.split(/\r?\n/, 1)[0] ?? "")[0] ?? "");
+  if (isKnownInfoHeaderCell(gbkHead, workType)) return gbk;
+  if (isKnownInfoHeaderCell(utf8Head, workType)) return utf8.replace(/^\uFEFF/, "");
+  if (/[\u4e00-\u9fff]/.test(gbkHead) && !/[\u4e00-\u9fff]/.test(utf8Head)) return gbk;
+  return utf8.replace(/^\uFEFF/, "");
+}
+
+function parseInfoBatchCsv(buf: ArrayBuffer, workType: InfoWorkType): InfoBatchRow[] {
+  const text = decodeCsvBuffer(buf, workType);
   const lines = text.split(/\r?\n/).filter((line) => line.trim());
   return normalizeInfoBatchRows(lines.map(parseCsvLine), workType);
 }
 
-async function parseInfoBatchSpreadsheet(file: File, workType: InfoWorkType): Promise<InfoBatchRow[]> {
+async function parseInfoBatchSpreadsheet(
+  file: File,
+  workType: InfoWorkType,
+): Promise<InfoBatchRow[]> {
   const XLSX = await import("xlsx");
   const buf = await file.arrayBuffer();
   const wb = XLSX.read(buf, { type: "array" });
@@ -512,7 +556,7 @@ async function parseInfoBatchSpreadsheet(file: File, workType: InfoWorkType): Pr
     defval: "",
   });
   return normalizeInfoBatchRows(
-    raw.map((row) => row.map((cell) => String(cell ?? "").trim())),
+    raw.map((row) => row.map((cell) => stripCell(cell))),
     workType,
   );
 }
@@ -526,9 +570,20 @@ export async function parseInfoBatchFile(
     throw new Error("仅支持 CSV、XLS、XLSX 格式");
   }
   if (ext === "csv") {
-    return parseInfoBatchCsv(await file.text(), workType);
+    return parseInfoBatchCsv(await file.arrayBuffer(), workType);
   }
   return parseInfoBatchSpreadsheet(file, workType);
+}
+
+/** 批量行校验：登记号 + 著作权人或作品名称（单列） */
+export function validateInfoBatchForm(
+  workType: InfoWorkType,
+  input: InfoVerifyInput,
+): string | null {
+  if (!input.regNo.trim()) return "请填写登记号";
+  const subject = (input.owner || input.name).trim();
+  if (!subject) return `请填写${infoBatchSubjectLabel(workType)}`;
+  return null;
 }
 
 export function validateInfoBatchRows(
@@ -540,7 +595,7 @@ export function validateInfoBatchRows(
   for (let i = 0; i < rows.length; i += 1) {
     const row = rows[i];
     const lineNo = i + 2;
-    const err = validateInfoForm(workType, row);
+    const err = validateInfoBatchForm(workType, row);
     if (err) return `第 ${lineNo} 行：${err}`;
     const code = normalizeRegNo(row.regNo);
     if (seen.has(code)) return `第 ${lineNo} 行：登记号重复（${code}）`;
@@ -562,10 +617,11 @@ export async function verifyInfoBatch(
     const regNo = normalizeRegNo(row.regNo);
     if (!regNo || seen.has(regNo)) continue;
     seen.add(regNo);
+    const subject = (row.owner || row.name).trim();
     unique.push({
       regNo,
-      owner: row.owner.trim(),
-      name: row.name.trim(),
+      owner: subject,
+      name: subject,
     });
   }
   const results: InfoVerifyResult[] = [];
@@ -578,10 +634,10 @@ export async function verifyInfoBatch(
 export function downloadInfoBatchTemplate(workType: InfoWorkType) {
   const headers = infoBatchTemplateHeaders(workType);
   const header = headers.map(escapeCsvCell).join(",");
-  const samples: Record<InfoWorkType, [string, string, string]> = {
-    software: ["2024SR001234", "北京华信科技", "华信OA系统"],
-    work: ["2024ZP001234", "北京华信科技", "春江水暖图"],
-    dataset: ["2024SJ001234", "北京华信科技", "用户行为数据作品"],
+  const samples: Record<InfoWorkType, [string, string]> = {
+    software: ["2024SR001234", "北京华信科技"],
+    work: ["2024ZP001234", "北京华信科技"],
+    dataset: ["2024SJ001234", "北京华信科技"],
   };
   const sample = samples[workType].map(escapeCsvCell).join(",");
   const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {
@@ -601,13 +657,7 @@ export function emptyInfoForm(_workType: InfoWorkType): InfoVerifyInput {
 
 export function validateInfoForm(workType: InfoWorkType, input: InfoVerifyInput): string | null {
   if (!input.regNo.trim()) return "请填写登记号";
-  const owner = input.owner.trim();
-  const name = input.name.trim();
-  const nameLabel = infoNameLabel(workType);
-  if (!owner && !name) {
-    return `请填写著作权人 / ${nameLabel}`;
-  }
-  if (!owner) return "请填写著作权人";
-  if (!name) return `请填写${nameLabel}`;
+  const subject = (input.owner || input.name).trim();
+  if (!subject) return `请填写著作权人 / ${infoNameLabel(workType)}`;
   return null;
 }

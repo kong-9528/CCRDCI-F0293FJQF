@@ -4,6 +4,9 @@ export type DciVerifyStatus = "pass" | "not_found" | "fail";
 
 export type DciChannel = "manual" | "api";
 
+/** 核验方式：DCI码 / 作品样本(文件) / 作品样本(哈希) */
+export type DciVerifyKind = "code" | "sample_file" | "sample_hash";
+
 /** 失败时标记不一致的字段 */
 export type DciMismatchField = "owner" | "name";
 
@@ -26,9 +29,11 @@ export type DciVerifyResult = {
   status: DciVerifyStatus;
   verifiedAt: string;
   channel: DciChannel;
+  /** 核验类型（列表筛选 / 展示用） */
+  verifyKind: DciVerifyKind;
   /** 提交的著作权人 */
   queryOwner: string;
-  /** 提交的名称（作品/软件/数据作品） */
+  /** 提交的名称（作品/软件/数据作品）；样本核验时为文件名或哈希 */
   queryName: string;
   /** 失败时不一致的字段 */
   mismatches?: DciMismatchField[];
@@ -75,7 +80,49 @@ export const CHANNEL_LABEL: Record<DciChannel, string> = {
   api: "API",
 };
 
+/** 列表「核验类型」两级文案（样本文件/哈希合并为作品样本核验） */
+export const VERIFY_KIND_FILTER_LABEL: Record<"code" | "sample", string> = {
+  code: "DCI码核验",
+  sample: "作品样本核验",
+};
+
+export function verifyKindListLabel(kind: DciVerifyKind): string {
+  return kind === "code" ? VERIFY_KIND_FILTER_LABEL.code : VERIFY_KIND_FILTER_LABEL.sample;
+}
+
+export function isSampleVerifyKind(kind: DciVerifyKind): boolean {
+  return kind === "sample_file" || kind === "sample_hash";
+}
+
+/** 列表「提交内容」摘要 */
+export function formatDciSubmitSummary(result: DciVerifyResult): string {
+  if (result.verifyKind === "sample_file") {
+    return (result.fileName || result.queryName || "").trim() || "—";
+  }
+  if (result.verifyKind === "sample_hash") {
+    return (result.queryName || "").trim() || "—";
+  }
+  const code = (result.dciCode || "").trim();
+  const owner = result.queryOwner.trim();
+  const name = result.queryName.trim();
+  let who = "";
+  if (owner && name && owner.toLowerCase() === name.toLowerCase()) {
+    who = owner;
+  } else if (owner && name) {
+    who = `${owner} / ${name}`;
+  } else {
+    who = owner || name;
+  }
+  if (code && who) return `${code} · ${who}`;
+  if (code) return code;
+  if (who) return who;
+  return "—";
+}
+
 export const DCI_NAME_LABEL = "作品名称";
+
+/** 批量模板第二列 / 合并提交字段文案 */
+export const DCI_BATCH_SUBJECT_LABEL = "著作权人或作品名称";
 
 export const MISMATCH_FIELD_LABEL: Record<DciMismatchField, string> = {
   owner: "著作权人",
@@ -118,7 +165,13 @@ export const DCI_MOCK = {
   dsRec1: "DCI:RQZDS1ANT.156.20240712S1T3U5V7W9",
   /** 未入库（核验不存在） */
   unknown: "DCI:RQZUNKANT.156.20240101C0D0E0F0G1",
+  /** 作品样本哈希 · 演示通过 */
+  sampleHashPass: "a5fcfdb5bacd146cd9881cca1b7d8402",
 } as const;
+
+/** 作品样本核验失败时的笼统提示（不做字段级比对） */
+export const DCI_SAMPLE_FAIL_HINT =
+  "请确认提交的作品样本是否为 DCI 申领时上传的作品样本，以及内容是否正确。";
 
 export function emptyDciForm(): DciVerifyInput {
   return { dciCode: "", owner: "", name: "" };
@@ -170,6 +223,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "pass",
     verifiedAt: daysAgo(1),
     channel: "manual",
+    verifyKind: "code",
     queryOwner: "艾克米文化传媒有限公司",
     queryName: "版权核验助手",
     snapshot: {
@@ -189,6 +243,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "pass",
     verifiedAt: daysAgo(2),
     channel: "api",
+    verifyKind: "code",
     queryOwner: "北方出版集团股份有限公司",
     queryName: "极光之城",
     snapshot: {
@@ -210,6 +265,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "pass",
     verifiedAt: daysAgo(5),
     channel: "manual",
+    verifyKind: "code",
     queryOwner: "像素实验室（深圳）有限公司",
     queryName: "开源图像标注集",
     snapshot: {
@@ -232,6 +288,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "not_found",
     verifiedAt: daysAgo(3),
     channel: "manual",
+    verifyKind: "code",
     queryOwner: "某科技有限公司",
     queryName: "",
     message: "系统中无该DCI码记录",
@@ -244,6 +301,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "fail",
     verifiedAt: daysAgo(4),
     channel: "manual",
+    verifyKind: "code",
     queryOwner: "错误著作权人",
     queryName: "版权核验助手",
     mismatches: ["owner"],
@@ -265,6 +323,7 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
     status: "pass",
     verifiedAt: daysAgo(8),
     channel: "api",
+    verifyKind: "code",
     queryOwner: "",
     queryName: "合同比对引擎",
     snapshot: {
@@ -275,6 +334,33 @@ const SEED: Omit<DciVerifyResult, "id">[] = [
       agency: "中国版权保护中心",
       currentStatus: "有效",
     },
+  },
+  {
+    verifyCode: "R1138840000985",
+    verifier: DCI_DEFAULT_VERIFIER,
+    dciCode: "",
+    workType: "work",
+    status: "pass",
+    verifiedAt: daysAgo(1),
+    channel: "manual",
+    verifyKind: "sample_file",
+    queryOwner: "",
+    queryName: "申领作品样本.pdf",
+    fileName: "申领作品样本.pdf",
+    fileKind: "pdf",
+  },
+  {
+    verifyCode: "R1138840000986",
+    verifier: DCI_DEFAULT_VERIFIER,
+    dciCode: "",
+    workType: "work",
+    status: "fail",
+    verifiedAt: daysAgo(2),
+    channel: "manual",
+    verifyKind: "sample_hash",
+    queryOwner: "",
+    queryName: "deadbeefcafebabe0123456789abcdef",
+    message: DCI_SAMPLE_FAIL_HINT,
   },
 ];
 
@@ -402,7 +488,7 @@ function ownerNameMismatches(
 
 function mismatchMessage(mismatches: DciMismatchField[]): string {
   if (mismatches.includes("owner") && mismatches.includes("name")) {
-    return `著作权人/${DCI_NAME_LABEL}不一致`;
+    return `${DCI_BATCH_SUBJECT_LABEL}不一致`;
   }
   const parts = mismatches.map((f) => (f === "owner" ? "著作权人" : DCI_NAME_LABEL));
   return `${parts.join("、")}不一致`;
@@ -436,6 +522,7 @@ export async function verifyDciOnce(
       status: "not_found",
       verifiedAt,
       channel,
+      verifyKind: "code",
       queryOwner,
       queryName,
       message: "系统中无该DCI码记录",
@@ -455,6 +542,7 @@ export async function verifyDciOnce(
         status: "fail",
         verifiedAt,
         channel,
+        verifyKind: "code",
         queryOwner,
         queryName,
         mismatches,
@@ -471,6 +559,7 @@ export async function verifyDciOnce(
         status: "pass",
         verifiedAt,
         channel,
+        verifyKind: "code",
         queryOwner,
         queryName,
         snapshot,
@@ -489,10 +578,11 @@ export async function verifyDciBatch(rows: DciBatchRow[]): Promise<DciVerifyResu
     const dciCode = normalizeDciCode(row.dciCode);
     if (!dciCode || seen.has(dciCode)) continue;
     seen.add(dciCode);
+    const subject = (row.owner || row.name).trim();
     unique.push({
       dciCode,
-      owner: row.owner.trim(),
-      name: row.name.trim(),
+      owner: subject,
+      name: subject,
     });
   }
   const results: DciVerifyResult[] = [];
@@ -504,7 +594,7 @@ export async function verifyDciBatch(rows: DciBatchRow[]): Promise<DciVerifyResu
 
 export type DciBatchRow = DciVerifyInput;
 
-export const DCI_BATCH_TEMPLATE_HEADERS = ["DCI 码", "著作权人", DCI_NAME_LABEL] as const;
+export const DCI_BATCH_TEMPLATE_HEADERS = ["DCI 码", DCI_BATCH_SUBJECT_LABEL] as const;
 
 const DCI_BATCH_ACCEPT_EXT = ["csv", "xls", "xlsx"] as const;
 
@@ -536,25 +626,68 @@ function parseCsvLine(line: string): string[] {
   return out;
 }
 
-function isHeaderRow(cells: string[]): boolean {
-  const first = (cells[0] ?? "").trim();
-  return first === DCI_BATCH_TEMPLATE_HEADERS[0] || first === "DCI码";
+function stripCell(value: unknown): string {
+  return String(value ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim();
+}
+
+function isKnownBatchHeaderCell(value: string): boolean {
+  const first = stripCell(value);
+  if (!first) return false;
+  if (first === DCI_BATCH_TEMPLATE_HEADERS[0] || first === "DCI码") return true;
+  // 非合法 DCI 码且以 DCI 开头但不含冒号（如「DCI 码」或乱码表头）
+  if (/^DCI/i.test(first) && !first.includes(":") && !isValidDciCode(first)) return true;
+  return false;
 }
 
 function normalizeBatchRows(raw: string[][]): DciBatchRow[] {
+  const nonEmpty = raw.filter((cells) => stripCell(cells[0]) || stripCell(cells[1]));
+  if (!nonEmpty.length) return [];
+
+  // 首行固定为表头，不参与核验（Excel/CSV 导出常为 GBK，表头识别不可靠）
+  const dataRows = nonEmpty.slice(1);
+
   const rows: DciBatchRow[] = [];
-  for (const cells of raw) {
-    const dciCode = String(cells[0] ?? "").trim();
-    const owner = String(cells[1] ?? "").trim();
-    const name = String(cells[2] ?? "").trim();
-    if (!dciCode && !owner && !name) continue;
-    if (isHeaderRow([dciCode, owner, name])) continue;
-    rows.push({ dciCode, owner, name });
+  for (const cells of dataRows) {
+    const dciCode = stripCell(cells[0]);
+    const subject = stripCell(cells[1]);
+    if (!dciCode && !subject) continue;
+    if (isKnownBatchHeaderCell(dciCode)) continue;
+    rows.push({ dciCode, owner: subject, name: subject });
   }
   return rows;
 }
 
-function parseDciBatchCsv(text: string): DciBatchRow[] {
+/** Excel 中文环境另存 CSV 多为 GBK；带 BOM 则为 UTF-8 */
+function decodeCsvBuffer(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+    return new TextDecoder("utf-8").decode(bytes.subarray(3));
+  }
+
+  const utf8 = new TextDecoder("utf-8").decode(bytes);
+  let gbk = "";
+  try {
+    gbk = new TextDecoder("gbk").decode(bytes);
+  } catch {
+    return utf8.replace(/^\uFEFF/, "");
+  }
+
+  const utf8Head = stripCell(parseCsvLine(utf8.split(/\r?\n/, 1)[0] ?? "")[0] ?? "");
+  const gbkHead = stripCell(parseCsvLine(gbk.split(/\r?\n/, 1)[0] ?? "")[0] ?? "");
+  if (isKnownBatchHeaderCell(gbkHead) || gbkHead === DCI_BATCH_TEMPLATE_HEADERS[0]) return gbk;
+  if (isKnownBatchHeaderCell(utf8Head) || utf8Head === DCI_BATCH_TEMPLATE_HEADERS[0]) {
+    return utf8.replace(/^\uFEFF/, "");
+  }
+  // 表头含汉字时优先 GBK（避免 UTF-8 误读产生的拉丁乱码）
+  if (/[\u4e00-\u9fff]/.test(gbkHead) && !/[\u4e00-\u9fff]/.test(utf8Head)) return gbk;
+  return utf8.replace(/^\uFEFF/, "");
+}
+
+function parseDciBatchCsv(buf: ArrayBuffer): DciBatchRow[] {
+  const text = decodeCsvBuffer(buf);
   const lines = text.split(/\r?\n/).filter((line) => line.trim());
   return normalizeBatchRows(lines.map(parseCsvLine));
 }
@@ -571,7 +704,7 @@ async function parseDciBatchSpreadsheet(file: File): Promise<DciBatchRow[]> {
     defval: "",
   });
   return normalizeBatchRows(
-    raw.map((row) => row.map((cell) => String(cell ?? "").trim())),
+    raw.map((row) => row.map((cell) => stripCell(cell))),
   );
 }
 
@@ -581,9 +714,21 @@ export async function parseDciBatchFile(file: File): Promise<DciBatchRow[]> {
     throw new Error("仅支持 CSV、XLS、XLSX 格式");
   }
   if (ext === "csv") {
-    return parseDciBatchCsv(await file.text());
+    return parseDciBatchCsv(await file.arrayBuffer());
   }
   return parseDciBatchSpreadsheet(file);
+}
+
+/** 批量行校验：DCI 码 + 著作权人或作品名称 */
+export function validateDciBatchForm(input: DciVerifyInput): string | null {
+  const dciCode = normalizeDciCode(input.dciCode);
+  if (!dciCode) return "请填写 DCI 码";
+  if (!isValidDciCode(dciCode)) {
+    return `DCI 码格式不正确，示例：${DCI_MOCK.swDemo}`;
+  }
+  const subject = (input.owner || input.name).trim();
+  if (!subject) return `请填写${DCI_BATCH_SUBJECT_LABEL}`;
+  return null;
 }
 
 export function validateDciBatchRows(rows: DciBatchRow[]): string | null {
@@ -592,7 +737,7 @@ export function validateDciBatchRows(rows: DciBatchRow[]): string | null {
   for (let i = 0; i < rows.length; i += 1) {
     const row = rows[i];
     const lineNo = i + 2;
-    const err = validateDciForm(row);
+    const err = validateDciBatchForm(row);
     if (err) return `第 ${lineNo} 行：${err}`;
     const code = normalizeDciCode(row.dciCode);
     if (seen.has(code)) return `第 ${lineNo} 行：DCI 码重复（${code}）`;
@@ -606,7 +751,7 @@ export function validateDciBatchRows(rows: DciBatchRow[]): string | null {
 
 export function downloadDciBatchTemplate() {
   const header = DCI_BATCH_TEMPLATE_HEADERS.map(escapeCsvCell).join(",");
-  const sample = [DCI_MOCK.swDemo, "演示著作权人", "演示软件登记"].map(escapeCsvCell).join(",");
+  const sample = [DCI_MOCK.swDemo, "演示著作权人"].map(escapeCsvCell).join(",");
   const blob = new Blob(["\uFEFF" + header + "\n" + sample + "\n"], {
     type: "text/csv;charset=utf-8",
   });
@@ -660,7 +805,7 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
   }
   if (result.mismatches?.length) {
     if (result.mismatches.includes("owner") && result.mismatches.includes("name")) {
-      return [`著作权人/${DCI_NAME_LABEL}不一致`];
+      return [`${DCI_BATCH_SUBJECT_LABEL}不一致`];
     }
     return result.mismatches.map((f) =>
       f === "owner" ? "著作权人不一致" : `${DCI_NAME_LABEL}不一致`,
@@ -669,7 +814,50 @@ export function formatDciFailReasons(result: DciVerifyResult): string[] {
   return result.message ? [result.message] : ["核验不通过"];
 }
 
-/* ---------- 文件上传核验（与证书核验交互对齐） ---------- */
+/* ---------- 作品样本核验（哈希工具；文件核验见下方 DciSelectedFile 之后） ---------- */
+
+export function normalizeSampleHash(hash: string): string {
+  return hash.trim().toLowerCase().replace(/\s+/g, "");
+}
+
+export function validateSampleHash(hash: string): string | null {
+  const value = normalizeSampleHash(hash);
+  if (!value) return "请输入作品样本哈希值";
+  if (!/^[a-f0-9]{32,128}$/i.test(value)) {
+    return `哈希值格式不正确，示例：${DCI_MOCK.sampleHashPass}`;
+  }
+  return null;
+}
+
+function pushSampleResult(result: DciVerifyResult): DciVerifyResult {
+  MOCK_DCI_RECORDS = [result, ...MOCK_DCI_RECORDS];
+  return result;
+}
+
+/** 作品样本哈希核验：命中演示哈希则通过，否则笼统不通过 */
+export async function verifyDciSampleHash(hash: string): Promise<DciVerifyResult> {
+  await new Promise((r) => setTimeout(r, 420));
+  const value = normalizeSampleHash(hash);
+  const pass = value === DCI_MOCK.sampleHashPass;
+  const verifyCode = nextVerifyCode();
+  const result: DciVerifyResult = {
+    id: `rec-${seq}`,
+    verifyCode,
+    verifier: DCI_DEFAULT_VERIFIER,
+    dciCode: "",
+    workType: "work",
+    status: pass ? "pass" : "fail",
+    verifiedAt: nowStamp(),
+    channel: "manual",
+    verifyKind: "sample_hash",
+    queryOwner: "",
+    queryName: value,
+    message: pass ? undefined : DCI_SAMPLE_FAIL_HINT,
+  };
+  return pushSampleResult(result);
+}
+
+/* ---------- 文件上传（作品样本交互） ---------- */
 
 export type DciFileKind = "image" | "pdf";
 
@@ -679,6 +867,35 @@ export type DciSelectedFile = {
   fileUrl: string;
   fileKind: DciFileKind;
 };
+
+/** 作品样本文件核验：文件名含 fail/invalid/missing 则不通过，其余演示通过 */
+export async function verifyDciSampleFile(
+  selected: Pick<DciSelectedFile, "fileName" | "fileUrl" | "fileKind">,
+): Promise<DciVerifyResult> {
+  await new Promise((r) => setTimeout(r, 480));
+  const lower = selected.fileName.toLowerCase();
+  const fail =
+    lower.includes("fail") || lower.includes("invalid") || lower.includes("missing");
+  const verifyCode = nextVerifyCode();
+  const result: DciVerifyResult = {
+    id: `rec-${seq}`,
+    verifyCode,
+    verifier: DCI_DEFAULT_VERIFIER,
+    dciCode: "",
+    workType: "work",
+    status: fail ? "fail" : "pass",
+    verifiedAt: nowStamp(),
+    channel: "manual",
+    verifyKind: "sample_file",
+    queryOwner: "",
+    queryName: selected.fileName,
+    fileName: selected.fileName,
+    fileUrl: selected.fileUrl,
+    fileKind: selected.fileKind,
+    message: fail ? DCI_SAMPLE_FAIL_HINT : undefined,
+  };
+  return pushSampleResult(result);
+}
 
 export type DciRecognition = {
   dciCode: string;

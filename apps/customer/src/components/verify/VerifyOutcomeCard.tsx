@@ -18,6 +18,8 @@ type Props = {
   badge: string;
   fields: OutcomeField[];
   file?: FilePreview | null;
+  /** 结果下方补充说明（如作品样本不通过时的笼统提示） */
+  note?: string | null;
 };
 
 function PassIcon({ id }: { id: string }) {
@@ -76,7 +78,7 @@ function CopyIcon() {
   );
 }
 
-/** 与证书核验结果同构：提交信息可展开，文件核验时右侧展示缩略图 */
+/** 核验结果卡片：提交信息直接展示（DCI 码核验 / 登记信息核验） */
 export function VerifyOutcomeCard({
   ok,
   statusTitle,
@@ -85,9 +87,9 @@ export function VerifyOutcomeCard({
   badge,
   fields,
   file,
+  note,
 }: Props) {
   const rawId = useId().replace(/:/g, "");
-  const [open, setOpen] = useState(true);
   const [copied, setCopied] = useState(false);
   const [preview, setPreview] = useState(false);
 
@@ -149,22 +151,13 @@ export function VerifyOutcomeCard({
           ) : null}
         </div>
 
-        <div className="c-cert-outcome__recog">
-          <div className="c-cert-outcome__recog-bar">
-            <span className="c-cert-outcome__recog-title">提交信息</span>
-            <button
-              type="button"
-              className="c-cert-outcome__toggle"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-            >
-              {open ? "收起" : "展开"}
-              <span className={`c-cert-outcome__chevron${open ? " is-open" : ""}`} aria-hidden>
-                ▾
-              </span>
-            </button>
-          </div>
-          {open ? (
+        {note ? <p className="c-cert-outcome__note">{note}</p> : null}
+
+        {fields.length ? (
+          <div className="c-cert-outcome__recog">
+            <div className="c-cert-outcome__recog-bar">
+              <span className="c-cert-outcome__recog-title">提交信息</span>
+            </div>
             <div className="c-cert-outcome__grid">
               <dl className="c-cert-outcome__col">
                 {left.map((row) => (
@@ -183,8 +176,8 @@ export function VerifyOutcomeCard({
                 ))}
               </dl>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </section>
 
       {file ? (

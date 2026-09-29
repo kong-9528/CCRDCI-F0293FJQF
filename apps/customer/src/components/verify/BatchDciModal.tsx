@@ -1,7 +1,7 @@
 import { Modal } from "@/components/Modal";
 import {
   DCI_BATCH_LIMIT,
-  DCI_NAME_LABEL,
+  DCI_BATCH_SUBJECT_LABEL,
   downloadDciBatchTemplate,
   type DciBatchRow,
 } from "@/lib/dci";
@@ -11,6 +11,7 @@ type Props = {
   loading: boolean;
   fileName: string | null;
   rowCount: number;
+  error?: string | null;
   onClose: () => void;
   onSubmit: () => void;
   onFile: (file: File) => void;
@@ -21,6 +22,7 @@ export function BatchDciModal({
   loading,
   fileName,
   rowCount,
+  error,
   onClose,
   onSubmit,
   onFile,
@@ -50,8 +52,8 @@ export function BatchDciModal({
       <div className="a-stack">
         <div className="c-dci-batch-intro">
           <p>
-            请下载模板，按列填写 <strong>DCI 码</strong>、<strong>著作权人</strong>、
-            <strong>{DCI_NAME_LABEL}</strong>（均为必填）后上传 Excel 文件。
+            请下载模板，按列填写 <strong>DCI 码</strong>、<strong>{DCI_BATCH_SUBJECT_LABEL}</strong>
+            （均为必填）后上传 Excel 文件。首行为表头，不参与核验。
           </p>
           <button type="button" className="a-btn a-btn--sm" onClick={downloadDciBatchTemplate}>
             下载 Excel 模板
@@ -79,6 +81,8 @@ export function BatchDciModal({
             {rowCount > 0 ? ` · 共 ${rowCount} 条待核验数据` : ""}
           </p>
         ) : null}
+
+        {error ? <div className="a-field__error">{error}</div> : null}
 
         <p className="a-field__hint">
           支持 CSV、XLS、XLSX · 单次上限 {DCI_BATCH_LIMIT} 条 · 同批 DCI 码自动去重
