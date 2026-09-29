@@ -15,13 +15,13 @@ export type WorkReviewEntitlement = {
   allowOverQuota: boolean;
 };
 
-/** 作品智能辅助审核统一额度（三个审核接口共用）；演示已超额仍可使用 */
+/** 作品智能辅助审核统一额度（三个审核接口共用）；演示尚未超出用量 */
 export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
-  status: "expiring",
-  usedCount: 105230,
+  status: "active",
+  usedCount: 68420,
   quotaTotal: 100000,
-  quotaUsagePct: 105.2,
-  expireAt: "2026-08-25",
+  quotaUsagePct: 68.4,
+  expireAt: "2026-12-31",
   allowOverQuota: true,
 };
 

@@ -6,19 +6,14 @@ import {
   IconEdit,
   IconEye,
   IconEyeOff,
-  IconPlus,
-  IconRefresh,
-  IconShieldCheck,
   IconWand,
 } from "@/components/icons/UiIcons";
 import { SERVICE_TABS, type ServiceTab } from "@/lib/apiStats";
 import {
   copyText,
-  createApiKeyDraft,
-  createApiKeyFromDraft,
+  ensureStoredApiKey,
   generateDek,
   generateSk,
-  loadStoredApiKey,
   maskSecret,
   regenerateSecrets,
   saveStoredApiKey,
@@ -26,27 +21,31 @@ import {
 } from "@/lib/keys";
 
 type Draft = { ak: string; sk: string; dek: string };
-type FormMode = "create" | "edit";
+
+const SECURITY_NOTICE =
+  "API Key（含 AK、SK、DEK）属于重要访问凭证，请妥善保管并仅限授权人员使用；请勿通过即时通讯、邮件明文或代码仓库等方式对外泄露。如发生泄露或疑似盗用，请立即重新生成密钥并同步更新业务系统配置。";
+
+const REGEN_WARN =
+  "请勿频繁或随意更换密钥。密钥一经更换，使用旧密钥的接口调用将立即失败，需同步将业务系统更新为新密钥后方可恢复正常调用。";
 
 export function KeysPage() {
   const [serviceTab, setServiceTab] = useState<ServiceTab>("verify");
-  const [record, setRecord] = useState<ApiKeyRecord | null>(() => loadStoredApiKey("verify"));
+  const [record, setRecord] = useState<ApiKeyRecord | null>(() => ensureStoredApiKey("verify"));
   const [formOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<FormMode>("create");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [copied, setCopied] = useState<"ak" | "sk" | "dek" | null>(null);
 
   useEffect(() => {
-    setRecord(loadStoredApiKey(serviceTab));
+    setRecord(ensureStoredApiKey(serviceTab));
     setRevealed(false);
     setFormOpen(false);
     setDraft(null);
     setCopied(null);
   }, [serviceTab]);
 
-  const persistRecord = (next: ApiKeyRecord | null) => {
+  const persistRecord = (next: ApiKeyRecord) => {
     setRecord(next);
     saveStoredApiKey(next, serviceTab);
   };
@@ -64,22 +63,11 @@ export function KeysPage() {
     }
     setCopied(field);
     window.setTimeout(() => setCopied(null), 1000);
-    showToast("已复制");
-  };
-
-  const openCreate = () => {
-    if (record) {
-      showToast("每个注册中心仅允许创建一个API key");
-      return;
-    }
-    setFormMode("create");
-    setDraft(createApiKeyDraft());
-    setFormOpen(true);
+    showToast("复制成功");
   };
 
   const openEdit = () => {
     if (!record) return;
-    setFormMode("edit");
     setDraft({ ak: record.ak, sk: record.sk, dek: record.dek });
     setFormOpen(true);
   };
@@ -89,30 +77,29 @@ export function KeysPage() {
     setDraft(null);
   };
 
-  const regenSk = () => setDraft((prev) => (prev ? { ...prev, sk: generateSk() } : prev));
-  const regenDek = () => setDraft((prev) => (prev ? { ...prev, dek: generateDek() } : prev));
-  const regenBoth = () =>
+  const regenSk = () => {
+    setDraft((prev) => (prev ? { ...prev, sk: generateSk() } : prev));
+    showToast("已生成 SK");
+  };
+  const regenDek = () => {
+    setDraft((prev) => (prev ? { ...prev, dek: generateDek() } : prev));
+    showToast("已生成 DEK");
+  };
+  const regenBoth = () => {
     setDraft((prev) => (prev ? { ...prev, sk: generateSk(), dek: generateDek() } : prev));
+    showToast("已重新生成 SK 和 DEK");
+  };
 
   const submitForm = () => {
-    if (!draft) return;
-    if (formMode === "create") {
-      if (record) {
-        showToast("每个注册中心仅允许创建一个API key");
-        return;
-      }
-      const next = createApiKeyFromDraft(draft);
-      persistRecord(next);
-      setRevealed(false);
-      closeForm();
-      showToast("API key 已创建");
+    if (!draft || !record) return;
+    if (!draft.sk || !draft.dek) {
+      showToast("请先点击右侧按钮生成 SK 和 DEK");
       return;
     }
-    if (!record) return;
     persistRecord(regenerateSecrets(record, { sk: draft.sk, dek: draft.dek }));
     setRevealed(false);
     closeForm();
-    showToast("密钥已更新");
+    showToast("保存成功");
   };
 
   return (
@@ -123,7 +110,14 @@ export function KeysPage() {
         as="h1"
         title="API key管理"
         icon={<PaneIconKey />}
-        subtitle="生成、更新用于接口调用的 AK、SK、DEK 信息"
+        actions={
+          record ? (
+            <button type="button" className="a-btn a-btn--primary c-keys-edit-btn" onClick={openEdit}>
+              <IconEdit size={14} />
+              编辑
+            </button>
+          ) : null
+        }
       />
 
       <div className="c-stats-service-tabs c-keys-service-tabs" role="tablist" aria-label="服务类型">
@@ -141,33 +135,20 @@ export function KeysPage() {
         ))}
       </div>
 
+      <div className="c-keys-notice">
+        <div className="c-keys-notice__item">
+          <span className="c-keys-notice__label">安全提醒</span>
+          <span className="c-keys-notice__text">{SECURITY_NOTICE}</span>
+        </div>
+      </div>
+
       {!record ? (
-        <div className="a-card c-keys-empty-card">
-          <div className="c-keys-empty">
-            <p className="c-keys-empty__title">您还没有创建API key</p>
-            <p className="c-keys-empty__desc">每个注册中心仅允许创建一个API key</p>
-            <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
-              <IconPlus size={14} />
-              创建API key
-            </button>
-          </div>
+        <div className="c-keys-empty">
+          <p className="c-keys-empty__title">暂未配置 API key</p>
+          <p className="c-keys-empty__desc">平台开通后系统将自动下发 AK、SK、DEK，无需自行创建。</p>
         </div>
       ) : (
-        <div className="a-card c-keys-detail-card">
-          <div className="c-keys-detail__head">
-            <div className="c-keys-detail__brand">
-              <span className="c-keys-detail__shield" aria-hidden>
-                <IconShieldCheck size={22} />
-              </span>
-              <span className="c-keys-detail__name">API key</span>
-              <span className="c-keys-detail__time">创建于 {record.createdAt}</span>
-            </div>
-            <button type="button" className="a-btn a-btn--sm c-keys-detail__edit" onClick={openEdit}>
-              <IconEdit size={14} />
-              编辑
-            </button>
-          </div>
-
+        <div className="c-keys-detail">
           <div className="c-keys-tiles">
             <KeyTile
               label="AK"
@@ -189,27 +170,19 @@ export function KeysPage() {
             />
           </div>
 
-          <div className="c-keys-detail__foot">
-            <button
-              type="button"
-              className={`c-keys-reveal-toggle${revealed ? " is-on" : ""}`}
-              onClick={() => setRevealed((v) => !v)}
-            >
-              {revealed ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-              {revealed ? "隐藏密钥" : "显示密钥"}
-            </button>
-            {revealed ? (
-              <p className="c-keys-detail__caution">
-                请妥善保管密钥信息，如不慎泄露，请及时更新密钥信息。
-              </p>
-            ) : null}
-          </div>
+          <button
+            type="button"
+            className={`c-keys-reveal-toggle${revealed ? " is-on" : ""}`}
+            onClick={() => setRevealed((v) => !v)}
+          >
+            {revealed ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+            {revealed ? "隐藏密钥" : "显示密钥"}
+          </button>
         </div>
       )}
 
       <ApiKeyFormModal
         open={formOpen && Boolean(draft)}
-        mode={formMode}
         draft={draft}
         onClose={closeForm}
         onRegenSk={regenSk}
@@ -253,7 +226,6 @@ function KeyTile({
 
 function ApiKeyFormModal({
   open,
-  mode,
   draft,
   onClose,
   onRegenSk,
@@ -262,7 +234,6 @@ function ApiKeyFormModal({
   onSubmit,
 }: {
   open: boolean;
-  mode: FormMode;
   draft: Draft | null;
   onClose: () => void;
   onRegenSk: () => void;
@@ -272,17 +243,11 @@ function ApiKeyFormModal({
 }) {
   if (!draft) return null;
 
-  const RegenIcon = mode === "create" ? IconWand : IconRefresh;
-
   return (
     <Modal
       open={open}
-      title={mode === "create" ? "创建API key" : "编辑API key"}
-      description={
-        mode === "create"
-          ? "系统将自动生成 AK，点击按钮生成 SK / DEK"
-          : "AK 不可变更，点击按钮重新生成 SK / DEK"
-      }
+      title="编辑API key"
+      description="系统将自动生成 AK，点击按钮生成 SK / DEK"
       onClose={onClose}
       size="md"
       className="c-keys-form-modal"
@@ -292,7 +257,7 @@ function ApiKeyFormModal({
             取消
           </button>
           <button type="button" className="a-btn a-btn--primary" onClick={onSubmit}>
-            {mode === "create" ? "确定" : "保存"}
+            确定
           </button>
         </>
       }
@@ -307,7 +272,12 @@ function ApiKeyFormModal({
         <div className="c-keys-form__field">
           <span className="c-keys-form__label">SK</span>
           <div className="c-keys-form__row">
-            <input className="a-input c-keys-form__input is-muted" value={draft.sk} readOnly />
+            <input
+              className="a-input c-keys-form__input is-muted"
+              value={draft.sk}
+              readOnly
+              placeholder="点击右侧按钮生成 SK"
+            />
             <button
               type="button"
               className="c-keys-form__gen"
@@ -315,7 +285,7 @@ function ApiKeyFormModal({
               title="重新生成 SK"
               onClick={onRegenSk}
             >
-              <RegenIcon size={16} />
+              <IconWand size={16} />
             </button>
           </div>
         </div>
@@ -323,7 +293,12 @@ function ApiKeyFormModal({
         <div className="c-keys-form__field">
           <span className="c-keys-form__label">DEK</span>
           <div className="c-keys-form__row">
-            <input className="a-input c-keys-form__input is-muted" value={draft.dek} readOnly />
+            <input
+              className="a-input c-keys-form__input is-muted"
+              value={draft.dek}
+              readOnly
+              placeholder="点击右侧按钮生成 DEK"
+            />
             <button
               type="button"
               className="c-keys-form__gen"
@@ -331,21 +306,21 @@ function ApiKeyFormModal({
               title="重新生成 DEK"
               onClick={onRegenDek}
             >
-              <RegenIcon size={16} />
+              <IconWand size={16} />
             </button>
           </div>
         </div>
 
-        <button type="button" className="c-keys-form__regen-all" onClick={onRegenBoth}>
-          <RegenIcon size={16} />
-          重新生成 SK / DEK
-        </button>
-
-        {mode === "edit" ? (
-          <p className="c-keys-form__caution">
-            密钥更新后，需同步更新接口调用的密钥信息，请谨慎操作。
-          </p>
-        ) : null}
+        <div className="c-keys-form__regen-block">
+          <div className="c-keys-form__warn">
+            <span className="c-keys-form__warn-label">注意</span>
+            <span className="c-keys-form__warn-text">{REGEN_WARN}</span>
+          </div>
+          <button type="button" className="c-keys-form__regen-all" onClick={onRegenBoth}>
+            <IconWand size={16} />
+            重新生成 SK / DEK
+          </button>
+        </div>
       </div>
     </Modal>
   );

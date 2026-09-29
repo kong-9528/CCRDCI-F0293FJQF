@@ -45,10 +45,10 @@ export const VERIFY_ENTITLEMENT = {
 /** 作品智能辅助审核：独立额度与时间（与 review 页 WORK_REVIEW_ENTITLEMENT 对齐） */
 export const AUDIT_ENTITLEMENT = {
   startDate: "2025-06-01",
-  endDate: "2026-08-25",
+  endDate: "2026-12-31",
   quotaTotal: 100000,
-  usedCount: 105230,
-  status: "expiring" as const,
+  usedCount: 68420,
+  status: "active" as const,
 };
 
 export type TenantContract = {

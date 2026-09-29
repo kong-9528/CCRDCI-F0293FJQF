@@ -113,6 +113,28 @@ export function loadStoredApiKey(scope: ApiKeyScope = "verify"): ApiKeyRecord | 
   return record;
 }
 
+/** 开通后由平台下发，页面不再提供创建流程 */
+const DEFAULT_KEYS: Record<ApiKeyScope, Pick<ApiKeyRecord, "ak" | "sk" | "dek">> = {
+  verify: {
+    ak: "AK7mQ2pLx9VwN4cR8tYhB6sKdF3uZaJ1e",
+    sk: "SKp4nW8cY2qH6vL9bT1xM5sR7dJ3fA0uK",
+    dek: "DEK5cR9tYhB2mQ8pLxN4sKdF6uZaJ1eW",
+  },
+  review: {
+    ak: "AKw3sKdF7uZaJ1eQ2pLx9VwN4cR8tYhB",
+    sk: "SK9bT1xM5sR7dJ3fA0uKp4nW8cY2qH6v",
+    dek: "DEK8tYhB2mQ5cR9pLxN4sKdF6uZaJ1eW",
+  },
+};
+
+export function ensureStoredApiKey(scope: ApiKeyScope = "verify"): ApiKeyRecord {
+  const existing = loadStoredApiKey(scope);
+  if (existing) return existing;
+  const next = createApiKeyFromDraft(DEFAULT_KEYS[scope]);
+  saveStoredApiKey(next, scope);
+  return next;
+}
+
 export function saveStoredApiKey(record: ApiKeyRecord | null, scope: ApiKeyScope = "verify") {
   try {
     const map = readScopeMap();

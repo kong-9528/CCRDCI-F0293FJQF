@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PaneHeader } from "@/components/PaneHeader";
 import {
+  DOCS_OVERVIEW,
+  DOCS_TABS,
+  DOCS_VERSIONS,
+  resolveDocsTab,
+  type DocsTabKey,
+} from "@/lib/docs";
+import {
   collectRequestParams,
   listApiDocCatalogs,
   listOnlineByCatalog,
@@ -170,13 +177,56 @@ function ApiAccordionItem({
   );
 }
 
+function VersionPanel() {
+  return (
+    <div className="c-docs-version-timeline">
+      {DOCS_VERSIONS.map((item) => (
+        <div key={item.version} className="c-docs-timeline-item">
+          <span className="c-docs-timeline-dot" aria-hidden />
+          <div className="c-docs-timeline-body">
+            <div className="c-docs-version-meta">
+              <span className="c-docs-version-badge">{item.version}</span>
+              <span className="c-docs-version-date">{item.date}</span>
+            </div>
+            <p className="c-docs-version-desc">{item.content}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OverviewPanel() {
+  return (
+    <div className="c-docs-intro">
+      <p>{DOCS_OVERVIEW.summary}</p>
+      <h3>{DOCS_OVERVIEW.capabilitiesTitle}</h3>
+      <ul>
+        {DOCS_OVERVIEW.capabilities.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function DocsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const catalogFromQuery = searchParams.get("catalog") ?? "";
+  const tabFromQuery = searchParams.get("tab");
   const [tick, setTick] = useState(0);
   useEffect(() => subscribeApiCatalog(() => setTick((n) => n + 1)), []);
 
   const catalogs = listApiDocCatalogs();
+
+  const initialTab = (): DocsTabKey => {
+    if (catalogFromQuery && catalogs.some((c) => c.id === catalogFromQuery)) {
+      return "interfaces";
+    }
+    return resolveDocsTab(tabFromQuery);
+  };
+
+  const [activeTab, setActiveTab] = useState<DocsTabKey>(initialTab);
   const [activeCatalogId, setActiveCatalogId] = useState(() => {
     if (catalogFromQuery && catalogs.some((c) => c.id === catalogFromQuery)) {
       return catalogFromQuery;
@@ -187,36 +237,75 @@ export function DocsPage() {
 
   useEffect(() => {
     const list = listApiDocCatalogs();
+    if (catalogFromQuery && list.some((c) => c.id === catalogFromQuery)) {
+      setActiveTab("interfaces");
+      setActiveCatalogId(catalogFromQuery);
+      return;
+    }
+    if (tabFromQuery) {
+      const tab = resolveDocsTab(tabFromQuery);
+      setActiveTab(tab);
+      if (tab === "interfaces") {
+        setActiveCatalogId((prev) => (list.some((c) => c.id === prev) ? prev : list[0]?.id ?? ""));
+      }
+      return;
+    }
     if (!list.length) {
       setActiveCatalogId("");
       return;
     }
-    if (catalogFromQuery && list.some((c) => c.id === catalogFromQuery)) {
-      setActiveCatalogId(catalogFromQuery);
-      return;
-    }
     setActiveCatalogId((prev) => (list.some((c) => c.id === prev) ? prev : list[0].id));
-  }, [tick, catalogFromQuery]);
+  }, [tick, catalogFromQuery, tabFromQuery]);
 
   const activeCatalog = catalogs.find((c) => c.id === activeCatalogId) ?? catalogs[0];
-
   const apis = activeCatalog ? listOnlineByCatalog(activeCatalog.id) : [];
 
   useEffect(() => {
     setOpenApiId(null);
   }, [activeCatalogId]);
 
-  const selectCatalog = (id: string) => {
-    setActiveCatalogId(id);
-    setSearchParams(id ? { catalog: id } : {}, { replace: true });
+  const selectTab = (key: DocsTabKey) => {
+    setActiveTab(key);
+    if (key === "interfaces") {
+      const id = activeCatalogId || catalogs[0]?.id || "";
+      setActiveCatalogId(id);
+      setSearchParams(id ? { catalog: id } : { tab: "interfaces" }, { replace: true });
+      return;
+    }
+    setSearchParams({ tab: key }, { replace: true });
   };
+
+  const selectCatalog = (id: string) => {
+    setActiveTab("interfaces");
+    setActiveCatalogId(id);
+    setSearchParams(id ? { catalog: id } : { tab: "interfaces" }, { replace: true });
+  };
+
+  const panelTitle =
+    activeTab === "interfaces"
+      ? (activeCatalog?.name ?? "接口列表")
+      : (DOCS_TABS.find((t) => t.key === activeTab)?.name ?? "文档");
 
   return (
     <div className="c-docs-layout">
       <aside className="c-docs-sidebar" aria-label="文档目录">
         <ul className="c-docs-nav">
+          {DOCS_TABS.filter((t) => t.key !== "interfaces").map((tab) => {
+            const active = activeTab === tab.key;
+            return (
+              <li key={tab.key}>
+                <button
+                  type="button"
+                  className={`c-docs-nav__item${active ? " is-active" : ""}`}
+                  onClick={() => selectTab(tab.key)}
+                >
+                  {tab.name}
+                </button>
+              </li>
+            );
+          })}
           {catalogs.map((cat) => {
-            const active = cat.id === activeCatalog?.id;
+            const active = activeTab === "interfaces" && cat.id === activeCatalog?.id;
             return (
               <li key={cat.id}>
                 <button
@@ -233,22 +322,29 @@ export function DocsPage() {
       </aside>
 
       <section className="c-docs-main">
-        <PaneHeader as="h1" title={activeCatalog?.name ?? "接口列表"} />
+        <PaneHeader as="h1" title={panelTitle} />
 
-        <div className="c-docs-list">
-          {apis.length === 0 ? (
-            <div className="a-empty">该目录暂无可用接口</div>
-          ) : (
-            apis.map((api) => (
-              <ApiAccordionItem
-                key={api.id}
-                api={api}
-                open={openApiId === api.id}
-                onToggle={() => setOpenApiId((prev) => (prev === api.id ? null : api.id))}
-              />
-            ))
-          )}
-        </div>
+        {activeTab === "version" ? <VersionPanel /> : null}
+
+        {activeTab === "overview" ? <OverviewPanel /> : null}
+
+        {activeTab === "interfaces" ? (
+          <div className="c-docs-list">
+            <p className="c-docs-list-hint">只展示当前机构有权限的接口列表</p>
+            {apis.length === 0 ? (
+              <div className="a-empty">该目录暂无可用接口</div>
+            ) : (
+              apis.map((api) => (
+                <ApiAccordionItem
+                  key={api.id}
+                  api={api}
+                  open={openApiId === api.id}
+                  onToggle={() => setOpenApiId((prev) => (prev === api.id ? null : api.id))}
+                />
+              ))
+            )}
+          </div>
+        ) : null}
       </section>
     </div>
   );

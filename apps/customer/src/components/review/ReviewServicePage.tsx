@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { IconCopy, IconEye, IconReset, IconSearch } from "@/components/icons/UiIcons";
 import { ApiDocLink } from "@/components/verify/ApiDocLink";
 import { PaneIconShield } from "@/components/PaneHeader";
+import { ReviewIntroVisual } from "@/components/review/ReviewIntroVisual";
 import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
 import {
@@ -120,16 +121,21 @@ export function ReviewServicePage({ product }: Props) {
             headerActions: <ApiDocLink productId={cfg.apiDocId} />,
             content: (
       <div className="a-card c-review-intro">
+        <ReviewIntroVisual />
         <div className="a-card__body">
           <div className="c-review-intro__body">
-            {cfg.intro.map((item, index) => (
-              <p
-                key={item.label}
-                className={index === 0 ? "c-review-intro__lead" : "c-review-intro__capability"}
-              >
-                {item.text}
-              </p>
-            ))}
+            {cfg.intro.map((item, index) =>
+              index === 0 ? (
+                <p key={item.label} className="c-review-intro__lead">
+                  {item.text}
+                </p>
+              ) : (
+                <p key={item.label} className="c-review-intro__capability">
+                  <span className="c-review-intro__bullet" aria-hidden />
+                  <span>{item.text}</span>
+                </p>
+              ),
+            )}
           </div>
         </div>
       </div>
@@ -140,55 +146,55 @@ export function ReviewServicePage({ product }: Props) {
             label: "用量统计",
             content: (
       <div className="a-card">
-        <div className="a-card__body a-stack">
-          {overQuota ? (
-            <div className="c-review-over-tip" role="status">
-              当前已超出套餐额度（{formatReviewCount(quota.usedCount)} /{" "}
-              {formatReviewCount(quota.quotaTotal)}
-              ），仍可继续提交审核任务。请及时联系商务扩容或确认超额结算方式。
+        <div className="a-card__body">
+          <div className="c-usage-stats">
+            <div className="c-usage-stats__rows">
+              <div className="c-usage-stats__row">
+                <span className="c-usage-stats__label">服务状态</span>
+                <span className="c-usage-stats__value">{serviceStatusTag(serviceStatus)}</span>
+              </div>
+              {!stopped && quota.expireAt ? (
+                <div className="c-usage-stats__row">
+                  <span className="c-usage-stats__label">有效期</span>
+                  <span className="c-usage-stats__value">{quota.expireAt}</span>
+                </div>
+              ) : null}
             </div>
-          ) : null}
-          <div className="a-desc">
-            <div className="a-desc__item">
-              <span className="a-desc__label">服务状态</span>
-              <span className="a-desc__value">{serviceStatusTag(serviceStatus)}</span>
-            </div>
+
             {!stopped ? (
               <>
-                {quota.expireAt ? (
-                  <div className="a-desc__item">
-                    <span className="a-desc__label">有效期</span>
-                    <span className="a-desc__value">{quota.expireAt}</span>
+                <div className="c-usage-stats__hero">
+                  <span className="c-usage-stats__hero-label">已用额度</span>
+                  <div className="c-usage-stats__hero-main">
+                    <strong className="c-usage-stats__hero-num">
+                      {formatReviewCount(quota.usedCount)}
+                    </strong>
+                    <span className="c-usage-stats__hero-unit">
+                      / {formatReviewCount(quota.quotaTotal)}
+                    </span>
                   </div>
-                ) : null}
-                <div className="a-desc__item">
-                  <span className="a-desc__label">已用额度</span>
-                  <span className="a-desc__value">
-                    {formatReviewCount(quota.usedCount)} / {formatReviewCount(quota.quotaTotal)}
-                    {overQuota ? (
-                      <span className="a-tag a-tag--wn" style={{ marginLeft: 8 }}>
-                        已超额
-                      </span>
-                    ) : null}
-                  </span>
+                  {overQuota ? (
+                    <p className="c-usage-stats__hero-hint c-usage-stats__hero-hint--warn">
+                      已超出套餐额度，仍可继续提交审核任务
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="c-usage-stats__bar-wrap">
+                  <div className="c-usage-stats__bar" aria-hidden>
+                    <div
+                      className={`c-usage-stats__fill${overQuota ? " is-over" : ""}`}
+                      style={{ width: `${Math.min(100, quota.quotaUsagePct)}%` }}
+                    />
+                  </div>
+                  <div className="c-usage-stats__bar-meta">
+                    使用率 {quota.quotaUsagePct.toFixed(1)}%
+                    {overQuota ? "（已超出，仍可继续调用）" : ""}
+                  </div>
                 </div>
               </>
             ) : null}
           </div>
-          {!stopped ? (
-            <div className="c-review-quota">
-              <div className="c-review-quota__bar">
-                <div
-                  className={`c-review-quota__fill${overQuota ? " is-over" : ""}`}
-                  style={{ width: `${Math.min(100, quota.quotaUsagePct)}%` }}
-                />
-              </div>
-              <div className="c-review-quota__meta">
-                使用率 {quota.quotaUsagePct.toFixed(1)}%
-                {overQuota ? "（已超出，仍可继续调用）" : ""}
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
             ),

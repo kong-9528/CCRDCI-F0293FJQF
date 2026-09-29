@@ -54,15 +54,8 @@ export function PaneHeader({
 
 export function PaneIconKey() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="8" cy="14" r="4" stroke="currentColor" strokeWidth="1.75" />
-      <path
-        d="M11.5 11.5 20 3M16 3h4v4"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width="18" height="18" viewBox="0 0 1024 1024" fill="currentColor" aria-hidden>
+      <path d="M448 456.064V96a32 32 0 0 1 32-32.064L672 64a32 32 0 0 1 0 64H512v128h160a32 32 0 0 1 0 64H512v128a256 256 0 1 1-64 8.064zM512 896a192 192 0 1 0 0-384 192 192 0 0 0 0 384z" />
     </svg>
   );
 }

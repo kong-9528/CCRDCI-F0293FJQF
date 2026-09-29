@@ -17,7 +17,7 @@ function formatFileSize(bytes?: number) {
 
 function IconBuilding() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path d="M10 12h4M10 8h4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
       <path
         d="M14 21v-3a2 2 0 0 0-4 0v3M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"
@@ -153,26 +153,6 @@ export function AccountEditPage() {
     <div className="c-org-page">
       {toast ? <div className="a-toast">{toast}</div> : null}
 
-      <div className="c-org-page__toolbar">
-        <button
-          type="button"
-          className="c-org-btn c-org-btn--ghost c-org-btn--sm"
-          onClick={() => navigate("/account?view=history")}
-        >
-          <IconHistory />
-          历史申请记录
-        </button>
-      </div>
-
-      <div className="c-org-alert c-org-alert--pending" role="status">
-        <div className="c-org-alert__body">
-          <p className="c-org-alert__title">提交后进入审核</p>
-          <p className="c-org-alert__desc">
-            保存并提交后，变更内容进入审核；审核通过前，工作台机构信息仍保持最后一次审核通过的内容。撤回或驳回后可在历史申请记录中查看本次提交与处理结果。
-          </p>
-        </div>
-      </div>
-
       <section className="c-org-card c-org-card--registry">
         <header className="c-org-card__header">
           <div className="c-org-card__header-left">
@@ -184,26 +164,27 @@ export function AccountEditPage() {
           <div className="c-org-card__header-right">
             <button
               type="button"
-              className="c-org-btn c-org-btn--ghost c-org-btn--sm"
-              onClick={() => navigate("/account")}
+              className="c-org-btn c-org-btn--ghost c-org-btn--sm c-org-btn--history"
+              onClick={() => navigate("/account?view=history")}
             >
-              取消
-            </button>
-            <button
-              type="button"
-              className="c-org-btn c-org-btn--primary c-org-btn--sm"
-              onClick={onSave}
-            >
-              保存并提交
+              <IconHistory />
+              历史申请记录
             </button>
           </div>
         </header>
 
+        <div className="c-org-alert c-org-alert--pending" role="status">
+          <div className="c-org-alert__body">
+            <p className="c-org-alert__title">提交后进入审核</p>
+            <p className="c-org-alert__desc">
+              保存并提交后，变更内容进入审核；审核通过前，工作台机构信息仍保持最后一次审核通过的内容。撤回或驳回后可在历史申请记录中查看本次提交与处理结果。
+            </p>
+          </div>
+        </div>
+
         <div className="c-org-card__body c-org-edit-body">
-          <div className="c-org-info-panel">
-            <div className="c-org-info-panel__head">
-              <h2 className="c-org-info-panel__title">基本信息</h2>
-            </div>
+          <h2 className="c-org-section-title">基本信息</h2>
+          <div className="c-org-info-panel c-org-info-panel--edit">
             <div className="c-org-info-panel__rows">
               <EditRow label="机构名称" required>
                 <input
@@ -309,10 +290,10 @@ export function AccountEditPage() {
             </div>
           </div>
 
-          <div className="c-org-info-panel">
-            <div className="c-org-info-panel__head">
-              <h2 className="c-org-info-panel__title">联系人信息</h2>
-            </div>
+          <div className="c-org-divider" role="separator" />
+
+          <h2 className="c-org-section-title">联系人信息</h2>
+          <div className="c-org-info-panel c-org-info-panel--edit">
             <div className="c-org-info-panel__rows">
               <EditRow label="联系人" required>
                 <input
@@ -336,16 +317,16 @@ export function AccountEditPage() {
 
           {error ? <div className="a-form-error">{error}</div> : null}
 
-          <div className="c-org-edit-footer">
+          <div className="c-org-submit-action c-org-submit-action--edit">
+            <button type="button" className="c-org-submit" onClick={onSave}>
+              提交申请
+            </button>
             <button
               type="button"
-              className="c-org-btn c-org-btn--ghost"
+              className="c-org-btn c-org-btn--cancel"
               onClick={() => navigate("/account")}
             >
-              取消
-            </button>
-            <button type="button" className="c-org-btn c-org-btn--primary" onClick={onSave}>
-              保存并提交
+              取消申请
             </button>
           </div>
         </div>
