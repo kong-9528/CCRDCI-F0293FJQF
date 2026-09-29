@@ -200,9 +200,32 @@
   function sanitizeGetInfo(body) {
     if (!body || typeof body !== "object") return body;
     var clone = JSON.parse(JSON.stringify(body));
-    if (clone.data && typeof clone.data === "object") {
-      clone.data.isPasswordExpired = false;
-      clone.data.isDefaultModifyPwd = false;
+    if (!clone.data || typeof clone.data !== "object") {
+      clone.data = {};
+    }
+    clone.data.isPasswordExpired = false;
+    clone.data.isDefaultModifyPwd = false;
+    // Ensure shape Vue getInfo expects (avoids boot → logOut → /login race)
+    if (!clone.data.user || typeof clone.data.user !== "object") {
+      clone.data.user = {
+        userId: "1",
+        username: USER,
+        userName: USER,
+        nickName: "管理员",
+        avatar: "",
+        userType: "0",
+      };
+    } else {
+      if (!clone.data.user.username && !clone.data.user.userName) {
+        clone.data.user.username = USER;
+      }
+      if (clone.data.user.avatar == null) clone.data.user.avatar = "";
+    }
+    if (!Array.isArray(clone.data.roles) || !clone.data.roles.length) {
+      clone.data.roles = ["sys"];
+    }
+    if (!Array.isArray(clone.data.permissions)) {
+      clone.data.permissions = ["*:*:*"];
     }
     return clone;
   }
@@ -277,10 +300,13 @@
       try {
         sessionStorage.removeItem("ops-dci-mock-user");
         sessionStorage.removeItem("ops-dci-sso-session");
+        sessionStorage.removeItem("ops-dci-from-sso");
         document.cookie = "Admin-Token=; path=/; Max-Age=0";
+        document.cookie = "Admin-Token=; path=/; Max-Age=0; SameSite=Lax";
       } catch (e2) {}
       // Only bounce to SSO on intentional logout (session lived >3s).
       // Boot-time getInfo/logOut failures must NOT redirect — that loops with SSO auto-return.
+      // Never force SSO on cold open of localhost:3030 (local /login must remain usable).
       if (sessionAge > 3000) {
         setTimeout(function () {
           if (window.__OPS_DCI_SSO__ && typeof window.__OPS_DCI_SSO__.goSso === "function") {

@@ -1,0 +1,10 @@
+const fs = require("fs");
+const s = fs.readFileSync("apps/ops-dci/mirror/static/js/index-DsYmzmNg.js", "utf8");
+const i = s.indexOf("`/login?redirect=${e.fullPath}`");
+console.log(s.slice(i - 900, i + 120));
+console.log("\n--- token get/set ---");
+const j = s.indexOf('T8="Admin-Token"');
+console.log(s.slice(j, j + 200));
+console.log("\n--- Ts= ---");
+const k = s.indexOf("Ts=w4");
+console.log(s.slice(k - 80, k + 120));
