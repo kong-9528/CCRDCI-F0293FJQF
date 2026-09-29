@@ -97,7 +97,7 @@ export function DciUsageDetailDrawer({ open, record, onClose, onToast }: Props) 
         <div className="c-cert-detail__section-bar">提交信息</div>
         <dl className="c-cert-detail__meta">
           <div className="c-cert-detail__row">
-            <dt>DCI 核验码</dt>
+            <dt>DCI 码</dt>
             <dd>
               <code>{record.dciCode}</code>
             </dd>

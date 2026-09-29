@@ -108,8 +108,8 @@ export function emptyDciForm(): DciVerifyInput {
 /** DCI 码、著作权人、名称均为必填 */
 export function validateDciForm(input: DciVerifyInput): string | null {
   const dciCode = normalizeDciCode(input.dciCode);
-  if (!dciCode) return "请输入 DCI 核验码";
-  if (!isValidDciCode(dciCode)) return "DCI 核验码格式不正确，示例：DCI-SWDEMO0001";
+  if (!dciCode) return "请输入 DCI 码";
+  if (!isValidDciCode(dciCode)) return "DCI 码格式不正确，示例：DCI-SWDEMO0001";
   const owner = input.owner.trim();
   const name = input.name.trim();
   if (!owner && !name) {
@@ -472,7 +472,7 @@ export async function verifyDciBatch(rows: DciBatchRow[]): Promise<DciVerifyResu
 
 export type DciBatchRow = DciVerifyInput;
 
-export const DCI_BATCH_TEMPLATE_HEADERS = ["DCI 核验码", "著作权人", DCI_NAME_LABEL] as const;
+export const DCI_BATCH_TEMPLATE_HEADERS = ["DCI 码", "著作权人", DCI_NAME_LABEL] as const;
 
 const DCI_BATCH_ACCEPT_EXT = ["csv", "xls", "xlsx"] as const;
 
@@ -506,7 +506,7 @@ function parseCsvLine(line: string): string[] {
 
 function isHeaderRow(cells: string[]): boolean {
   const first = (cells[0] ?? "").trim();
-  return first === DCI_BATCH_TEMPLATE_HEADERS[0] || first === "DCI核验码";
+  return first === DCI_BATCH_TEMPLATE_HEADERS[0] || first === "DCI码";
 }
 
 function normalizeBatchRows(raw: string[][]): DciBatchRow[] {
@@ -694,7 +694,7 @@ export function createDciSelectedFile(file: File): DciSelectedFile {
   return { file, fileName: file.name, fileUrl, fileKind };
 }
 
-/** 模拟 OCR：识别 DCI 核验码、著作权人、名称 */
+/** 模拟 OCR：识别 DCI 码、著作权人、名称 */
 export async function ocrDciFile(
   file: File,
   preset?: Pick<DciSelectedFile, "fileUrl" | "fileKind" | "fileName">,

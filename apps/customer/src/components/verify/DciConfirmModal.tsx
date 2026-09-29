@@ -11,7 +11,7 @@ type Props = {
 };
 
 const FIELDS: { key: keyof DciRecognition; label: string }[] = [
-  { key: "dciCode", label: "DCI 核验码" },
+  { key: "dciCode", label: "DCI 码" },
   { key: "owner", label: "著作权人" },
   { key: "name", label: DCI_NAME_LABEL },
 ];
@@ -35,7 +35,7 @@ export function DciConfirmModal({ open, loading, draft, onClose, onConfirm }: Pr
 
   const submit = () => {
     if (!form.dciCode.trim()) {
-      setError("请填写 DCI 核验码");
+      setError("请填写 DCI 码");
       return;
     }
     if (!form.owner.trim()) {

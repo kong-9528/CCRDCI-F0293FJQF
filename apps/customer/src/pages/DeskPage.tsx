@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { productName, productPath } from "@/lib/catalog";
+import { TrademarkText } from "@/lib/trademark";
 import {
   MOCK_TENANT,
   MOCK_TENANT_SERVICES,
@@ -57,7 +58,7 @@ function QuotaValue({
 export function DeskPage() {
   const hour = new Date().getHours();
   const greeting = greetingByHour(hour);
-  const displayName = "管理员";
+  const orgName = MOCK_TENANT.companyName;
 
   const verifyServices = MOCK_TENANT_SERVICES.filter((s) => s.entitlement === "verify");
   const auditService = MOCK_TENANT_SERVICES.find((s) => s.entitlement === "audit") ?? null;
@@ -80,10 +81,12 @@ export function DeskPage() {
       <section className="c-desk-hero">
         <div className="c-desk-hero__main">
           <h1 className="c-desk-hero__title">
-            {greeting}，{displayName}
+            {greeting}，{orgName}
           </h1>
           <p className="c-desk-hero__lead">
-            欢迎回到 {MOCK_TENANT.companyName} 的技术服务工作台。以下为当前已开通技术服务及其使用情况。
+            欢迎回到
+            <TrademarkText text="DCI®技术服务中心" />
+            工作台。以下为当前已开通技术服务及累计使用情况。
           </p>
         </div>
         <div className="c-desk-hero__stats" aria-label="开通概况">

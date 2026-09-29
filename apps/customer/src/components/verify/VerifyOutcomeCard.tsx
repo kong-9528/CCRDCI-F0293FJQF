@@ -107,7 +107,7 @@ export function VerifyOutcomeCard({
       <section className={`c-cert-outcome${ok ? " is-pass" : " is-fail"}`}>
         <header className="c-cert-outcome__head">
           <h3 className="c-cert-outcome__title">核验结果</h3>
-          <span className="c-cert-outcome__source">数据来源：中国版权保护中心官方数据</span>
+          <span className="c-cert-outcome__source">数据来源：全球版权数据中心</span>
         </header>
 
         <div className="c-cert-outcome__summary">

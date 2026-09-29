@@ -111,7 +111,7 @@ function TrashIcon() {
 
 function dciSubmittedFields(result: DciVerifyResult) {
   const rows: { label: string; value: string }[] = [
-    { label: "DCI 核验码", value: result.dciCode || "—" },
+    { label: "DCI 码", value: result.dciCode || "—" },
   ];
   const owner = result.queryOwner.trim();
   const name = result.queryName.trim();
@@ -372,7 +372,7 @@ export function DciVerifyPage() {
                 <div className="c-dci-hybrid__fields">
                   <input
                     className="a-input"
-                    placeholder="DCI 核验码（必填）"
+                    placeholder="DCI 码（必填）"
                     value={form.dciCode}
                     disabled={busy}
                     onChange={(e) => {
