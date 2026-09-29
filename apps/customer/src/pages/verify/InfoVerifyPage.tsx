@@ -274,7 +274,7 @@ export function InfoVerifyPage() {
           </div>
 
           <p className="a-field__hint">
-            以上填写项均为必填 · 文本演示：软件 2024SR001234 / 作品 2024ZP001234 / 数据汇编作品 2024SJ001234，第二项任意填写即返回核验通过 · 单次批量上限 {INFO_BATCH_LIMIT} 条
+            以上填写项均为必填 · 文本演示：软件 2024SR001234 / 作品 2024ZP001234 / 数据作品 2024SJ001234，第二项任意填写即返回核验通过 · 单次批量上限 {INFO_BATCH_LIMIT} 条
           </p>
 
           {error ? <div className="a-field__error">{error}</div> : null}

@@ -386,7 +386,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
               <option value="">全部</option>
               <option value="software">软件</option>
               <option value="work">作品</option>
-              <option value="dataset">数据汇编作品</option>
+              <option value="dataset">数据作品</option>
             </select>
           </div>
           <div className="a-field">
@@ -606,7 +606,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
                 <th>机构名称</th>
                 <th>核验时间</th>
                 <th>DCI码</th>
-                <th>软件/作品/数据汇编作品名称</th>
+                <th>软件/作品/数据作品名称</th>
                 <th>著作权人</th>
                 <th>方式</th>
                 <th>结果</th>
