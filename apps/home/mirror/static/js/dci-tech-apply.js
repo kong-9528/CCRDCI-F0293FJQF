@@ -235,15 +235,7 @@
         "</p></div></div></div>"
       );
     }
-    if (st === 3) {
-      return (
-        '<div class="status-alert-wrapper" style="margin-bottom:20px">' +
-        '<div class="el-alert el-alert--info is-light" role="alert">' +
-        '<div class="el-alert__content"><span class="el-alert__title">已撤回</span>' +
-        '<p class="el-alert__description">申请已撤回，可修改资料后重新提交。</p>' +
-        "</div></div></div>"
-      );
-    }
+    // 未提交 / 已撤回：上方无状态条
     return "";
   }
 
@@ -407,9 +399,6 @@
       esc(title) +
       "</span></div>" +
       '<div class="header-right flex-row align-center" style="gap:10px">' +
-      (st === 0
-        ? '<button type="button" class="el-button el-button--danger is-plain" data-action="revoke">撤回申请</button>'
-        : "") +
       '<button type="button" class="el-button history-btn" data-action="history">' +
       '<span class="tech-hist-btn-icon" aria-hidden="true">☰</span> 历史申请记录' +
       "</button>" +
@@ -442,7 +431,7 @@
           '<button type="button" class="el-button" data-action="cancel">取消申请</button>' +
           "</div>"
         : '<div class="submit-action">' +
-          '<button type="button" class="el-button" data-action="back">返回开通管理</button>' +
+          '<button type="button" class="el-button el-button--primary submit-btn" data-action="revoke">撤回申请</button>' +
           "</div>") +
       "</form></div></div>" +
       "</div>";
@@ -628,6 +617,12 @@
         loadForm();
         render();
       }
+    },
+    refresh: function () {
+      if (!HOST) return;
+      loadForm();
+      syncModeFromStatus();
+      render();
     },
   };
 })();

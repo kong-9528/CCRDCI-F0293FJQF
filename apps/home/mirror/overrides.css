@@ -1393,28 +1393,32 @@ sup.a-tm,
 }
 
 /*
- * Org-info browse mode: form-text-value rows → same descriptions table look
- * (edit mode keeps normal form because inputs replace .form-text-value)
+ * Org-info / embedded RegOrgInfo (exclude tech-apply):
+ * Match customer /account + /account/edit — descriptions table for
+ * 正常(browse)、审核中(browse)、提交表单(edit). Same 200px gray label column.
  */
-/* Browse attachment: always has .upload-wrapper (even when file list is empty) */
-.apply-console-container .apply-form .el-form-item:has(.form-text-value),
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) {
-  margin-bottom: 0;
-  margin-top: 0;
-  display: flex;
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item {
+  margin: 0 !important;
+  display: flex !important;
   align-items: stretch;
   border: 1px solid #ebeef5;
   border-bottom: none;
   background: #fff;
+  box-sizing: border-box;
 }
-.apply-console-container .apply-form .section-title + .el-form-item:has(.form-text-value),
-.apply-console-container .apply-form .section-title + .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item::after {
+  display: none !important;
+  content: none !important;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form .section-title + .el-form-item {
   border-top: 1px solid #ebeef5;
+  border-radius: 4px 4px 0 0;
 }
-.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__label-wrap,
-.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__label,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__label-wrap,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__label {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label-wrap,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label {
+  float: none !important;
+  display: inline-flex !important;
+  flex: 0 0 200px !important;
   width: 200px !important;
   max-width: 200px !important;
   min-width: 200px !important;
@@ -1423,88 +1427,238 @@ sup.a-tm,
   padding: 16px 20px !important;
   line-height: 1.5 !important;
   justify-content: flex-start !important;
-  align-items: flex-start !important;
-  box-sizing: border-box;
+  align-items: center !important;
+  flex-wrap: wrap;
+  gap: 4px;
+  text-align: left !important;
+  box-sizing: border-box !important;
   background-color: #fafafa !important;
   color: #606266 !important;
   font-weight: 500 !important;
+  font-size: 14px !important;
   border-right: 1px solid #ebeef5;
 }
-.apply-console-container .apply-form .el-form-item:has(.form-text-value) .el-form-item__content,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__content {
+/* Nested label inside wrap: don't double the 200px column */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label-wrap > .el-form-item__label {
+  float: none !important;
+  display: inline-flex !important;
+  flex: none !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  line-height: 1.5 !important;
+  align-items: center;
+  gap: 4px;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-form-item__content {
   margin-left: 0 !important;
-  flex: 1;
+  flex: 1 1 auto !important;
   min-width: 0;
-  padding: 16px 20px !important;
+  padding: 12px 20px !important;
   line-height: 1.5;
   color: #303133;
+  font-size: 14px;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
 }
-/* Empty attachment: show "-" like other empty fields */
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.file-item)) .upload-wrapper::before {
+/* Browse text cells: slightly taller padding like customer view rows */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-input)):not(:has(.el-textarea)):not(:has(.el-radio-group)):not(:has(.el-upload)) .el-form-item__content {
+  padding: 16px 20px !important;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .form-text-value {
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  color: #303133;
+  font-size: 14px;
+  word-break: break-word;
+}
+/* Edit controls: match customer max widths */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-input,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-textarea,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-select {
+  width: 100%;
+  max-width: 520px;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-date-editor.el-input,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-date-editor {
+  max-width: 240px;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-radio-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+/* Browse: hide 合作领域 tip icon (customer /account has none); keep on edit */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-tooltip,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-icon.margin-left-4,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .text-gray-400 {
+  display: none !important;
+}
+/* —— Contract attachment —— */
+/* Browse empty: dash */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.file-item)) .upload-wrapper::before {
   content: "-";
   color: #303133;
   font-size: 14px;
   line-height: 1.5;
   font-weight: 400;
 }
-/* Contract attachment with file: compact + vertically centered */
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label-wrap,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label {
+/* Browse with file: compact + centered */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label-wrap,
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label {
   align-items: center !important;
   padding: 12px 20px !important;
 }
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content {
   display: flex !important;
   align-items: center !important;
   padding: 12px 20px !important;
 }
-/* Browse mode still renders .file-list.margin-top-12 — kill asymmetric top push */
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-list {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-list {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-item {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-item {
+  margin: 0 !important;
   padding: 6px 12px !important;
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;
 }
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .upload-wrapper,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .el-form-item__content > div {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .upload-wrapper {
   width: 100%;
   margin: 0 !important;
   padding: 0 !important;
 }
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .upload-wrapper,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content > div {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .upload-wrapper {
   display: flex;
   align-items: center;
 }
-.apply-console-container .apply-form .el-form-item:has(.form-text-value) .form-text-value {
+/* Edit upload: stack button + tip + list inside value cell (customer .c-org-upload) */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 !important;
   padding: 0 !important;
-  line-height: 1.5 !important;
-  font-weight: 400;
-  color: #303133;
-  font-size: 14px;
+  background: transparent;
+  border: none;
 }
-/* Close table bottom border: last field before divider / section / actions */
-.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .section-title),
-.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .submit-action),
-.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .el-divider),
-.apply-console-container .apply-form .el-form-item:has(.form-text-value):has(+ .custom-divider),
-.apply-console-container .apply-form .el-form-item:has(.form-text-value):last-child,
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .section-title),
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .submit-action),
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .el-divider),
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(+ .custom-divider),
-.apply-console-container .apply-form .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):last-child {
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-list {
+  width: 100%;
+  margin-top: 0 !important;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-item {
+  margin: 0 0 8px !important;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-tip {
+  margin: 0;
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.4;
+}
+/* Close table bottom border */
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .section-title),
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .submit-action),
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .el-divider),
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .custom-divider),
+.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:last-child {
   border-bottom: 1px solid #ebeef5 !important;
+  border-radius: 0 0 4px 4px;
 }
-.apply-console-container .apply-form .custom-divider,
-.apply-console-container .apply-form .el-divider.custom-divider {
+.apply-console-container:not(.tech-apply-root) .apply-form .custom-divider,
+.apply-console-container:not(.tech-apply-root) .apply-form .el-divider.custom-divider {
   margin: 20px 0 16px;
+}
+.apply-console-container:not(.tech-apply-root) .apply-form .section-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
+}
+/* Status / edit tips: closer to customer .c-org-alert */
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert {
+  border-radius: 4px;
+  padding: 12px 16px;
+}
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert--warning {
+  background: #fdf6ec !important;
+  border: 1px solid #faecd8 !important;
+}
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert__title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #e6a23c !important;
+}
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert__description {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #606266;
+}
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert .el-alert__icon {
+  display: none !important;
+}
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .submit-action.margin-top-32,
+.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .apply-form .submit-action {
+  margin-top: 32px;
+}
+
+/* Header withdraw — match customer .c-org-btn--danger */
+.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button {
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  border-radius: 4px !important;
+  color: #f56c6c !important;
+  border-color: #fbc4c4 !important;
+  background: #fff !important;
+}
+.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button:hover,
+.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button:focus {
+  color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  background: #fef0f0 !important;
+}
+
+/* Bottom withdraw — match customer .c-org-submit--danger */
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button,
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger {
+  width: 100%;
+  height: 48px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  color: #fff !important;
+}
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button:hover,
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button:focus,
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger:hover,
+.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger:focus {
+  background-color: #f78989 !important;
+  border-color: #f78989 !important;
+  color: #fff !important;
 }
 
 /* DCI API docs interfaces: match customer /docs accordion look */

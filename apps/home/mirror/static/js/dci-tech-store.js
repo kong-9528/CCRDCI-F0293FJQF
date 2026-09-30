@@ -300,6 +300,81 @@
     return true;
   }
 
+  function setDemoStatus(st, rejectReason) {
+    var status = st === null || st === undefined ? null : Number(st);
+    var draft = getDraft();
+    var hist = historyList().slice();
+    if (status === 0) {
+      // Ensure a pending row exists for revoke
+      var hasPending = hist.some(function (r) {
+        return String(r.auditStatus) === "0";
+      });
+      if (!hasPending) {
+        hist.unshift({
+          id: draft.id || "tech-demo-pending",
+          submittedAt: new Date().toISOString().slice(0, 19).replace("T", " "),
+          createTime: new Date().toISOString().slice(0, 19).replace("T", " "),
+          auditStatus: "0",
+          auditRemark: "用户提交申请，等待审核中",
+          orgName: draft.orgName || "",
+          creditCode: draft.creditCode || "",
+          orgAddress: draft.orgAddress || "",
+          invitationCode: draft.invitationCode || "",
+          cooperationField: draft.cooperationField || "",
+          contractStartDate: draft.contractStartDate || "",
+          contractEndDate: draft.contractEndDate || "",
+          contractFileList: draft.contractFileList || [],
+          linkName: draft.linkName || "",
+          linkPhone: draft.linkPhone || "",
+        });
+        if (!draft.id) draft.id = "tech-demo-pending";
+      }
+      setState({ techStatus: 0, draft: draft, history: hist });
+      return;
+    }
+    if (status === 2) {
+      hist = hist.map(function (r) {
+        if (String(r.auditStatus) === "0") {
+          return Object.assign({}, r, {
+            auditStatus: "2",
+            auditRemark: rejectReason || "审核未通过，请修改后重新提交",
+          });
+        }
+        return r;
+      });
+      var hasRejected = hist.some(function (r) {
+        return String(r.auditStatus) === "2";
+      });
+      if (!hasRejected) {
+        hist.unshift({
+          id: draft.id || "tech-demo-rejected",
+          submittedAt: new Date().toISOString().slice(0, 19).replace("T", " "),
+          createTime: new Date().toISOString().slice(0, 19).replace("T", " "),
+          auditStatus: "2",
+          auditRemark: rejectReason || "审核未通过，请修改后重新提交",
+          orgName: draft.orgName || "演示机构",
+          creditCode: draft.creditCode || "",
+          orgAddress: draft.orgAddress || "",
+          invitationCode: draft.invitationCode || "",
+          cooperationField: draft.cooperationField || "",
+          contractStartDate: draft.contractStartDate || "",
+          contractEndDate: draft.contractEndDate || "",
+          contractFileList: draft.contractFileList || [],
+          linkName: draft.linkName || "",
+          linkPhone: draft.linkPhone || "",
+        });
+      }
+      setState({ techStatus: 2, draft: draft, history: hist });
+      return;
+    }
+    // editable: 未提交 / 已撤回 style
+    if (status === 3) {
+      setState({ techStatus: 3, draft: draft, history: hist });
+      return;
+    }
+    setState({ techStatus: status === -1 ? null : status, draft: draft, history: hist });
+  }
+
   window.__DCI_TECH_STORE__ = {
     currentTechStatus: currentTechStatus,
     getDraft: getDraft,
@@ -313,5 +388,6 @@
     approvePending: approvePending,
     rejectPending: rejectPending,
     blankDraft: blankDraft,
+    setDemoStatus: setDemoStatus,
   };
 })();

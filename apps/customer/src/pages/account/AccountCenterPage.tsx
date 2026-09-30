@@ -275,9 +275,7 @@ export function AccountCenterPage() {
   );
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() =>
-    history[0] ? new Set([history[0].id]) : new Set(),
-  );
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     const next = searchParams.get("view") === "history" ? "history" : "info";
