@@ -68,7 +68,9 @@
           cooperationField: "艺术品数字版权确权与展览内容核验",
           contractStartDate: "2026-07-01",
           contractEndDate: "2027-06-30",
-          contractFileList: [{ name: "雅昌-技术服务开通申请-撤回稿.pdf", url: "demo://yc-tech-withdrawn.pdf" }],
+          contractFileList: [
+            { name: "雅昌-技术服务开通申请-撤回稿.pdf", url: "demo://yc-tech-withdrawn.pdf" },
+          ],
           linkName: "王敏",
           linkPhone: u.phonenumber || "13900001111",
         },
@@ -85,13 +87,14 @@
           cooperationField: "数字内容发行、版权运营",
           contractStartDate: "2026-03-01",
           contractEndDate: "2027-02-28",
-          contractFileList: [{ name: "雅昌-技术服务开通申请-驳回稿.pdf", url: "demo://yc-tech-rejected.pdf" }],
+          contractFileList: [
+            { name: "雅昌-技术服务开通申请-驳回稿.pdf", url: "demo://yc-tech-rejected.pdf" },
+          ],
           linkName: "赵强",
           linkPhone: "13700005566",
         },
       ];
     }
-    // Account-center tech apply only covers pre-approval lifecycle — never seed「已通过」
     return [];
   }
 
@@ -113,13 +116,21 @@
     return list;
   }
 
+  /** Junk rows from empty drafts / demo toggles — UI shows title「技术服务中心申请」 */
+  function isJunkHistoryRow(r) {
+    if (!r) return true;
+    if (String(r.auditStatus || "") === "1") return true;
+    if (!String(r.orgName || "").trim()) return true;
+    return false;
+  }
+
   function ensureBucket(key) {
     var map = loadRaw();
     var M = window.__DCI_MOCK__;
     // Read USERS directly — do NOT call M.getUser (it may touch this store).
     var u = M && M.USERS && key ? M.USERS[key] : null;
     var seeded = seedHistory(u);
-    var SEED_VER = 3; // v3: drop account-center「已通过」seeds
+    var SEED_VER = 5; // v5: restore formal seeds; purge empty-orgName junk
     if (!map[key]) {
       var st =
         u && u.techStatus !== undefined && u.techStatus !== null
@@ -134,15 +145,15 @@
       saveRaw(map);
     } else {
       var hist = Array.isArray(map[key].history) ? map[key].history.slice() : [];
-      // Purge any persisted「已通过」rows from account-center store
-      var purged = hist.filter(function (r) {
-        return String((r && r.auditStatus) || "") !== "1";
+      var cleaned = hist.filter(function (r) {
+        return !isJunkHistoryRow(r);
       });
-      var merged = seeded.length ? mergeSeedHistory(purged, seeded) : purged;
+      var merged = seeded.length ? mergeSeedHistory(cleaned, seeded) : cleaned;
       var changed =
         map[key].seedVer !== SEED_VER ||
         merged.length !== hist.length ||
-        (seeded.length && merged.length !== purged.length);
+        JSON.stringify(merged.map(function (r) { return r && r.id; })) !==
+          JSON.stringify(hist.map(function (r) { return r && r.id; }));
       if (changed) {
         map[key].history = merged;
         map[key].seedVer = SEED_VER;
@@ -193,34 +204,67 @@
 
   function blankDraft(u) {
     u = u || {};
-    // First-time apply: empty like 注册中心申请；联系人手机默认带出账号信息便于填写
+    var seed =
+      (window.__DCI_MOCK__ &&
+        typeof window.__DCI_MOCK__.getApplySeed === "function" &&
+        window.__DCI_MOCK__.getApplySeed(u)) ||
+      {};
+    var fileName =
+      seed.techContractFileName ||
+      seed.contractFileName ||
+      "技术服务中心开通申请合同.pdf";
     return {
       id: undefined,
-      orgName: "",
-      creditCode: "",
-      orgAddress: "",
-      invitationCode: "",
-      cooperationField: "",
-      contractStartDate: "",
-      contractEndDate: "",
-      linkName: "",
-      linkPhone: u.phonenumber || "",
-      contractFileList: [],
+      orgName: seed.orgName || u.orgName || "",
+      creditCode: seed.creditCode || u.creditCode || "",
+      orgAddress: seed.orgAddress || u.orgAddress || "",
+      invitationCode: seed.techInvitationCode || seed.invitationCode || "",
+      cooperationField: seed.techCooperationField || seed.cooperationField || "",
+      contractStartDate: seed.contractStartDate || "2026-01-01",
+      contractEndDate: seed.contractEndDate || "2027-12-31",
+      linkName: seed.linkName || u.nickName || "",
+      linkPhone: seed.linkPhone || u.phonenumber || "",
+      contractFileList: [
+        {
+          name: fileName,
+          size: 1180000,
+          url: "demo://" + fileName,
+        },
+      ],
     };
+  }
+
+  function ensureMockDraft(draft, u) {
+    var base = blankDraft(u || {});
+    draft = draft && typeof draft === "object" ? draft : {};
+    var out = Object.assign({}, base, draft);
+    if (!out.orgName) out.orgName = base.orgName;
+    if (!out.creditCode) out.creditCode = base.creditCode;
+    if (!out.orgAddress) out.orgAddress = base.orgAddress;
+    if (!out.invitationCode) out.invitationCode = base.invitationCode;
+    if (!out.cooperationField) out.cooperationField = base.cooperationField;
+    if (!out.contractStartDate) out.contractStartDate = base.contractStartDate;
+    if (!out.contractEndDate) out.contractEndDate = base.contractEndDate;
+    if (!out.linkName) out.linkName = base.linkName;
+    if (!out.linkPhone) out.linkPhone = base.linkPhone;
+    if (!out.contractFileList || !out.contractFileList.length) {
+      out.contractFileList = base.contractFileList.slice();
+    }
+    return out;
   }
 
   function getDraft() {
     var st = getState();
-    if (st.draft) return JSON.parse(JSON.stringify(st.draft));
     var M = window.__DCI_MOCK__;
     var u = (M && M.currentUser && M.currentUser()) || {};
+    if (st.draft) return ensureMockDraft(JSON.parse(JSON.stringify(st.draft)), u);
     return blankDraft(u);
   }
 
   function historyList() {
-    // Account-center tech apply: exclude「已通过」(approved orgs manage via workbench)
+    // Account-center tech apply: exclude「已通过」and empty-orgName junk rows
     return (getState().history || []).filter(function (r) {
-      return String((r && r.auditStatus) || "") !== "1";
+      return !isJunkHistoryRow(r);
     });
   }
 
@@ -302,8 +346,12 @@
 
   function setDemoStatus(st, rejectReason) {
     var status = st === null || st === undefined ? null : Number(st);
-    var draft = getDraft();
-    var hist = historyList().slice();
+    var draft = ensureMockDraft(getDraft());
+    var hist = historyList()
+      .slice()
+      .filter(function (r) {
+        return !isJunkHistoryRow(r);
+      });
     if (status === 0) {
       // Ensure a pending row exists for revoke
       var hasPending = hist.some(function (r) {
@@ -352,7 +400,7 @@
           createTime: new Date().toISOString().slice(0, 19).replace("T", " "),
           auditStatus: "2",
           auditRemark: rejectReason || "审核未通过，请修改后重新提交",
-          orgName: draft.orgName || "演示机构",
+          orgName: draft.orgName || "",
           creditCode: draft.creditCode || "",
           orgAddress: draft.orgAddress || "",
           invitationCode: draft.invitationCode || "",
@@ -388,6 +436,7 @@
     approvePending: approvePending,
     rejectPending: rejectPending,
     blankDraft: blankDraft,
+    ensureMockDraft: ensureMockDraft,
     setDemoStatus: setDemoStatus,
   };
 })();

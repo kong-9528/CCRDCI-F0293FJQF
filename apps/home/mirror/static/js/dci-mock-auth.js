@@ -125,6 +125,135 @@
     if (t) return "DCI®技术服务中心";
     return "暂无";
   }
+
+  /**
+   * Formal default apply-form seed per demo account (注册中心 / 技术服务中心共用基础信息).
+   */
+  function getApplySeed(u) {
+    u = u || {};
+    var name = String(u.username || u.userName || "").toLowerCase();
+    var table = {
+      yachang: {
+        orgName: "深圳市雅昌艺术网股份有限公司",
+        orgNamePy: "yachangyishuwang",
+        creditCode: "91440300724726181Q",
+        orgAddress: "广东省深圳市南山区深云路19号雅昌艺术中心",
+        invitationCode: "DCI-YC-2026A",
+        techInvitationCode: "TECH-YC-2026A",
+        orgTypeCode: "NRPT",
+        orgTypeName: "内容平台",
+        cooperationField:
+          "艺术品数字版权确权、展览及出版物内容核验、DCI码申领与同步",
+        techCooperationField:
+          "艺术品数字版权确权、展览内容核验与技术服务对接",
+        contractStartDate: "2026-01-01",
+        contractEndDate: "2027-12-31",
+        linkName: "王敏",
+        linkPhone: "13900001111",
+        contractFileName: "雅昌艺术网-DCI注册中心服务合同.pdf",
+        techContractFileName: "雅昌艺术网-技术服务中心开通申请合同.pdf",
+      },
+      mayi: {
+        orgName: "蚂蚁科技集团股份有限公司",
+        orgNamePy: "mayikeji",
+        creditCode: "913301067046373179",
+        orgAddress:
+          "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+        invitationCode: "DCI-ANT-2026A",
+        techInvitationCode: "TECH-ANT-2026A",
+        orgTypeCode: "ZYFW",
+        orgTypeName: "专业服务",
+        cooperationField: "数字版权确权、DCI码申领与同步、作品监测服务",
+        techCooperationField: "数字版权确权、DCI码申领与技术服务中心对接",
+        contractStartDate: "2026-01-01",
+        contractEndDate: "2027-12-31",
+        linkName: "张伟",
+        linkPhone: "13800008000",
+        contractFileName: "蚂蚁科技-DCI注册中心服务合同.pdf",
+        techContractFileName: "蚂蚁科技-技术服务中心开通申请合同.pdf",
+      },
+      mayi1: {
+        orgName: "蚂蚁科技集团股份有限公司",
+        orgNamePy: "mayikeji",
+        creditCode: "913301067046373179",
+        orgAddress:
+          "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+        invitationCode: "DCI-ANT-2026B",
+        techInvitationCode: "TECH-ANT-2026B",
+        orgTypeCode: "ZYFW",
+        orgTypeName: "专业服务",
+        cooperationField: "数字版权确权、内容合规核验、DCI码申领与同步",
+        techCooperationField: "内容合规核验、DCI码申领与技术服务中心对接",
+        contractStartDate: "2026-03-01",
+        contractEndDate: "2028-02-28",
+        linkName: "李娜",
+        linkPhone: "13800008001",
+        contractFileName: "蚂蚁科技-DCI注册中心服务合同-mayi1.pdf",
+        techContractFileName: "蚂蚁科技-技术服务中心开通申请合同-mayi1.pdf",
+      },
+      mayi2: {
+        orgName: "蚂蚁科技集团股份有限公司",
+        orgNamePy: "mayikeji",
+        creditCode: "913301067046373179",
+        orgAddress:
+          "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+        invitationCode: "DCI-ANT-2026C",
+        techInvitationCode: "TECH-ANT-2026C",
+        orgTypeCode: "ZYFW",
+        orgTypeName: "专业服务",
+        cooperationField: "数字版权确权、DCI码申领与同步、登记数据接口对接",
+        techCooperationField: "登记数据接口对接、DCI码申领与技术服务中心运维",
+        contractStartDate: "2026-01-15",
+        contractEndDate: "2027-12-31",
+        linkName: "王强",
+        linkPhone: "13800008002",
+        contractFileName: "蚂蚁科技-DCI注册中心服务合同-mayi2.pdf",
+        techContractFileName: "蚂蚁科技-技术服务中心开通申请合同-mayi2.pdf",
+      },
+    };
+    var s = table[name] || table.mayi;
+    return Object.assign({}, s, {
+      orgName: s.orgName || u.orgName || "",
+      orgNamePy: s.orgNamePy || u.orgNamePy || "",
+      creditCode: s.creditCode || u.creditCode || "",
+      orgAddress: s.orgAddress || u.orgAddress || "",
+      orgTypeCode: s.orgTypeCode || u.orgTypeCode || "",
+      orgTypeName: s.orgTypeName || u.orgTypeName || "",
+      linkPhone: s.linkPhone || u.phonenumber || "",
+    });
+  }
+
+  function applySeedAsOrgData(u, extras) {
+    var seed = getApplySeed(u);
+    var fileName = seed.contractFileName || "DCI注册中心服务合同.pdf";
+    var fileUrl = "/demo/" + encodeURIComponent(fileName);
+    return Object.assign(
+      {
+        id: u.userId,
+        orgName: seed.orgName,
+        regOrgName: seed.orgName,
+        orgNamePy: seed.orgNamePy,
+        regOrgNamePy: seed.orgNamePy,
+        creditCode: seed.creditCode,
+        orgAddress: seed.orgAddress,
+        regOrgAddress: seed.orgAddress,
+        invitationCode: seed.invitationCode,
+        orgTypeCode: seed.orgTypeCode,
+        regOrgType: seed.orgTypeCode,
+        orgTypeName: seed.orgTypeName,
+        cooperationField: seed.cooperationField,
+        contractStartDate: seed.contractStartDate,
+        contractEndDate: seed.contractEndDate,
+        linkName: seed.linkName,
+        linkPhone: seed.linkPhone,
+        contractFileList: [
+          { name: fileName, url: fileUrl, size: "1.12 MB" },
+        ],
+        contractFiles: fileUrl,
+      },
+      extras || {},
+    );
+  }
   function profilePayload(u) {
     return {
       code: 200,
@@ -151,27 +280,22 @@
   function orgPayload(u) {
     var body;
     if (u.auditStatus === null || u.auditStatus === undefined) {
-      body = { code: 200, data: null };
+      // 账号中心开通申请：未开通时也返回可编辑的正式 mock 草稿
+      body = {
+        code: 200,
+        data: applySeedAsOrgData(u, { auditStatus: -1, changeStatus: "0" }),
+      };
     } else {
       var code =
         u.username === "mayi" || u.username === "mayi2"
           ? "ANT"
           : "ORG-" + String(u.username || "demo").toUpperCase();
+      var seed = getApplySeed(u);
       body = {
         code: 200,
-        data: {
+        data: Object.assign(applySeedAsOrgData(u), {
           id: u.userId,
           auditStatus: u.auditStatus,
-          orgName: u.orgName,
-          regOrgName: u.orgName,
-          orgNamePy: u.orgNamePy || "",
-          regOrgNamePy: u.orgNamePy || "",
-          creditCode: u.creditCode || "",
-          orgAddress: u.orgAddress || "",
-          regOrgAddress: u.orgAddress || "",
-          orgTypeCode: u.orgTypeCode || "",
-          regOrgType: u.orgTypeCode || "",
-          orgTypeName: u.orgTypeName || "",
           orgCode: code,
           dciRegOrgCode: code,
           dciCodeType: "原始分配,授权分配,其他",
@@ -180,7 +304,8 @@
           accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
           accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
           dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",
-        },
+          invitationCode: seed.invitationCode,
+        }),
       };
     }
     // DCI码权限演示只应改写标识管理页的机构字段，不能污染账号开通状态
@@ -300,6 +425,8 @@
     resolveLogin: resolveLogin,
     resolveSms: resolveSms,
     openedLabel: openedLabel,
+    getApplySeed: getApplySeed,
+    applySeedAsOrgData: applySeedAsOrgData,
     profilePayload: profilePayload,
     orgPayload: orgPayload,
     tokenFor: tokenFor,

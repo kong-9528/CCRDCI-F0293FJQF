@@ -96,6 +96,24 @@
     if (!d.contractEndDate) d.contractEndDate = "2027-12-31";
     if (!d.linkName) d.linkName = "张三";
     if (!d.linkPhone) d.linkPhone = "13800008002";
+    // 正常 / 审核中 / 编辑提交：合同附件都要有可展示文件名
+    if (!Array.isArray(d.contractFileList) || !d.contractFileList.length) {
+      d.contractFileList = [
+        {
+          name: "蚂蚁科技-DCI注册中心服务合同.pdf",
+          url: "/demo/ant-dci-registry-contract.pdf",
+          size: "1.10 MB",
+        },
+      ];
+    }
+    if (!d.contractFiles) {
+      d.contractFiles = d.contractFileList
+        .map(function (f) {
+          return (f && f.url) || "";
+        })
+        .filter(Boolean)
+        .join(",");
+    }
     return body;
   }
 
@@ -123,7 +141,14 @@
       contractEndDate: "2027-12-31",
       linkName: "张三",
       linkPhone: "13800008002",
-      contractFileList: [{ name: "2025RQL0001594.pdf", url: "/demo/2025RQL0001594.pdf" }],
+      contractFileList: [
+        {
+          name: "蚂蚁科技-DCI注册中心服务合同.pdf",
+          url: "/demo/ant-dci-registry-contract.pdf",
+          size: "1.10 MB",
+        },
+      ],
+      contractFiles: "/demo/ant-dci-registry-contract.pdf",
     };
     var rows = [
       Object.assign({}, base, {
@@ -131,6 +156,14 @@
         auditStatus: "3",
         auditRemark: "申请人主动撤回本次信息变更申请",
         createTime: "2026-03-08 14:22:10",
+        contractFileList: [
+          {
+            name: "蚂蚁科技-机构信息变更申请-撤回稿.pdf",
+            url: "/demo/ant-orginfo-withdrawn.pdf",
+            size: "980 KB",
+          },
+        ],
+        contractFiles: "/demo/ant-orginfo-withdrawn.pdf",
       }),
       Object.assign({}, base, {
         id: "hist-rejected",
@@ -139,12 +172,28 @@
         rejectReason: "合作领域描述不清晰，请补充业务范围后重新提交",
         createTime: "2026-05-16 10:05:33",
         cooperationField: "数字版权相关业务",
+        contractFileList: [
+          {
+            name: "蚂蚁科技-机构信息变更申请-驳回稿.pdf",
+            url: "/demo/ant-orginfo-rejected.pdf",
+            size: "1.02 MB",
+          },
+        ],
+        contractFiles: "/demo/ant-orginfo-rejected.pdf",
       }),
       Object.assign({}, base, {
         id: "hist-approved",
         auditStatus: "1",
         auditRemark: "审核通过",
         createTime: "2026-07-02 16:48:21",
+        contractFileList: [
+          {
+            name: "蚂蚁科技-DCI注册中心服务合同.pdf",
+            url: "/demo/ant-dci-registry-contract.pdf",
+            size: "1.10 MB",
+          },
+        ],
+        contractFiles: "/demo/ant-dci-registry-contract.pdf",
       }),
     ];
     if (getModeId() === "reviewing") {
@@ -156,6 +205,14 @@
           createTime: "2026-09-28 09:30:00",
           cooperationField: "数字版权确权、DCI码申领与同步、作品监测",
           linkName: "李四",
+          contractFileList: [
+            {
+              name: "蚂蚁科技-机构信息变更申请-审核中.pdf",
+              url: "/demo/ant-orginfo-reviewing.pdf",
+              size: "1.08 MB",
+            },
+          ],
+          contractFiles: "/demo/ant-orginfo-reviewing.pdf",
         }),
       );
     }

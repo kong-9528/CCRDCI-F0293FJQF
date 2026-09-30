@@ -87,18 +87,15 @@
     return null;
   }
 
-  function fieldRow(label, required, controlHtml, infoTip) {
+  function fieldRow(label, required, controlHtml) {
     return (
       '<div class="el-form-item' +
       (required ? " is-required" : "") +
       ' asterisk-left">' +
-      '<label class="el-form-item__label" style="width:160px">' +
+      '<label class="el-form-item__label">' +
       esc(label) +
-      (infoTip
-        ? '<span class="tech-field-info" title="' + esc(infoTip) + '">ⓘ</span>'
-        : "") +
       "</label>" +
-      '<div class="el-form-item__content" style="margin-left:160px">' +
+      '<div class="el-form-item__content">' +
       controlHtml +
       "</div></div>"
     );
@@ -225,7 +222,9 @@
       var last = hist.find(function (r) {
         return String(r.auditStatus) === "2";
       });
-      var remark = (last && last.auditRemark) || "审核未通过，请修改后重新提交";
+      var remark =
+        (last && (last.auditRemark || last.rejectReason)) ||
+        "审核未通过，请修改后重新提交";
       return (
         '<div class="status-alert-wrapper" style="margin-bottom:20px">' +
         '<div class="el-alert el-alert--error is-light" role="alert">' +
@@ -392,15 +391,15 @@
       '<button type="button" class="el-button back-open-btn" data-action="back">' +
       '<span class="tech-back-chevron">‹</span> 返回开通管理' +
       "</button>" +
-      '<div class="header-icon-wrapper" aria-hidden="true">' +
-      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.75"/><path d="M14 3v5h5M9 13h6M9 17h6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>' +
-      "</div>" +
       '<span class="header-title">' +
       esc(title) +
       "</span></div>" +
       '<div class="header-right flex-row align-center" style="gap:10px">' +
+      (st === 0
+        ? '<button type="button" class="el-button withdraw-header-btn" data-action="revoke">撤回申请</button>'
+        : "") +
       '<button type="button" class="el-button history-btn" data-action="history">' +
-      '<span class="tech-hist-btn-icon" aria-hidden="true">☰</span> 历史申请记录' +
+      "历史申请记录" +
       "</button>" +
       "</div></div>" +
       '<div class="el-card__body">' +
@@ -415,7 +414,6 @@
         "合作领域",
         true,
         textareaHtml("cooperationField", "请输入合作领域，如电商领域、艺术领域等"),
-        "请填写与贵机构业务相关的合作领域，如电商领域、艺术领域等。",
       ) +
       fieldRow("合同开始日期", true, inputHtml("contractStartDate", "年/月/日", "date")) +
       fieldRow("合同结束日期", true, inputHtml("contractEndDate", "年/月/日", "date")) +
@@ -428,10 +426,10 @@
       (mode === "edit"
         ? '<div class="submit-action">' +
           '<button type="button" class="el-button el-button--primary submit-btn" data-action="submit">提交申请</button>' +
-          '<button type="button" class="el-button" data-action="cancel">取消申请</button>' +
+          '<button type="button" class="el-button cancel-btn" data-action="cancel">取消申请</button>' +
           "</div>"
         : '<div class="submit-action">' +
-          '<button type="button" class="el-button el-button--primary submit-btn" data-action="revoke">撤回申请</button>' +
+          '<button type="button" class="el-button el-button--danger submit-btn submit-btn--withdraw" data-action="revoke">撤回申请</button>' +
           "</div>") +
       "</form></div></div>" +
       "</div>";

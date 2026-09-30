@@ -1393,11 +1393,10 @@ sup.a-tm,
 }
 
 /*
- * Org-info / embedded RegOrgInfo (exclude tech-apply):
- * Match customer /account + /account/edit — descriptions table for
- * 正常(browse)、审核中(browse)、提交表单(edit). Same 200px gray label column.
+ * Org-info + account-center apply (reg embedded & tech-apply):
+ * Match descriptions table — browse / 审核中 / edit. Same 200px gray label column.
  */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item {
+.apply-console-container .apply-form > .el-form-item {
   margin: 0 !important;
   display: flex !important;
   align-items: stretch;
@@ -1406,16 +1405,16 @@ sup.a-tm,
   background: #fff;
   box-sizing: border-box;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item::after {
+.apply-console-container .apply-form > .el-form-item::after {
   display: none !important;
   content: none !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form .section-title + .el-form-item {
+.apply-console-container .apply-form .section-title + .el-form-item {
   border-top: 1px solid #ebeef5;
   border-radius: 4px 4px 0 0;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label-wrap,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label {
+.apply-console-container .apply-form > .el-form-item > .el-form-item__label-wrap,
+.apply-console-container .apply-form > .el-form-item > .el-form-item__label {
   float: none !important;
   display: inline-flex !important;
   flex: 0 0 200px !important;
@@ -1439,7 +1438,7 @@ sup.a-tm,
   border-right: 1px solid #ebeef5;
 }
 /* Nested label inside wrap: don't double the 200px column */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item > .el-form-item__label-wrap > .el-form-item__label {
+.apply-console-container .apply-form > .el-form-item > .el-form-item__label-wrap > .el-form-item__label {
   float: none !important;
   display: inline-flex !important;
   flex: none !important;
@@ -1455,7 +1454,7 @@ sup.a-tm,
   align-items: center;
   gap: 4px;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-form-item__content {
+.apply-console-container .apply-form > .el-form-item .el-form-item__content {
   margin-left: 0 !important;
   flex: 1 1 auto !important;
   min-width: 0;
@@ -1471,10 +1470,10 @@ sup.a-tm,
   box-sizing: border-box;
 }
 /* Browse text cells: slightly taller padding like customer view rows */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-input)):not(:has(.el-textarea)):not(:has(.el-radio-group)):not(:has(.el-upload)) .el-form-item__content {
+.apply-console-container .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-input)):not(:has(.el-textarea)):not(:has(.el-radio-group)):not(:has(.el-upload)) .el-form-item__content {
   padding: 16px 20px !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .form-text-value {
+.apply-console-container .apply-form > .el-form-item .form-text-value {
   padding: 0 !important;
   line-height: 1.5 !important;
   font-weight: 400 !important;
@@ -1483,30 +1482,30 @@ sup.a-tm,
   word-break: break-word;
 }
 /* Edit controls: match customer max widths */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-input,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-textarea,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-select {
+.apply-console-container .apply-form > .el-form-item .el-input,
+.apply-console-container .apply-form > .el-form-item .el-textarea,
+.apply-console-container .apply-form > .el-form-item .el-select {
   width: 100%;
   max-width: 520px;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-date-editor.el-input,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-date-editor {
+.apply-console-container .apply-form > .el-form-item .el-date-editor.el-input,
+.apply-console-container .apply-form > .el-form-item .el-date-editor {
   max-width: 240px;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item .el-radio-group {
+.apply-console-container .apply-form > .el-form-item .el-radio-group {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 8px 16px;
 }
 /* Browse: hide 合作领域 tip icon (customer /account has none); keep on edit */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-tooltip,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-icon.margin-left-4,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .text-gray-400 {
+.apply-console-container .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-tooltip,
+.apply-console-container .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .el-icon.margin-left-4,
+.apply-console-container .apply-form > .el-form-item:has(.form-text-value):not(:has(.el-textarea)):not(:has(.el-input)):not(:has(.el-radio-group)) .el-form-item__label .text-gray-400 {
   display: none !important;
 }
 /* —— Contract attachment —— */
 /* Browse empty: dash */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.file-item)) .upload-wrapper::before {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)):not(:has(.file-item)) .upload-wrapper::before {
   content: "-";
   color: #303133;
   font-size: 14px;
@@ -1514,38 +1513,39 @@ sup.a-tm,
   font-weight: 400;
 }
 /* Browse with file: compact + centered */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label-wrap,
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__label {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)):has(.file-item) .el-form-item__label-wrap,
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)):has(.file-item) .el-form-item__label {
   align-items: center !important;
   padding: 12px 20px !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .el-form-item__content {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)):has(.file-item) .el-form-item__content {
   display: flex !important;
   align-items: center !important;
   padding: 12px 20px !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-list {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)) .file-list {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .file-item {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)) .file-item {
   margin: 0 !important;
   padding: 6px 12px !important;
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)) .upload-wrapper {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)) .upload-wrapper {
   width: 100%;
   margin: 0 !important;
   padding: 0 !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):has(.file-item) .upload-wrapper {
+.apply-console-container .apply-form > .el-form-item:has(.upload-wrapper):not(:has(.el-upload)):not(:has(.tech-upload)):has(.file-item) .upload-wrapper {
   display: flex;
   align-items: center;
 }
 /* Edit upload: stack button + tip + list inside value cell (customer .c-org-upload) */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper {
+.apply-console-container .apply-form > .el-form-item:has(.el-upload) .upload-wrapper,
+.apply-console-container .apply-form > .el-form-item:has(.tech-upload) .upload-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1557,73 +1557,86 @@ sup.a-tm,
   background: transparent;
   border: none;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-list {
+.apply-console-container .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-list,
+.apply-console-container .apply-form > .el-form-item:has(.tech-upload) .upload-wrapper .file-list {
   width: 100%;
   margin-top: 0 !important;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-item {
+.apply-console-container .apply-form > .el-form-item:has(.el-upload) .upload-wrapper .file-item,
+.apply-console-container .apply-form > .el-form-item:has(.tech-upload) .upload-wrapper .file-item {
   margin: 0 0 8px !important;
   width: 100%;
   max-width: 520px;
   box-sizing: border-box;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(.el-upload) .upload-tip {
+.apply-console-container .apply-form > .el-form-item:has(.el-upload) .upload-tip,
+.apply-console-container .apply-form > .el-form-item:has(.tech-upload) .upload-tip,
+.apply-console-container .apply-form > .el-form-item:has(.tech-upload) .tech-upload-hint {
   margin: 0;
   font-size: 12px;
   color: #909399;
   line-height: 1.4;
 }
 /* Close table bottom border */
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .section-title),
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .submit-action),
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .el-divider),
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:has(+ .custom-divider),
-.apply-console-container:not(.tech-apply-root) .apply-form > .el-form-item:last-child {
+.apply-console-container .apply-form > .el-form-item:has(+ .section-title),
+.apply-console-container .apply-form > .el-form-item:has(+ .submit-action),
+.apply-console-container .apply-form > .el-form-item:has(+ .el-divider),
+.apply-console-container .apply-form > .el-form-item:has(+ .custom-divider),
+.apply-console-container .apply-form > .el-form-item:last-child {
   border-bottom: 1px solid #ebeef5 !important;
   border-radius: 0 0 4px 4px;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form .custom-divider,
-.apply-console-container:not(.tech-apply-root) .apply-form .el-divider.custom-divider {
+.apply-console-container .apply-form .custom-divider,
+.apply-console-container .apply-form .el-divider.custom-divider {
   margin: 20px 0 16px;
 }
-.apply-console-container:not(.tech-apply-root) .apply-form .section-title {
+.apply-console-container .apply-form .section-title {
   margin-top: 0;
   margin-bottom: 12px;
   font-size: 15px;
   font-weight: 600;
   color: #303133;
 }
-/* Status / edit tips: closer to customer .c-org-alert */
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert {
+/* Status / edit tips: match org-info / customer .c-org-alert (workbench + account embedded) */
+.apply-console-container .status-alert-wrapper .el-alert {
   border-radius: 4px;
   padding: 12px 16px;
 }
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert--warning {
+.apply-console-container .status-alert-wrapper .el-alert--warning {
   background: #fdf6ec !important;
   border: 1px solid #faecd8 !important;
 }
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert__title {
+.apply-console-container .status-alert-wrapper .el-alert--error {
+  background: #fff1f0 !important;
+  border: 1px solid #ffa39e !important;
+}
+.apply-console-container .status-alert-wrapper .el-alert__title {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
+}
+.apply-console-container .status-alert-wrapper .el-alert--warning .el-alert__title {
   color: #e6a23c !important;
 }
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert__description {
+.apply-console-container .status-alert-wrapper .el-alert--error .el-alert__title {
+  color: #f56c6c !important;
+}
+.apply-console-container .status-alert-wrapper .el-alert__description {
   margin-top: 6px;
   font-size: 13px;
   line-height: 1.6;
   color: #606266;
 }
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .status-alert-wrapper .el-alert .el-alert__icon {
+.apply-console-container .status-alert-wrapper .el-alert .el-alert__icon {
   display: none !important;
 }
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .submit-action.margin-top-32,
-.apply-console-container:not(.is-embedded-container):not(.tech-apply-root) .apply-form .submit-action {
+.apply-console-container .submit-action.margin-top-32,
+.apply-console-container .apply-form .submit-action {
   margin-top: 32px;
 }
 
 /* Header withdraw — match customer .c-org-btn--danger */
-.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button {
+.apply-console-container .card-header .withdraw-header-btn.el-button {
   height: 32px !important;
   padding: 0 14px !important;
   font-size: 14px !important;
@@ -1633,16 +1646,16 @@ sup.a-tm,
   border-color: #fbc4c4 !important;
   background: #fff !important;
 }
-.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button:hover,
-.apply-console-container:not(.is-embedded-container) .card-header .withdraw-header-btn.el-button:focus {
+.apply-console-container .card-header .withdraw-header-btn.el-button:hover,
+.apply-console-container .card-header .withdraw-header-btn.el-button:focus {
   color: #f56c6c !important;
   border-color: #f56c6c !important;
   background: #fef0f0 !important;
 }
 
 /* Bottom withdraw — match customer .c-org-submit--danger */
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button,
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger {
+.apply-console-container .submit-action .submit-btn.submit-btn--withdraw.el-button,
+.apply-console-container .submit-action .submit-btn.el-button--danger {
   width: 100%;
   height: 48px !important;
   font-size: 16px !important;
@@ -1652,13 +1665,106 @@ sup.a-tm,
   border-color: #f56c6c !important;
   color: #fff !important;
 }
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button:hover,
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.submit-btn--withdraw.el-button:focus,
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger:hover,
-.apply-console-container:not(.is-embedded-container) .submit-action .submit-btn.el-button--danger:focus {
+.apply-console-container .submit-action .submit-btn.submit-btn--withdraw.el-button:hover,
+.apply-console-container .submit-action .submit-btn.submit-btn--withdraw.el-button:focus,
+.apply-console-container .submit-action .submit-btn.el-button--danger:hover,
+.apply-console-container .submit-action .submit-btn.el-button--danger:focus {
   background-color: #f78989 !important;
   border-color: #f78989 !important;
   color: #fff !important;
+}
+
+/* Account-center embedded: same form rhythm as org-info card body (keep profile chrome) */
+.embedded-apply-wrap .apply-console-container.is-embedded-container .main-card .card-header,
+.tech-apply-root.is-embedded-container .main-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 14px;
+  gap: 16px;
+  border-bottom: none;
+  padding: 0;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .header-title,
+.tech-apply-root.is-embedded-container .header-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .history-btn.el-button,
+.tech-apply-root.is-embedded-container .history-btn.el-button {
+  height: 32px !important;
+  padding: 0 14px !important;
+  border-radius: 4px !important;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .back-open-btn.el-button {
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 14px !important;
+  border-radius: 4px !important;
+  color: #606266 !important;
+  border-color: #dcdfe6 !important;
+  background: #fff !important;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .back-open-btn.el-button:hover {
+  color: #0075c1 !important;
+  border-color: #b3d4ec !important;
+  background: #f5f9fd !important;
+}
+/*
+ * Account-center apply alignment (screenshot):
+ * form table left = 返回开通管理；form value right = 历史申请记录
+ */
+.embedded-apply-wrap .apply-console-container.is-embedded-container,
+.tech-apply-root.is-embedded-container {
+  width: 100%;
+  box-sizing: border-box;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .main-card,
+.tech-apply-root.is-embedded-container .main-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form,
+.tech-apply-root.is-embedded-container .apply-form {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item .el-input,
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item .el-textarea,
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item .el-select,
+.tech-apply-root.is-embedded-container .apply-form > .el-form-item .el-input,
+.tech-apply-root.is-embedded-container .apply-form > .el-form-item .el-textarea,
+.tech-apply-root.is-embedded-container .el-input,
+.tech-apply-root.is-embedded-container .tech-textarea-wrap {
+  max-width: none !important;
+  width: 100% !important;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item .el-date-editor.el-input,
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item .el-date-editor,
+.tech-apply-root.is-embedded-container .apply-form > .el-form-item .el-date-editor,
+.tech-apply-root.is-embedded-container .tech-date-wrap {
+  max-width: 280px !important;
+  width: 100%;
+}
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item:has(.el-upload) .upload-wrapper,
+.embedded-apply-wrap .apply-console-container.is-embedded-container .apply-form > .el-form-item:has(.tech-upload) .upload-wrapper,
+.tech-apply-root.is-embedded-container .upload-wrapper.tech-upload,
+.tech-apply-root.is-embedded-container .upload-wrapper {
+  max-width: none !important;
+  width: 100% !important;
+}
+/* Embedded history: no extra card chrome (profile pane already padded) */
+.apply-console-container.is-embedded-container.is-orginfo-history-view > .oi-history-page.main-card {
+  max-width: 100% !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
 /* DCI API docs interfaces: match customer /docs accordion look */
@@ -2380,74 +2486,64 @@ button.oi-history-back:hover {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   padding: 0;
   border-bottom: none;
 }
 .tech-apply-root .card-header .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
 }
 .tech-apply-root .card-header .header-right {
   display: flex;
   align-items: center;
+  gap: 10px;
   flex-shrink: 0;
 }
 .tech-apply-root .back-open-btn {
-  color: #4e5969 !important;
-  border: 1px solid #e5e6eb !important;
+  color: #606266 !important;
+  border: 1px solid #dcdfe6 !important;
   background: #fff !important;
-  border-radius: 6px !important;
+  border-radius: 4px !important;
   padding: 0 14px !important;
-  height: 34px !important;
+  height: 32px !important;
   font-size: 14px !important;
   cursor: pointer;
 }
 .tech-apply-root .back-open-btn:hover {
-  color: #165dff !important;
-  border-color: #b3d1ff !important;
-  background: #f2f7ff !important;
+  color: #0075c1 !important;
+  border-color: #b3d4ec !important;
+  background: #f5f9fd !important;
 }
 .tech-apply-root .tech-back-chevron {
   display: inline-block;
   margin-right: 2px;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   vertical-align: -1px;
 }
-.tech-apply-root .header-icon-wrapper {
-  width: 32px;
-  height: 32px;
-  background: #e6f1fc;
-  color: #0075c1;
-  border-radius: 6px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .tech-apply-root .header-title {
-  font-size: 18px !important;
-  font-weight: 700 !important;
-  color: #1d2129 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
   white-space: nowrap;
 }
 .tech-apply-root .history-btn {
-  color: #4e5969 !important;
-  border: 1px solid #e5e6eb !important;
+  color: #606266 !important;
+  border: 1px solid #dcdfe6 !important;
   background: #fff !important;
-  border-radius: 6px !important;
-  height: 34px !important;
+  border-radius: 4px !important;
+  height: 32px !important;
   padding: 0 14px !important;
   font-size: 14px !important;
   cursor: pointer;
 }
 .tech-apply-root .history-btn:hover {
-  color: #165dff !important;
-  border-color: #b3d1ff !important;
-  background: #f2f7ff !important;
+  color: #0075c1 !important;
+  border-color: #b3d4ec !important;
+  background: #f5f9fd !important;
 }
 .tech-apply-root .tech-hist-btn-icon {
   margin-right: 4px;
@@ -2461,42 +2557,27 @@ button.oi-history-back:hover {
   font-size: 15px;
   font-weight: 600;
   color: #303133;
-  margin: 10px 0 20px;
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 .tech-apply-root .apply-form .custom-divider {
-  margin: 32px 0 24px;
+  margin: 20px 0 16px;
   border: none;
   border-top: 1px solid #ebeef5;
   height: 0;
 }
-.tech-apply-root .el-form-item {
-  margin-bottom: 22px;
-  display: block;
-}
-.tech-apply-root .el-form-item__label {
-  font-weight: 500;
-  color: #303133;
-  text-align: right;
-  padding-right: 12px;
-  line-height: 32px;
-  box-sizing: border-box;
-  float: left;
-}
+/* Required asterisk — table layout from shared .apply-console-container rules */
 .tech-apply-root .el-form-item.is-required:not(.is-no-asterisk).asterisk-left > .el-form-item__label:before,
 .tech-apply-root .el-form-item.is-required > .el-form-item__label:before {
   content: "*";
   color: #f56c6c;
   margin-right: 4px;
 }
-.tech-apply-root .el-form-item__content {
-  line-height: 32px;
-  position: relative;
-  font-size: 14px;
-}
 .tech-apply-root .el-input {
   position: relative;
   display: inline-flex;
   width: 100%;
+  max-width: 520px;
 }
 .tech-apply-root .el-input__inner,
 .tech-apply-root .tech-input {
@@ -2522,6 +2603,7 @@ button.oi-history-back:hover {
   position: relative;
   display: block;
   width: 100%;
+  max-width: 520px;
 }
 .tech-apply-root .el-textarea__inner,
 .tech-apply-root .tech-textarea {
@@ -2547,22 +2629,11 @@ button.oi-history-back:hover {
   line-height: 1;
 }
 .tech-apply-root .tech-field-info {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 4px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid #909399;
-  color: #909399;
-  font-size: 10px;
-  line-height: 1;
-  vertical-align: middle;
-  cursor: help;
+  display: none !important;
 }
 .tech-apply-root .tech-date-wrap {
   align-items: center;
+  max-width: 240px;
 }
 .tech-apply-root .tech-date-icon {
   position: absolute;
@@ -2575,6 +2646,19 @@ button.oi-history-back:hover {
 .tech-apply-root .tech-date-input {
   padding-left: 32px !important;
   color-scheme: light;
+}
+.tech-apply-root .upload-wrapper.tech-upload,
+.tech-apply-root .upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 .tech-apply-root .upload-wrapper .upload-btn,
 .tech-apply-root .tech-upload-btn {
@@ -2590,21 +2674,28 @@ button.oi-history-back:hover {
 }
 .tech-apply-root .upload-tip,
 .tech-apply-root .tech-upload-hint {
-  margin-top: 8px;
+  margin: 0;
   font-size: 12px;
   color: #909399;
   line-height: 1.4;
 }
 .tech-apply-root .file-list {
-  margin-top: 10px;
+  width: 100%;
+  margin-top: 0;
 }
 .tech-apply-root .file-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 0;
+  padding: 6px 12px;
+  margin: 0 0 8px;
   color: #606266;
   font-size: 13px;
+  background: #f8fafc;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-sizing: border-box;
+  max-width: 520px;
 }
 .tech-apply-root .file-item a {
   color: #1449b2;
@@ -2613,23 +2704,36 @@ button.oi-history-back:hover {
 }
 .tech-apply-root .form-text-value {
   color: #303133;
-  line-height: 32px;
-  word-break: break-all;
+  line-height: 1.5;
+  font-weight: 400;
+  word-break: break-word;
 }
 .tech-apply-root .submit-action {
   display: flex;
   gap: 12px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 32px;
+  align-items: center;
 }
 .tech-apply-root .submit-action .submit-btn {
   flex: 1 1 auto;
+  width: 100%;
   height: 48px !important;
   font-size: 16px !important;
   font-weight: 600 !important;
   border-radius: 4px !important;
   background-color: #1449b2 !important;
   border-color: #1449b2 !important;
+  color: #fff !important;
+}
+.tech-apply-root .submit-action .cancel-btn,
+.tech-apply-root .submit-action > .el-button:not(.submit-btn) {
+  flex: 0 0 auto;
+  height: 48px !important;
+  padding: 0 20px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
 }
 .tech-apply-root .tech-form-error {
   color: #f56c6c;
