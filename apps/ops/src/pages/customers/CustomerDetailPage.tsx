@@ -174,7 +174,7 @@ export function CustomerDetailPage() {
             <section className="a-form-section">
               <h3 className="a-form-section__title">核验技术服务</h3>
               <div className="a-field__hint" style={{ marginBottom: 8 }}>
-                三类核验产品共用授权总量与生效起止；停止/恢复针对单个产品。
+                三个版权核验技术服务共用授权总量与生效起止；停止/恢复针对单个技术服务。
               </div>
               {(() => {
                 const packages = resolveServicePackages(customer);
@@ -212,7 +212,7 @@ export function CustomerDetailPage() {
                         <table className="a-table a-table--compact">
                           <thead>
                             <tr>
-                              <th>核验产品</th>
+                              <th>版权核验技术服务</th>
                               <th>开通明细</th>
                               <th>每作品消耗</th>
                               <th>状态</th>
@@ -334,8 +334,8 @@ export function CustomerDetailPage() {
               <thead>
                 <tr>
                   <th>账号</th>
-                  <th>产品</th>
-                  <th>产品服务状态</th>
+                  <th>技术服务</th>
+                  <th>技术服务状态</th>
                   <th>历史累积调用次数</th>
                 </tr>
               </thead>
@@ -343,7 +343,7 @@ export function CustomerDetailPage() {
                 {usage.length === 0 ? (
                   <tr>
                     <td colSpan={4}>
-                      <div className="a-empty">暂无产品使用数据</div>
+                      <div className="a-empty">暂无技术服务使用数据</div>
                     </td>
                   </tr>
                 ) : (
@@ -451,10 +451,10 @@ export function CustomerDetailPage() {
 
       <ConfirmDialog
         open={Boolean(confirmProduct)}
-        title={confirmProduct?.stopped ? "确认恢复产品" : "确认停止产品"}
+        title={confirmProduct?.stopped ? "确认恢复技术服务" : "确认停止技术服务"}
         description={
           confirmProduct
-            ? `确定要${confirmProduct.stopped ? "恢复" : "停止"}账号「${customer.account}」的「${confirmProduct.name}」吗？停止后该产品不可调用；共享额度与其它核验产品不受影响。`
+            ? `确定要${confirmProduct.stopped ? "恢复" : "停止"}账号「${customer.account}」的「${confirmProduct.name}」吗？停止后该技术服务不可调用；共享额度与其它核验技术服务不受影响。`
             : ""
         }
         confirmText={confirmProduct?.stopped ? "恢复" : "停止"}

@@ -9,7 +9,8 @@ import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { normalizeProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  exportAccountProductDailyCsv,
+  exportStatsDetailCsv,
+  exportStatsSummaryCsv,
   getStatsData,
   refreshStatsData,
   sliceDates,
@@ -181,8 +182,15 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
             />
             <button
               type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => exportStatsSummaryCsv(scope, "customers", rankRange)}
+            >
+              下载汇总报表
+            </button>
+            <button
+              type="button"
               className="a-btn a-btn--sm a-btn--primary"
-              onClick={() => exportAccountProductDailyCsv([...scopeCodes])}
+              onClick={() => exportStatsDetailCsv(scope, "customers", rankRange)}
             >
               下载明细报表
             </button>

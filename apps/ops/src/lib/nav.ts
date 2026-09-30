@@ -39,7 +39,7 @@ export const OPS_NAV: NavGroup[] = [
   },
   {
     key: "stats-verify",
-    title: "核验统计",
+    title: "版权核验统计",
     icon: "stats",
     items: [
       { to: "/stats/verify/customers", label: "按机构", ready: true },

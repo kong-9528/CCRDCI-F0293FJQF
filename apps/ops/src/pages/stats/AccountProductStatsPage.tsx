@@ -8,8 +8,8 @@ import { useCustomerStore } from "@/lib/customersStore";
 import {
   STATS_PERIOD_LABEL,
   buildAccountProductSummaries,
-  exportAccountProductDailyCsv,
-  exportAccountProductSummaryCsv,
+  exportStatsDetailCsv,
+  exportStatsSummaryCsv,
   getAccountProductTrend,
   getStatsData,
   refreshStatsData,
@@ -21,7 +21,6 @@ import {
 } from "@/lib/statsData";
 import {
   isStatsScope,
-  statsProductCodesForScope,
   statsProductsForScope,
   type StatsScope,
 } from "@/lib/statsScope";
@@ -522,7 +521,12 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
             <button
               type="button"
               className="a-btn a-btn--sm"
-              onClick={() => exportAccountProductSummaryCsv(statsPeriod, filters)}
+              onClick={() =>
+                exportStatsSummaryCsv(scope, "account-products", statsPeriod, {
+                  product: serviceFilter,
+                  accountQuery: appliedQuery,
+                })
+              }
             >
               下载汇总报表
             </button>
@@ -530,12 +534,13 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
               onClick={() =>
-                exportAccountProductDailyCsv(
-                  serviceFilter ? [serviceFilter] : statsProductCodesForScope(scope),
-                )
+                exportStatsDetailCsv(scope, "account-products", statsPeriod, {
+                  product: serviceFilter,
+                  accountQuery: appliedQuery,
+                })
               }
             >
-              下载日明细
+              下载明细报表
             </button>
           </div>
         </div>

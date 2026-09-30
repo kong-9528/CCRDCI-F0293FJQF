@@ -280,81 +280,373 @@ export function downloadCsv(filename: string, header: string[], rows: string[][]
   URL.revokeObjectURL(url);
 }
 
+export type StatsExportPage = "customers" | "products" | "account-products";
+
+type StatsExportFilters = {
+  product?: ProductCode | "";
+  accountQuery?: string;
+};
+
+function exportFilePrefix(
+  scope: StatsScope,
+  page: StatsExportPage,
+  period: StatsPeriod | TrendRange,
+) {
+  const scopeTag = scope === "verify" ? "版权核验统计" : "审核统计";
+  const pageTag =
+    page === "customers"
+      ? "按机构"
+      : page === "products"
+        ? scope === "verify"
+          ? "按技术服务"
+          : "按审核能力"
+        : scope === "verify"
+          ? "机构与技术服务"
+          : "机构与审核能力";
+  const dates = sliceDates(period);
+  const start = dates[0] ?? "";
+  const end = dates[dates.length - 1] ?? start;
+  const range = !start ? "" : start === end ? start : `${start}至${end}`;
+  return range ? `${scopeTag}_${pageTag}_${range}` : `${scopeTag}_${pageTag}`;
+}
+
+function inPeriod(period: StatsPeriod | TrendRange) {
+  const dates = new Set(sliceDates(period));
+  return (date: string) => dates.has(date);
+}
+
+function matchAccountQuery(
+  account: string,
+  companyName: string,
+  contactName: string,
+  query?: string,
+) {
+  const q = query?.trim().toLowerCase() ?? "";
+  if (!q) return true;
+  return (
+    account.toLowerCase().includes(q) ||
+    companyName.toLowerCase().includes(q) ||
+    contactName.toLowerCase().includes(q)
+  );
+}
+
+/** 汇总报表（6 个统计页统一入口） */
+export function exportStatsSummaryCsv(
+  scope: StatsScope,
+  page: StatsExportPage,
+  period: StatsPeriod | TrendRange,
+  filters?: StatsExportFilters,
+) {
+  const prefix = exportFilePrefix(scope, page, period);
+  const scopeCodes = statsProductCodesForScope(scope);
+  const keep = inPeriod(period);
+  const { accountProductDays, productDays } = getStatsData();
+
+  if (page === "customers") {
+    type Acc = {
+      account: string;
+      companyName: string;
+      contactName: string;
+      calls: number;
+      pageSubmitCalls: number;
+      apiCalls: number;
+    };
+    const map = new Map<string, Acc>();
+    for (const r of accountProductDays) {
+      if (!keep(r.date) || !scopeCodes.includes(r.product)) continue;
+      if (!matchAccountQuery(r.account, r.companyName, r.contactName, filters?.accountQuery)) {
+        continue;
+      }
+      const cur = map.get(r.customerId) ?? {
+        account: r.account,
+        companyName: r.companyName,
+        contactName: r.contactName,
+        calls: 0,
+        pageSubmitCalls: 0,
+        apiCalls: 0,
+      };
+      cur.calls += r.calls;
+      cur.pageSubmitCalls += r.pageSubmitCalls;
+      cur.apiCalls += r.apiCalls;
+      map.set(r.customerId, cur);
+    }
+    const rows = [...map.values()].sort((a, b) => b.calls - a.calls);
+    if (scope === "verify") {
+      downloadCsv(
+        `${prefix}_汇总报表.csv`,
+        ["机构账号", "机构名称", "联系人", "调用次数", "web页面提交次数", "API调用次数"],
+        rows.map((r) => [
+          r.account,
+          r.companyName,
+          r.contactName,
+          String(r.calls),
+          String(r.pageSubmitCalls),
+          String(r.apiCalls),
+        ]),
+      );
+    } else {
+      downloadCsv(
+        `${prefix}_汇总报表.csv`,
+        ["机构账号", "机构名称", "联系人", "调用次数"],
+        rows.map((r) => [r.account, r.companyName, r.contactName, String(r.calls)]),
+      );
+    }
+    return;
+  }
+
+  if (page === "products") {
+    const rows = scopeCodes
+      .map((code) => {
+        const dayRows = productDays.filter((r) => r.product === code && keep(r.date));
+        const hit = [...VERIFY_STATS_PRODUCTS, ...AUDIT_STATS_PRODUCTS].find((p) => p.code === code);
+        return {
+          label: hit?.name ?? code,
+          calls: sumCalls(dayRows),
+          pageSubmitCalls: sumPageSubmitCalls(dayRows),
+          apiCalls: sumApiCalls(dayRows),
+        };
+      })
+      .sort((a, b) => b.calls - a.calls);
+    if (scope === "verify") {
+      downloadCsv(
+        `${prefix}_汇总报表.csv`,
+        ["技术服务", "调用次数", "web页面提交次数", "API调用次数"],
+        rows.map((r) => [
+          r.label,
+          String(r.calls),
+          String(r.pageSubmitCalls),
+          String(r.apiCalls),
+        ]),
+      );
+    } else {
+      downloadCsv(
+        `${prefix}_汇总报表.csv`,
+        ["审核能力", "调用次数"],
+        rows.map((r) => [r.label, String(r.calls)]),
+      );
+    }
+    return;
+  }
+
+  // account-products
+  const summaries = buildAccountProductSummaries(period, {
+    scope,
+    product: filters?.product,
+    accountQuery: filters?.accountQuery,
+  });
+  if (scope === "verify") {
+    downloadCsv(
+      `${prefix}_汇总报表.csv`,
+      ["机构账号", "机构名称", "联系人", "技术服务", "调用次数", "web页面提交次数", "API调用次数"],
+      summaries.map((r) => [
+        r.account,
+        r.companyName,
+        r.contactName,
+        r.productLabel,
+        String(r.calls),
+        String(r.pageSubmitCalls),
+        String(r.apiCalls),
+      ]),
+    );
+  } else {
+    downloadCsv(
+      `${prefix}_汇总报表.csv`,
+      ["机构账号", "机构名称", "联系人", "审核能力", "调用次数"],
+      summaries.map((r) => [
+        r.account,
+        r.companyName,
+        r.contactName,
+        r.productLabel,
+        String(r.calls),
+      ]),
+    );
+  }
+}
+
+/** 明细报表（6 个统计页统一入口） */
+export function exportStatsDetailCsv(
+  scope: StatsScope,
+  page: StatsExportPage,
+  period: StatsPeriod | TrendRange,
+  filters?: StatsExportFilters,
+) {
+  const prefix = exportFilePrefix(scope, page, period);
+  const scopeCodes = statsProductCodesForScope(scope);
+  const keep = inPeriod(period);
+  const { accountProductDays, productDays } = getStatsData();
+
+  if (page === "customers") {
+    type Acc = {
+      date: string;
+      account: string;
+      companyName: string;
+      contactName: string;
+      calls: number;
+      pageSubmitCalls: number;
+      apiCalls: number;
+      byProduct: Record<string, number>;
+    };
+    const map = new Map<string, Acc>();
+    for (const r of accountProductDays) {
+      if (!keep(r.date) || !scopeCodes.includes(r.product)) continue;
+      if (!matchAccountQuery(r.account, r.companyName, r.contactName, filters?.accountQuery)) {
+        continue;
+      }
+      const key = `${r.date}:${r.customerId}`;
+      const cur = map.get(key) ?? {
+        date: r.date,
+        account: r.account,
+        companyName: r.companyName,
+        contactName: r.contactName,
+        calls: 0,
+        pageSubmitCalls: 0,
+        apiCalls: 0,
+        byProduct: {},
+      };
+      cur.calls += r.calls;
+      cur.pageSubmitCalls += r.pageSubmitCalls;
+      cur.apiCalls += r.apiCalls;
+      cur.byProduct[r.product] = (cur.byProduct[r.product] ?? 0) + r.calls;
+      map.set(key, cur);
+    }
+    const rows = [...map.values()].sort(
+      (a, b) => a.date.localeCompare(b.date) || b.calls - a.calls,
+    );
+    if (scope === "verify") {
+      downloadCsv(
+        `${prefix}_明细报表.csv`,
+        [
+          "日期",
+          "机构账号",
+          "机构名称",
+          "联系人",
+          "当日调用次数",
+          "当日web页面提交次数",
+          "当日API调用次数",
+          "当日DCI核验次数",
+          "当日版权登记信息核验次数",
+          "当日版权登记证书核验次数",
+        ],
+        rows.map((r) => [
+          r.date,
+          r.account,
+          r.companyName,
+          r.contactName,
+          String(r.calls),
+          String(r.pageSubmitCalls),
+          String(r.apiCalls),
+          String(r.byProduct.dci ?? 0),
+          String(r.byProduct.info ?? 0),
+          String(r.byProduct.certificate ?? 0),
+        ]),
+      );
+    } else {
+      downloadCsv(
+        `${prefix}_明细报表.csv`,
+        ["日期", "机构账号", "机构名称", "联系人", "当日调用次数"],
+        rows.map((r) => [
+          r.date,
+          r.account,
+          r.companyName,
+          r.contactName,
+          String(r.calls),
+        ]),
+      );
+    }
+    return;
+  }
+
+  if (page === "products") {
+    const rows = productDays
+      .filter((r) => keep(r.date) && scopeCodes.includes(r.product))
+      .sort((a, b) => a.date.localeCompare(b.date) || b.calls - a.calls);
+    if (scope === "verify") {
+      downloadCsv(
+        `${prefix}_明细报表.csv`,
+        ["日期", "技术服务", "当日调用次数", "当日web页面提交次数", "当日API调用次数"],
+        rows.map((r) => [
+          r.date,
+          r.productLabel,
+          String(r.calls),
+          String(r.pageSubmitCalls),
+          String(r.apiCalls),
+        ]),
+      );
+    } else {
+      downloadCsv(
+        `${prefix}_明细报表.csv`,
+        ["日期", "审核能力", "当日调用次数"],
+        rows.map((r) => [r.date, r.productLabel, String(r.calls)]),
+      );
+    }
+    return;
+  }
+
+  // account-products
+  const rows = accountProductDays
+    .filter((r) => {
+      if (!keep(r.date) || !scopeCodes.includes(r.product)) return false;
+      if (filters?.product && r.product !== filters.product) return false;
+      return matchAccountQuery(r.account, r.companyName, r.contactName, filters?.accountQuery);
+    })
+    .sort((a, b) => a.date.localeCompare(b.date) || b.calls - a.calls);
+
+  if (scope === "verify") {
+    downloadCsv(
+      `${prefix}_明细报表.csv`,
+      [
+        "日期",
+        "机构账号",
+        "机构名称",
+        "联系人",
+        "技术服务",
+        "当日调用次数",
+        "web页面提交次数",
+        "API调用次数",
+      ],
+      rows.map((r) => [
+        r.date,
+        r.account,
+        r.companyName,
+        r.contactName,
+        r.productLabel,
+        String(r.calls),
+        String(r.pageSubmitCalls),
+        String(r.apiCalls),
+      ]),
+    );
+  } else {
+    downloadCsv(
+      `${prefix}_明细报表.csv`,
+      ["日期", "机构账号", "机构名称", "联系人", "审核能力", "调用次数"],
+      rows.map((r) => [
+        r.date,
+        r.account,
+        r.companyName,
+        r.contactName,
+        r.productLabel,
+        String(r.calls),
+      ]),
+    );
+  }
+}
+
+/** @deprecated 请用 exportStatsDetailCsv / exportStatsSummaryCsv */
 export function exportAccountDailyCsv() {
-  const { accountDays } = getStatsData();
-  downloadCsv(
-    "客户使用统计报表.csv",
-    [
-      "日期",
-      "账号",
-      "公司名称",
-      "联系人姓名",
-      "当日调用次数",
-      "当日成功率",
-      "当日该账号的状态",
-      "当日该账号的服务期状态",
-    ],
-    accountDays.map((r) => [
-      r.date,
-      r.account,
-      r.companyName,
-      r.contactName,
-      String(r.calls),
-      `${r.successRate}%`,
-      r.accountStatus,
-      r.periodStatus,
-    ]),
-  );
+  exportStatsDetailCsv("verify", "customers", "30d");
 }
 
+/** @deprecated 请用 exportStatsDetailCsv */
 export function exportAccountProductDailyCsv(products?: ProductCode[]) {
-  const { accountProductDays } = getStatsData();
-  const rows = products?.length
-    ? accountProductDays.filter((r) => products.includes(r.product))
-    : accountProductDays;
-  downloadCsv(
-    "账号产品调用明细报表.csv",
-    [
-      "日期",
-      "账号",
-      "公司名称",
-      "联系人姓名",
-      "产品",
-      "当日调用次数",
-      "当日成功率",
-      "当日该账号的状态",
-      "当日该账号的服务期状态",
-    ],
-    rows.map((r) => [
-      r.date,
-      r.account,
-      r.companyName,
-      r.contactName,
-      r.productLabel,
-      String(r.calls),
-      `${r.successRate}%`,
-      r.accountStatus,
-      r.periodStatus,
-    ]),
-  );
+  exportStatsDetailCsv("verify", "account-products", "30d", {
+    product: products?.length === 1 ? products[0] : "",
+  });
 }
 
+/** @deprecated 请用 exportStatsDetailCsv */
 export function exportProductDailyCsv(products?: ProductCode[]) {
-  const { productDays } = getStatsData();
-  const rows = products?.length
-    ? productDays.filter((r) => products.includes(r.product))
-    : productDays;
-  downloadCsv(
-    "产品使用统计报表.csv",
-    ["日期", "产品名称", "当日调用机构数", "当日调用次数", "当日成功率"],
-    rows.map((r) => [
-      r.date,
-      r.productLabel,
-      String(r.activeAccounts),
-      String(r.calls),
-      `${r.successRate}%`,
-    ]),
-  );
+  void products;
+  exportStatsDetailCsv("verify", "products", "30d");
 }
 
 /**
@@ -600,38 +892,9 @@ export function exportAccountProductSummaryCsv(
   period: StatsPeriod,
   filters?: Parameters<typeof buildAccountProductSummaries>[1],
 ) {
-  const rows = buildAccountProductSummaries(period, filters);
-  downloadCsv(
-    `账号产品使用统计_${STATS_PERIOD_LABEL[period]}.csv`,
-    [
-      "账号",
-      "公司名称",
-      "联系人",
-      "产品",
-      "统计周期调用次数",
-      "页面提交次数",
-      "API调用次数",
-      "有调用天数",
-      "历史累积调用",
-      "额度使用率",
-      "服务状态",
-      "账号状态",
-      "产品有效期状态",
-    ],
-    rows.map((r) => [
-      r.account,
-      r.companyName,
-      r.contactName,
-      r.productLabel,
-      String(r.calls),
-      String(r.pageSubmitCalls),
-      String(r.apiCalls),
-      String(r.daysWithCalls),
-      String(r.lifetimeUsed),
-      r.quotaUsagePct == null ? "—" : `${r.quotaUsagePct}%`,
-      r.serviceStatus,
-      r.accountStatus,
-      r.periodStatus,
-    ]),
-  );
+  const scope = filters?.scope ?? "verify";
+  exportStatsSummaryCsv(scope, "account-products", period, {
+    product: filters?.product,
+    accountQuery: filters?.accountQuery,
+  });
 }

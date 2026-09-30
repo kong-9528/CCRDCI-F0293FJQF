@@ -6,11 +6,11 @@ import {
   TrendRangeToggle,
 } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
-import { normalizeProductCode, type ProductCode } from "@/lib/catalog";
+import { normalizeProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  exportAccountProductDailyCsv,
-  exportProductDailyCsv,
+  exportStatsDetailCsv,
+  exportStatsSummaryCsv,
   getStatsData,
   refreshStatsData,
   sliceDates,
@@ -52,7 +52,6 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
 
   const categoryProducts = statsProductsForScope(scope);
-  const productCodes = categoryProducts.map((p) => p.code) as ProductCode[];
   const showChannelMetrics = scope === "verify";
   const entityLabel = scope === "audit" ? "审核能力" : "版权核验服务";
 
@@ -195,14 +194,14 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
             <button
               type="button"
               className="a-btn a-btn--sm"
-              onClick={() => exportProductDailyCsv(productCodes)}
+              onClick={() => exportStatsSummaryCsv(scope, "products", rankRange)}
             >
-              下载统计报表
+              下载汇总报表
             </button>
             <button
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
-              onClick={() => exportAccountProductDailyCsv(productCodes)}
+              onClick={() => exportStatsDetailCsv(scope, "products", rankRange)}
             >
               下载明细报表
             </button>

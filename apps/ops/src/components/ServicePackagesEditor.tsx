@@ -105,7 +105,7 @@ function ProductCombobox({
         aria-haspopup="listbox"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="a-combobox__value">{selectedLabel || "请选择核验产品"}</span>
+        <span className="a-combobox__value">{selectedLabel || "请选择技术服务"}</span>
         <span className="a-combobox__caret" aria-hidden>
           ▾
         </span>
@@ -305,7 +305,7 @@ export function ServicePackagesEditor({
         </header>
 
         <div className="a-service-package__body">
-          <div className="a-service-package__section-label">核验产品</div>
+          {/* <div className="a-service-package__section-label">版权核验技术服务</div> */}
           <div className="a-service-package__table-wrap">
             <table className="a-table a-table--compact a-service-package__table">
               <colgroup>
@@ -316,9 +316,9 @@ export function ServicePackagesEditor({
               </colgroup>
               <thead>
                 <tr>
-                  <th>核验产品</th>
+                  <th>技术服务</th>
                   <th>功能配置</th>
-                  <th>每作品消耗次数</th>
+                  <th>每作品消耗额度</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -330,7 +330,7 @@ export function ServicePackagesEditor({
                   const hasCfg = Boolean(svc.product && isVerifyProduct(svc.product));
                   const displayName = svc.product
                     ? productName(svc.product)
-                    : "未选择产品";
+                    : "未选择技术服务";
 
                   return (
                     <tr key={svc.key}>
@@ -426,7 +426,7 @@ export function ServicePackagesEditor({
                 })
               }
             >
-              添加核验产品
+              添加技术服务
             </button>
             {takenProducts.size > 0 ? (
               <span className="a-field__hint">
@@ -441,10 +441,10 @@ export function ServicePackagesEditor({
 
       <ConfirmDialog
         open={Boolean(pendingToggle)}
-        title={pendingToggle?.nextStopped ? "确认停止产品" : "确认恢复产品"}
+        title={pendingToggle?.nextStopped ? "确认停止技术服务" : "确认恢复技术服务"}
         description={
           pendingToggle?.nextStopped
-            ? `确定停止「${pendingToggle.name}」吗？停止后该产品不可调用；共享额度与其它产品不受影响。`
+            ? `确定停止「${pendingToggle.name}」吗？停止后该技术服务不可调用；共享额度与其它技术服务不受影响。`
             : `确定恢复「${pendingToggle?.name ?? ""}」吗？恢复后，在共享生效期内且额度未用尽时可继续使用。`
         }
         confirmText={pendingToggle?.nextStopped ? "停止" : "恢复"}
