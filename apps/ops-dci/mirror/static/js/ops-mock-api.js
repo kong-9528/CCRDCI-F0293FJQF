@@ -316,7 +316,7 @@
         var next = Object.assign({}, n);
         if (n.meta) {
           next.meta = Object.assign({}, n.meta);
-          if (next.meta.title === "注册中心管理") next.meta.title = "机构服务管理";
+          if (next.meta.title === "注册中心管理") next.meta.title = "DCI注册中心管理";
           var name = String(n.name || "");
           var p = String(n.path || "");
           if (

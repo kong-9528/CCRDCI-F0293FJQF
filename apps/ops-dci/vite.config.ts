@@ -95,7 +95,7 @@ function sanitize(pathName: string, body: any) {
     const renameMenus = (nodes: any[]): any[] =>
       (nodes || []).map((n) => {
         const next = { ...n, meta: n.meta ? { ...n.meta } : {} };
-        if (next.meta.title === "注册中心管理") next.meta.title = "机构服务管理";
+        if (next.meta.title === "注册中心管理") next.meta.title = "DCI注册中心管理";
         const name = String(n.name || "");
         const p = String(n.path || "");
         if (
