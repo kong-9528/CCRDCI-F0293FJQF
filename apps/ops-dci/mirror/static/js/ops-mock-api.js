@@ -70,6 +70,21 @@
       m + " " + p + parsed.search,
       m + " " + p,
     ];
+    // DCI 码路径含冒号，兼容 encode / decode 两种 key
+    try {
+      var decFull = decodeURIComponent(fullPath);
+      var decP = decodeURIComponent(p);
+      if (decFull !== fullPath) {
+        keys.push(m + " " + decFull + parsed.search, m + " " + decFull);
+      }
+      if (decP !== p) {
+        keys.push(m + " " + decP + parsed.search, m + " " + decP);
+      }
+      var encFull = fullPath.replace(/DCI:/g, "DCI%3A");
+      if (encFull !== fullPath) {
+        keys.push(m + " " + encFull + parsed.search, m + " " + encFull);
+      }
+    } catch (e) {}
     for (var i = 0; i < keys.length; i++) {
       if (Object.prototype.hasOwnProperty.call(store, keys[i])) return store[keys[i]];
     }
@@ -83,6 +98,17 @@
       return JSON.parse(String(body));
     } catch (e) {
       return {};
+    }
+  }
+
+  function parsedSearchParam(rawUrl, name) {
+    try {
+      var search = parseUrl(rawUrl).search || "";
+      if (!search) return "";
+      var sp = new URLSearchParams(search.charAt(0) === "?" ? search.slice(1) : search);
+      return sp.get(name) || "";
+    } catch (e) {
+      return "";
     }
   }
 
@@ -412,6 +438,50 @@
         accessSecret: "mock-sk-" + Date.now().toString(36),
         dataEncrypKey: "mock-dek-" + Date.now().toString(36),
       });
+    }
+
+    // DCI 码查询：按码/关键词从 cursorList mock 过滤
+    if (
+      (m === "GET" || m === "POST") &&
+      /\/dci\/applyDoc\/listByDciCodeAndKeyword/.test(path)
+    ) {
+      var qStore = window.__OPS_MOCK_STORE__ || {};
+      var listBody = qStore["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
+      var allRows =
+        (listBody && listBody.data && listBody.data.rows) ||
+        (listBody && listBody.rows) ||
+        [];
+      var codeQ = String(
+        (data && (data.dciCode || data.code)) ||
+          (parsedSearchParam(rawUrl, "dciCode") || ""),
+      )
+        .trim()
+        .toUpperCase();
+      var kwQ = String(
+        (data && data.keyword) || parsedSearchParam(rawUrl, "keyword") || "",
+      )
+        .trim()
+        .toLowerCase();
+      var filtered = (allRows || []).filter(function (row) {
+        if (!row) return false;
+        if (codeQ && String(row.dciCode || "").toUpperCase().indexOf(codeQ) < 0) {
+          return false;
+        }
+        if (kwQ) {
+          var blob = [
+            row.caseName,
+            row.ownerName,
+            row.applyOrgName,
+            row.registerName,
+            row.relatedRegNo,
+          ]
+            .join(" ")
+            .toLowerCase();
+          if (blob.indexOf(kwQ) < 0) return false;
+        }
+        return true;
+      });
+      return ok100({ rows: filtered, total: filtered.length });
     }
 
     if (path === "/captchaImage" && m === "GET") {

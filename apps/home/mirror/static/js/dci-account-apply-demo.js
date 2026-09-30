@@ -90,21 +90,22 @@
 
   function applyToTargets(m) {
     m = m || modeById(getModeId());
-    // RegOrgInfo embedded
+    // RegOrgInfo embedded (账号中心 → 注册中心申请)
     if (regRefs && regRefs.k) {
       try {
         regRefs.k.value = m.auditStatus;
         if (regRefs.A) regRefs.A.value = false;
         if (m.auditStatus === 2) {
           if (regRefs.rejectRemark) regRefs.rejectRemark.value = m.rejectReason || "";
-          // stash for alert template
-          window.__DCI_ACCOUNT_APPLY_REJECT__ = m.rejectReason || "审核未通过，请修改后重新提交";
+          window.__DCI_ACCOUNT_APPLY_REJECT__ =
+            m.rejectReason || "审核未通过，请修改后重新提交";
         } else {
           window.__DCI_ACCOUNT_APPLY_REJECT__ = "";
         }
       } catch (e) {}
     }
-    // Tech apply store
+    // Tech apply only when tech subpage is mounted
+    if (!document.querySelector(".tech-apply-root")) return;
     try {
       var TS = window.__DCI_TECH_STORE__;
       if (TS && typeof TS.setDemoStatus === "function") {
