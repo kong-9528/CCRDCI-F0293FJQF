@@ -818,6 +818,45 @@ sup.a-tm,
   letter-spacing: 0.02em;
 }
 
+/* 开通管理列表页标题图标（仅 open-manage-list-wrap，不含申请子页） */
+.right-content-card .open-manage-list-wrap .pane-header .open-manage-title-icon,
+.open-manage-list-wrap .pane-header .open-manage-title-icon,
+.header-icon-circle.open-manage-title-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: #e8f3ff !important;
+  color: #165dff !important;
+  margin-right: 10px !important;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.right-content-card .open-manage-list-wrap .pane-header .open-manage-title-icon::before,
+.open-manage-list-wrap .pane-header .open-manage-title-icon::before,
+.header-icon-circle.open-manage-title-icon::before {
+  content: "";
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23165dff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7' rx='1.5'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1.5'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1.5'/%3E%3Cpath d='M14 17.5h7M17.5 14v7'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* 开通管理卡片操作链：手型光标（scoped cursor-pointer 未生效） */
+.right-content-card .service-cards-grid .service-card .card-bottom .action-link,
+.right-content-card .service-cards-grid .service-card .card-bottom .action-link[data-v-96ef2aa1],
+.service-card .card-bottom .action-link {
+  cursor: pointer !important;
+}
+.right-content-card .service-cards-grid .service-card .card-bottom .action-link.disabled,
+.right-content-card .service-cards-grid .service-card .card-bottom .action-link.disabled[data-v-96ef2aa1],
+.service-card .card-bottom .action-link.disabled {
+  cursor: not-allowed !important;
+}
+
 /* 3) 账号信息标题旁用户图标：修复裁切与对齐 */
 .right-content-card .pane-header .header-icon-circle[data-v-96ef2aa1],
 .header-icon-circle[data-v-96ef2aa1],
@@ -1732,6 +1771,12 @@ sup.a-tm,
   display: flex;
   justify-content: center;
   align-items: center;
+}
+/* 账号中心申请/查看子页：隐藏标题旁图标（不影响工作台 org-info） */
+.apply-console-container.is-embedded-container .header-icon-wrapper,
+.embedded-apply-wrap .apply-console-container .header-icon-wrapper,
+.tech-apply-root.is-embedded-container .header-icon-wrapper {
+  display: none !important;
 }
 .apply-console-container .header-icon-wrapper .el-icon {
   font-size: 18px;
