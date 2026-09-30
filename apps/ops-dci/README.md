@@ -23,6 +23,15 @@ DCI 管理中心运营管理平台本地镜像（静态 Vue + 全量 mock，无�
 
 未配置时回退到上表默认值。`pnpm dev` / `pnpm build` 会写入 `window.__OPS_DCI_PUBLIC_URL__` 与 `window.__OPS_DCI_SSO_URL__`。SSO 侧对应入口是 `VITE_OPS_DCI_URL`，应与这里的 `VITE_PUBLIC_URL` 一致。
 
+## 部署注意（云开发 / COS）
+
+| 现象 | 原因 | 处理 |
+|------|------|------|
+| SSO 打开后**下载**名为 `index` 的文件；直接访问部署 URL 正常 | 桶里有无扩展名对象 `index`，MIME 被当成二进制；SSO 曾整页跳到 `/index` | **不要**上传无扩展名的 `index`；在桶中删除该对象后，用新 `pnpm build` 的 `dist/` **全量重传** |
+| 深链资源 404 | HTML 用了相对路径 `./static/…` | `prepare-dist` 已注入 `<base href="/">` 与绝对 `/static/…` |
+
+`pnpm build`（`prepare-dist`）会：跳过并删除根目录无扩展名 `index`、为常见路由写入 `…/index.html` 兜底、修正资源为根路径。
+
 ## 开发
 
 ```bash

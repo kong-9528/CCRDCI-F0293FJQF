@@ -80,7 +80,7 @@
             username: nested.searchParams.get("username") || "root",
             displayName: nested.searchParams.get("displayName") || "root",
             via: "redirect",
-            cleanPath: nested.pathname || "/index",
+            cleanPath: nested.pathname || "/",
           };
         }
       } catch (e) {}
@@ -89,9 +89,11 @@
   }
 
   function enterApp(preferredPath) {
-    var path = preferredPath || "/index";
-    if (/\/login\/?$/.test(path)) path = "/index";
-    if (!path || path === "/") path = "/index";
+    // Prefer `/` for full page loads. Hard-navigating to `/index` hits a
+    // no-extension COS object and the browser downloads a file named "index".
+    var path = preferredPath || "/";
+    if (/\/login\/?$/.test(path) || path === "/index" || path === "/index/") path = "/";
+    if (!path) path = "/";
     var next = path;
     if (location.pathname + location.search + location.hash !== next) {
       location.replace(next);
@@ -120,7 +122,7 @@
       if (fromSso || hasToken()) setCookieToken();
       if (/\/login\/?$/.test(location.pathname) && (fromSso || hasToken())) {
         clearInterval(timer);
-        enterApp("/index");
+        enterApp("/");
         return;
       }
       // Cleared login successfully
@@ -145,8 +147,10 @@
     url.searchParams.delete("username");
     url.searchParams.delete("displayName");
     url.searchParams.delete("redirect");
-    var path = hit.cleanPath || url.pathname || "/index";
-    if (/\/login\/?$/.test(path) || path === "/") path = "/index";
+    var path = hit.cleanPath || url.pathname || "/";
+    if (/\/login\/?$/.test(path) || path === "/" || path === "/index" || path === "/index/") {
+      path = "/";
+    }
     var qs = url.search || "";
     var next = path + qs + (url.hash || "");
     window.__OPS_DCI_SSO__ = {
@@ -166,7 +170,7 @@
   // —— 2) Cold visit / local login: do NOT force SSO ——
   // If already authenticated and on /login, go to app
   if (hasToken() && /\/login\/?$/.test(location.pathname)) {
-    enterApp("/index");
+    enterApp("/");
     window.__OPS_DCI_SSO__ = { clearSession: clearSession, goSso: goSso, hasToken: hasToken };
     return;
   }
@@ -177,7 +181,7 @@
       setCookieToken();
       watchBypassLogin();
       if (/\/login\/?$/.test(location.pathname)) {
-        enterApp("/index");
+        enterApp("/");
       }
     }
   } catch (e) {}

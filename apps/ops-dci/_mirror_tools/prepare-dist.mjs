@@ -2,10 +2,14 @@
  * Copy mirror/ → dist/ for static deploy (no bundling; assets already built).
  * Public / SSO URLs come from VITE_PUBLIC_URL and VITE_SSO_URL
  * (deploy platform or gitignored .env.local).
+ *
+ * COS / 云开发注意：无扩展名对象 `index` 会被当成二进制下载。
+ * 构建时跳过并删除该文件，并生成各路由的 …/index.html 兜底。
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { spawnSync } from "child_process";
 import { loadEnv } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +27,9 @@ function rm(dir) {
 function copy(from, to) {
   fs.mkdirSync(to, { recursive: true });
   for (const name of fs.readdirSync(from)) {
+    // Skip meta and root no-extension `index` (COS serves it as a download).
     if (name === "_mirror-meta.json") continue;
+    if (name === "index" && from === src) continue;
     const a = path.join(from, name);
     const b = path.join(to, name);
     const st = fs.statSync(a);
@@ -42,10 +48,28 @@ function injectIndexHtml(file) {
   if (html.includes("window.__OPS_DCI_SSO_URL__")) {
     html = html.replace(/window\.__OPS_DCI_SSO_URL__\s*=\s*[^;]+;/, ssoSnippet);
   }
+  // Deep links must load assets from site root, never relative to /registrOrg/my etc.
+  if (!/<base\s+href=["']\/["']\s*\/?>/i.test(html)) {
+    html = html.replace(/<head(\s[^>]*)?>/i, '<head$1>\n  <base href="/">');
+  }
+  html = html
+    .replace(/(href|src)="\.\/(static\/[^"]+|favicon[^"]*|overrides\.css)"/g, '$1="/$2"')
+    .replace(
+      /(href|src)="(?!\/|https?:|data:)(static\/[^"]+|favicon[^"]*|overrides\.css)"/g,
+      '$1="/$2"',
+    );
   fs.writeFileSync(file, html, "utf8");
 }
 
 rm(dest);
 copy(src, dest);
 injectIndexHtml(path.join(dest, "index.html"));
+
+const spa = spawnSync(
+  process.execPath,
+  [path.join(__dirname, "spa-fallback.mjs"), dest],
+  { stdio: "inherit" },
+);
+if (spa.status !== 0) process.exit(spa.status || 1);
+
 console.log("built dist from mirror; VITE_PUBLIC_URL=", publicUrl, "VITE_SSO_URL=", ssoUrl);
