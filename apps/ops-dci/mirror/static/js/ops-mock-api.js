@@ -440,6 +440,42 @@
       });
     }
 
+    // 著作权人列表：按个人/机构页签返回
+    if (m === "GET" && path === "/dci/applyRightOwner/list") {
+      var ownerStore = window.__OPS_MOCK_STORE__ || {};
+      var cat =
+        parsedSearchParam(rawUrl, "ownerCategory") ||
+        (data && data.ownerCategory) ||
+        "person";
+      var personKey =
+        "GET /api/v1/dciManage/dci/applyRightOwner/list?pageNum=1&pageSize=10&ownerCategory=person";
+      var orgKey =
+        "GET /api/v1/dciManage/dci/applyRightOwner/list?pageNum=1&pageSize=10&ownerCategory=org";
+      var listHit =
+        ownerStore[cat === "org" ? orgKey : personKey] ||
+        ownerStore["GET /api/v1/dciManage/dci/applyRightOwner/list"];
+      if (listHit) return listHit;
+    }
+
+    // 著作权人详情
+    var ownerDetailMatch = path.match(/^\/dci\/applyRightOwner\/detail\/([^/]+)$/);
+    if (m === "GET" && ownerDetailMatch) {
+      var detailKey =
+        "GET /api/v1/dciManage/dci/applyRightOwner/detail/" +
+        decodeURIComponent(ownerDetailMatch[1]);
+      var detailHit = (window.__OPS_MOCK_STORE__ || {})[detailKey];
+      if (detailHit) return detailHit;
+      return ok100({
+        info: {
+          id: ownerDetailMatch[1],
+          ownerName: "演示著作权人",
+          cardFrontURL: null,
+          cardBackURL: null,
+        },
+        opusDwcrApplyInfoList: [],
+      });
+    }
+
     // DCI 码查询：按码/关键词从 cursorList mock 过滤
     if (
       (m === "GET" || m === "POST") &&
