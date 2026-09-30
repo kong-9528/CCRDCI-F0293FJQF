@@ -1,7 +1,10 @@
 /**
- * Org-info history as secondary page (interaction mirrors customer /account?view=history).
- * Fields & visual tokens follow /dci/org-info/index.
- * Default: all records collapsed.
+ * History as secondary page (interaction mirrors customer /account?view=history).
+ * Used by:
+ *  - /dci/org-info workbench (机构信息) — router ?view=history
+ *  - Account-center RegOrgInfo apply — local bridge.accountHistOpen (no router churn)
+ * Default: all records collapsed. Expand/collapse per card.
+ * Account-center never shows「已通过」rows (approved orgs use workbench).
  */
 (function () {
   var PAGE_ID = "dci-orginfo-history-page";
@@ -14,8 +17,26 @@
     return /\/dci\/org-info/.test(location.pathname);
   }
 
+  /** Account-center / profile embedded RegOrgInfo (not workbench org-info). */
+  function isAccountRegApply() {
+    if (isOrgInfo()) return false;
+    var container = document.querySelector(".apply-console-container");
+    if (!container) return false;
+    var b = bridge();
+    if (!b) return false;
+    // Prefer explicit bridge flag; fall back to "not org-info path"
+    if (typeof b.isOrgInfo === "function" && b.isOrgInfo()) return false;
+    return true;
+  }
+
+  function isActiveContext() {
+    return isOrgInfo() || isAccountRegApply();
+  }
+
   function isHistoryView() {
     try {
+      var b = bridge();
+      if (b && typeof b.isHistoryView === "function") return !!b.isHistoryView();
       return new URLSearchParams(location.search).get("view") === "history";
     } catch (e) {
       return false;
@@ -204,20 +225,30 @@
   function getRecords() {
     var b = bridge();
     var rows = (b && b.getRecords && b.getRecords()) || [];
-    if (rows.length) return rows;
-    if (
-      window.__DCI_ORGINFO_DEMO__ &&
-      typeof window.__DCI_ORGINFO_DEMO__.buildHistoryRecords === "function"
-    ) {
-      var form = (b && b.getForm && b.getForm()) || {};
-      var built = window.__DCI_ORGINFO_DEMO__.buildHistoryRecords(form.id);
-      return built.slice().reverse();
+    if (!rows.length) {
+      if (
+        window.__DCI_ORGINFO_DEMO__ &&
+        typeof window.__DCI_ORGINFO_DEMO__.buildHistoryRecords === "function"
+      ) {
+        // Org-info workbench only — never use demo「已通过」seeds on account-center
+        if (isOrgInfo()) {
+          var form = (b && b.getForm && b.getForm()) || {};
+          var built = window.__DCI_ORGINFO_DEMO__.buildHistoryRecords(form.id);
+          rows = built.slice().reverse();
+        }
+      }
     }
-    return [];
+    // Account-center apply history: never show「已通过」(once approved, manage via workbench)
+    if (isAccountRegApply()) {
+      rows = (rows || []).filter(function (r) {
+        return String((r && r.auditStatus) || "") !== "1";
+      });
+    }
+    return rows || [];
   }
 
   function render(force) {
-    if (!isOrgInfo()) {
+    if (!isActiveContext()) {
       teardown();
       lastSig = "";
       return;
@@ -424,7 +455,7 @@
   }
 
   setInterval(function () {
-    if (!isOrgInfo()) {
+    if (!isActiveContext()) {
       teardown();
       return;
     }

@@ -1,0 +1,23 @@
+[
+  {
+    "step": "cta-visible",
+    "ok": true
+  },
+  {
+    "step": "form-title",
+    "ok": true
+  },
+  {
+    "step": "submitted-reviewing",
+    "ok": true
+  },
+  {
+    "step": "history-rows",
+    "ok": true,
+    "hist": 1
+  },
+  {
+    "step": "open-progress-cta",
+    "ok": true
+  }
+]

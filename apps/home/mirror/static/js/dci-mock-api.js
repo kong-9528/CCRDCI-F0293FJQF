@@ -401,6 +401,51 @@
         "13800008002";
       return ok(realPhone);
     }
+    // —— tech service center open-apply ——
+    if (path === "/dci/techorg/apply" && m === "POST") {
+      try {
+        if (window.__DCI_TECH_STORE__ && window.__DCI_TECH_STORE__.apply) {
+          window.__DCI_TECH_STORE__.apply(data || {});
+        }
+      } catch (e) {}
+      return ok(null, { msg: "技术服务中心申请已提交（演示）" });
+    }
+    if (path === "/dci/techorg/resubmit" && (m === "POST" || m === "PUT")) {
+      try {
+        if (window.__DCI_TECH_STORE__ && window.__DCI_TECH_STORE__.resubmit) {
+          window.__DCI_TECH_STORE__.resubmit(data || {});
+        }
+      } catch (e) {}
+      return ok(null, { msg: "技术服务中心申请已重新提交（演示）" });
+    }
+    if (path.indexOf("/dci/techorg/revoke/") === 0) {
+      var techRevokeId = path.split("/").pop();
+      try {
+        if (window.__DCI_TECH_STORE__ && window.__DCI_TECH_STORE__.revoke) {
+          window.__DCI_TECH_STORE__.revoke(techRevokeId);
+        }
+      } catch (e) {}
+      return ok(null, { msg: "技术服务中心申请已撤回（演示）" });
+    }
+    if (path === "/dci/techorg/auditList" && (m === "GET" || m === "POST")) {
+      var techHist = [];
+      try {
+        if (window.__DCI_TECH_STORE__ && window.__DCI_TECH_STORE__.historyList) {
+          techHist = window.__DCI_TECH_STORE__.historyList() || [];
+        }
+      } catch (e) {}
+      return page(techHist, techHist.length);
+    }
+    if (path === "/dci/techorg/info" && m === "GET") {
+      var techDraft = null;
+      try {
+        if (window.__DCI_TECH_STORE__ && window.__DCI_TECH_STORE__.getDraft) {
+          techDraft = window.__DCI_TECH_STORE__.getDraft();
+        }
+      } catch (e) {}
+      return ok(techDraft);
+    }
+
     if (path === "/dci/regorg/apply" && m === "POST") {
       return ok(null, { msg: "申请已提交（演示）" });
     }
@@ -424,6 +469,70 @@
           "";
         var hist = window.__DCI_ORGINFO_DEMO__.buildHistoryRecords(histId);
         return page(hist, hist.length);
+      }
+      // 开通管理 / 注册中心申请页：为 yachang 提供已撤回、不通过历史演示
+      var uname = (user && (user.username || user.userName)) || "";
+      try {
+        var Mk = window.__DCI_MOCK__;
+        if (!uname && Mk && Mk.currentUser) {
+          var cu = Mk.currentUser();
+          uname = (cu && cu.username) || "";
+        }
+      } catch (e) {}
+      if (String(uname).toLowerCase() === "yachang") {
+        var ycBase = {
+          id: (user && user.userId) || "mock-yachang",
+          regOrgName: (user && user.orgName) || "深圳市雅昌艺术网股份有限公司",
+          orgName: (user && user.orgName) || "深圳市雅昌艺术网股份有限公司",
+          regOrgNamePy: (user && user.orgNamePy) || "yachangyishu",
+          orgNamePy: (user && user.orgNamePy) || "yachangyishu",
+          creditCode: (user && user.creditCode) || "91440300724726181Q",
+          regOrgAddress: (user && user.orgAddress) || "深圳市南山区深云路19号",
+          orgAddress: (user && user.orgAddress) || "深圳市南山区深云路19号",
+          invitationCode: "REG-YC-DEMO",
+          regOrgType: (user && user.orgTypeCode) || "NRPT",
+          orgTypeCode: (user && user.orgTypeCode) || "NRPT",
+          orgTypeName: (user && user.orgTypeName) || "内容平台",
+          cooperationField: "艺术品数字版权确权、展览内容核验",
+          contractStartDate: "2026-01-01",
+          contractEndDate: "2026-12-31",
+          linkName: "王敏",
+          linkPhone: (user && user.phonenumber) || "13900001111",
+          contractFileList: [{ name: "雅昌-注册中心开通申请.pdf", url: "/demo/yc-reg-apply.pdf" }],
+          contractFiles: "/demo/yc-reg-apply.pdf",
+        };
+        var ycHist = [
+          Object.assign({}, ycBase, {
+            id: "reg-hist-withdrawn-yachang",
+            auditStatus: "3",
+            auditRemark: "申请人主动撤回本次注册中心开通申请",
+            createTime: "2026-04-12 09:18:00",
+            invitationCode: "REG-YC-0412",
+            cooperationField: "艺术品数字版权确权",
+            contractFileList: [{ name: "雅昌-注册中心申请-撤回稿.pdf", url: "/demo/yc-reg-withdrawn.pdf" }],
+          }),
+          Object.assign({}, ycBase, {
+            id: "reg-hist-rejected-yachang",
+            auditStatus: "2",
+            auditRemark: "机构地址与营业执照信息不一致，请修改后重新提交",
+            rejectReason: "机构地址与营业执照信息不一致，请修改后重新提交",
+            createTime: "2026-07-22 16:05:40",
+            invitationCode: "REG-YC-0722",
+            regOrgAddress: "深圳市南山区科技园南区示范大道1号",
+            orgAddress: "深圳市南山区科技园南区示范大道1号",
+            cooperationField: "数字内容发行、版权运营",
+            linkName: "赵强",
+            linkPhone: "13700005566",
+            contractStartDate: "2026-05-01",
+            contractEndDate: "2027-04-30",
+            contractFileList: [{ name: "雅昌-注册中心申请-驳回稿.pdf", url: "/demo/yc-reg-rejected.pdf" }],
+          }),
+        ];
+        // Account-center: never return「已通过」history
+        ycHist = ycHist.filter(function (r) {
+          return String((r && r.auditStatus) || "") !== "1";
+        });
+        return page(ycHist, ycHist.length);
       }
       return page([]);
     }

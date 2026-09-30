@@ -70,7 +70,18 @@
     return String(token).slice(5);
   }
   function getUser(key) {
-    return key && USERS[key] ? USERS[key] : null;
+    var u = key && USERS[key] ? USERS[key] : null;
+    if (u) {
+      // Only hydrate from sessionStorage — never call __DCI_TECH_STORE__
+      // (currentTechStatus → ensureBucket → getUser would recurse forever).
+      try {
+        var raw = JSON.parse(sessionStorage.getItem("dci-tech-apply-store") || "{}");
+        if (raw && raw[key] && raw[key].techStatus !== undefined && raw[key].techStatus !== null) {
+          u.techStatus = Number(raw[key].techStatus);
+        }
+      } catch (e) {}
+    }
+    return u;
   }
   function resolveLogin(username, password) {
     var k = String(username || "").trim().toLowerCase();
@@ -84,9 +95,31 @@
     if (String(code) !== SMS) return null;
     return k;
   }
+  function resolveTechStatus(u) {
+    // Prefer session bucket for *this* user; avoid currentTechStatus() here
+    // when u may already come from getUser (would recurse).
+    try {
+      var key = u && u.username ? String(u.username).toLowerCase() : null;
+      if (!key) {
+        try {
+          key = sessionStorage.getItem("dci-mock-key");
+        } catch (e0) {}
+      }
+      if (key) {
+        var raw = JSON.parse(sessionStorage.getItem("dci-tech-apply-store") || "{}");
+        if (raw && raw[key] && raw[key].techStatus !== undefined && raw[key].techStatus !== null) {
+          return Number(raw[key].techStatus);
+        }
+      }
+    } catch (e) {}
+    if (!u) return null;
+    if (u.techStatus === null || u.techStatus === undefined) return null;
+    return Number(u.techStatus);
+  }
+
   function openedLabel(u) {
     var r = u.auditStatus === 1;
-    var t = u.techStatus === 1;
+    var t = resolveTechStatus(u) === 1;
     if (r && t) return "DCI注册中心、DCI®技术服务中心";
     if (r) return "DCI注册中心";
     if (t) return "DCI®技术服务中心";
