@@ -294,21 +294,52 @@
     }
     function reorderTop(nodes) {
       var list = (nodes || []).slice();
-      var sysIdx = -1;
+      // 顶层：注册中心 → DCI码管理 → DCI发码统计 → 其余 → 系统管理置底
+      var picked = [];
+      var rest = [];
+      var sys = null;
       for (var i = 0; i < list.length; i += 1) {
-        if (list[i].path === "/system" || list[i].name === "System") {
-          sysIdx = i;
-          break;
+        var n = list[i];
+        var p = String(n.path || "");
+        var title = (n.meta && n.meta.title) || "";
+        if (p === "/system" || n.name === "System") {
+          sys = n;
+          continue;
+        }
+        if (p === "/dciCodeManage" || title === "DCI码管理") {
+          picked[0] = n;
+          continue;
+        }
+        if (p === "/dci/stat" || title === "DCI发码统计") {
+          picked[1] = n;
+          continue;
+        }
+        rest.push(n);
+      }
+      var lead = [];
+      var afterLead = [];
+      for (var r = 0; r < rest.length; r += 1) {
+        var rp = String(rest[r].path || "");
+        var rt = (rest[r].meta && rest[r].meta.title) || "";
+        if (
+          rp === "/registrOrg" ||
+          rt === "DCI注册中心管理" ||
+          rt === "注册中心管理" ||
+          rt === "机构管理"
+        ) {
+          lead.push(rest[r]);
+        } else {
+          afterLead.push(rest[r]);
         }
       }
-      if (sysIdx >= 0) {
-        var sys = list.splice(sysIdx, 1)[0];
+      var ordered = lead.concat(picked.filter(Boolean)).concat(afterLead);
+      if (sys) {
         if (Array.isArray(sys.children)) {
           sys.children = reorderSystemChildren(sys.children);
         }
-        list.push(sys);
+        ordered.push(sys);
       }
-      return list;
+      return ordered;
     }
     clone.data = reorderTop(filterNodes(clone.data));
     function renameMenus(nodes) {
