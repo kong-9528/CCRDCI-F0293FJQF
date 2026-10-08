@@ -439,6 +439,16 @@
     if (m === "GET" && detailMatch) {
       return ok(mockRegOrgVo(detailMatch[1]));
     }
+    // 机构审核记录历史
+    var auditListMatch = path.match(/^\/dci\/regorg\/getDciRegOrgAuditList\/([^/]+)$/);
+    if (m === "GET" && auditListMatch) {
+      var auditId = decodeURIComponent(auditListMatch[1]);
+      var auditKey =
+        "GET /api/v1/dciManage/dci/regorg/getDciRegOrgAuditList/" + auditId;
+      var auditHit = (window.__OPS_MOCK_STORE__ || {})[auditKey];
+      if (auditHit) return auditHit;
+      return ok100([]);
+    }
     if (m === "PUT" && path === "/dci/regorg/editDciRegOrg") {
       try {
         var store = window.__OPS_MOCK_STORE__ || {};
