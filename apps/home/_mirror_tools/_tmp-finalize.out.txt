@@ -1,0 +1,24 @@
+﻿node : node:internal/modules/cjs/loader:1386
+所在位置 C:\Users\leste\AppData\Local\Temp\ps-script-1070ec9a-f467-473c-86d8-addafed36cf7.ps1:88 字符: 1
++ node apps/home/_mirror_tools/_tmp-finalize.mjs 2>&1 | Out-File -FileP ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (node:internal/modules/cjs/loader:1386:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\WORKING_PLACE\CODE_R\sampleA\apps\home\_mirror_tools\_tmp-finalize.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.22.0
