@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import { SegmentedControl, TrendRangeToggle } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
-import { PRODUCTS, type ProductCode } from "@/lib/catalog";
+import { PRODUCTS, isVerifyProduct, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
   getStatsData,
@@ -65,10 +65,9 @@ export function DashboardPage() {
 
   /** 版权核验：概览按核验类产品汇总 */
   const verifyOverview = useMemo(() => {
-    const verifyCodes = new Set(VERIFY_PRODUCTS.map((p) => p.code));
-    const productDays = data.productDays.filter((r) => verifyCodes.has(r.product as ProductCode));
+    const productDays = data.productDays.filter((r) => isVerifyProduct(r.product));
     const accounts = data.customers.filter((c) =>
-      c.productServices.some((s) => verifyCodes.has(s.product as ProductCode)),
+      c.productServices.some((s) => isVerifyProduct(s.product)),
     ).length;
     return [
       { label: "总机构数", value: accounts },
@@ -125,7 +124,6 @@ export function DashboardPage() {
   const verifySeries = useMemo(() => {
     const out: { id: string; label: string; color: string; values: number[] }[] = [];
     let colorIdx = 0;
-    const verifyCodes = new Set(VERIFY_PRODUCTS.map((p) => p.code));
 
     out.push({
       id: "total",
@@ -133,7 +131,7 @@ export function DashboardPage() {
       color: chartColor(colorIdx++),
       values: trendDates.map((date) => {
         const dayRows = data.productDays.filter(
-          (r) => r.date === date && verifyCodes.has(r.product as ProductCode),
+          (r) => r.date === date && isVerifyProduct(r.product),
         );
         if (trendMetric === "calls") return sumCalls(dayRows);
         return dayRows.reduce((n, r) => n + (r.activeAccounts || 0), 0);
