@@ -27,6 +27,9 @@ export function chartColor(i: number) {
 export function TrendChart({ labels, series, unit = "", height = 320, dense = false }: Props) {
   const option = useMemo<EChartsOption>(() => {
     const isPercent = unit === "%";
+    const showLegend = series.length > 0;
+    // 有图例时预留足够底部，避免横轴日期与图例文字重叠（单系列此前 bottom 过小）
+    const gridBottom = showLegend ? (dense ? 48 : 72) : dense ? 20 : 36;
 
     return {
       color: series.map((s) => s.color),
@@ -36,7 +39,7 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
         left: dense ? 36 : 52,
         right: dense ? 8 : 24,
         top: dense ? 8 : 28,
-        bottom: series.length > 1 ? (dense ? 28 : 56) : dense ? 20 : 36,
+        bottom: gridBottom,
         containLabel: false,
       },
       tooltip: {
@@ -63,8 +66,8 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
         },
       },
       legend: {
-        show: series.length > 0,
-        bottom: 0,
+        show: showLegend,
+        bottom: dense ? 2 : 4,
         left: "center",
         icon: "emptyCircle",
         itemWidth: 10,
@@ -85,7 +88,7 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
           color: "#6B7889",
           fontSize: 12,
           hideOverlap: true,
-          margin: dense ? 8 : 12,
+          margin: dense ? 10 : 14,
         },
         splitLine: { show: false },
       },

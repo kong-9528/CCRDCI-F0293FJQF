@@ -5211,3 +5211,124 @@ body,
   line-height: 1.65;
   color: var(--n-600);
 }
+
+/* ---------- 首页 Dashboard 业务 Tab ---------- */
+.a-dash-page {
+  gap: 16px;
+}
+
+.a-dash-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--n-0) 88%, var(--p-50)), var(--n-50));
+  border: 1px solid color-mix(in srgb, var(--n-200) 80%, var(--p-100));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.a-dash-tabs__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--n-500);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.a-dash-tabs__item:hover {
+  color: var(--n-800);
+  background: color-mix(in srgb, var(--n-0) 72%, transparent);
+}
+
+.a-dash-tabs__item.is-active {
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--p-500) 92%, #3aa0ff),
+    var(--p-700)
+  );
+  box-shadow:
+    0 6px 16px color-mix(in srgb, var(--p-600) 28%, transparent),
+    0 1px 0 color-mix(in srgb, var(--p-400) 55%, transparent) inset;
+}
+
+.a-dash-tabs__item.is-active:hover {
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--p-500) 88%, #4aacff),
+    var(--p-700)
+  );
+}
+
+.a-dash-tabs__item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--p-500) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.a-dash-tabs__icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.78;
+  background: currentColor;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+
+.a-dash-tabs__item.is-active .a-dash-tabs__icon {
+  opacity: 1;
+}
+
+.a-dash-tabs__icon--verify {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M8 2.2 12.8 4.2v3.4c0 3-2.1 5.2-4.8 6.2-2.7-1-4.8-3.2-4.8-6.2V4.2L8 2.2Z' stroke='%23000' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='m5.6 8 1.6 1.6 3.2-3.2' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M8 2.2 12.8 4.2v3.4c0 3-2.1 5.2-4.8 6.2-2.7-1-4.8-3.2-4.8-6.2V4.2L8 2.2Z' stroke='%23000' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='m5.6 8 1.6 1.6 3.2-3.2' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.a-dash-tabs__icon--audit {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 3.2h6.2L12 5v7.8H4V3.2Z' stroke='%23000' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M10 3.2V5h1.9M6 8h4M6 10.2h3' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 3.2h6.2L12 5v7.8H4V3.2Z' stroke='%23000' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M10 3.2V5h1.9M6 8h4M6 10.2h3' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.a-dash-tabs__label {
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .a-dash-tabs {
+    width: 100%;
+  }
+
+  .a-dash-tabs__item {
+    flex: 1;
+    justify-content: center;
+    padding: 0 12px;
+  }
+}
