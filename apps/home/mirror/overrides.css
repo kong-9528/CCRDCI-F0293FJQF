@@ -803,7 +803,7 @@ sup.a-tm,
     center / contain no-repeat;
 }
 
-/* 2) 已通过状态标签：实心绿色胶囊，更突出 */
+/* 2) 已开通状态标签：实心绿色胶囊，更突出 */
 .right-content-card .service-cards-grid .service-card .card-top .status-badge-wrap .status-tag.approved[data-v-96ef2aa1],
 .status-tag.approved[data-v-96ef2aa1],
 .status-tag.approved {

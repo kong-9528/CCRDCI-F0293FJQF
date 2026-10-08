@@ -107,8 +107,8 @@ mustReplace(PROFILE, oldTechBottom, newTechBottom, "tech card CTAs");
 // Tech card status badge: show for reviewing / rejected / withdrawn too
 mustReplace(
   PROFILE,
-  'jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已通过")])):N("",!0)',
-  'jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已通过")])):kt.value?(u(),c("div",{key:1,class:"status-badge-wrap"},[a("span",{class:"status-tag auditing"},"审核中")])):lt.value?(u(),c("div",{key:2,class:"status-badge-wrap"},[a("span",{class:"status-tag rejected"},"未通过")])):mt.value?(u(),c("div",{key:3,class:"status-badge-wrap"},[a("span",{class:"status-tag revoked"},"已撤回")])):(u(),c("div",{key:4,class:"status-badge-wrap"},[a("span",{class:"status-tag not-opened"},"未开通")]))',
+  'jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已开通")])):N("",!0)',
+  'jt.value?(u(),c("div",{key:0,class:"status-badge-wrap"},[a("span",{class:"status-tag approved"},"已开通")])):kt.value?(u(),c("div",{key:1,class:"status-badge-wrap"},[a("span",{class:"status-tag auditing"},"审核中")])):lt.value?(u(),c("div",{key:2,class:"status-badge-wrap"},[a("span",{class:"status-tag rejected"},"未通过")])):mt.value?(u(),c("div",{key:3,class:"status-badge-wrap"},[a("span",{class:"status-tag revoked"},"已撤回")])):(u(),c("div",{key:4,class:"status-badge-wrap"},[a("span",{class:"status-tag not-opened"},"未开通")]))',
   "tech card status badges",
 );
 

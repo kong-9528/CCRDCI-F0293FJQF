@@ -24,7 +24,7 @@ const USERS = [
     expectMenu: ["账号中心", "DCI注册中心工作台", "申请接入技术服务中心", "退出登录"],
     forbid: ["技术服务中心工作台"],
     expectOpened: "DCI注册中心",
-    expectOpen: ["已通过", "进入工作台", "申请接入技术服务中心"],
+    expectOpen: ["已开通", "进入工作台", "申请接入技术服务中心"],
   },
   {
     key: "mayi1",
@@ -33,7 +33,7 @@ const USERS = [
     expectMenu: ["账号中心", "技术服务中心工作台", "退出登录"],
     forbid: ["DCI注册中心工作台", "申请接入"],
     expectOpened: "技术服务中心",
-    expectOpen: ["未开通", "已通过", "进入工作台"],
+    expectOpen: ["未开通", "已开通", "进入工作台"],
     noApplyTech: true,
   },
   {
@@ -43,7 +43,7 @@ const USERS = [
     expectMenu: ["账号中心", "DCI注册中心工作台", "技术服务中心工作台", "退出登录"],
     forbid: ["申请接入"],
     expectOpened: "DCI注册中心",
-    expectOpen: ["已通过", "进入工作台"],
+    expectOpen: ["已开通", "进入工作台"],
     noApplyTech: true,
   },
 ];
