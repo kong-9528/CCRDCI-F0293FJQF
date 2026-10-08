@@ -55,6 +55,29 @@ function QuotaValue({
   );
 }
 
+/** Mid-band motifs only — keep left greeting & right stats clear */
+const DESK_HERO_DECOR_HTML = `
+<svg class="hero-decor__hex" viewBox="0 0 160 140" fill="none" aria-hidden="true">
+  <path d="M40 28l22-12 22 12v24l-22 12-22-12V28z" stroke="currentColor" stroke-width="1.4" opacity=".85"/>
+  <path d="M84 40l22-12 22 12v24l-22 12-22-12V40z" stroke="currentColor" stroke-width="1.4" opacity=".72"/>
+  <path d="M62 66l22-12 22 12v24l-22 12-22-12V66z" stroke="currentColor" stroke-width="1.45" opacity=".8"/>
+  <path d="M40 28l22 12 22-12M62 66l22 12 22-12M84 40l0 24M62 54l0 24" stroke="currentColor" stroke-width="1.1" opacity=".45"/>
+  <circle cx="62" cy="40" r="2.4" fill="currentColor" opacity=".7"/>
+  <circle cx="106" cy="52" r="2.2" fill="currentColor" opacity=".6"/>
+  <circle cx="84" cy="78" r="2.6" fill="currentColor" opacity=".68"/>
+</svg>
+<svg class="hero-decor__radar" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+  <circle cx="70" cy="70" r="54" stroke="currentColor" stroke-width="1.2" opacity=".55"/>
+  <circle cx="70" cy="70" r="38" stroke="currentColor" stroke-width="1.2" opacity=".62"/>
+  <circle cx="70" cy="70" r="22" stroke="currentColor" stroke-width="1.25" opacity=".7"/>
+  <path d="M70 16v20M70 104v20M16 70h20M104 70h20" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+  <path d="M70 70L108 42" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".78"/>
+  <circle cx="70" cy="70" r="3.2" fill="currentColor" opacity=".75"/>
+  <circle cx="108" cy="42" r="3" fill="currentColor" opacity=".65"/>
+</svg>
+<span class="hero-decor__orb hero-decor__orb--mid"></span>
+`;
+
 export function DeskPage() {
   const hour = new Date().getHours();
   const greeting = greetingByHour(hour);
@@ -78,7 +101,12 @@ export function DeskPage() {
 
   return (
     <div className="a-stack c-desk">
-      <section className="c-desk-hero">
+      <section className="c-desk-hero" aria-label="工作台欢迎">
+        <div
+          className="hero-decor"
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: DESK_HERO_DECOR_HTML }}
+        />
         <div className="c-desk-hero__main">
           <h1 className="c-desk-hero__title">
             {greeting}，{orgName}

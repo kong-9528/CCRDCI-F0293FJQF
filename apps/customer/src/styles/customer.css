@@ -756,16 +756,120 @@ body,
   gap: 20px;
 }
 
+/* 对齐 home `/dashboard/index` .hero-banner 蓝底与装饰 */
 .c-desk-hero {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 32px;
   padding: 28px 32px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  border: none;
+  background:
+    radial-gradient(ellipse 70% 90% at 8% 20%, rgba(255, 255, 255, 0.14), transparent 55%),
+    radial-gradient(ellipse 55% 70% at 92% 78%, rgba(10, 40, 120, 0.35), transparent 60%),
+    linear-gradient(135deg, #1b53c0 0%, #2568e8 48%, #2a78f6 100%);
+  box-shadow: 0 8px 24px rgba(27, 83, 192, 0.22);
+}
+
+.c-desk-hero .hero-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  color: #fff;
+  overflow: hidden;
+  /* Fade hard on left/right text zones; keep motifs in mid band */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.35) 46%,
+    #000 52%,
+    #000 62%,
+    rgba(0, 0, 0, 0.35) 70%,
+    transparent 78%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.35) 46%,
+    #000 52%,
+    #000 62%,
+    rgba(0, 0, 0, 0.35) 70%,
+    transparent 78%,
+    transparent 100%
+  );
+}
+
+.c-desk-hero .hero-decor__orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(1px);
+}
+.c-desk-hero .hero-decor__orb--mid {
+  width: 160px;
+  height: 160px;
+  top: 50%;
+  left: 56%;
+  transform: translate(-50%, -50%);
+  opacity: 0.75;
+  animation: c-desk-hero-pulse 10s ease-in-out infinite;
+}
+
+/* Hex lattice — data / infrastructure (mid-upper) */
+.c-desk-hero .hero-decor__hex {
+  position: absolute;
+  width: 168px;
+  height: 146px;
+  top: 8%;
+  left: 54%;
+  transform: translateX(-40%);
+  opacity: 0.62;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4));
+  animation: c-desk-hero-float-y 11s ease-in-out infinite;
+}
+
+/* Radar scan — verification / sensing (mid-lower) */
+.c-desk-hero .hero-decor__radar {
+  position: absolute;
+  width: 132px;
+  height: 132px;
+  bottom: 4%;
+  left: 58%;
+  transform: translateX(-35%);
+  opacity: 0.58;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.45));
+  animation: c-desk-hero-spin-slow 36s linear infinite;
+}
+
+@keyframes c-desk-hero-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.7; }
+}
+@keyframes c-desk-hero-float-y {
+  0%, 100% { transform: translateX(-40%) translateY(0); }
+  50% { transform: translateX(-40%) translateY(-6px); }
+}
+@keyframes c-desk-hero-spin-slow {
+  from { transform: translateX(-35%) rotate(0deg); }
+  to { transform: translateX(-35%) rotate(360deg); }
+}
+
+.c-desk-hero__main,
+.c-desk-hero__stats {
+  position: relative;
+  z-index: 1;
+  text-shadow:
+    0 1px 2px rgba(8, 32, 90, 0.35),
+    0 0 18px rgba(20, 60, 140, 0.25);
 }
 
 .c-desk-hero__main {
@@ -782,7 +886,7 @@ body,
   font-size: 24px;
   font-weight: 700;
   line-height: 1.35;
-  color: #1f1f1f;
+  color: #fff;
   letter-spacing: -0.01em;
 }
 
@@ -791,7 +895,7 @@ body,
   max-width: 46em;
   font-size: 14px;
   line-height: 1.7;
-  color: #8c8c8c;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .c-desk-hero__stats {
@@ -818,17 +922,50 @@ body,
 }
 
 .c-desk-stat__value--primary {
-  color: #1890ff;
+  color: #fff;
 }
 
 .c-desk-stat__value--ok {
-  color: #52c41a;
+  color: #b7eb8f;
 }
 
 .c-desk-stat__label {
   font-size: 13px;
-  color: #8c8c8c;
+  color: rgba(255, 255, 255, 0.82);
   white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .c-desk-hero .hero-decor__hex { width: 120px; height: 104px; opacity: 0.45; }
+  .c-desk-hero .hero-decor__radar { width: 96px; height: 96px; opacity: 0.4; }
+  .c-desk-hero .hero-decor {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 20%,
+      rgba(0, 0, 0, 0.4) 40%,
+      #000 55%,
+      transparent 78%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 20%,
+      rgba(0, 0, 0, 0.4) 40%,
+      #000 55%,
+      transparent 78%,
+      transparent 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .c-desk-hero .hero-decor__hex,
+  .c-desk-hero .hero-decor__radar,
+  .c-desk-hero .hero-decor__orb {
+    animation: none !important;
+  }
 }
 
 .c-desk-section__head {

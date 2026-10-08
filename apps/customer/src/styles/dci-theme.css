@@ -748,11 +748,15 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-desk-hero {
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  background: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(27, 83, 192, 0.22);
+  background:
+    radial-gradient(ellipse 70% 90% at 8% 20%, rgba(255, 255, 255, 0.14), transparent 55%),
+    radial-gradient(ellipse 55% 70% at 92% 78%, rgba(10, 40, 120, 0.35), transparent 60%),
+    linear-gradient(135deg, #1b53c0 0%, #2568e8 48%, #2a78f6 100%);
   padding: 28px 32px;
+  color: #fff;
 }
 
 .theme-customer .c-desk-hero__eyebrow {
@@ -762,13 +766,13 @@ body.a-admin.theme-customer {
 .theme-customer .c-desk-hero__title {
   font-size: 24px;
   font-weight: 700;
-  color: #1f1f1f;
+  color: #fff;
   margin: 0;
 }
 
 .theme-customer .c-desk-hero__lead {
   margin: 10px 0 0;
-  color: #8c8c8c;
+  color: rgba(255, 255, 255, 0.88);
   font-size: 14px;
 }
 
@@ -802,18 +806,18 @@ body.a-admin.theme-customer {
 }
 
 .theme-customer .c-desk-stat__value--primary {
-  color: #1890ff;
+  color: #fff;
 }
 
 .theme-customer .c-desk-stat__value--ok {
-  color: #52c41a;
+  color: #b7eb8f;
 }
 
 .theme-customer .c-desk-stat__label {
   display: block;
   margin-top: 4px;
   font-size: 13px;
-  color: #8c8c8c;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .theme-customer .c-desk-svc {

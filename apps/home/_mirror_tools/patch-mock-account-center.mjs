@@ -300,7 +300,7 @@ mustReplace(
 mustReplace(
   HEADER,
   "q=A(()=>a.auditStatus===1),I=A(()=>a.regOrgName||\"\"),V=A(()=>!v.path.startsWith(\"/user\")&&v.path.startsWith(\"/dashboard\"))",
-  'q=A(()=>a.auditStatus===1),tt=A(()=>a.techStatus===1),I=A(()=>a.regOrgName||""),V=A(()=>!v.path.startsWith("/user")&&v.path.startsWith("/dashboard"))',
+  'q=A(()=>a.auditStatus===1),tt=A(()=>a.techStatus===1),I=A(()=>{const _n=String(a.name||a.nickName||"").toLowerCase();if(_n==="yachang")return"个人账号";try{const M=window.__DCI_MOCK__;const mu=M&&M.currentUser();if(mu&&String(mu.username||"").toLowerCase()==="yachang")return"个人账号"}catch(_e){}return a.regOrgName||""}),V=A(()=>!v.path.startsWith("/user")&&v.path.startsWith("/dashboard"))',
   "header tech computed",
 );
 
