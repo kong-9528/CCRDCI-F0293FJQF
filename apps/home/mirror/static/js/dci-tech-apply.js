@@ -184,7 +184,7 @@
       "点击上传" +
       '<input type="file" accept=".pdf,application/pdf" class="tech-file-input" hidden />' +
       "</label>" +
-      '<div class="upload-tip tech-upload-hint">仅支持 PDF 格式，单个文件不超过 10MB</div>' +
+      '<div class="upload-tip tech-upload-hint">请上传PDF格式合同文件</div>' +
       (list.length
         ? '<div class="file-list">' +
           list
