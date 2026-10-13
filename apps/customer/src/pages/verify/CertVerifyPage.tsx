@@ -340,7 +340,6 @@ export function CertVerifyPage() {
           {
             id: "records",
             label: "核验记录",
-            description: `默认近 ${CERT_DEFAULT_DAYS} 天`,
             content: (
               <div className="a-card">
                 <div className="a-toolbar">

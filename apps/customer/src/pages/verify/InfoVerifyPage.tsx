@@ -46,7 +46,14 @@ type Filters = {
   keyword: string;
   channel: string;
   status: string;
+  /** 核验记录筛选：空 = 全部业务类型 */
+  workType: string;
 };
+
+/** 列表合并列：只展示一个名字（著作权人或名称） */
+function formatInfoSubject(r: InfoVerifyResult) {
+  return r.owner.trim() || r.name.trim() || "—";
+}
 
 function InfoResultCard({ result }: { result: InfoVerifyResult }) {
   const ok = infoVerifyPassed(result.status);
@@ -86,6 +93,7 @@ export function InfoVerifyPage() {
     keyword: "",
     channel: "",
     status: "",
+    workType: "",
   });
   const [applied, setApplied] = useState<Filters>({ ...draft });
   const [page, setPage] = useState(1);
@@ -109,7 +117,6 @@ export function InfoVerifyPage() {
     setBatchOpen(false);
     setBatchRows([]);
     setBatchFileName(null);
-    setPage(1);
   };
 
   const setField = <K extends keyof InfoVerifyInput>(key: K, value: InfoVerifyInput[K]) => {
@@ -119,7 +126,7 @@ export function InfoVerifyPage() {
   const filtered = useMemo(() => {
     const kw = applied.keyword.trim().toLowerCase();
     return records.filter((r) => {
-      if (r.workType !== workType) return false;
+      if (applied.workType && r.workType !== applied.workType) return false;
       const day = r.verifiedAt.slice(0, 10);
       if (applied.from && day < applied.from) return false;
       if (applied.to && day > applied.to) return false;
@@ -137,7 +144,7 @@ export function InfoVerifyPage() {
       }
       return true;
     });
-  }, [records, workType, applied]);
+  }, [records, applied]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -260,6 +267,8 @@ export function InfoVerifyPage() {
                 setForm((p) => ({ ...p, owner: v, name: v }));
               }}
             />
+          </div>
+          <div className="c-dci-submit__actions">
             <button
               type="button"
               className="a-btn a-btn--primary"
@@ -303,7 +312,6 @@ export function InfoVerifyPage() {
           {
             id: "records",
             label: "核验记录",
-            description: `默认近 ${INFO_DEFAULT_DAYS} 天`,
             content: (
       <div className="a-card">
         <div className="a-toolbar">
@@ -324,6 +332,19 @@ export function InfoVerifyPage() {
                 onChange={(e) => setDraft((p) => ({ ...p, to: e.target.value }))}
               />
             </div>
+          </div>
+          <div className="a-field">
+            <span className="a-field__label">业务类型</span>
+            <select
+              className="a-select"
+              value={draft.workType}
+              onChange={(e) => setDraft((p) => ({ ...p, workType: e.target.value }))}
+            >
+              <option value="">全部</option>
+              <option value="software">{INFO_WORK_TYPE_LABEL.software}</option>
+              <option value="work">{INFO_WORK_TYPE_LABEL.work}</option>
+              <option value="dataset">{INFO_WORK_TYPE_LABEL.dataset}</option>
+            </select>
           </div>
           <div className="a-field">
             <span className="a-field__label">结果</span>
@@ -353,7 +374,7 @@ export function InfoVerifyPage() {
             <span className="a-field__label">关键词</span>
             <input
               className="a-input"
-              placeholder="登记号 / 名称 / 著作权人"
+              placeholder="登记号 / 著作权人 / 名称"
               value={draft.keyword}
               onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
             />
@@ -380,6 +401,7 @@ export function InfoVerifyPage() {
                   keyword: "",
                   channel: "",
                   status: "",
+                  workType: "",
                 };
                 setDraft(next);
                 setApplied(next);
@@ -397,9 +419,9 @@ export function InfoVerifyPage() {
               <thead>
                 <tr>
                   <th>核验时间</th>
+                  <th>业务类型</th>
                   <th>登记号</th>
-                  <th>著作权人</th>
-                  <th>{nameLabel}</th>
+                  <th>著作权人或名称</th>
                   <th>方式</th>
                   <th>结果</th>
                   {VERIFY_DETAIL_DRAWER_ENABLED ? <th>操作</th> : null}
@@ -413,42 +435,41 @@ export function InfoVerifyPage() {
                     </td>
                   </tr>
                 ) : (
-                  pageRows.map((r) => (
-                    <tr key={r.id}>
-                      <td>{r.verifiedAt}</td>
-                      <td>{r.regNo}</td>
-                      <td>
-                        <div className="a-cell-clamp" title={r.owner}>
-                          {r.owner}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="a-cell-clamp" title={r.name}>
-                          {r.name}
-                        </div>
-                      </td>
-                      <td>{r.channel}</td>
-                      <td>
-                        <span
-                          className={`a-tag ${infoVerifyPassed(r.status) ? "a-tag--ok" : "a-tag--er"}`}
-                        >
-                          {INFO_STATUS_LABEL[r.status]}
-                        </span>
-                      </td>
-                      {VERIFY_DETAIL_DRAWER_ENABLED ? (
-                        <td style={{ whiteSpace: "nowrap" }}>
-                          <button
-                            type="button"
-                            className="a-link-action"
-                            onClick={() => setDetail(r)}
-                          >
-                            <IconEye />
-                            详情
-                          </button>
+                  pageRows.map((r) => {
+                    const subject = formatInfoSubject(r);
+                    return (
+                      <tr key={r.id}>
+                        <td>{r.verifiedAt}</td>
+                        <td>{INFO_WORK_TYPE_LABEL[r.workType]}</td>
+                        <td>{r.regNo}</td>
+                        <td>
+                          <div className="a-cell-clamp" title={subject}>
+                            {subject}
+                          </div>
                         </td>
-                      ) : null}
-                    </tr>
-                  ))
+                        <td>{r.channel}</td>
+                        <td>
+                          <span
+                            className={`a-tag ${infoVerifyPassed(r.status) ? "a-tag--ok" : "a-tag--er"}`}
+                          >
+                            {INFO_STATUS_LABEL[r.status]}
+                          </span>
+                        </td>
+                        {VERIFY_DETAIL_DRAWER_ENABLED ? (
+                          <td style={{ whiteSpace: "nowrap" }}>
+                            <button
+                              type="button"
+                              className="a-link-action"
+                              onClick={() => setDetail(r)}
+                            >
+                              <IconEye />
+                              详情
+                            </button>
+                          </td>
+                        ) : null}
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

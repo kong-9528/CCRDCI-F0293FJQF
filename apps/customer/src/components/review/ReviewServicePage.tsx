@@ -153,7 +153,7 @@ export function ReviewServicePage({ product }: Props) {
                 <span className="c-usage-stats__label">服务状态</span>
                 <span className="c-usage-stats__value">{serviceStatusTag(serviceStatus)}</span>
               </div>
-              {!stopped && quota.expireAt ? (
+              {quota.expireAt ? (
                 <div className="c-usage-stats__row">
                   <span className="c-usage-stats__label">有效期</span>
                   <span className="c-usage-stats__value">{quota.expireAt}</span>
@@ -161,39 +161,35 @@ export function ReviewServicePage({ product }: Props) {
               ) : null}
             </div>
 
-            {!stopped ? (
-              <>
-                <div className="c-usage-stats__hero">
-                  <span className="c-usage-stats__hero-label">已用额度</span>
-                  <div className="c-usage-stats__hero-main">
-                    <strong className="c-usage-stats__hero-num">
-                      {formatReviewCount(quota.usedCount)}
-                    </strong>
-                    <span className="c-usage-stats__hero-unit">
-                      / {formatReviewCount(quota.quotaTotal)}
-                    </span>
-                  </div>
-                  {overQuota ? (
-                    <p className="c-usage-stats__hero-hint c-usage-stats__hero-hint--warn">
-                      已超出套餐额度，仍可继续提交审核任务
-                    </p>
-                  ) : null}
-                </div>
+            <div className="c-usage-stats__hero">
+              <span className="c-usage-stats__hero-label">已用额度</span>
+              <div className="c-usage-stats__hero-main">
+                <strong className="c-usage-stats__hero-num">
+                  {formatReviewCount(quota.usedCount)}
+                </strong>
+                <span className="c-usage-stats__hero-unit">
+                  / {formatReviewCount(quota.quotaTotal)}
+                </span>
+              </div>
+              {overQuota ? (
+                <p className="c-usage-stats__hero-hint c-usage-stats__hero-hint--warn">
+                  已超出套餐额度，仍可继续提交审核任务
+                </p>
+              ) : null}
+            </div>
 
-                <div className="c-usage-stats__bar-wrap">
-                  <div className="c-usage-stats__bar" aria-hidden>
-                    <div
-                      className={`c-usage-stats__fill${overQuota ? " is-over" : ""}`}
-                      style={{ width: `${Math.min(100, quota.quotaUsagePct)}%` }}
-                    />
-                  </div>
-                  <div className="c-usage-stats__bar-meta">
-                    使用率 {quota.quotaUsagePct.toFixed(1)}%
-                    {overQuota ? "（已超出，仍可继续调用）" : ""}
-                  </div>
-                </div>
-              </>
-            ) : null}
+            <div className="c-usage-stats__bar-wrap">
+              <div className="c-usage-stats__bar" aria-hidden>
+                <div
+                  className={`c-usage-stats__fill${overQuota ? " is-over" : ""}`}
+                  style={{ width: `${Math.min(100, quota.quotaUsagePct)}%` }}
+                />
+              </div>
+              <div className="c-usage-stats__bar-meta">
+                使用率 {quota.quotaUsagePct.toFixed(1)}%
+                {overQuota ? "（已超出，仍可继续调用）" : ""}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -202,7 +198,6 @@ export function ReviewServicePage({ product }: Props) {
           {
             id: "records",
             label: "审核记录",
-            description: `默认近 ${REVIEW_DEFAULT_DAYS} 天`,
             content: (
       <div className="a-card">
         <div className="a-toolbar">

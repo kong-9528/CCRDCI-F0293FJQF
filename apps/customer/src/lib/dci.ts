@@ -103,16 +103,8 @@ export function formatDciSubmitSummary(result: DciVerifyResult): string {
     return (result.queryName || "").trim() || "—";
   }
   const code = (result.dciCode || "").trim();
-  const owner = result.queryOwner.trim();
-  const name = result.queryName.trim();
-  let who = "";
-  if (owner && name && owner.toLowerCase() === name.toLowerCase()) {
-    who = owner;
-  } else if (owner && name) {
-    who = `${owner} / ${name}`;
-  } else {
-    who = owner || name;
-  }
+  // 单条提交为「著作权人或作品名称」合并字段，列表只展示一个名字
+  const who = result.queryOwner.trim() || result.queryName.trim();
   if (code && who) return `${code} · ${who}`;
   if (code) return code;
   if (who) return who;

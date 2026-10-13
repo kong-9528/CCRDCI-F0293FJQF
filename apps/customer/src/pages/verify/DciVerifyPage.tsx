@@ -752,7 +752,6 @@ export function DciVerifyPage() {
           {
             id: "records",
             label: "核验记录",
-            description: `默认近 ${DCI_DEFAULT_DAYS} 天`,
             content: (
               <div className="a-card">
                 <div className="a-toolbar">
@@ -883,7 +882,7 @@ export function DciVerifyPage() {
                                   <SubmitContentTipIcon />
                                 </span>
                                 <span className="c-dci-records-tip__bubble" role="tooltip">
-                                  DCI码/著作权人/作品名称/作品样本文件名/作品样本哈希值等
+                                  DCI码、著作权人或作品名称、作品样本文件名、作品样本哈希值等
                                 </span>
                               </span>
                             </span>
