@@ -108,7 +108,7 @@ export function createCustomer(
       { field: "账号", before: "—", after: row.account },
       { field: "机构名称", before: "—", after: row.companyName },
       {
-        field: "开通产品",
+        field: "开通技术服务",
         before: "—",
         after: row.productServices.map((s) => productName(s.product)).join("、") || "无",
       },
@@ -272,7 +272,7 @@ export function updateCustomerProductService(
   const before = cur.productServices.find((s) => s.product === product);
   if (!before) return "服务项不存在";
 
-  if (!patch.startDate || !patch.endDate) return "请填写产品有效期";
+  if (!patch.startDate || !patch.endDate) return "请填写技术服务有效期";
   if (patch.startDate > patch.endDate) return "有效期开始不能晚于结束";
 
   const total = patch.quotaTotal;
@@ -322,7 +322,7 @@ export function updateCustomerProductService(
     next,
     changes.length ? changes : [{ field: productName(product), before: "—", after: "已更新" }],
     "service",
-    "编辑产品服务项",
+    "编辑技术服务项",
   );
   return null;
 }
@@ -339,9 +339,9 @@ export function addCustomerProductService(
   const cur = getCustomerById(customerId);
   if (!cur) return "客户不存在";
   if (cur.productServices.some((s) => s.product === input.product)) {
-    return "该客户已开通此产品";
+    return "该客户已开通此技术服务";
   }
-  if (!input.startDate || !input.endDate) return "请填写产品有效期";
+  if (!input.startDate || !input.endDate) return "请填写技术服务有效期";
   if (input.startDate > input.endDate) return "有效期开始不能晚于结束";
 
   const quotaTotal = input.quotaTotal;
@@ -370,13 +370,13 @@ export function addCustomerProductService(
     next,
     [
       {
-        field: `产品·${productName(input.product)}`,
+        field: `技术服务·${productName(input.product)}`,
         before: "未开通",
         after: `${quotaLabel}｜${nextSvc.startDate}~${nextSvc.endDate}`,
       },
     ],
     "service",
-    "新增产品服务项",
+    "新增技术服务项",
   );
   return null;
 }
@@ -473,7 +473,7 @@ export function setCustomerProductStopped(
       },
     ],
     "service",
-    stopped ? "停止核验产品" : "恢复核验产品",
+    stopped ? "停止核验技术服务" : "恢复核验技术服务",
   );
   return true;
 }

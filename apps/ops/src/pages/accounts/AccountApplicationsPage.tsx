@@ -137,8 +137,8 @@ export function AccountApplicationsPage({ mode }: Props) {
   const isRejectedTab = showTabs && resultTab === "rejected";
   /** 待审核、不通过 tab 不展示产品筛选；仅我的/全部审核的通过 tab 保留 */
   const showProductFilter = isApprovedTab;
-  /** 不通过 tab 去掉申请账号；待审核与通过 tab 保留 */
-  const showAccountFilter = mode === "pending" || isApprovedTab;
+  /** 待审核 / 通过 / 不通过均保留申请账号搜索 */
+  const showAccountFilter = mode === "pending" || isApprovedTab || isRejectedTab;
   /** 全部审核 · 不通过：用审核人搜索替换申请账号位置 */
   const showReviewerFilter = mode === "all" && isRejectedTab;
   const showTimeFilter = mode === "pending" || isRejectedTab;
@@ -224,7 +224,8 @@ export function AccountApplicationsPage({ mode }: Props) {
   };
 
   const colSpan = (() => {
-    if (mode === "pending") return 7;
+    // 待审核：机构/组织机构代码/联系人/账号/合同/申请时间/状态/操作
+    if (mode === "pending") return 8;
     if (isApprovedTab) return mode === "all" ? 9 : 8;
     // 不通过：机构/组织机构代码/联系人/账号/提交时间/审核时间/不通过原因/[审核人]/操作（无状态）
     if (isRejectedTab) return mode === "all" ? 9 : 8;
@@ -298,13 +299,13 @@ export function AccountApplicationsPage({ mode }: Props) {
         ) : null}
         {showProductFilter ? (
           <div className="a-field">
-            <span className="a-field__label">产品</span>
+            <span className="a-field__label">技术服务</span>
             <select
               className="a-select"
               value={draft.product}
               onChange={(e) => setFilter("product", e.target.value)}
             >
-              <option value="">请选择产品</option>
+              <option value="">请选择技术服务</option>
               {CONFIGURABLE_PRODUCTS.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -346,7 +347,7 @@ export function AccountApplicationsPage({ mode }: Props) {
           <thead>
             <tr>
               <th>机构名称</th>
-              {mode !== "pending" ? <th className="a-table__col-credit">组织机构代码</th> : null}
+              <th className="a-table__col-credit">组织机构代码</th>
               <th>联系人姓名</th>
               <th>申请账号</th>
               {isApprovedTab ? <th>开通技术服务</th> : null}
@@ -374,9 +375,7 @@ export function AccountApplicationsPage({ mode }: Props) {
               pageRows.map((row) => (
                 <tr key={row.id}>
                   <td>{row.companyName}</td>
-                  {mode !== "pending" ? (
-                    <td className="a-table__col-credit">{row.creditCode}</td>
-                  ) : null}
+                  <td className="a-table__col-credit">{row.creditCode || "—"}</td>
                   <td>{row.contactName}</td>
                   <td>
                     <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
@@ -429,7 +428,7 @@ export function AccountApplicationsPage({ mode }: Props) {
         <div className="a-summary">
           当前筛选结果共 <b>{filtered.length}</b> 条
           {showProductFilter && applied.product
-            ? `，已筛选产品「${productName(applied.product as ProductCode)}」`
+            ? `，已筛选技术服务「${productName(applied.product as ProductCode)}」`
             : ""}
         </div>
 

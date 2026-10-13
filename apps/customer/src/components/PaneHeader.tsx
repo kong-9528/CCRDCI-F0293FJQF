@@ -6,8 +6,10 @@ type Props = {
   icon?: ReactNode;
   /** 右侧操作区（如 API 文档链接） */
   actions?: ReactNode;
-  /** 标题下方说明，左缘与标题文字对齐（32+12） */
+  /** 说明文案；默认在标题下方 */
   subtitle?: ReactNode;
+  /** 说明紧跟标题同一行（标题后面） */
+  subtitleInline?: boolean;
   as?: "h1" | "h2";
   className?: string;
 };
@@ -33,6 +35,7 @@ export function PaneHeader({
   icon,
   actions,
   subtitle,
+  subtitleInline = false,
   as: Tag = "h2",
   className,
 }: Props) {
@@ -44,10 +47,13 @@ export function PaneHeader({
             {icon ?? <DefaultDocIcon />}
           </div>
           <Tag className="c-pane-header__title">{title}</Tag>
+          {subtitle && subtitleInline ? (
+            <span className="c-pane-header__sub c-pane-header__sub--inline">{subtitle}</span>
+          ) : null}
         </div>
         {actions ? <div className="c-pane-header__actions">{actions}</div> : null}
       </div>
-      {subtitle ? <div className="c-pane-header__sub">{subtitle}</div> : null}
+      {subtitle && !subtitleInline ? <div className="c-pane-header__sub">{subtitle}</div> : null}
     </div>
   );
 }

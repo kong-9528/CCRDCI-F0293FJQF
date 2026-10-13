@@ -61,7 +61,7 @@ export function ProductVerifyOptions(props: Props) {
         }
       />
       <SubparamRow
-        label="产品使用方式"
+        label="使用方式"
         required={!readonly}
         control={
           readonly ? (

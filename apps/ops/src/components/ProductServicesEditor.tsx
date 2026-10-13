@@ -66,7 +66,7 @@ function ProductCombobox({
         aria-haspopup="listbox"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="a-combobox__value">{selectedLabel || "请选择产品"}</span>
+        <span className="a-combobox__value">{selectedLabel || "请选择技术服务"}</span>
         <span className="a-combobox__caret" aria-hidden>
           ▾
         </span>
@@ -160,8 +160,8 @@ export function ProductServicesEditor({
   return (
     <div className="a-stack a-product-services-editor">
       <div className="a-field__hint">
-        规则：产品额度仅在「产品有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
-        调用均不可再消耗。同一产品仅可配置一条。
+        规则：技术服务额度仅在「技术服务有效期内」可使用；过期后已用/剩余次数不清零，但页面核验与 API
+        调用均不可再消耗。同一技术服务仅可配置一条。
         {isEdit
           ? " 已有配置不可移除，可调整额度、有效期，或在操作列停止/恢复服务；本次新增的配置可移除。"
           : " 合同服务期仅用于提醒展示，不控制登录与调用。"}
@@ -170,7 +170,7 @@ export function ProductServicesEditor({
         <table className="a-table">
           <thead>
             <tr>
-              <th>产品</th>
+              <th>技术服务</th>
               <th>授权总量</th>
               {showUsed ? <th>已用</th> : null}
               <th>有效期</th>
@@ -216,7 +216,7 @@ export function ProductServicesEditor({
                             )
                           }
                         >
-                          <option value="">请选择产品</option>
+                          <option value="">请选择技术服务</option>
                           {options.map((p) => (
                             <option key={p.code} value={p.code}>
                               {p.name}

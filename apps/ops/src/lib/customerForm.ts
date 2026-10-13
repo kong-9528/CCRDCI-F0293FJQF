@@ -139,7 +139,7 @@ export function parseProductServices(
 
   if (effective.length === 0) {
     if (opts?.allowEmpty) return { ok: true, value: [] };
-    return { ok: false, error: "请至少配置一项产品服务" };
+    return { ok: false, error: "请至少配置一项技术服务" };
   }
 
   const seen = new Set<string>();
@@ -148,12 +148,12 @@ export function parseProductServices(
     const r = effective[i];
     const label = productRowLabel(r, i);
     if (!r.product) {
-      return { ok: false, error: `${label}：请选择产品` };
+      return { ok: false, error: `${label}：请选择技术服务` };
     }
     if (seen.has(r.product)) {
       return {
         ok: false,
-        error: `产品${label}只能配置一条`,
+        error: `技术服务${label}只能配置一条`,
       };
     }
     seen.add(r.product);
@@ -188,7 +188,7 @@ export function parseProductServices(
         return { ok: false, error: `${label}：请至少选择一项开通业务类型` };
       }
       if (r.usageChannels.length === 0) {
-        return { ok: false, error: `${label}：请至少选择一种产品使用方式` };
+        return { ok: false, error: `${label}：请至少选择一种技术服务使用方式` };
       }
     }
     const item: ProductServiceConfig = {
@@ -358,12 +358,12 @@ export function diffCustomer(
           ? `｜${formatBusinessTypes(a.businessTypes)}｜${formatUsageChannels(a.usageChannels)}`
           : "";
       push(
-        `产品·${name}`,
+        `技术服务·${name}`,
         "未开通",
         `${a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`}｜${a.startDate}~${a.endDate}${extra}`,
       );
     } else if (b && !a) {
-      push(`产品·${name}`, "已配置", "已移除");
+      push(`技术服务·${name}`, "已配置", "已移除");
     } else if (b && a) {
       const bq = b.quotaType === "unlimited" ? "不限量" : `授权总量${b.quotaTotal}`;
       const aq = a.quotaType === "unlimited" ? "不限量" : `授权总量${a.quotaTotal}`;
@@ -377,15 +377,15 @@ export function diffCustomer(
             }
           : null;
       push(
-        `产品·${name}`,
+        `技术服务·${name}`,
         `${bq}｜${b.startDate}~${b.endDate}${b.stopped ? "｜已停止" : ""}`,
         `${aq}｜${a.startDate}~${a.endDate}${a.stopped ? "｜已停止" : ""}`,
       );
       if (bizDiff && bizDiff.biz !== bizDiff.bizAfter) {
-        push(`产品·${name}·开通业务类型`, bizDiff.biz, bizDiff.bizAfter);
+        push(`技术服务·${name}·开通业务类型`, bizDiff.biz, bizDiff.bizAfter);
       }
       if (bizDiff && bizDiff.usage !== bizDiff.usageAfter) {
-        push(`产品·${name}·使用方式`, bizDiff.usage, bizDiff.usageAfter);
+        push(`技术服务·${name}·使用方式`, bizDiff.usage, bizDiff.usageAfter);
       }
     }
   }

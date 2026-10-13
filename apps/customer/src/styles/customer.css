@@ -6503,6 +6503,37 @@ body,
   white-space: pre-wrap;
 }
 
+.c-docs-lang-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.c-docs-lang-tabs__item {
+  appearance: none;
+  border: 1px solid var(--n-200, #e5e7eb);
+  background: #fff;
+  color: var(--n-600, #4b5563);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.c-docs-lang-tabs__item:hover {
+  border-color: #93c5fd;
+  color: #1449b2;
+}
+
+.c-docs-lang-tabs__item.is-active {
+  border-color: #1449b2;
+  background: #e6f1fc;
+  color: #1449b2;
+}
+
 /* ========== 页面超长滚动修复（覆盖 dci-theme / 前文旧规则） ==========
  * 根因：.a-main 作为 flex 容器时，子项 flex:1 + min-height:0 会把高度锁在视口内，
  * 再叠加 overflow:hidden 导致超长内容被裁切且无法滚动。

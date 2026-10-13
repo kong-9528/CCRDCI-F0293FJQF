@@ -32,7 +32,7 @@ export function ProductFormFields({ values, onChange, onToggleBusinessLine }: Pr
     <div className="a-product-form">
       <div className="a-product-form__row">
         <span className="a-product-form__label">
-          所属产品类别 <span className="a-req">*</span>
+          所属技术服务类别 <span className="a-req">*</span>
         </span>
         <div className="a-product-form__control">
           <select
@@ -54,14 +54,14 @@ export function ProductFormFields({ values, onChange, onToggleBusinessLine }: Pr
 
       <div className="a-product-form__row">
         <span className="a-product-form__label">
-          产品名称 <span className="a-req">*</span>
+        技术服务名称 <span className="a-req">*</span>
         </span>
         <div className="a-product-form__control">
           <input
             className="a-input a-product-form__input"
             value={values.name}
             onChange={(e) => onChange("name", e.target.value)}
-            placeholder="请输入产品名称"
+            placeholder="请输入技术服务名称"
           />
         </div>
       </div>
@@ -75,7 +75,7 @@ export function ProductFormFields({ values, onChange, onToggleBusinessLine }: Pr
             value={values.description}
             maxLength={PRODUCT_DESCRIPTION_MAX}
             onChange={(e) => onChange("description", e.target.value)}
-            placeholder="请输入产品服务说明，最多 2000 字"
+            placeholder="请输入技术服务说明，最多 2000 字"
           />
           <span className="a-field__hint a-field__hint--counter">
             还可输入 {descLeft} 字

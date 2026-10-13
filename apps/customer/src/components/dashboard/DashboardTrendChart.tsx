@@ -80,7 +80,7 @@ export function DashboardTrendChart() {
           series={series}
           labels={labels}
           labelStep={range === "30d" ? 5 : 1}
-          emptyText="请至少勾选一个产品"
+          emptyText="请至少勾选一个技术服务"
         />
       </div>
     </div>

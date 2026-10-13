@@ -83,7 +83,7 @@ export type ContractPeriodStatus = "pending" | "active" | "expired";
 export type QuotaType = "unlimited" | "total";
 
 /**
- * 产品服务配置。
+ * 技术服务配置。
  * - 额度仅在 startDate~endDate 内可消耗；过期后 usedCount / 剩余次数均不清零，但不可再调用（WebUI / API）。
  * - 合同服务期仅用于提醒与展示，不参与登录或调用控制。
  * - 账号能否登录仅取决于账号状态（启用/停用）。
@@ -1009,7 +1009,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     id: "log-2",
     customerId: "1",
     action: "service",
-    summary: "调整产品服务配置",
+    summary: "调整技术服务配置",
     changes: [
       { field: "DCI核验·额度", before: "总量 30000", after: "总量 50000" },
     ],
@@ -1040,7 +1040,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     id: "log-5",
     customerId: "3",
     action: "service",
-    summary: "停止产品服务",
+    summary: "停止技术服务",
     changes: [{ field: "作品智能辅助审核", before: "生效中", after: "已停止" }],
     operator: "运营管理员",
     at: "2026-05-28 16:40:00",
@@ -1061,7 +1061,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     id: "log-7",
     customerId: "2",
     action: "service",
-    summary: "调整产品服务配置",
+    summary: "调整技术服务配置",
     changes: [
       {
         field: "作品智能辅助审核·额度",

@@ -44,7 +44,7 @@ export function EditServiceDialog({
 
   const submit = () => {
     if (!startDate || !endDate) {
-      setError("请填写产品有效期");
+      setError("请填写有效期");
       return;
     }
     if (startDate > endDate) {
@@ -111,7 +111,7 @@ export function EditServiceDialog({
             </span>
           </div>
           <div className="a-desc__item">
-            <span className="a-desc__label">产品</span>
+            <span className="a-desc__label">技术服务</span>
             <span className="a-desc__value">{productName(service.product)}</span>
           </div>
           <div className="a-desc__item">
@@ -137,7 +137,7 @@ export function EditServiceDialog({
 
           <div className="a-field a-field--stack">
             <span className="a-field__label">
-              产品有效期 <span className="a-req">*</span>
+              有效期 <span className="a-req">*</span>
             </span>
             <div className="a-date-range">
               <input
@@ -157,7 +157,7 @@ export function EditServiceDialog({
           </div>
 
           <div className="a-field__hint">
-            授权总量仅在产品有效期内可消耗；过期后次数不清零，但不可再调用。
+            授权总量仅在技术服务有效期内可消耗；过期后次数不清零，但不可再调用。
           </div>
         </div>
 

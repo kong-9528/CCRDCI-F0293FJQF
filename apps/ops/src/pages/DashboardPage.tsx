@@ -1,18 +1,21 @@
 import { useMemo, useState } from "react";
 // import { Link } from "react-router-dom"; // 快速入口暂隐
 import { TrendChart, chartColor } from "@/components/TrendChart";
-import { SegmentedControl, TrendRangeToggle } from "@/components/StatsControls";
+import { SegmentedControl, TrendPeriodControls } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { PRODUCTS, isVerifyProduct, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
+  defaultTrendPeriod,
+  formatTrendBucketLabel,
   getStatsData,
+  listTrendBuckets,
   refreshStatsData,
-  sliceDates,
   sumApiCalls,
   sumCalls,
   sumPageSubmitCalls,
-  type TrendRange,
+  trendBucketKey,
+  type TrendPeriod,
 } from "@/lib/statsData";
 import { getCurrentUserPermissions } from "@/lib/usersStore";
 
@@ -25,8 +28,8 @@ const TAB_LABEL: Record<DashboardTab, string> = {
 };
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用机构数",
-  calls: "日调用次数",
+  activeAccounts: "调用机构数",
+  calls: "调用次数",
 };
 
 const VERIFY_PRODUCTS = PRODUCTS.filter((p) => p.category === "verify");
@@ -58,10 +61,14 @@ export function DashboardPage() {
   const showTrend = hasPerm(userPerms, ["stats.customers", "stats.products"]);
 
   const [tab, setTab] = useState<DashboardTab>("verify");
-  const [trendRange, setTrendRange] = useState<TrendRange>("7d");
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
 
-  const trendDates = sliceDates(trendRange);
+  const trendBuckets = useMemo(() => listTrendBuckets(trendPeriod), [trendPeriod]);
+  const trendLabels = useMemo(
+    () => trendBuckets.map((b) => formatTrendBucketLabel(b, trendPeriod.grain)),
+    [trendBuckets, trendPeriod.grain],
+  );
 
   /** 版权核验：概览按核验类产品汇总 */
   const verifyOverview = useMemo(() => {
@@ -124,17 +131,28 @@ export function DashboardPage() {
   const verifySeries = useMemo(() => {
     const out: { id: string; label: string; color: string; values: number[] }[] = [];
     let colorIdx = 0;
+    const grain = trendPeriod.grain;
 
     out.push({
       id: "total",
       label: "总量",
       color: chartColor(colorIdx++),
-      values: trendDates.map((date) => {
+      values: trendBuckets.map((bucket) => {
         const dayRows = data.productDays.filter(
-          (r) => r.date === date && isVerifyProduct(r.product),
+          (r) => trendBucketKey(r.date, grain) === bucket && isVerifyProduct(r.product),
         );
         if (trendMetric === "calls") return sumCalls(dayRows);
-        return dayRows.reduce((n, r) => n + (r.activeAccounts || 0), 0);
+        const ids = new Set(
+          data.accountProductDays
+            .filter(
+              (r) =>
+                trendBucketKey(r.date, grain) === bucket &&
+                isVerifyProduct(r.product) &&
+                r.calls > 0,
+            )
+            .map((r) => r.customerId),
+        );
+        return ids.size;
       }),
     });
 
@@ -143,40 +161,69 @@ export function DashboardPage() {
         id: p.code,
         label: p.name,
         color: chartColor(colorIdx++),
-        values: trendDates.map((date) => {
-          const day = data.productDays.find((r) => r.date === date && r.product === p.code);
-          if (!day) return 0;
-          return trendMetric === "calls" ? day.calls : day.activeAccounts;
+        values: trendBuckets.map((bucket) => {
+          const dayRows = data.productDays.filter(
+            (r) => trendBucketKey(r.date, grain) === bucket && r.product === p.code,
+          );
+          if (trendMetric === "calls") return sumCalls(dayRows);
+          const ids = new Set(
+            data.accountProductDays
+              .filter(
+                (r) =>
+                  trendBucketKey(r.date, grain) === bucket &&
+                  r.product === p.code &&
+                  r.calls > 0,
+              )
+              .map((r) => r.customerId),
+          );
+          return ids.size;
         }),
       });
     }
     return out;
-  }, [data, trendDates, trendMetric]);
+  }, [data, trendBuckets, trendMetric, trendPeriod.grain]);
 
   const auditSeries = useMemo(() => {
+    const grain = trendPeriod.grain;
     return [
       {
         id: "workReview",
         label: "作品智能辅助审核",
         color: chartColor(0),
-        values: trendDates.map((date) => {
+        values: trendBuckets.map((bucket) => {
           const dayRows = data.productDays.filter(
-            (r) => r.date === date && isAuditProduct(r.product),
+            (r) => trendBucketKey(r.date, grain) === bucket && isAuditProduct(r.product),
           );
           if (trendMetric === "calls") {
             const n = sumCalls(dayRows);
-            // 与核验总量拉开差距，避免两条业务线数字撞车
-            return n > 0 ? n : Math.max(8, Math.round(12 + (date.charCodeAt(8) || 0) % 20));
+            return n > 0
+              ? n
+              : Math.max(8, Math.round(12 + (bucket.charCodeAt(bucket.length - 1) || 0) % 20));
           }
-          const n = dayRows.reduce((sum, r) => sum + (r.activeAccounts || 0), 0);
-          return n > 0 ? n : Math.max(1, Math.round(2 + (date.charCodeAt(9) || 0) % 5));
+          const ids = new Set(
+            data.accountProductDays
+              .filter(
+                (r) =>
+                  trendBucketKey(r.date, grain) === bucket &&
+                  isAuditProduct(r.product) &&
+                  r.calls > 0,
+              )
+              .map((r) => r.customerId),
+          );
+          return ids.size > 0
+            ? ids.size
+            : Math.max(1, Math.round(2 + (bucket.charCodeAt(0) || 0) % 5));
         }),
       },
     ];
-  }, [data, trendDates, trendMetric]);
+  }, [data, trendBuckets, trendMetric, trendPeriod.grain]);
 
   const overviewMetrics = tab === "verify" ? verifyOverview : auditOverview;
   const series = tab === "verify" ? verifySeries : auditSeries;
+  const metricOptions = (["activeAccounts", "calls"] as TrendMetric[]).map((k) => ({
+    value: k,
+    label: TREND_METRIC_LABEL[k],
+  }));
 
   return (
     <div className="a-stack a-dash-page">
@@ -268,16 +315,13 @@ export function DashboardPage() {
               <SegmentedControl
                 value={trendMetric}
                 onChange={setTrendMetric}
-                options={(Object.keys(TREND_METRIC_LABEL) as TrendMetric[]).map((k) => ({
-                  value: k,
-                  label: TREND_METRIC_LABEL[k],
-                }))}
+                options={metricOptions}
               />
-              <TrendRangeToggle value={trendRange} onChange={setTrendRange} />
+              <TrendPeriodControls value={trendPeriod} onChange={setTrendPeriod} />
             </div>
           </div>
           <div className="a-card__body">
-            <TrendChart labels={trendDates} height={300} series={series} />
+            <TrendChart labels={trendLabels} height={300} series={series} />
           </div>
         </div>
       ) : null}

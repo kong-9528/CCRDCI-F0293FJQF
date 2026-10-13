@@ -114,12 +114,12 @@ function ApprovedServicesSection({ customerId }: { customerId?: string }) {
               <span className="a-tag a-tag--muted">{SERVICE_STATUS_LABEL[unitStatus]}</span>
             </div>
             {pkg.services.length === 0 ? (
-              <div className="a-field__hint">暂无核验产品</div>
+              <div className="a-field__hint">暂无核验技术服务</div>
             ) : (
               <table className="a-table a-table--compact">
                 <thead>
                   <tr>
-                    <th>核验产品</th>
+                    <th>核验技术服务</th>
                     <th>开通明细</th>
                     <th>每作品消耗</th>
                     <th>状态</th>
@@ -288,10 +288,7 @@ export function AccountApplicationPage({ mode }: Props) {
             <IconBack size={14} />
             返回
           </button>
-          <h1 className="o-app-review__title">
-            {pageTitle}
-            {statusTag(application.status)}
-          </h1>
+          <h1 className="o-app-review__title">{pageTitle}</h1>
         </div>
 
         <div className="a-card o-app-detail-page">

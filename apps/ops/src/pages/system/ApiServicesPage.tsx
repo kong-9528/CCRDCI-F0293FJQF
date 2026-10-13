@@ -249,23 +249,23 @@ export function ApiServicesPage() {
           />
         </div>
         <div className="a-field">
-          <span className="a-field__label">接口地址</span>
+          <span className="a-field__label">请求地址</span>
           <input
             className="a-input"
             style={{ minWidth: 220 }}
-            placeholder="请输入接口地址"
+            placeholder="请输入请求地址"
             value={draft.path}
             onChange={(e) => setFilter("path", e.target.value)}
           />
         </div>
         <div className="a-field">
-          <span className="a-field__label">关联产品</span>
+          <span className="a-field__label">关联技术服务</span>
           <select
             className="a-select"
             value={draft.product}
             onChange={(e) => setFilter("product", e.target.value)}
           >
-            <option value="">全部产品</option>
+            <option value="">全部技术服务</option>
             {PRODUCT_CODES.map((code) => (
               <option key={code} value={code}>
                 {PRODUCT_NAME[code]}
@@ -325,7 +325,7 @@ export function ApiServicesPage() {
               <th className="num" style={{ width: 56 }}>
                 序号
               </th>
-              <th>关联产品</th>
+              <th>关联技术服务</th>
               <th>关联目录</th>
               <th>接口名称</th>
               <th>请求地址</th>
@@ -351,12 +351,7 @@ export function ApiServicesPage() {
                     <td className="num">{(safePage - 1) * pageSize + index + 1}</td>
                     <td>{productLabel(row)}</td>
                     <td>{catalogLabel(row)}</td>
-                    <td>
-                      <div className="a-api-name">
-                        <span>{row.apiName}</span>
-                        <code className="a-api-name__code">{row.apiCode}</code>
-                      </div>
-                    </td>
+                    <td>{row.apiName}</td>
                     <td>
                       <code className="a-code a-code--link">{row.path}</code>
                     </td>

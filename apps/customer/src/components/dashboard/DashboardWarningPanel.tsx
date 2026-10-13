@@ -52,7 +52,7 @@ export function DashboardWarningPanel() {
       <div className="c-warn-panel__head">
         <div>
           <div className="c-warn-panel__title">预警提醒</div>
-          <div className="a-field__hint">产品服务状态实时监控</div>
+          <div className="a-field__hint">技术服务状态实时监控</div>
         </div>
         <span className="c-warn-panel__count">共 {total} 条预警</span>
       </div>

@@ -273,7 +273,7 @@ export function CustomerCreatePage() {
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">产品服务配置</h3>
+            <h3 className="a-form-section__title">技术服务配置</h3>
             <ProductServicesEditor
               rows={form.productServices}
               onChange={(rows) => set("productServices", rows)}

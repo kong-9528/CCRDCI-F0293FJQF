@@ -27,12 +27,40 @@ export const STATS_PERIOD_LABEL: Record<StatsPeriod, string> = {
 
 export type TrendRange = "7d" | "30d";
 
+/** 趋势 / 组合筛选：按月或按年 */
+export type TrendGrain = "month" | "year";
+
+export type TrendPeriod = {
+  grain: TrendGrain;
+  /** 按月 YYYY-MM；按年 YYYY */
+  start: string;
+  end: string;
+};
+
+export const TREND_GRAIN_LABEL: Record<TrendGrain, string> = {
+  month: "按月",
+  year: "按年",
+};
+
+export function isTrendPeriod(v: unknown): v is TrendPeriod {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    "grain" in v &&
+    ((v as TrendPeriod).grain === "month" || (v as TrendPeriod).grain === "year")
+  );
+}
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
 export function formatDate(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export function formatYearMonth(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 }
 
 export function daysAgo(n: number) {
@@ -48,6 +76,85 @@ export function dateRange(days: number): string[] {
     out.push(formatDate(daysAgo(i)));
   }
   return out;
+}
+
+/** 按月默认近 12 个月；按年默认近 5 年（均含当前）。默认粒度：按年 */
+export function defaultTrendPeriod(grain: TrendGrain = "year"): TrendPeriod {
+  const now = new Date();
+  now.setHours(12, 0, 0, 0);
+  if (grain === "year") {
+    const end = String(now.getFullYear());
+    const start = String(now.getFullYear() - 4);
+    return { grain, start, end };
+  }
+  const end = formatYearMonth(now);
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  return { grain, start: formatYearMonth(startDate), end };
+}
+
+export function trendBucketKey(date: string, grain: TrendGrain): string {
+  return grain === "year" ? date.slice(0, 4) : date.slice(0, 7);
+}
+
+export function formatTrendBucketLabel(bucket: string, grain: TrendGrain): string {
+  if (grain === "year") return bucket;
+  const [y, m] = bucket.split("-");
+  return y && m ? `${y}-${m}` : bucket;
+}
+
+export function formatTrendPeriodShort(period: TrendPeriod): string {
+  if (period.start === period.end) return period.start;
+  return `${period.start}～${period.end}`;
+}
+
+/** 自然月 / 自然年刻度列表（含起止） */
+export function listTrendBuckets(period: TrendPeriod): string[] {
+  const start = period.start <= period.end ? period.start : period.end;
+  const end = period.start <= period.end ? period.end : period.start;
+  const out: string[] = [];
+  if (period.grain === "year") {
+    let y = Number(start);
+    const endY = Number(end);
+    if (!Number.isFinite(y) || !Number.isFinite(endY)) return out;
+    while (y <= endY) {
+      out.push(String(y));
+      y += 1;
+    }
+    return out;
+  }
+  const [sy, sm] = start.split("-").map(Number);
+  const [ey, em] = end.split("-").map(Number);
+  if (!sy || !sm || !ey || !em) return out;
+  let y = sy;
+  let m = sm;
+  while (y < ey || (y === ey && m <= em)) {
+    out.push(`${y}-${pad(m)}`);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+  }
+  return out;
+}
+
+export function dailyDateInTrendPeriod(date: string, period: TrendPeriod): boolean {
+  const key = trendBucketKey(date, period.grain);
+  const start = period.start <= period.end ? period.start : period.end;
+  const end = period.start <= period.end ? period.end : period.start;
+  return key >= start && key <= end;
+}
+
+/** 演示用：近 30 日逐日 + 近 60 个月各取月中一日，覆盖按年/按月默认区间 */
+function mockStatDates(): string[] {
+  const set = new Set(dateRange(30));
+  const now = new Date();
+  now.setHours(12, 0, 0, 0);
+  for (let i = 0; i < 60; i += 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 15);
+    set.add(formatDate(d));
+  }
+  return [...set].sort();
 }
 
 function hash(str: string) {
@@ -111,7 +218,7 @@ export type ProductDayStat = {
  */
 function buildMock() {
   const customers = getCustomers();
-  const dates = dateRange(30);
+  const dates = mockStatDates();
   const accountDays: AccountDayStat[] = [];
   const accountProductDays: AccountProductDayStat[] = [];
   const productDays: ProductDayStat[] = [];
@@ -290,7 +397,7 @@ type StatsExportFilters = {
 function exportFilePrefix(
   scope: StatsScope,
   page: StatsExportPage,
-  period: StatsPeriod | TrendRange,
+  period: StatsPeriod | TrendRange | TrendPeriod,
 ) {
   const scopeTag = scope === "verify" ? "版权核验统计" : "审核统计";
   const pageTag =
@@ -303,6 +410,11 @@ function exportFilePrefix(
         : scope === "verify"
           ? "机构与技术服务"
           : "机构与审核能力";
+  if (isTrendPeriod(period)) {
+    const range =
+      period.start === period.end ? period.start : `${period.start}至${period.end}`;
+    return range ? `${scopeTag}_${pageTag}_${range}` : `${scopeTag}_${pageTag}`;
+  }
   const dates = sliceDates(period);
   const start = dates[0] ?? "";
   const end = dates[dates.length - 1] ?? start;
@@ -310,7 +422,10 @@ function exportFilePrefix(
   return range ? `${scopeTag}_${pageTag}_${range}` : `${scopeTag}_${pageTag}`;
 }
 
-function inPeriod(period: StatsPeriod | TrendRange) {
+function inPeriod(period: StatsPeriod | TrendRange | TrendPeriod) {
+  if (isTrendPeriod(period)) {
+    return (date: string) => dailyDateInTrendPeriod(date, period);
+  }
   const dates = new Set(sliceDates(period));
   return (date: string) => dates.has(date);
 }
@@ -334,7 +449,7 @@ function matchAccountQuery(
 export function exportStatsSummaryCsv(
   scope: StatsScope,
   page: StatsExportPage,
-  period: StatsPeriod | TrendRange,
+  period: StatsPeriod | TrendRange | TrendPeriod,
   filters?: StatsExportFilters,
 ) {
   const prefix = exportFilePrefix(scope, page, period);
@@ -467,7 +582,7 @@ export function exportStatsSummaryCsv(
 export function exportStatsDetailCsv(
   scope: StatsScope,
   page: StatsExportPage,
-  period: StatsPeriod | TrendRange,
+  period: StatsPeriod | TrendRange | TrendPeriod,
   filters?: StatsExportFilters,
 ) {
   const prefix = exportFilePrefix(scope, page, period);
@@ -706,7 +821,7 @@ function statsProductLabel(code: ProductCode) {
  * 只输出周期内日报中出现过的组合；配置里有开通但时段内无日报的组合不会出现。
  */
 export function buildAccountProductSummaries(
-  period: StatsPeriod,
+  period: StatsPeriod | TrendPeriod,
   filters?: {
     product?: ProductCode | "";
     /** @deprecated 请用 scope */
@@ -717,8 +832,8 @@ export function buildAccountProductSummaries(
 ): AccountProductSummary[] {
   const { accountProductDays, customers } = getStatsData();
   const customerById = new Map(customers.map((c) => [c.id, c]));
-  const dates = new Set(sliceDates(period));
-  const periodRows = accountProductDays.filter((r) => dates.has(r.date));
+  const keep = inPeriod(period);
+  const periodRows = accountProductDays.filter((r) => keep(r.date));
   const scope = filters?.scope ?? (filters?.category || undefined);
   const scopeCodes = scope ? new Set(statsProductCodesForScope(scope)) : null;
 
@@ -829,7 +944,9 @@ export function buildAccountProductSummaries(
   return summaries.sort((a, b) => b.calls - a.calls || a.account.localeCompare(b.account));
 }
 
-export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMatrix {
+export function buildAccountProductMatrix(
+  period: StatsPeriod | TrendPeriod,
+): AccountProductMatrix {
   const summaries = buildAccountProductSummaries(period);
   const accountMap = new Map<
     string,
@@ -873,15 +990,33 @@ export function buildAccountProductMatrix(period: StatsPeriod): AccountProductMa
 export function getAccountProductTrend(
   customerId: string,
   product: ProductCode,
-  period: StatsPeriod | TrendRange,
+  period: StatsPeriod | TrendRange | TrendPeriod,
 ) {
   const { accountProductDays } = getStatsData();
+  if (isTrendPeriod(period)) {
+    const buckets = listTrendBuckets(period);
+    return buckets.map((bucket) => {
+      const rows = accountProductDays.filter(
+        (r) =>
+          r.customerId === customerId &&
+          r.product === product &&
+          trendBucketKey(r.date, period.grain) === bucket,
+      );
+      return {
+        date: bucket,
+        label: formatTrendBucketLabel(bucket, period.grain),
+        calls: sumCalls(rows),
+        successRate: avgSuccessRate(rows),
+      };
+    });
+  }
   return sliceDates(period).map((date) => {
     const row = accountProductDays.find(
       (r) => r.date === date && r.customerId === customerId && r.product === product,
     );
     return {
       date,
+      label: date.slice(5),
       calls: row?.calls ?? 0,
       successRate: row?.successRate ?? 0,
     };
@@ -889,7 +1024,7 @@ export function getAccountProductTrend(
 }
 
 export function exportAccountProductSummaryCsv(
-  period: StatsPeriod,
+  period: StatsPeriod | TrendPeriod,
   filters?: Parameters<typeof buildAccountProductSummaries>[1],
 ) {
   const scope = filters?.scope ?? "verify";

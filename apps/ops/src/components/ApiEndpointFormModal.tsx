@@ -403,14 +403,14 @@ export function ApiEndpointFormModal({
 
             <div className="epf-field epf-field--full">
               <div className="epf-assoc__head">
-                <span className="epf-label">关联产品</span>
+                <span className="epf-label">关联技术服务</span>
                 <span className="epf-assoc__count">
                   {form.productCodes.length
                     ? `已选 ${form.productCodes.length}/${PRODUCT_CODES.length}`
                     : "未关联（可选）"}
                 </span>
               </div>
-              <div className="epf-chips" role="group" aria-label="关联产品">
+              <div className="epf-chips" role="group" aria-label="关联技术服务">
                 {PRODUCT_CODES.map((code) => {
                   const checked = form.productCodes.includes(code);
                   return (

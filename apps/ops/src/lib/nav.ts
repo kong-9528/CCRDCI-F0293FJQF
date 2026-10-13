@@ -34,7 +34,7 @@ export const OPS_NAV: NavGroup[] = [
       { to: "/accounts/all", label: "全部审核", ready: true },
       { to: "/accounts", label: "机构账号管理", ready: true, hidden: true },
       { to: "/customers", label: "机构账号列表", ready: true, hidden: true },
-      { to: "/customer-services", label: "服务产品管理", ready: true, hidden: true },
+      { to: "/customer-services", label: "技术服务管理", ready: true, hidden: true },
     ],
   },
   {

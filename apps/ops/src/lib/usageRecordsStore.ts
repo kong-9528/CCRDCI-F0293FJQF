@@ -111,7 +111,7 @@ export const INFO_WORK_TYPE_LABEL = {
   dataset: "数据作品",
 } as const;
 
-export const DCI_NAME_LABEL = "软件/作品/数据作品名称";
+export const DCI_NAME_LABEL = "作品名称";
 
 export const CERT_MISMATCH_LABEL: Record<CertMismatchField, string> = {
   certNo: "证书编号不一致",

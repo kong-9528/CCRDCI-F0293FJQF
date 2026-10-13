@@ -75,13 +75,13 @@ export function CustomerEditPage() {
       return;
     }
     setError(null);
-    const hasService = changes.some((c) => c.field.startsWith("产品·"));
+    const hasService = changes.some((c) => c.field.startsWith("技术服务·"));
     update(
       id,
       next,
       changes,
       hasService ? "service" : "edit",
-      hasService ? "调整产品服务配置" : "编辑客户信息",
+      hasService ? "调整技术服务配置" : "编辑客户信息",
     );
     navigate(`/customers/${id}`);
   };
@@ -197,7 +197,7 @@ export function CustomerEditPage() {
           </section>
 
           <section className="a-form-section">
-            <h3 className="a-form-section__title">产品服务配置</h3>
+            <h3 className="a-form-section__title">技术服务配置</h3>
             <ProductServicesEditor
               rows={form.productServices}
               onChange={(rows) => set("productServices", rows)}

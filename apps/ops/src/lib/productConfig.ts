@@ -31,7 +31,7 @@ export type PackageServiceFormRow = {
 
 /**
  * 核验服务：固定至多一个配置单元。
- * 额度/时间共享；其内可选 1~3 个核验产品。
+ * 额度/时间共享；其内可选 1~3 个核验技术服务。
  */
 export type PackageFormRow = {
   key: string;
@@ -185,7 +185,7 @@ export function customerToProductConfig(customer: CustomerAccount): ProductConfi
 
 function serviceLabel(row: PackageServiceFormRow, index: number) {
   if (row.product) return `「${productName(row.product)}」`;
-  return `第 ${index + 1} 项核验产品`;
+  return `第 ${index + 1} 项核验技术服务`;
 }
 
 export function parseServicePackages(
@@ -236,7 +236,7 @@ export function parseServicePackages(
 
   const filled = unit.services.filter((s) => Boolean(s.product));
   if (filled.length === 0) {
-    return { ok: false, error: `${label}：请至少添加一项核验产品` };
+    return { ok: false, error: `${label}：请至少添加一项核验技术服务` };
   }
 
   const seen = new Set<string>();
@@ -254,7 +254,7 @@ export function parseServicePackages(
     if (seen.has(svc.product)) {
       return {
         ok: false,
-        error: `核验产品「${productName(svc.product)}」不可重复配置`,
+        error: `核验技术服务「${productName(svc.product)}」不可重复配置`,
       };
     }
     seen.add(svc.product);
@@ -270,7 +270,7 @@ export function parseServicePackages(
       return { ok: false, error: `${sLabel}：请至少选择一项开通业务类型` };
     }
     if (svc.usageChannels.length === 0) {
-      return { ok: false, error: `${sLabel}：请至少选择一种产品使用方式` };
+      return { ok: false, error: `${sLabel}：请至少选择一种技术服务使用方式` };
     }
 
     services.push({

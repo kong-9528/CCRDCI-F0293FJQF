@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
+  TrendPeriodControls,
   TrendRangeToggle,
   SegmentedControl,
 } from "@/components/StatsControls";
@@ -9,14 +10,19 @@ import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { normalizeProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
+  defaultTrendPeriod,
   exportStatsDetailCsv,
   exportStatsSummaryCsv,
+  formatTrendBucketLabel,
   getStatsData,
+  listTrendBuckets,
   refreshStatsData,
   sliceDates,
   sumApiCalls,
   sumCalls,
   sumPageSubmitCalls,
+  trendBucketKey,
+  type TrendPeriod,
   type TrendRange,
 } from "@/lib/statsData";
 import {
@@ -28,8 +34,8 @@ import {
 type TrendMetric = "calls" | "activeAccounts";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  calls: "日调用次数",
-  activeAccounts: "日调用机构数",
+  calls: "调用次数",
+  activeAccounts: "调用机构数",
 };
 
 const TREND_METRIC_OPTIONS: TrendMetric[] = ["activeAccounts", "calls"];
@@ -49,7 +55,7 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
     return getStatsData();
   }, []);
 
-  const [trendRange, setTrendRange] = useState<TrendRange>("30d");
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
   const [page, setPage] = useState(1);
@@ -74,9 +80,15 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
   const pageSubmitCalls = sumPageSubmitCalls(scopedDays);
   const apiCalls = sumApiCalls(scopedDays);
 
-  const trendDates = sliceDates(trendRange);
-  const trendValues = trendDates.map((date) => {
-    const dayRows = scopedDays.filter((r) => r.date === date);
+  const trendBuckets = useMemo(() => listTrendBuckets(trendPeriod), [trendPeriod]);
+  const trendLabels = useMemo(
+    () => trendBuckets.map((b) => formatTrendBucketLabel(b, trendPeriod.grain)),
+    [trendBuckets, trendPeriod.grain],
+  );
+  const trendValues = trendBuckets.map((bucket) => {
+    const dayRows = scopedDays.filter(
+      (r) => trendBucketKey(r.date, trendPeriod.grain) === bucket,
+    );
     if (trendMetric === "calls") return sumCalls(dayRows);
     return new Set(dayRows.filter((r) => r.calls > 0).map((r) => r.customerId)).size;
   });
@@ -151,12 +163,12 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
                 label: TREND_METRIC_LABEL[k],
               }))}
             />
-            <TrendRangeToggle value={trendRange} onChange={setTrendRange} />
+            <TrendPeriodControls value={trendPeriod} onChange={setTrendPeriod} />
           </div>
         </div>
         <div className="a-card__body">
           <TrendChart
-            labels={trendDates}
+            labels={trendLabels}
             series={[
               {
                 id: "metric",

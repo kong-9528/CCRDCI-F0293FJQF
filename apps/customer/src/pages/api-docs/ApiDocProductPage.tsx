@@ -69,7 +69,7 @@ export function ApiDocProductPage() {
       <div className="a-card">
         <div className="a-card__head">API文档</div>
         <div className="a-card__body">
-          <div className="a-empty">未找到该产品文档</div>
+          <div className="a-empty">未找到该技术服务文档</div>
           <button type="button" className="a-btn" style={{ marginTop: 16 }} onClick={goBack}>
             返回
           </button>
@@ -89,7 +89,7 @@ export function ApiDocProductPage() {
         </div>
         <div className="a-card">
           <div className="a-card__body">
-            <div className="a-empty">该产品暂无已上线接口</div>
+            <div className="a-empty">该技术服务暂无已上线接口</div>
           </div>
         </div>
       </div>

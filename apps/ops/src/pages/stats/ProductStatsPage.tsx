@@ -3,20 +3,26 @@ import { Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import {
   SegmentedControl,
+  TrendPeriodControls,
   TrendRangeToggle,
 } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { normalizeProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
+  defaultTrendPeriod,
   exportStatsDetailCsv,
   exportStatsSummaryCsv,
+  formatTrendBucketLabel,
   getStatsData,
+  listTrendBuckets,
   refreshStatsData,
   sliceDates,
   sumApiCalls,
   sumCalls,
   sumPageSubmitCalls,
+  trendBucketKey,
+  type TrendPeriod,
   type TrendRange,
 } from "@/lib/statsData";
 import {
@@ -28,8 +34,8 @@ import {
 type TrendMetric = "activeAccounts" | "calls";
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
-  activeAccounts: "日调用机构数",
-  calls: "日调用次数",
+  activeAccounts: "调用机构数",
+  calls: "调用次数",
 };
 
 export function ProductStatsPage() {
@@ -47,7 +53,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
     return getStatsData();
   }, []);
 
-  const [trendRange, setTrendRange] = useState<TrendRange>("30d");
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
 
@@ -71,13 +77,28 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
     };
   });
 
-  const trendDates = sliceDates(trendRange);
+  const trendBuckets = useMemo(() => listTrendBuckets(trendPeriod), [trendPeriod]);
+  const trendLabels = useMemo(
+    () => trendBuckets.map((b) => formatTrendBucketLabel(b, trendPeriod.grain)),
+    [trendBuckets, trendPeriod.grain],
+  );
   const productTrendSeries = categoryProducts.map((p, idx) => {
-    const values = trendDates.map((date) => {
-      const row = data.productDays.find((r) => r.date === date && r.product === p.code);
-      if (!row) return 0;
-      if (trendMetric === "calls") return row.calls;
-      return row.activeAccounts;
+    const values = trendBuckets.map((bucket) => {
+      const rows = data.productDays.filter(
+        (r) => trendBucketKey(r.date, trendPeriod.grain) === bucket && r.product === p.code,
+      );
+      if (trendMetric === "calls") return sumCalls(rows);
+      const ids = new Set(
+        data.accountProductDays
+          .filter(
+            (r) =>
+              trendBucketKey(r.date, trendPeriod.grain) === bucket &&
+              r.product === p.code &&
+              r.calls > 0,
+          )
+          .map((r) => r.customerId),
+      );
+      return ids.size;
     });
     return {
       id: p.code,
@@ -86,7 +107,7 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
       values,
     };
   });
-  const allTrendValues = trendDates.map((_, i) =>
+  const allTrendValues = trendBuckets.map((_, i) =>
     productTrendSeries.reduce((sum, s) => sum + (s.values[i] ?? 0), 0),
   );
   const trendSeries = [
@@ -173,16 +194,16 @@ function ProductStatsBody({ scope }: { scope: StatsScope }) {
             <SegmentedControl
               value={trendMetric}
               onChange={setTrendMetric}
-              options={(Object.keys(TREND_METRIC_LABEL) as TrendMetric[]).map((k) => ({
+              options={(["activeAccounts", "calls"] as TrendMetric[]).map((k) => ({
                 value: k,
                 label: TREND_METRIC_LABEL[k],
               }))}
             />
-            <TrendRangeToggle value={trendRange} onChange={setTrendRange} />
+            <TrendPeriodControls value={trendPeriod} onChange={setTrendPeriod} />
           </div>
         </div>
         <div className="a-card__body">
-          <TrendChart labels={trendDates} series={trendSeries} />
+          <TrendChart labels={trendLabels} series={trendSeries} />
         </div>
       </div>
 

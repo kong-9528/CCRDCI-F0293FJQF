@@ -1126,6 +1126,15 @@ body.a-admin.theme-customer {
   line-height: 1.5;
 }
 
+.theme-customer .c-pane-header__sub--inline {
+  margin: 0 0 0 10px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 .theme-customer .c-verify-panel-head__title {
   font-size: 16px;
   font-weight: 600;

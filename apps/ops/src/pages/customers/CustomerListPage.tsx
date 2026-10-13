@@ -154,13 +154,13 @@ export function CustomerListPage() {
             />
           </div>
           <div className="a-field">
-            <span className="a-field__label">产品</span>
+            <span className="a-field__label">技术服务</span>
             <select
               className="a-select"
               value={draft.product}
               onChange={(e) => setFilter("product", e.target.value)}
             >
-              <option value="">请选择产品</option>
+              <option value="">请选择技术服务</option>
               {CONFIGURABLE_PRODUCTS.map((p) => (
                 <option key={p.code} value={p.code}>
                   {p.name}
@@ -235,7 +235,7 @@ export function CustomerListPage() {
                 <th>账号</th>
                 <th>机构名称</th>
                 <th>联系人姓名</th>
-                <th>开通产品</th>
+                <th>开通技术服务</th>
                 <th>账号状态</th>
                 <th>合同服务期</th>
                 <th>操作</th>

@@ -567,11 +567,11 @@ function ShowcasePanel({
 
       <div className="a-toolbar">
         <button type="button" className="a-btn a-btn--primary" onClick={openCreate}>
-          新增产品
+          新增技术服务
         </button>
         <div className="a-field__hint" style={{ margin: 0 }}>
-          对应门户首页产品卡片。卡片配图由「产品视觉」内置插画决定，无需上传。至少保留{" "}
-          <b>1</b> 个展示中产品（当前 {visibleCount} 个）。
+          对应门户首页技术服务卡片。卡片配图由「技术服务视觉」内置插画决定，无需上传。至少保留{" "}
+          <b>1</b> 个展示中技术服务（当前 {visibleCount} 个）。
         </div>
       </div>
 
@@ -646,7 +646,7 @@ function ShowcasePanel({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="a-modal__title">
-              {dialog === "create" ? "新增产品" : "编辑产品"}
+              {dialog === "create" ? "新增技术服务" : "编辑技术服务"}
             </h3>
             <p className="a-modal__desc">
               对齐门户产品展示卡片：产品视觉（内置插画）→ 标题 → 描述。

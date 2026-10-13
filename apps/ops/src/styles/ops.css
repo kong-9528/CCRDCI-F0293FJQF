@@ -1871,6 +1871,75 @@ body,
   min-width: 130px;
 }
 
+.a-date-range__sep {
+  color: var(--n-400);
+  font-size: var(--ad-fs-sm);
+  flex-shrink: 0;
+}
+
+.a-trend-period {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 去掉原生箭头（会叠在文字上），改用背景箭头并预留右侧空间 */
+.a-trend-period .a-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  min-width: 0 !important;
+  box-sizing: border-box;
+  padding: 0 22px 0 8px;
+  background-color: var(--n-0, #fff);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236b7280' d='M1.1.3a.75.75 0 0 1 1.06 0L5 3.14 7.84.3A.75.75 0 0 1 8.9 1.36L5.53 4.73a.75.75 0 0 1-1.06 0L1.1 1.36A.75.75 0 0 1 1.1.3z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 10px 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.a-trend-period__grain {
+  width: 76px;
+  height: var(--ad-ctrl-sm, 32px);
+}
+
+.a-trend-period__range {
+  gap: 4px;
+}
+
+.a-trend-period__input,
+.a-trend-period__input--year {
+  width: 82px;
+  height: var(--ad-ctrl-sm, 32px);
+}
+
+.a-trend-month {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.a-trend-month__year {
+  width: 82px;
+  height: var(--ad-ctrl-sm, 32px);
+}
+
+.a-trend-month__month {
+  width: 68px;
+  height: var(--ad-ctrl-sm, 32px);
+}
+
+.a-card__head .a-trend-period,
+.a-stats-ap-filters .a-trend-period {
+  margin-left: 0;
+}
+
+.a-stats-ap-filters__period .a-trend-period {
+  justify-content: flex-end;
+}
+
 .a-stack {
   display: flex;
   flex-direction: column;

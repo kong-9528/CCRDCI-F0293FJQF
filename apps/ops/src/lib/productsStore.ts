@@ -64,13 +64,13 @@ export type ProductSection = {
 };
 
 export const PRODUCT_SECTIONS: ProductSection[] = [
-  { id: "verify", title: "版权核验产品", category: "verify" },
-  { id: "audit", title: "智能辅助审核产品", category: "audit" },
+  { id: "verify", title: "版权核验技术服务", category: "verify" },
+  { id: "audit", title: "智能辅助审核技术服务", category: "audit" },
 ];
 
 export const CATEGORY_LABEL: Record<ProductCategory, string> = {
-  verify: "版权核验产品",
-  audit: "智能辅助审核产品",
+  verify: "版权核验技术服务",
+  audit: "智能辅助审核技术服务",
 };
 
 export function productListPath(category: ProductCategory): string {
@@ -159,7 +159,7 @@ export function resolveProductName(code: string): string {
 
 function normalizeProductFields(input: ProductCreateInput | ProductUpdateInput) {
   const name = input.name.trim();
-  if (!name) throw new Error("请填写产品名称");
+  if (!name) throw new Error("请填写技术服务名称");
   if (input.description.length > PRODUCT_DESCRIPTION_MAX) {
     throw new Error(`服务说明不能超过 ${PRODUCT_DESCRIPTION_MAX} 字`);
   }
@@ -195,7 +195,7 @@ export function createProduct(input: ProductCreateInput): ManagedProduct {
 /** 更新产品信息，不改动上下架与服务方式开关 */
 export function updateProduct(code: string, input: ProductUpdateInput): ManagedProduct {
   const idx = products.findIndex((p) => p.code === code);
-  if (idx < 0) throw new Error("产品不存在");
+  if (idx < 0) throw new Error("技术服务不存在");
   const fields = normalizeProductFields(input);
   const next: ManagedProduct = {
     ...products[idx],

@@ -231,7 +231,7 @@ export function CatalogListModal({ open, onClose }: Props) {
         title="确认删除目录"
         description={
           confirmDelete
-            ? `确定删除目录「${confirmDelete.name}」吗？已关联的接口将移除该目录；若无剩余目录会回退到产品默认目录。`
+            ? `确定删除目录「${confirmDelete.name}」吗？已关联的接口将移除该目录；若无剩余目录会回退到技术服务默认目录。`
             : ""
         }
         confirmText="删除"

@@ -145,15 +145,15 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
       return;
     }
     if (!form.product) {
-      setError("请选择产品");
+      setError("请选择技术服务");
       return;
     }
     if (openedProducts.has(form.product)) {
-      setError("该产品已开通，请选择其他产品");
+      setError("该技术服务已开通，请选择其他技术服务");
       return;
     }
     if (!form.startDate || !form.endDate) {
-      setError("请填写产品有效期");
+      setError("请填写技术服务有效期");
       return;
     }
     if (form.startDate > form.endDate) {
@@ -187,10 +187,10 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <h3 id="add-service-title" className="a-modal__title">
-          新增产品服务
+          新增技术服务
         </h3>
         <p className="a-modal__desc">
-          为已有机构账号开通产品。开通后不可移除，仅可编辑额度 / 有效期或启停。
+          为已有机构账号开通技术服务。开通后不可移除，仅可编辑额度 / 有效期或启停。
         </p>
 
         <div className="a-form a-form--modal a-form--stack">
@@ -264,7 +264,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
 
           <div className="a-field a-field--stack">
             <span className="a-field__label">
-              产品 <span className="a-req">*</span>
+            技术服务 <span className="a-req">*</span>
             </span>
             <div className="a-combobox" ref={productRef}>
               <button
@@ -275,7 +275,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
                 onClick={toggleProduct}
               >
                 <span className="a-combobox__value">
-                  {selectedProductLabel || "请选择产品"}
+                  {selectedProductLabel || "请选择技术服务"}
                 </span>
                 <span className="a-combobox__caret" aria-hidden>
                   ▾
@@ -315,7 +315,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
               <div className="a-field__hint a-field__hint--warn">请先选择账号</div>
             ) : null}
             {form.customerId && openedProducts.size >= CONFIGURABLE_PRODUCTS.length ? (
-              <div className="a-field__hint">该账号已开通全部产品</div>
+              <div className="a-field__hint">该账号已开通全部技术服务</div>
             ) : null}
           </div>
 
@@ -340,7 +340,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
 
           <div className="a-field a-field--stack">
             <span className="a-field__label">
-              产品有效期 <span className="a-req">*</span>
+              有效期 <span className="a-req">*</span>
             </span>
             <div className="a-date-range">
               <input

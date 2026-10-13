@@ -25,8 +25,8 @@ export function ProductServiceTags({ services }: Props) {
             className={`a-tag${expired ? " a-tag--muted" : " a-tag--cyan"}`}
             title={
               expired
-                ? `产品有效期已到期（${svc.startDate} ~ ${svc.endDate}）`
-                : `产品有效期 ${svc.startDate} ~ ${svc.endDate}`
+                ? `技术服务已到期（${svc.startDate} ~ ${svc.endDate}）`
+                : `技术服务有效期 ${svc.startDate} ~ ${svc.endDate}`
             }
           >
             {productName(svc.product)}

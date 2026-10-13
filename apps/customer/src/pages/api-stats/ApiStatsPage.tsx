@@ -226,6 +226,7 @@ export function ApiStatsPage() {
         title="调用统计"
         icon={<PaneIconChart />}
         subtitle="查看接口调用总数与最近30天调用趋势"
+        subtitleInline
       />
 
       <div className="c-stats-service-tabs" role="tablist" aria-label="服务类型">

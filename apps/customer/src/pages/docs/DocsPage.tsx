@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PaneHeader } from "@/components/PaneHeader";
 import {
+  DOCS_CALL_LANGS,
+  DOCS_HIDDEN_CATALOG_IDS,
   DOCS_OVERVIEW,
   DOCS_TABS,
   DOCS_VERSIONS,
+  buildDocsCallExamples,
   resolveDocsTab,
   type DocsTabKey,
 } from "@/lib/docs";
@@ -13,9 +16,14 @@ import {
   listApiDocCatalogs,
   listOnlineByCatalog,
   subscribeApiCatalog,
+  type ApiDocCatalog,
   type ApiEndpoint,
   type ApiParam,
 } from "@ctp/api-catalog";
+
+function visibleDocsCatalogs(list: ApiDocCatalog[] = listApiDocCatalogs()) {
+  return list.filter((c) => !DOCS_HIDDEN_CATALOG_IDS.has(c.id));
+}
 
 function ParamTable({
   rows,
@@ -52,6 +60,41 @@ function ParamTable({
         </tbody>
       </table>
     </div>
+  );
+}
+
+function ApiCallExamplePanel({ api }: { api: ApiEndpoint }) {
+  const [lang, setLang] = useState(DOCS_CALL_LANGS[0].id);
+  const examples = useMemo(
+    () =>
+      buildDocsCallExamples({
+        method: api.method,
+        path: api.path,
+        exampleRequest: api.exampleRequest,
+      }),
+    [api.method, api.path, api.exampleRequest],
+  );
+  const code = examples[lang] ?? examples[DOCS_CALL_LANGS[0].id] ?? "";
+
+  return (
+    <section className="c-docs-block">
+      <h3 className="c-docs-block__title">调用示例</h3>
+      <div className="c-docs-lang-tabs" role="tablist" aria-label="调用示例语言">
+        {DOCS_CALL_LANGS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={lang === item.id}
+            className={`c-docs-lang-tabs__item${lang === item.id ? " is-active" : ""}`}
+            onClick={() => setLang(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <pre className="c-docs-code">{code}</pre>
+    </section>
   );
 }
 
@@ -160,17 +203,16 @@ function ApiAccordionItem({
             <ParamTable rows={responseParams} />
           </section>
 
-          {api.exampleRequest || api.exampleResponse ? (
-            <section className="c-docs-block">
-              <h3 className="c-docs-block__title">调用 / 响应示例</h3>
-              {api.exampleRequest ? (
-                <pre className="c-docs-code">{api.exampleRequest}</pre>
-              ) : null}
-              {api.exampleResponse ? (
-                <pre className="c-docs-code">{api.exampleResponse}</pre>
-              ) : null}
-            </section>
-          ) : null}
+          <ApiCallExamplePanel api={api} />
+
+          <section className="c-docs-block">
+            <h3 className="c-docs-block__title">响应示例</h3>
+            {api.exampleResponse?.trim() ? (
+              <pre className="c-docs-code">{api.exampleResponse}</pre>
+            ) : (
+              <div className="c-docs-empty">暂无响应示例</div>
+            )}
+          </section>
         </div>
       ) : null}
     </article>
@@ -217,7 +259,7 @@ export function DocsPage() {
   const [tick, setTick] = useState(0);
   useEffect(() => subscribeApiCatalog(() => setTick((n) => n + 1)), []);
 
-  const catalogs = listApiDocCatalogs();
+  const catalogs = visibleDocsCatalogs();
 
   const initialTab = (): DocsTabKey => {
     if (catalogFromQuery && catalogs.some((c) => c.id === catalogFromQuery)) {
@@ -236,7 +278,7 @@ export function DocsPage() {
   const [openApiId, setOpenApiId] = useState<string | null>(null);
 
   useEffect(() => {
-    const list = listApiDocCatalogs();
+    const list = visibleDocsCatalogs();
     if (catalogFromQuery && list.some((c) => c.id === catalogFromQuery)) {
       setActiveTab("interfaces");
       setActiveCatalogId(catalogFromQuery);

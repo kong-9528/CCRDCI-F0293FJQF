@@ -32,7 +32,7 @@ export function ApiDocsOverviewPage() {
       <div className="c-apidoc-overview-head">
         <h1 className="c-apidoc-overview-head__title">API接口文档</h1>
         <p className="c-apidoc-overview-head__sub">
-          技术服务中心 · 全部产品接口文档 · 共 {total} 个已上线接口
+          技术服务中心 · 全部技术服务接口文档 · 共 {total} 个已上线接口
         </p>
       </div>
       <div className="c-apidoc-grid">

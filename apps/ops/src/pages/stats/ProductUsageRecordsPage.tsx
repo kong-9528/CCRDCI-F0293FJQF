@@ -606,7 +606,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
                 <th>机构名称</th>
                 <th>核验时间</th>
                 <th>DCI码</th>
-                <th>软件/作品/数据作品名称</th>
+                <th>作品名称</th>
                 <th>著作权人</th>
                 <th>方式</th>
                 <th>结果</th>

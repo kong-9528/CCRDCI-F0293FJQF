@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { TrendChart, chartColor } from "@/components/TrendChart";
-import { StatsPeriodToggle } from "@/components/StatsControls";
+import { TrendPeriodControls } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
 import { type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
-  STATS_PERIOD_LABEL,
   buildAccountProductSummaries,
+  defaultTrendPeriod,
   exportStatsDetailCsv,
   exportStatsSummaryCsv,
   getAccountProductTrend,
@@ -17,7 +17,7 @@ import {
   sumCalls,
   sumPageSubmitCalls,
   type AccountProductSummary,
-  type StatsPeriod,
+  type TrendPeriod,
 } from "@/lib/statsData";
 import {
   isStatsScope,
@@ -93,7 +93,8 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
   const serviceFilterLabel = isAudit ? "审核能力" : "技术服务";
   const entityLabel = isAudit ? "审核能力" : "技术服务";
   const comboHint = isAudit ? "机构×审核能力" : "机构×技术服务";
-  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
+  const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -110,8 +111,8 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
 
   // summaries：筛选条件下、日报中出现过的全部「账号×产品」汇总（含调用为 0）
   const summaries = useMemo(
-    () => buildAccountProductSummaries(statsPeriod, filters),
-    [statsPeriod, filters, data],
+    () => buildAccountProductSummaries(trendPeriod, filters),
+    [trendPeriod, filters, data],
   );
 
   /** Step1：Top N 组合（按调用量）；仅用于圈定矩阵账号与趋势默认系列 */
@@ -183,13 +184,13 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
 
   const trendSeries = useMemo(() => {
     if (selection) {
-      const points = getAccountProductTrend(selection.customerId, selection.product, statsPeriod);
+      const points = getAccountProductTrend(selection.customerId, selection.product, trendPeriod);
       return {
-        labels: points.map((p) => p.date.slice(5)),
+        labels: points.map((p) => p.label ?? p.date),
         series: [
           {
             id: "calls",
-            label: "日调用次数",
+            label: "调用次数",
             color: chartColor(0),
             values: points.map((p) => p.calls),
           },
@@ -203,8 +204,8 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
     const labels = getAccountProductTrend(
       topPairs[0]!.customerId,
       topPairs[0]!.product,
-      statsPeriod,
-    ).map((p) => p.date.slice(5));
+      trendPeriod,
+    ).map((p) => p.label ?? p.date);
     const trendTitle = hasActiveFilters
       ? `调用量 TOP${TREND_TOP_COMBO_LIMIT} 组合趋势（当前筛选 Top ${Math.min(TREND_TOP_COMBO_LIMIT, summaries.length)} / 共 ${summaries.length}）`
       : `调用量 TOP${TREND_TOP_COMBO_LIMIT} 组合趋势`;
@@ -214,13 +215,13 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
         id: `${row.customerId}-${row.product}`,
         label: `${row.account}·${row.productLabel}`,
         color: chartColor(idx),
-        values: getAccountProductTrend(row.customerId, row.product, statsPeriod).map(
+        values: getAccountProductTrend(row.customerId, row.product, trendPeriod).map(
           (p) => p.calls,
         ),
       })),
       title: trendTitle,
     };
-  }, [selection, topPairs, statsPeriod, hasActiveFilters, summaries.length]);
+  }, [selection, topPairs, trendPeriod, hasActiveFilters, summaries.length]);
 
   const totalPages = Math.max(1, Math.ceil(summaries.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -232,7 +233,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
     setPage(1);
     setSelection((prev) => {
       if (!prev) return null;
-      const nextSummaries = buildAccountProductSummaries(statsPeriod, {
+      const nextSummaries = buildAccountProductSummaries(trendPeriod, {
         scope,
         product: serviceFilter,
         accountQuery: nextQuery,
@@ -278,11 +279,11 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       ? [
           { label: "开通组合", value: summaries.length.toLocaleString() },
           {
-            label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
+            label: "有调用组合",
             value: activePairs.toLocaleString(),
           },
           {
-            label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
+            label: "调用次数",
             value: totalCalls.toLocaleString(),
           },
           {
@@ -293,11 +294,11 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       : [
           { label: "开通组合", value: summaries.length.toLocaleString() },
           {
-            label: `${STATS_PERIOD_LABEL[statsPeriod]}有调用组合`,
+            label: "有调用组合",
             value: activePairs.toLocaleString(),
           },
           {
-            label: `${STATS_PERIOD_LABEL[statsPeriod]}调用次数`,
+            label: "调用次数",
             value: totalCalls.toLocaleString(),
           },
         ];
@@ -365,11 +366,12 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
             </button>
           </div>
           <div className="a-stats-ap-filters__period">
-            <StatsPeriodToggle
-              value={statsPeriod}
+            <TrendPeriodControls
+              value={trendPeriod}
               onChange={(v) => {
-                setStatsPeriod(v);
+                setTrendPeriod(v);
                 setPage(1);
+                setSelection(null);
               }}
             />
           </div>
@@ -522,7 +524,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
               type="button"
               className="a-btn a-btn--sm"
               onClick={() =>
-                exportStatsSummaryCsv(scope, "account-products", statsPeriod, {
+                exportStatsSummaryCsv(scope, "account-products", trendPeriod, {
                   product: serviceFilter,
                   accountQuery: appliedQuery,
                 })
@@ -534,7 +536,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
               type="button"
               className="a-btn a-btn--sm a-btn--primary"
               onClick={() =>
-                exportStatsDetailCsv(scope, "account-products", statsPeriod, {
+                exportStatsDetailCsv(scope, "account-products", trendPeriod, {
                   product: serviceFilter,
                   accountQuery: appliedQuery,
                 })
@@ -551,15 +553,14 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
                 <th>账号</th>
                 <th>机构</th>
                 <th>{entityLabel}</th>
-                <th>{STATS_PERIOD_LABEL[statsPeriod]}调用次数</th>
+                <th>调用次数</th>
                 {scope === "verify" ? <th>页面 / API</th> : null}
-                <th>服务状态</th>
               </tr>
             </thead>
             <tbody>
               {pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={scope === "verify" ? 6 : 5}>
+                  <td colSpan={scope === "verify" ? 5 : 4}>
                     <div className="a-empty">暂无数据</div>
                   </td>
                 </tr>
@@ -589,13 +590,6 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
                         {`${row.pageSubmitCalls.toLocaleString()} / ${row.apiCalls.toLocaleString()}`}
                       </td>
                     ) : null}
-                    <td>
-                      <span
-                        className={`a-tag${row.serviceStatus === "使用中" ? " a-tag--ok" : row.serviceStatus === "已停止" ? " a-tag--er" : " a-tag--muted"}`}
-                      >
-                        {row.serviceStatus}
-                      </span>
-                    </td>
                   </tr>
                 ))
               )}
