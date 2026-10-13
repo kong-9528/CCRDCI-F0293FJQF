@@ -123,7 +123,7 @@ export function CustomerCreatePage() {
               </div>
               <div className="a-field">
                 <span className="a-field__label">
-                  联系人手机号 <span className="a-req">*</span>
+                  手机号码 <span className="a-req">*</span>
                 </span>
                 <input
                   className="a-input"

@@ -135,7 +135,7 @@ export function CustomerDetailPage() {
                   <span className="a-desc__value">{customer.contactName}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">联系人手机号</span>
+                  <span className="a-desc__label">手机号码</span>
                   <span className="a-desc__value">{customer.contactPhone}</span>
                 </div>
               </div>

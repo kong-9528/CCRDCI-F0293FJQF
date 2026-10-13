@@ -175,8 +175,8 @@ export function isValidMobile(phone: string) {
 export function validateOnboardingForm(form: OnboardingFormInput): string | null {
   if (!form.companyName.trim()) return "请填写机构名称";
   if (!form.contactName.trim()) return "请填写联系人";
-  if (!form.contactPhone.trim()) return "请填写联系人手机号";
-  if (!isValidMobile(form.contactPhone)) return "联系人手机号格式不正确";
+  if (!form.contactPhone.trim()) return "请填写手机号码";
+  if (!isValidMobile(form.contactPhone)) return "手机号码格式不正确";
   if (!form.address.trim()) return "请填写机构地址";
   if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
     return "组织机构代码格式不正确";

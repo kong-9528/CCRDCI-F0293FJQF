@@ -90,9 +90,9 @@ export function validateAccountDraft(form: AccountProfileDraft): string | null {
   if (form.contractStart > form.contractEnd) return "合同结束日期不能早于开始日期";
   if (form.contractFiles.length === 0) return "请至少上传一份合同附件";
   if (!form.contactName.trim()) return "请填写联系人";
-  if (!form.contactPhone.trim()) return "请填写联系人手机号";
+  if (!form.contactPhone.trim()) return "请填写手机号码";
   if (!/^1\d{10}$/.test(form.contactPhone.replace(/[\s-]/g, ""))) {
-    return "联系人手机号格式不正确";
+    return "手机号码格式不正确";
   }
   return null;
 }

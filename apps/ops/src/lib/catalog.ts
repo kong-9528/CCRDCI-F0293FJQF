@@ -1022,7 +1022,7 @@ export const MOCK_OP_LOGS: CustomerOpLog[] = [
     action: "edit",
     summary: "编辑客户联系信息",
     changes: [
-      { field: "联系人手机号", before: "13800000000", after: "13800001111" },
+      { field: "手机号码", before: "13800000000", after: "13800001111" },
     ],
     operator: "运营管理员",
     at: "2026-08-01 14:20:00",

@@ -198,7 +198,7 @@ export function ApplyOnboardingPage() {
                 <span className="a-desc__value">{viewApp.contactName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">联系人手机号</span>
+                <span className="a-desc__label">手机号码</span>
                 <span className="a-desc__value">{viewApp.contactPhone}</span>
               </div>
             </div>
@@ -286,7 +286,7 @@ export function ApplyOnboardingPage() {
                   onChange={(e) => set("contactName", e.target.value)}
                 />
               </Field>
-              <Field label="联系人手机号" required>
+              <Field label="手机号码" required>
                 <input
                   className="a-input"
                   inputMode="tel"

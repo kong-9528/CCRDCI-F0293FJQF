@@ -221,10 +221,10 @@ export function validateCustomerForm(
   }
   if (!form.companyName.trim()) return "请填写机构名称";
   if (!form.contactName.trim()) return "请填写联系人";
-  if (!form.contactPhone.trim()) return "请填写联系人手机号";
+  if (!form.contactPhone.trim()) return "请填写手机号码";
   const phone = form.contactPhone.replace(/[\s-]/g, "");
   if (!/^1\d{10}$/.test(phone)) {
-    return "联系人手机号格式不正确";
+    return "手机号码格式不正确";
   }
   if (mode === "create") {
     if (!form.contractNo.trim()) return "请输入合同编号";
@@ -333,7 +333,7 @@ export function diffCustomer(
   };
 
   push("联系人", before.contactName, after.contactName);
-  push("联系人手机号", before.contactPhone, after.contactPhone);
+  push("手机号码", before.contactPhone, after.contactPhone);
   push("机构地址", before.address, after.address);
   push(
     "合同总金额",
