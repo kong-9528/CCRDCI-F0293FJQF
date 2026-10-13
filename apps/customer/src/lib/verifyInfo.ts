@@ -231,7 +231,7 @@ const SEED: Omit<InfoVerifyResult, "id">[] = [
     workType: "software",
     regNo: "2024SR999999",
     name: "未知软件",
-    owner: "某公司",
+    owner: "某机构",
     status: "not_found",
     verifiedAt: daysAgo(7),
     channel: "WebUI",

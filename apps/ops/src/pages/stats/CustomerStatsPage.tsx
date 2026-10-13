@@ -214,7 +214,7 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
               <tr>
                 <th>排名</th>
                 <th>账号</th>
-                <th>公司名称</th>
+                <th>机构名称</th>
                 <th>联系人</th>
                 <th>调用次数</th>
               </tr>

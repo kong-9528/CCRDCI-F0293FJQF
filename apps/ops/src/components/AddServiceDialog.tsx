@@ -223,7 +223,7 @@ export function AddServiceDialog({ open, customers, onCancel, onSave }: Props) {
                     <input
                       ref={searchRef}
                       className="a-input"
-                      placeholder="输入账号或公司名称搜索"
+                      placeholder="输入账号或机构名称搜索"
                       value={accountQuery}
                       onChange={(e) => setAccountQuery(e.target.value)}
                       onClick={(e) => e.stopPropagation()}
