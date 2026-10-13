@@ -622,7 +622,8 @@
         {
           id: "mock-apply-doc-tip-1",
           dciCode: tipCode,
-          dciStatus: "1",
+          // 查询结果标签：仅「撤销」或无标签；演示默认无标签
+          dciStatus: "",
           caseName: tipKeyword,
           caseCategoryCode: "01",
           dciApplyTime: "2026-07-01 10:28:36",
@@ -671,11 +672,8 @@
         ]);
       }
       if (path.indexOf("dci_status") >= 0) {
-        return ok([
-          { dictLabel: "已审理", dictValue: "1" },
-          { dictLabel: "已撤销", dictValue: "2" },
-          { dictLabel: "审理中", dictValue: "0" },
-        ]);
+        // 查询页标签仅「撤销」一种展示态；其它状态不映射标签
+        return ok([{ dictLabel: "撤销", dictValue: "2" }]);
       }
       return ok([]);
     }
