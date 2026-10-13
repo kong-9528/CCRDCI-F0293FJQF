@@ -95,7 +95,7 @@ export function EditServiceDialog({
             <span className="a-desc__value">{customer.companyName}</span>
           </div>
           <div className="a-desc__item">
-            <span className="a-desc__label">统一社会信用代码</span>
+            <span className="a-desc__label">组织机构代码</span>
             <span className="a-desc__value">{customer.creditCode}</span>
           </div>
           <div className="a-desc__item">

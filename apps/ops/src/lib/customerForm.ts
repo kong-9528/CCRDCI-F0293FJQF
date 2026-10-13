@@ -217,10 +217,10 @@ export function validateCustomerForm(
   opts?: { accountTaken?: boolean },
 ): string | null {
   if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
-    return "统一社会信用代码格式不正确";
+    return "组织机构代码格式不正确";
   }
   if (!form.companyName.trim()) return "请填写机构名称";
-  if (!form.contactName.trim()) return "请填写联系人姓名";
+  if (!form.contactName.trim()) return "请填写联系人";
   if (!form.contactPhone.trim()) return "请填写联系人手机号";
   const phone = form.contactPhone.replace(/[\s-]/g, "");
   if (!/^1\d{10}$/.test(phone)) {
@@ -332,9 +332,9 @@ export function diffCustomer(
     if (a !== b) changes.push({ field, before: a || "—", after: b || "—" });
   };
 
-  push("联系人姓名", before.contactName, after.contactName);
+  push("联系人", before.contactName, after.contactName);
   push("联系人手机号", before.contactPhone, after.contactPhone);
-  push("联系地址", before.address, after.address);
+  push("机构地址", before.address, after.address);
   push(
     "合同总金额",
     before.contractAmount == null ? "" : String(before.contractAmount),

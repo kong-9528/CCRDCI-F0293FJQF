@@ -180,11 +180,11 @@ export function ApplyOnboardingPage() {
                 <span className="a-desc__value">{viewApp.companyName}</span>
               </div>
               <div className="a-desc__item">
-                <span className="a-desc__label">统一社会信用代码</span>
+                <span className="a-desc__label">组织机构代码</span>
                 <span className="a-desc__value">{viewApp.creditCode || "—"}</span>
               </div>
               <div className="a-desc__item a-desc__item--wide">
-                <span className="a-desc__label">联系地址</span>
+                <span className="a-desc__label">机构地址</span>
                 <span className="a-desc__value">{viewApp.address || "—"}</span>
               </div>
             </div>
@@ -194,7 +194,7 @@ export function ApplyOnboardingPage() {
             <h3 className="a-form-section__title">联系信息</h3>
             <div className="a-desc">
               <div className="a-desc__item">
-                <span className="a-desc__label">联系人姓名</span>
+                <span className="a-desc__label">联系人</span>
                 <span className="a-desc__value">{viewApp.contactName}</span>
               </div>
               <div className="a-desc__item">
@@ -257,7 +257,7 @@ export function ApplyOnboardingPage() {
                   placeholder="请输入机构名称"
                 />
               </Field>
-              <Field label="统一社会信用代码">
+              <Field label="组织机构代码">
                 <input
                   className="a-input"
                   value={form.creditCode}
@@ -265,12 +265,12 @@ export function ApplyOnboardingPage() {
                   placeholder="选填，企业请填写"
                 />
               </Field>
-              <Field label="联系地址" required>
+              <Field label="机构地址" required>
                 <input
                   className="a-input"
                   value={form.address}
                   onChange={(e) => set("address", e.target.value)}
-                  placeholder="请输入联系地址"
+                  placeholder="请输入机构地址"
                 />
               </Field>
             </div>
@@ -279,7 +279,7 @@ export function ApplyOnboardingPage() {
           <section className="a-form-section">
             <h3 className="a-form-section__title">联系信息</h3>
             <div className="a-form-grid">
-              <Field label="联系人姓名" required>
+              <Field label="联系人" required>
                 <input
                   className="a-input"
                   value={form.contactName}

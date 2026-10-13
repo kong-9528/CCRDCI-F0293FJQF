@@ -300,7 +300,7 @@ export function AccountEditPage() {
                   className="a-input"
                   value={draft.contactName}
                   onChange={(e) => set("contactName", e.target.value)}
-                  placeholder="请输入联系人姓名"
+                  placeholder="请输入联系人"
                 />
               </EditRow>
               <EditRow label="手机号码" required>

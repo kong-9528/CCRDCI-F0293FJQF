@@ -57,7 +57,7 @@ export function ProductManagePage() {
           <table className="a-table">
             <thead>
               <tr>
-                <th>产品名称</th>
+                <th>技术服务名称</th>
                 <th>上线状态</th>
               </tr>
             </thead>

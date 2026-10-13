@@ -139,7 +139,7 @@ export function CustomerListPage() {
             <input
               className="a-input"
               style={{ minWidth: 220 }}
-              placeholder="请输入机构名称或统一社会信用代码"
+              placeholder="请输入机构名称或组织机构代码"
               value={draft.customer}
               onChange={(e) => setFilter("customer", e.target.value)}
             />
@@ -148,7 +148,7 @@ export function CustomerListPage() {
             <span className="a-field__label">联系人</span>
             <input
               className="a-input"
-              placeholder="请输入联系人姓名"
+              placeholder="请输入联系人"
               value={draft.contact}
               onChange={(e) => setFilter("contact", e.target.value)}
             />
@@ -234,7 +234,7 @@ export function CustomerListPage() {
               <tr>
                 <th>账号</th>
                 <th>机构名称</th>
-                <th>联系人姓名</th>
+                <th>联系人</th>
                 <th>开通技术服务</th>
                 <th>账号状态</th>
                 <th>合同服务期</th>

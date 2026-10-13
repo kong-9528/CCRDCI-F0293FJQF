@@ -22,7 +22,7 @@ export type OnboardingApplication = {
   id: string;
   /** draft：已填写/撤回后待提交；pending：审核中；rejected：已驳回 */
   status: "draft" | "pending" | "rejected";
-  /** 统一社会信用代码（选填，仅企业通常有） */
+  /** 组织机构代码（选填，仅企业通常有） */
   creditCode: string;
   companyName: string;
   contactName: string;
@@ -174,12 +174,12 @@ export function isValidMobile(phone: string) {
 
 export function validateOnboardingForm(form: OnboardingFormInput): string | null {
   if (!form.companyName.trim()) return "请填写机构名称";
-  if (!form.contactName.trim()) return "请填写联系人姓名";
+  if (!form.contactName.trim()) return "请填写联系人";
   if (!form.contactPhone.trim()) return "请填写联系人手机号";
   if (!isValidMobile(form.contactPhone)) return "联系人手机号格式不正确";
-  if (!form.address.trim()) return "请填写联系地址";
+  if (!form.address.trim()) return "请填写机构地址";
   if (form.creditCode.trim() && form.creditCode.trim().length < 8) {
-    return "统一社会信用代码格式不正确";
+    return "组织机构代码格式不正确";
   }
   if (!form.contractNo.trim()) return "请填写合同编号";
   if (!form.contractStart || !form.contractEnd) return "请填写合同起止日期";

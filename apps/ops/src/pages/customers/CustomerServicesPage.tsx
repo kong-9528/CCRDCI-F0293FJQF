@@ -181,7 +181,7 @@ export function CustomerServicesPage() {
                 <tr>
                   <th>账号</th>
                   <th>机构名称</th>
-                  <th>联系人姓名</th>
+                  <th>联系人</th>
                   <th>技术服务</th>
                   <th>授权总量</th>
                   <th>服务状态</th>

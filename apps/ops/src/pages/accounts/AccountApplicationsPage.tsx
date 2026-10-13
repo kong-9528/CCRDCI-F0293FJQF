@@ -348,7 +348,7 @@ export function AccountApplicationsPage({ mode }: Props) {
             <tr>
               <th>机构名称</th>
               <th className="a-table__col-credit">组织机构代码</th>
-              <th>联系人姓名</th>
+              <th>联系人</th>
               <th>申请账号</th>
               {isApprovedTab ? <th>开通技术服务</th> : null}
               {mode === "pending" || isApprovedTab ? (

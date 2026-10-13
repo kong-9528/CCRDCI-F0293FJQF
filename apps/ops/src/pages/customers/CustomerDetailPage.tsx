@@ -123,15 +123,15 @@ export function CustomerDetailPage() {
                   <span className="a-desc__value">{customer.companyName}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">统一社会信用代码</span>
+                  <span className="a-desc__label">组织机构代码</span>
                   <span className="a-desc__value">{customer.creditCode || "—"}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">联系地址</span>
+                  <span className="a-desc__label">机构地址</span>
                   <span className="a-desc__value">{customer.address || "—"}</span>
                 </div>
                 <div className="a-desc__item">
-                  <span className="a-desc__label">联系人姓名</span>
+                  <span className="a-desc__label">联系人</span>
                   <span className="a-desc__value">{customer.contactName}</span>
                 </div>
                 <div className="a-desc__item">

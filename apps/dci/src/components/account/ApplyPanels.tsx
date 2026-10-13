@@ -299,7 +299,7 @@ export function RegistryApplyPanel() {
 
             <ApplySection title="联系人信息">
               <ApplyField label="联系人" required>
-                <input value={form.contactName} disabled={readOnly} onChange={(e) => set("contactName", e.target.value)} placeholder="请输入联系人姓名" />
+                <input value={form.contactName} disabled={readOnly} onChange={(e) => set("contactName", e.target.value)} placeholder="请输入联系人" />
               </ApplyField>
               <ApplyField label="手机号码" required>
                 <input
@@ -373,14 +373,14 @@ export function TechApplyPanel() {
   const validate = () => {
     if (!form.companyName.trim()) return "请输入机构名称";
     if (!form.orgCode.trim()) return "请输入组织机构代码";
-    if (!form.companyAddress.trim()) return "请输入联系地址";
+    if (!form.companyAddress.trim()) return "请输入机构地址";
     if (!form.inviteCode.trim()) return "请输入邀请码";
     if (!form.cooperationField.trim()) return "请输入合作领域";
     if (!form.contractStart) return "请选择合同开始日期";
     if (!form.contractEnd) return "请选择合同结束日期";
     if (form.contractEnd < form.contractStart) return "合同结束日期不能早于开始日期";
     if (!form.contractFileName.trim()) return "请上传合同附件";
-    if (!form.contactName.trim()) return "请输入联系人姓名";
+    if (!form.contactName.trim()) return "请输入联系人";
     if (!/^1\d{10}$/.test(form.contactPhone)) return "请输入正确的联系人电话";
     return null;
   };
@@ -467,12 +467,12 @@ export function TechApplyPanel() {
                   placeholder="请输入组织机构代码"
                 />
               </ApplyField>
-              <ApplyField label="联系地址" required>
+              <ApplyField label="机构地址" required>
                 <input
                   value={form.companyAddress}
                   disabled={readOnly}
                   onChange={(e) => set("companyAddress", e.target.value)}
-                  placeholder="请输入联系地址"
+                  placeholder="请输入机构地址"
                 />
               </ApplyField>
               <ApplyField label="邀请码" required>
@@ -520,8 +520,8 @@ export function TechApplyPanel() {
             </ApplySection>
 
             <ApplySection title="联系人信息">
-              <ApplyField label="联系人姓名" required>
-                <input value={form.contactName} disabled={readOnly} onChange={(e) => set("contactName", e.target.value)} placeholder="请输入联系人姓名" />
+              <ApplyField label="联系人" required>
+                <input value={form.contactName} disabled={readOnly} onChange={(e) => set("contactName", e.target.value)} placeholder="请输入联系人" />
               </ApplyField>
               <ApplyField label="联系人电话" required>
                 <input

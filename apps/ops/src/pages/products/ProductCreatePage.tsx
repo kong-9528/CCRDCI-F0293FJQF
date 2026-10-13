@@ -50,7 +50,7 @@ export function ProductCreatePage() {
   const submit = () => {
     setError(null);
     if (!form.name.trim()) {
-      setError("请填写产品名称");
+      setError("请填写技术服务名称");
       return;
     }
     if (form.businessLines.length === 0) {

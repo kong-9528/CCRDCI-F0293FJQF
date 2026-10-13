@@ -20,7 +20,7 @@ export type RegistryApplyForm = {
 
 export type TechApplyForm = {
   companyName: string;
-  /** 组织机构代码（原统一社会信用代码） */
+  /** 组织机构代码（原组织机构代码） */
   orgCode: string;
   companyAddress: string;
   inviteCode: string;
