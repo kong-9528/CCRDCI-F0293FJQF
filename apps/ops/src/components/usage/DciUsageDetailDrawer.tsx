@@ -7,9 +7,9 @@ import {
   VerifyFailReasons,
 } from "@/components/usage/VerifyDetailShared";
 import {
-  DCI_NAME_LABEL,
   INFO_WORK_TYPE_LABEL,
   copyText,
+  dciSubmittedFieldRows,
   formatDciFailReasons,
   type DciUsageRecord,
 } from "@/lib/usageRecordsStore";
@@ -26,6 +26,7 @@ export function DciUsageDetailDrawer({ open, record, onClose, onToast }: Props) 
 
   const ok = record.detailStatus === "pass";
   const failReasons = formatDciFailReasons(record);
+  const submittedRows = dciSubmittedFieldRows(record);
 
   const copyCode = async () => {
     const done = await copyText(record.verifyCode);
@@ -96,20 +97,18 @@ export function DciUsageDetailDrawer({ open, record, onClose, onToast }: Props) 
 
         <div className="c-cert-detail__section-bar">提交信息</div>
         <dl className="c-cert-detail__meta">
-          <div className="c-cert-detail__row">
-            <dt>DCI 码</dt>
-            <dd>
-              <code>{record.dciCode}</code>
-            </dd>
-          </div>
-          <div className="c-cert-detail__row">
-            <dt>著作权人</dt>
-            <dd>{record.queryOwner || "—"}</dd>
-          </div>
-          <div className="c-cert-detail__row">
-            <dt>{DCI_NAME_LABEL}</dt>
-            <dd>{record.queryName || "—"}</dd>
-          </div>
+          {submittedRows.map((row) => (
+            <div key={row.field} className="c-cert-detail__row">
+              <dt>{row.label}</dt>
+              <dd>
+                {row.field === "dciCode" || row.field === "hash" ? (
+                  <code>{row.value}</code>
+                ) : (
+                  row.value
+                )}
+              </dd>
+            </div>
+          ))}
         </dl>
 
         <DetailDisclaimer />

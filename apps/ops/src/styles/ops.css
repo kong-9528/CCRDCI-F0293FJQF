@@ -4300,6 +4300,60 @@ body,
   background: transparent;
 }
 
+/*
+ * 产品使用记录页：把滚动下放到卡片内部，避免长 DCI 码撑宽表格后
+ * 主内容区 overflow-x:hidden + overflow-y:auto 组合失效无法纵向滚动。
+ */
+.theme-ops .a-content:has(> .a-usage-records-page) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.theme-ops .a-content > .a-usage-records-page {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.theme-ops .a-usage-records-page > .a-tabs,
+.theme-ops .a-usage-records-page > .a-toolbar,
+.theme-ops .a-usage-records-page > .a-list-footer {
+  flex-shrink: 0;
+}
+
+.theme-ops .a-usage-records-page > .a-card__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-ops .a-usage-records-page .a-table {
+  width: 100%;
+}
+
+.theme-ops .a-usage-records-page__submit {
+  max-width: 28vw;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.theme-ops .a-usage-records-page__submit-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
+}
+
 /* ?????????????? card ???????? */
 .theme-ops .a-content > .a-toolbar {
   border: var(--c-card-border, 1px solid #e8e8e8);

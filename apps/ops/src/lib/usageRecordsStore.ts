@@ -25,6 +25,9 @@ export type DciMismatchField = "owner" | "name";
 export type InfoMismatchField = "name" | "owner";
 export type CertMismatchField = "certNo" | "workName" | "owner";
 
+/** 与 customer 端对齐：DCI 码核验 / 上传作品样本 / 输入作品哈希 */
+export type DciVerifyKind = "code" | "sample_file" | "sample_hash";
+
 /** 详情态：fail 含 not_found，列表筛选仍用 pass|fail */
 export type DciDetailStatus = "pass" | "not_found" | "fail";
 export type InfoDetailStatus = "match" | "mismatch" | "not_found";
@@ -46,9 +49,13 @@ export type DciUsageRecord = AccountRef & {
   verifiedAt: string;
   dciCode: string;
   workType: UsageWorkType;
+  /** 码核验：与 queryOwner 同为「著作权人/作品名称」；样本哈希：存哈希值；样本文件：可与 fileName 一致 */
   queryName: string;
   queryOwner: string;
   channel: UsageChannel;
+  verifyKind: DciVerifyKind;
+  /** 上传作品样本时的文件名（暂不提供预览） */
+  fileName?: string;
   /** 列表/筛选：pass | fail（fail 含 not_found） */
   status: "pass" | "fail";
   detailStatus: DciDetailStatus;
@@ -112,6 +119,54 @@ export const INFO_WORK_TYPE_LABEL = {
 } as const;
 
 export const DCI_NAME_LABEL = "作品名称";
+export const DCI_SUBJECT_LABEL = "著作权人/作品名称";
+
+export function isSampleVerifyKind(kind: DciVerifyKind): boolean {
+  return kind === "sample_file" || kind === "sample_hash";
+}
+
+/** 列表「提交内容」摘要（对齐 customer /verify/dci） */
+export function formatDciSubmitSummary(result: DciUsageRecord): string {
+  if (result.verifyKind === "sample_file") {
+    return (result.fileName || result.queryName || "").trim() || "—";
+  }
+  if (result.verifyKind === "sample_hash") {
+    return (result.queryName || "").trim() || "—";
+  }
+  const code = (result.dciCode || "").trim();
+  const who = (result.queryOwner || result.queryName || "").trim();
+  if (code && who) return `${code} · ${who}`;
+  if (code) return code;
+  if (who) return who;
+  return "—";
+}
+
+/** 详情抽屉「提交信息」行 */
+export function dciSubmittedFieldRows(result: DciUsageRecord) {
+  if (result.verifyKind === "sample_file") {
+    return [
+      {
+        label: "作品样本文件名",
+        value: (result.fileName || result.queryName || "").trim() || "—",
+        field: "fileName" as const,
+      },
+    ];
+  }
+  if (result.verifyKind === "sample_hash") {
+    return [
+      {
+        label: "作品样本哈希值",
+        value: (result.queryName || "").trim() || "—",
+        field: "hash" as const,
+      },
+    ];
+  }
+  const who = (result.queryOwner || result.queryName || "").trim() || "—";
+  return [
+    { label: "DCI 码", value: result.dciCode || "—", field: "dciCode" as const },
+    { label: DCI_SUBJECT_LABEL, value: who, field: "subject" as const },
+  ];
+}
 
 export const CERT_MISMATCH_LABEL: Record<CertMismatchField, string> = {
   certNo: "证书编号不一致",
@@ -202,21 +257,36 @@ export function formatCertFailReasons(result: CertUsageRecord): string[] {
   return result.message ? [result.message] : ["证书信息与登记库不一致"];
 }
 
+function infoNameLabel(workType: UsageWorkType) {
+  return workType === "software"
+    ? "软件名称"
+    : workType === "work"
+      ? "作品名称"
+      : "数据作品名称";
+}
+
+/** 结果区仅展示用户提交过的字段；合并提交时合并为单一「著作权人/名称」 */
 export function infoSubmittedFieldRows(result: InfoUsageRecord) {
-  return [
-    { label: "登记号", value: result.regNo, field: "regNo" as const },
-    {
-      label:
-        result.workType === "software"
-          ? "软件名称"
-          : result.workType === "work"
-            ? "作品名称"
-            : "数据作品名称",
-      value: result.name || "—",
-      field: "name" as const,
-    },
-    { label: "著作权人", value: result.owner || "—", field: "owner" as const },
+  const rows: { label: string; value: string; field: "regNo" | "name" | "owner" | "subject" }[] = [
+    { label: "登记号", value: result.regNo || "—", field: "regNo" },
   ];
+  const name = (result.name || "").trim();
+  const owner = (result.owner || "").trim();
+  if (name && owner && name.toLowerCase() === owner.toLowerCase()) {
+    rows.push({
+      label: `著作权人/${infoNameLabel(result.workType)}`,
+      value: owner,
+      field: "subject",
+    });
+  } else if (name || owner) {
+    // 合并字段提交：只展示一个值，不拼接两侧
+    rows.push({
+      label: `著作权人/${infoNameLabel(result.workType)}`,
+      value: owner || name,
+      field: "subject",
+    });
+  }
+  return rows;
 }
 
 async function copyText(text: string) {
@@ -230,6 +300,22 @@ async function copyText(text: string) {
 
 export { copyText };
 
+/** 与 customer `dci.ts` DCI_MOCK 保持一致（真实 DCI 码格式） */
+const DCI_MOCK = {
+  swDemo: "DCI:RQZSW0ANT.156.20250115B2C4D6E8F0",
+  wkDemo: "DCI:RQZWK0ANT.156.20240620M2N4P6Q8R0",
+  dsDemo: "DCI:RQZDS0ANT.156.20250301X2Y4Z6A8B0",
+  swRec1: "DCI:RQZ010ANT.156.20240318A7K3M9P2Q1",
+  swRec2: "DCI:RQZ011ANT.156.20230901H4J6K8L0M2",
+  wkRec1: "DCI:RQZWK1ANT.156.20240208G1H3J5K7L9",
+  dsRec1: "DCI:RQZDS1ANT.156.20240712S1T3U5V7W9",
+  unknown: "DCI:RQZUNKANT.156.20240101C0D0E0F0G1",
+  sampleHashPass: "a5fcfdb5bacd146cd9881cca1b7d8402",
+} as const;
+
+const DCI_SAMPLE_FAIL_HINT =
+  "请确认提交的作品样本是否为 DCI 申领时上传的作品样本，以及内容是否正确。";
+
 const DCI_RECORDS: DciUsageRecord[] = [
   {
     id: "dci-1",
@@ -237,11 +323,12 @@ const DCI_RECORDS: DciUsageRecord[] = [
     verifyCode: "R1138840000979",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(1, 14, 22),
-    dciCode: "DCI-SW20240001",
+    dciCode: DCI_MOCK.swRec1,
     workType: "software",
     queryName: "版权核验助手",
-    queryOwner: "艾克米文化传媒有限公司",
+    queryOwner: "版权核验助手",
     channel: "WebUI",
+    verifyKind: "code",
     status: "pass",
     detailStatus: "pass",
   },
@@ -251,11 +338,12 @@ const DCI_RECORDS: DciUsageRecord[] = [
     verifyCode: "R1138840000980",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(2, 9, 15),
-    dciCode: "DCI-WK20241188",
+    dciCode: DCI_MOCK.wkRec1,
     workType: "work",
     queryName: "极光之城",
-    queryOwner: "北方出版集团股份有限公司",
+    queryOwner: "极光之城",
     channel: "API",
+    verifyKind: "code",
     status: "pass",
     detailStatus: "pass",
   },
@@ -265,11 +353,12 @@ const DCI_RECORDS: DciUsageRecord[] = [
     verifyCode: "R1138840000983",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(3, 16, 40),
-    dciCode: "DCI-DS20240901",
-    workType: "dataset",
-    queryName: "开源图像标注集",
+    dciCode: DCI_MOCK.swRec1,
+    workType: "software",
+    queryName: "错误著作权人",
     queryOwner: "错误著作权人",
     channel: "WebUI",
+    verifyKind: "code",
     status: "fail",
     detailStatus: "fail",
     mismatches: ["owner"],
@@ -281,11 +370,12 @@ const DCI_RECORDS: DciUsageRecord[] = [
     verifyCode: "R1138840000984",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(5, 11, 8),
-    dciCode: "DCI-SWDEMO0001",
+    dciCode: DCI_MOCK.swRec2,
     workType: "software",
-    queryName: "演示软件登记",
-    queryOwner: "前海智链科技有限公司",
+    queryName: "合同比对引擎",
+    queryOwner: "合同比对引擎",
     channel: "API",
+    verifyKind: "code",
     status: "pass",
     detailStatus: "pass",
   },
@@ -295,11 +385,12 @@ const DCI_RECORDS: DciUsageRecord[] = [
     verifyCode: "R1138840000982",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(8, 18, 3),
-    dciCode: "DCI-XX99999999",
+    dciCode: DCI_MOCK.unknown,
     workType: "software",
-    queryName: "未知作品",
-    queryOwner: "张三",
+    queryName: "某科技有限公司",
+    queryOwner: "某科技有限公司",
     channel: "WebUI",
+    verifyKind: "code",
     status: "fail",
     detailStatus: "not_found",
     message: "系统中无该DCI码记录",
@@ -307,16 +398,49 @@ const DCI_RECORDS: DciUsageRecord[] = [
   {
     id: "dci-6",
     ...pick(4),
-    verifyCode: "R1138840000985",
+    verifyCode: "R1138840000981",
     verifier: USAGE_DEFAULT_VERIFIER,
     verifiedAt: daysAgo(12, 10, 55),
-    dciCode: "DCI-WKDEMO0001",
-    workType: "work",
-    queryName: "演示文字作品",
-    queryOwner: "瀚海音乐文化有限公司",
+    dciCode: DCI_MOCK.dsRec1,
+    workType: "dataset",
+    queryName: "开源图像标注集",
+    queryOwner: "开源图像标注集",
     channel: "API",
+    verifyKind: "code",
     status: "pass",
     detailStatus: "pass",
+  },
+  {
+    id: "dci-7",
+    ...pick(0),
+    verifyCode: "R1138840000985",
+    verifier: USAGE_DEFAULT_VERIFIER,
+    verifiedAt: daysAgo(1, 11, 5),
+    dciCode: "",
+    workType: "work",
+    queryName: "申领作品样本.pdf",
+    queryOwner: "",
+    channel: "WebUI",
+    verifyKind: "sample_file",
+    fileName: "申领作品样本.pdf",
+    status: "pass",
+    detailStatus: "pass",
+  },
+  {
+    id: "dci-8",
+    ...pick(2),
+    verifyCode: "R1138840000986",
+    verifier: USAGE_DEFAULT_VERIFIER,
+    verifiedAt: daysAgo(2, 15, 40),
+    dciCode: "",
+    workType: "work",
+    queryName: "deadbeefcafebabe0123456789abcdef",
+    queryOwner: "",
+    channel: "API",
+    verifyKind: "sample_hash",
+    status: "fail",
+    detailStatus: "fail",
+    message: DCI_SAMPLE_FAIL_HINT,
   },
 ];
 
@@ -329,7 +453,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     workType: "software",
     regNo: "2024SR001234",
     name: "版权核验助手",
-    owner: "艾克米文化传媒有限公司",
+    owner: "版权核验助手",
     channel: "WebUI",
     status: "pass",
     detailStatus: "match",
@@ -342,7 +466,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     workType: "work",
     regNo: "2024ZP001234",
     name: "极光之城",
-    owner: "北方出版集团股份有限公司",
+    owner: "极光之城",
     channel: "API",
     status: "pass",
     detailStatus: "match",
@@ -355,7 +479,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     workType: "dataset",
     regNo: "2024SJ001234",
     name: "开源图像标注集-改",
-    owner: "像素实验室（深圳）有限公司",
+    owner: "开源图像标注集-改",
     channel: "WebUI",
     status: "fail",
     detailStatus: "mismatch",
@@ -370,7 +494,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     workType: "software",
     regNo: "2023SR998877",
     name: "智链核验平台",
-    owner: "前海智链科技有限公司",
+    owner: "智链核验平台",
     channel: "API",
     status: "pass",
     detailStatus: "match",
@@ -382,7 +506,7 @@ const INFO_RECORDS: InfoUsageRecord[] = [
     verifiedAt: daysAgo(14, 17, 30),
     workType: "work",
     regNo: "2024ZP009999",
-    name: "未匹配作品",
+    name: "李四",
     owner: "李四",
     channel: "WebUI",
     status: "fail",

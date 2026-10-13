@@ -19,6 +19,7 @@ import {
   USAGE_PAGE_SIZES,
   USAGE_PRODUCT_TAB_LABEL,
   defaultUsageDateRange,
+  formatDciSubmitSummary,
   listCertUsageRecords,
   listDciUsageRecords,
   listInfoUsageRecords,
@@ -151,7 +152,9 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
         key &&
         !r.dciCode.toLowerCase().includes(key) &&
         !r.queryOwner.toLowerCase().includes(key) &&
-        !r.queryName.toLowerCase().includes(key)
+        !r.queryName.toLowerCase().includes(key) &&
+        !(r.fileName || "").toLowerCase().includes(key) &&
+        !formatDciSubmitSummary(r).toLowerCase().includes(key)
       ) {
         return false;
       }
@@ -259,7 +262,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
   );
 
   return (
-    <div className="a-card">
+    <div className="a-card a-usage-records-page">
       {scope === "verify" ? (
         <div className="a-tabs" role="tablist">
           {VERIFY_USAGE_TABS.map((key) => (
@@ -325,7 +328,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
             <span className="a-field__label">关键词</span>
             <input
               className="a-input"
-              placeholder="DCI码 / 著作权人 / 名称"
+              placeholder="DCI码 / 著作权人 / 作品名 / 文件名 / 哈希"
               value={dciDraft.keyword}
               onChange={(e) => setDciDraft((p) => ({ ...p, keyword: e.target.value }))}
             />
@@ -605,9 +608,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
                 <th>机构账号</th>
                 <th>机构名称</th>
                 <th>核验时间</th>
-                <th>DCI码</th>
-                <th>作品名称</th>
-                <th>著作权人</th>
+                <th className="a-usage-records-page__submit">提交内容</th>
                 <th>方式</th>
                 <th>结果</th>
                 <th>操作</th>
@@ -657,7 +658,7 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
                 <td
                   colSpan={
                     tab === "dci"
-                      ? 9
+                      ? 7
                       : tab === "info"
                         ? 10
                         : tab === "certificate"
@@ -681,11 +682,11 @@ function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {
                   </td>
                   <td>{r.companyName}</td>
                   <td>{r.verifiedAt}</td>
-                  <td>
-                    <code style={{ fontFamily: "var(--font-mono)" }}>{r.dciCode}</code>
+                  <td className="a-usage-records-page__submit" title={formatDciSubmitSummary(r)}>
+                    <span className="a-usage-records-page__submit-text">
+                      {formatDciSubmitSummary(r)}
+                    </span>
                   </td>
-                  <td>{r.queryName || "—"}</td>
-                  <td>{r.queryOwner || "—"}</td>
                   <td>{r.channel}</td>
                   <td>
                     <span className={`a-tag${r.status === "pass" ? " a-tag--ok" : " a-tag--er"}`}>
