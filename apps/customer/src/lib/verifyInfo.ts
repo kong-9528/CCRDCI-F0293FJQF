@@ -62,7 +62,9 @@ export const INFO_EXPORT_LIMIT = 5000;
 export const INFO_BATCH_LIMIT = 100;
 export const PAGE_SIZES = [10, 20, 30, 50] as const;
 
-export function infoNameLabel(_workType: InfoWorkType): string {
+export function infoNameLabel(workType: InfoWorkType): string {
+  if (workType === "software") return "软件名称";
+  if (workType === "dataset") return "数据作品名称";
   return "作品名称";
 }
 
