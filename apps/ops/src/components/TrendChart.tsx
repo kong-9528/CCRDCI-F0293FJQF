@@ -28,8 +28,9 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
   const option = useMemo<EChartsOption>(() => {
     const isPercent = unit === "%";
     const showLegend = series.length > 0;
-    // 有图例时预留足够底部，避免横轴日期与图例文字重叠（单系列此前 bottom 过小）
-    const gridBottom = showLegend ? (dense ? 48 : 72) : dense ? 20 : 36;
+    const rotateX = labels.length > 8;
+    // 有图例时预留足够底部，避免横轴日期与图例文字重叠；标签旋转时再加一点
+    const gridBottom = (showLegend ? (dense ? 48 : 72) : dense ? 20 : 36) + (rotateX ? 18 : 0);
 
     return {
       color: series.map((s) => s.color),
@@ -81,13 +82,20 @@ export function TrendChart({ labels, series, unit = "", height = 320, dense = fa
       xAxis: {
         type: "category",
         boundaryGap: false,
-        data: labels.map((d) => d.slice(5)),
+        // 年：YYYY；月：YYYY-MM；日：MM-DD（由 YYYY-MM-DD 截取）
+        data: labels.map((d) => {
+          if (/^\d{4}$/.test(d)) return d;
+          if (/^\d{4}-\d{2}$/.test(d)) return d;
+          if (/^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(5);
+          return d;
+        }),
         axisLine: { lineStyle: { color: "#E2E7EF" } },
         axisTick: { show: false },
         axisLabel: {
           color: "#6B7889",
           fontSize: 12,
           hideOverlap: true,
+          rotate: rotateX ? 35 : 0,
           margin: dense ? 10 : 14,
         },
         splitLine: { show: false },

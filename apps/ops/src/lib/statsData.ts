@@ -78,8 +78,8 @@ export function dateRange(days: number): string[] {
   return out;
 }
 
-/** 按月默认近 12 个月；按年默认近 5 年（均含当前）。默认粒度：按年 */
-export function defaultTrendPeriod(grain: TrendGrain = "year"): TrendPeriod {
+/** 按月默认近 12 个月；按年默认近 5 年（均含当前）。默认粒度：按月 */
+export function defaultTrendPeriod(grain: TrendGrain = "month"): TrendPeriod {
   const now = new Date();
   now.setHours(12, 0, 0, 0);
   if (grain === "year") {

@@ -61,7 +61,7 @@ export function DashboardPage() {
   const showTrend = hasPerm(userPerms, ["stats.customers", "stats.products"]);
 
   const [tab, setTab] = useState<DashboardTab>("verify");
-  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod());
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
 
   const trendBuckets = useMemo(() => listTrendBuckets(trendPeriod), [trendPeriod]);

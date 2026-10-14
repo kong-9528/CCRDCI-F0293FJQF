@@ -136,11 +136,11 @@ function ChineseMonthPicker({
   );
 }
 
-const GRAIN_OPTIONS: TrendGrain[] = ["year", "month"];
+const GRAIN_OPTIONS: TrendGrain[] = ["month", "year"];
 
 /**
- * 按年 / 按月 + 自定义时间段（对齐 ops-dci 首页趋势分析交互）。
- * 切换粒度时自动填入默认区间：按月近 12 个月，按年近 5 年。
+ * 按月 / 按年 + 自定义时间段（对齐 ops-dci 首页趋势分析交互）。
+ * 切换粒度时自动填入默认区间：按月近 12 个月，按年近 5 年。默认按月。
  */
 export function TrendPeriodControls({
   value,

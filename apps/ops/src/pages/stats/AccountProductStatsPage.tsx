@@ -93,7 +93,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
   const serviceFilterLabel = isAudit ? "审核能力" : "技术服务";
   const entityLabel = isAudit ? "审核能力" : "技术服务";
   const comboHint = isAudit ? "机构×审核能力" : "机构×技术服务";
-  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod());
   const [serviceFilter, setServiceFilter] = useState<ProductCode | "">("");
   const [accountQuery, setAccountQuery] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");

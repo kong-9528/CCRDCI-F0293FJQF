@@ -134,13 +134,23 @@
     return c === 200 || c === 1000000 || c === 1e6;
   }
 
-  var TREND_DEMO = {
+  var TREND_DEMO_MONTH = {
     timeList: ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"],
     seriesList: [
       { name: "申领", data: [12, 18, 15, 22, 19, 25], color: "#0075c1" },
       { name: "撤销", data: [2, 1, 3, 2, 1, 2], color: "#e86452" },
     ],
   };
+  var TREND_DEMO_YEAR = {
+    timeList: ["2022", "2023", "2024", "2025", "2026"],
+    seriesList: [
+      { name: "申领", data: [86, 112, 148, 190, 111], color: "#0075c1" },
+      { name: "撤销", data: [8, 11, 14, 18, 11], color: "#e86452" },
+    ],
+  };
+  function trendDemoFor(dateType) {
+    return dateType === "year" ? TREND_DEMO_YEAR : TREND_DEMO_MONTH;
+  }
   var PIE_DEMO = [
     { code: "A", name: "作品", count: 120 },
     { code: "B", name: "软件", count: 45 },
@@ -184,9 +194,9 @@
     ],
   };
 
-  function placeholderFor(path) {
+  function placeholderFor(path, reqData) {
     if (/queryStatByTimeType|queryContractFilingTrend/.test(path)) {
-      return ok100(TREND_DEMO);
+      return ok100(trendDemoFor(reqData && reqData.dateType));
     }
     if (/queryApplyAndRevoke/.test(path)) {
       return ok100(APPLY_REVOKE_DEMO);
@@ -631,16 +641,21 @@
       return ok100(null);
     }
 
+    // Trend charts: always honor dateType so 按年 returns year labels on x-axis
+    if (/queryStatByTimeType|queryContractFilingTrend/.test(path)) {
+      return ok100(trendDemoFor(data && data.dateType));
+    }
+
     var hit = lookup(m, rawUrl);
     if (hit != null) {
       if (path === "/getInfo") return sanitizeGetInfo(hit);
       if (path === "/getRouters") return stripUserRoleMenus(hit);
-      if (!isSuccessBody(hit)) return placeholderFor(path);
+      if (!isSuccessBody(hit)) return placeholderFor(path, data);
       return hit;
     }
 
     // Never fall through to network; always return a successful mock body.
-    return placeholderFor(path);
+    return placeholderFor(path, data);
   }
 
   function respondXhr(xhr, payload) {

@@ -55,7 +55,7 @@ function CustomerStatsBody({ scope }: { scope: StatsScope }) {
     return getStatsData();
   }, []);
 
-  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod("year"));
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod());
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
   const [rankRange, setRankRange] = useState<TrendRange>("30d");
   const [page, setPage] = useState(1);
