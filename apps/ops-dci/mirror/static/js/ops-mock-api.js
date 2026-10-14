@@ -151,6 +151,21 @@
   function trendDemoFor(dateType) {
     return dateType === "year" ? TREND_DEMO_YEAR : TREND_DEMO_MONTH;
   }
+  var WORK_TYPE_DEMO = [
+    { code: "TEXT", name: "文字作品", count: 186 },
+    { code: "MUSIC", name: "音乐作品", count: 142 },
+    { code: "PHOTO", name: "摄影作品", count: 168 },
+    { code: "ART", name: "美术作品", count: 124 },
+    { code: "AV", name: "影视作品", count: 96 },
+    { code: "SOFT", name: "软件作品", count: 88 },
+    { code: "DATASET", name: "数据集", count: 54 },
+    { code: "OTHER", name: "其他作品", count: 37 },
+  ];
+  var CODE_TYPE_DEMO = [
+    { code: "ORIGIN", name: "原始分配", count: 168 },
+    { code: "AUTH", name: "授权分配", count: 92 },
+    { code: "OTHER", name: "其他", count: 24 },
+  ];
   var PIE_DEMO = [
     { code: "A", name: "作品", count: 120 },
     { code: "B", name: "软件", count: 45 },
@@ -201,11 +216,13 @@
     if (/queryApplyAndRevoke/.test(path)) {
       return ok100(APPLY_REVOKE_DEMO);
     }
-    if (
-      /queryDciCodeType|queryFileType|queryArea|queryBusinessType|queryRegisterOrgType/.test(
-        path,
-      )
-    ) {
+    if (/queryFileType/.test(path)) {
+      return ok100(WORK_TYPE_DEMO);
+    }
+    if (/queryDciCodeType/.test(path)) {
+      return ok100(CODE_TYPE_DEMO);
+    }
+    if (/queryArea|queryBusinessType|queryRegisterOrgType/.test(path)) {
       return ok100(PIE_DEMO);
     }
     if (/queryRightOwnerType|queryOwnerType|queryOwnerTypeGroup/.test(path)) {
@@ -644,6 +661,13 @@
     // Trend charts: always honor dateType so 按年 returns year labels on x-axis
     if (/queryStatByTimeType|queryContractFilingTrend/.test(path)) {
       return ok100(trendDemoFor(data && data.dateType));
+    }
+    // Pie charts: override store demos so category labels stay current
+    if (/queryFileType/.test(path)) {
+      return ok100(WORK_TYPE_DEMO);
+    }
+    if (/queryDciCodeType/.test(path)) {
+      return ok100(CODE_TYPE_DEMO);
     }
 
     var hit = lookup(m, rawUrl);
