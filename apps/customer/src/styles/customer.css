@@ -5680,7 +5680,7 @@ body,
 .c-help-sidebar {
   width: 220px;
   flex-shrink: 0;
-  align-self: flex-start;
+  align-self: stretch;
   box-sizing: border-box;
   padding: 16px 12px;
   border: none;
@@ -6584,13 +6584,26 @@ body,
   align-items: stretch;
 }
 
+/* 左右白框同高撑满；内容自然顶对齐，不额外居中或铺满内部 */
+.theme-customer .c-api-manage__side,
+.theme-customer .c-help-sidebar,
+.theme-customer .c-docs-sidebar,
+.theme-customer .c-section-guide__aside,
+.theme-customer .c-api-manage__main,
+.theme-customer .c-help-content,
+.theme-customer .c-docs-main,
+.theme-customer .c-section-guide__main {
+  align-self: stretch !important;
+  min-height: 100% !important;
+  height: auto !important;
+  box-sizing: border-box;
+}
+
 .theme-customer .c-api-manage__main,
 .theme-customer .c-help-content,
 .theme-customer .c-docs-main,
 .theme-customer .c-section-guide__main {
   overflow: visible !important;
-  min-height: 100%;
-  height: auto !important;
 }
 
 

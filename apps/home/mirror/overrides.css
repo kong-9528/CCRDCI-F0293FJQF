@@ -1103,9 +1103,9 @@ sup.a-tm,
 }
 
 
-/* Left-right pages: left white menu fills column height (match customer);
-   right stays content-sized. Use explicit vh min-height — % min-height fails
-   when parent only has min-height, not height. */
+/* Left-right pages: both white cards fill viewport column height.
+   Use explicit vh min-height — % min-height fails when parent only has
+   min-height, not height. Inner page content stays naturally top-aligned. */
 .info-management-container[data-v-740fb281],
 .api-management-container[data-v-9b3fb548],
 .doc-management-container[data-v-39bf64b8],
@@ -1135,12 +1135,7 @@ sup.a-tm,
 .info-management-container .left-menu-card,
 .api-management-container .left-menu-card,
 .doc-management-container .left-menu-card,
-.left-menu-card {
-  align-self: stretch !important;
-  min-height: calc(100vh - 112px) !important;
-  box-sizing: border-box !important;
-}
-
+.left-menu-card,
 .info-management-container .right-content-card[data-v-740fb281],
 .api-management-container .right-content-card[data-v-9b3fb548],
 .doc-management-container .right-content-card[data-v-39bf64b8],
@@ -1149,7 +1144,9 @@ sup.a-tm,
 .api-management-container .right-content-card,
 .doc-management-container .right-content-card,
 .right-content-card {
-  align-self: flex-start !important;
+  align-self: stretch !important;
+  min-height: calc(100vh - 112px) !important;
+  box-sizing: border-box !important;
 }
 
 /* API management: right pane white card flush to top (match identity/apporg) */
@@ -1159,8 +1156,6 @@ sup.a-tm,
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  align-self: stretch !important;
-  min-height: calc(100vh - 112px);
 }
 
 /* Match identity page title: icon + 16px header-title */
@@ -1301,22 +1296,61 @@ sup.a-tm,
   color: #6b5535;
 }
 
-/* 账号中心左右布局同理 */
-.profile-layout-inner[data-v-96ef2aa1],
-.profile-layout-inner {
-  align-items: stretch !important;
-  min-height: calc(100vh - 128px) !important;
+/* 账号中心 /user/profile：左右白框同高撑满视口
+   用 grid 保证同行两列等高；内容仍自然顶对齐 */
+.portal-profile-page[data-v-96ef2aa1],
+.portal-profile-page {
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box;
 }
 
-.left-sidebar-card[data-v-96ef2aa1],
-.left-sidebar-card {
-  align-self: stretch !important;
-  min-height: calc(100vh - 128px) !important;
+.profile-body-container[data-v-96ef2aa1],
+.profile-body-container {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: stretch !important;
   box-sizing: border-box !important;
 }
 
-.profile-layout-inner > .right-content-card {
-  align-self: flex-start !important;
+.profile-layout-inner[data-v-96ef2aa1],
+.profile-layout-inner {
+  display: grid !important;
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+  gap: 24px !important;
+  align-items: stretch !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  min-height: calc(100vh - 128px) !important; /* ~64 header + 32*2 padding */
+  box-sizing: border-box !important;
+}
+
+.portal-profile-page .left-sidebar-card[data-v-96ef2aa1],
+.portal-profile-page .left-sidebar-card,
+.portal-profile-page aside.left-sidebar-card,
+.profile-layout-inner > .left-sidebar-card,
+.profile-layout-inner > aside.left-sidebar-card,
+.portal-profile-page .right-content-card[data-v-96ef2aa1],
+.portal-profile-page .right-content-card,
+.portal-profile-page main.right-content-card,
+.profile-layout-inner > .right-content-card,
+.profile-layout-inner > main.right-content-card {
+  width: auto !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.portal-profile-page .left-sidebar-card[data-v-96ef2aa1],
+.portal-profile-page .left-sidebar-card,
+.profile-layout-inner > .left-sidebar-card,
+.profile-layout-inner > aside.left-sidebar-card {
+  width: 220px !important;
 }
 
 /* Identity page: clearer org code + compact field tags */
