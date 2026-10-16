@@ -248,8 +248,13 @@
         linkPhone: seed.linkPhone,
         contractFileList: [
           { name: fileName, url: fileUrl, size: "1.12 MB" },
+          {
+            name: fileName.replace(/\.pdf$/i, "") + "-补充协议.pdf",
+            url: fileUrl.replace(/\.pdf$/i, "") + "-addendum.pdf",
+            size: "420 KB",
+          },
         ],
-        contractFiles: fileUrl,
+        contractFiles: fileUrl + "," + fileUrl.replace(/\.pdf$/i, "") + "-addendum.pdf",
       },
       extras || {},
     );

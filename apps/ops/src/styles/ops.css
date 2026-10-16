@@ -1901,34 +1901,150 @@ body,
 }
 
 .a-trend-period__grain {
-  width: 76px;
-  height: var(--ad-ctrl-sm, 32px);
+  width: 72px;
+  height: 24px;
+  padding: 0 22px 0 8px;
+  font-size: 12px;
+  line-height: 22px;
+  border-radius: 4px;
 }
 
-.a-trend-period__range {
-  gap: 4px;
+.a-range-editor {
+  position: relative;
+  flex: none;
 }
 
-.a-trend-period__input,
-.a-trend-period__input--year {
-  width: 82px;
-  height: var(--ad-ctrl-sm, 32px);
-}
-
-.a-trend-month {
+.a-range-editor__box {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  box-sizing: border-box;
+  width: 220px;
+  height: 24px;
+  padding: 0 8px;
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #606266;
 }
 
-.a-trend-month__year {
-  width: 82px;
-  height: var(--ad-ctrl-sm, 32px);
+.a-range-editor__box:hover {
+  border-color: #c0c4cc;
 }
 
-.a-trend-month__month {
-  width: 68px;
-  height: var(--ad-ctrl-sm, 32px);
+.a-range-editor.is-open .a-range-editor__box {
+  border-color: #409eff;
+}
+
+.a-range-editor__text {
+  width: 39%;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.a-range-editor__text.is-placeholder {
+  color: #a8abb2;
+}
+
+.a-range-editor__sep {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  line-height: 22px;
+  color: #303133;
+}
+
+.a-range-editor__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #a8abb2;
+}
+
+.a-range-pop {
+  position: fixed;
+  z-index: 3000;
+  padding: 8px 12px 12px;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.a-range-pop__nav {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+}
+
+.a-range-pop__nav button {
+  border: 0;
+  background: transparent;
+  color: #606266;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.a-range-pop__months {
+  display: flex;
+  gap: 16px;
+}
+
+.a-range-cal__title {
+  text-align: center;
+  font-size: 14px;
+  color: #606266;
+  line-height: 28px;
+}
+
+.a-range-cal__week,
+.a-range-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 28px);
+  text-align: center;
+}
+
+.a-range-cal__week span {
+  font-size: 12px;
+  line-height: 28px;
+  color: #606266;
+}
+
+.a-range-cal__day {
+  height: 28px;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  color: #606266;
+  cursor: pointer;
+  border-radius: 14px;
+}
+
+.a-range-cal__day.is-out {
+  color: #c0c4cc;
+}
+
+.a-range-cal__day.is-in {
+  background: #f2f6fc;
+  border-radius: 0;
+}
+
+.a-range-cal__day.is-edge {
+  background: #409eff;
+  color: #fff;
+  border-radius: 14px;
+}
+
+.a-range-cal__day:hover {
+  color: #409eff;
+}
+
+.a-range-cal__day.is-edge:hover {
+  color: #fff;
 }
 
 .a-card__head .a-trend-period,

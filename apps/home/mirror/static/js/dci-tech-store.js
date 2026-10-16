@@ -70,6 +70,7 @@
           contractEndDate: "2027-06-30",
           contractFileList: [
             { name: "雅昌-技术服务开通申请-撤回稿.pdf", url: "demo://yc-tech-withdrawn.pdf" },
+            { name: "雅昌-技术服务开通申请-撤回稿-补充协议.pdf", url: "demo://yc-tech-withdrawn-addendum.pdf" },
           ],
           linkName: "王敏",
           linkPhone: u.phonenumber || "13900001111",
@@ -89,6 +90,7 @@
           contractEndDate: "2027-02-28",
           contractFileList: [
             { name: "雅昌-技术服务开通申请-驳回稿.pdf", url: "demo://yc-tech-rejected.pdf" },
+            { name: "雅昌-技术服务开通申请-驳回稿-补充协议.pdf", url: "demo://yc-tech-rejected-addendum.pdf" },
           ],
           linkName: "赵强",
           linkPhone: "13700005566",
@@ -229,6 +231,11 @@
           name: fileName,
           size: 1180000,
           url: "demo://" + fileName,
+        },
+        {
+          name: String(fileName).replace(/\.pdf$/i, "") + "-补充协议.pdf",
+          size: 420000,
+          url: "demo://" + String(fileName).replace(/\.pdf$/i, "") + "-addendum.pdf",
         },
       ],
     };

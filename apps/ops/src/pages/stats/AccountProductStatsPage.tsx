@@ -381,7 +381,7 @@ function AccountProductStatsBody({ scope }: { scope: StatsScope }) {
       <div className="a-card a-stats-ap-panel">
         <section className="a-stats-ap-panel__section">
           <div className="a-stats-ap-panel__head">
-            <h3 className="a-stats-ap-panel__title">用量热力图</h3>
+            <h3 className="a-stats-ap-panel__title">调用量热力图</h3>
             <span className="a-field__hint a-stats-ap-panel__hint">
               「—」表示时段内该账号下该{entityLabel}处于“未开通/已到期/已停用”的状态。点击单元格可查看调用趋势图。
               {visibleMatrix.truncated

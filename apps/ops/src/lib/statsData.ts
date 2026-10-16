@@ -32,7 +32,7 @@ export type TrendGrain = "month" | "year";
 
 export type TrendPeriod = {
   grain: TrendGrain;
-  /** 按月 YYYY-MM；按年 YYYY */
+  /** 日期范围，均为 YYYY-MM-DD。按年 / 按月只改变汇总粒度 */
   start: string;
   end: string;
 };
@@ -78,18 +78,17 @@ export function dateRange(days: number): string[] {
   return out;
 }
 
-/** 按月默认近 12 个月；按年默认近 5 年（均含当前）。默认粒度：按月 */
+/** 按月默认近 12 个月；按年默认近 5 年（均含当天）。默认粒度：按月 */
 export function defaultTrendPeriod(grain: TrendGrain = "month"): TrendPeriod {
   const now = new Date();
   now.setHours(12, 0, 0, 0);
-  if (grain === "year") {
-    const end = String(now.getFullYear());
-    const start = String(now.getFullYear() - 4);
-    return { grain, start, end };
-  }
-  const end = formatYearMonth(now);
-  const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-  return { grain, start: formatYearMonth(startDate), end };
+  const end = formatDate(now);
+  const start =
+    grain === "year"
+      ? new Date(now.getFullYear() - 4, 0, 1)
+      : new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  start.setHours(12, 0, 0, 0);
+  return { grain, start: formatDate(start), end };
 }
 
 export function trendBucketKey(date: string, grain: TrendGrain): string {
@@ -107,24 +106,23 @@ export function formatTrendPeriodShort(period: TrendPeriod): string {
   return `${period.start}～${period.end}`;
 }
 
-/** 自然月 / 自然年刻度列表（含起止） */
+function orderedTrendDates(period: TrendPeriod): { start: string; end: string } {
+  if (period.start <= period.end) return { start: period.start, end: period.end };
+  return { start: period.end, end: period.start };
+}
+
+/** 自然月 / 自然年刻度列表（含起止日期所在月或年） */
 export function listTrendBuckets(period: TrendPeriod): string[] {
-  const start = period.start <= period.end ? period.start : period.end;
-  const end = period.start <= period.end ? period.end : period.start;
-  const out: string[] = [];
-  if (period.grain === "year") {
-    let y = Number(start);
-    const endY = Number(end);
-    if (!Number.isFinite(y) || !Number.isFinite(endY)) return out;
-    while (y <= endY) {
-      out.push(String(y));
-      y += 1;
-    }
-    return out;
-  }
+  const { start, end } = orderedTrendDates(period);
   const [sy, sm] = start.split("-").map(Number);
   const [ey, em] = end.split("-").map(Number);
-  if (!sy || !sm || !ey || !em) return out;
+  const out: string[] = [];
+  if (!sy || !ey) return out;
+  if (period.grain === "year") {
+    for (let y = sy; y <= ey; y += 1) out.push(String(y));
+    return out;
+  }
+  if (!sm || !em) return out;
   let y = sy;
   let m = sm;
   while (y < ey || (y === ey && m <= em)) {
@@ -139,10 +137,8 @@ export function listTrendBuckets(period: TrendPeriod): string[] {
 }
 
 export function dailyDateInTrendPeriod(date: string, period: TrendPeriod): boolean {
-  const key = trendBucketKey(date, period.grain);
-  const start = period.start <= period.end ? period.start : period.end;
-  const end = period.start <= period.end ? period.end : period.start;
-  return key >= start && key <= end;
+  const { start, end } = orderedTrendDates(period);
+  return date >= start && date <= end;
 }
 
 /** 演示用：近 30 日逐日 + 近 60 个月各取月中一日，覆盖按年/按月默认区间 */

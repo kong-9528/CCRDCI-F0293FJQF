@@ -104,6 +104,11 @@
           url: "/demo/ant-dci-registry-contract.pdf",
           size: "1.10 MB",
         },
+        {
+          name: "蚂蚁科技-DCI注册中心服务合同-补充协议.pdf",
+          url: "/demo/ant-dci-registry-contract-addendum.pdf",
+          size: "420 KB",
+        },
       ];
     }
     if (!d.contractFiles) {
@@ -147,8 +152,14 @@
           url: "/demo/ant-dci-registry-contract.pdf",
           size: "1.10 MB",
         },
+        {
+          name: "蚂蚁科技-DCI注册中心服务合同-补充协议.pdf",
+          url: "/demo/ant-dci-registry-contract-addendum.pdf",
+          size: "420 KB",
+        },
       ],
-      contractFiles: "/demo/ant-dci-registry-contract.pdf",
+      contractFiles:
+        "/demo/ant-dci-registry-contract.pdf,/demo/ant-dci-registry-contract-addendum.pdf",
     };
     var rows = [
       Object.assign({}, base, {
@@ -162,8 +173,13 @@
             url: "/demo/ant-orginfo-withdrawn.pdf",
             size: "980 KB",
           },
+          {
+            name: "蚂蚁科技-机构信息变更申请-撤回稿-补充协议.pdf",
+            url: "/demo/ant-orginfo-withdrawn-addendum.pdf",
+            size: "210 KB",
+          },
         ],
-        contractFiles: "/demo/ant-orginfo-withdrawn.pdf",
+        contractFiles: "/demo/ant-orginfo-withdrawn.pdf,/demo/ant-orginfo-withdrawn-addendum.pdf",
       }),
       Object.assign({}, base, {
         id: "hist-rejected",
@@ -178,8 +194,13 @@
             url: "/demo/ant-orginfo-rejected.pdf",
             size: "1.02 MB",
           },
+          {
+            name: "蚂蚁科技-机构信息变更申请-驳回稿-补充协议.pdf",
+            url: "/demo/ant-orginfo-rejected-addendum.pdf",
+            size: "180 KB",
+          },
         ],
-        contractFiles: "/demo/ant-orginfo-rejected.pdf",
+        contractFiles: "/demo/ant-orginfo-rejected.pdf,/demo/ant-orginfo-rejected-addendum.pdf",
       }),
       Object.assign({}, base, {
         id: "hist-approved",
@@ -192,8 +213,14 @@
             url: "/demo/ant-dci-registry-contract.pdf",
             size: "1.10 MB",
           },
+          {
+            name: "蚂蚁科技-DCI注册中心服务合同-补充协议.pdf",
+            url: "/demo/ant-dci-registry-contract-addendum.pdf",
+            size: "420 KB",
+          },
         ],
-        contractFiles: "/demo/ant-dci-registry-contract.pdf",
+        contractFiles:
+          "/demo/ant-dci-registry-contract.pdf,/demo/ant-dci-registry-contract-addendum.pdf",
       }),
     ];
     if (getModeId() === "reviewing") {
@@ -211,8 +238,14 @@
               url: "/demo/ant-orginfo-reviewing.pdf",
               size: "1.08 MB",
             },
+            {
+              name: "蚂蚁科技-机构信息变更申请-审核中-补充协议.pdf",
+              url: "/demo/ant-orginfo-reviewing-addendum.pdf",
+              size: "260 KB",
+            },
           ],
-          contractFiles: "/demo/ant-orginfo-reviewing.pdf",
+          contractFiles:
+            "/demo/ant-orginfo-reviewing.pdf,/demo/ant-orginfo-reviewing-addendum.pdf",
         }),
       );
     }

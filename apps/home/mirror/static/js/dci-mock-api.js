@@ -498,8 +498,11 @@
           contractEndDate: "2026-12-31",
           linkName: "王敏",
           linkPhone: (user && user.phonenumber) || "13900001111",
-          contractFileList: [{ name: "雅昌-注册中心开通申请.pdf", url: "/demo/yc-reg-apply.pdf" }],
-          contractFiles: "/demo/yc-reg-apply.pdf",
+          contractFileList: [
+            { name: "雅昌-注册中心开通申请.pdf", url: "/demo/yc-reg-apply.pdf" },
+            { name: "雅昌-注册中心开通申请-补充协议.pdf", url: "/demo/yc-reg-apply-addendum.pdf" },
+          ],
+          contractFiles: "/demo/yc-reg-apply.pdf,/demo/yc-reg-apply-addendum.pdf",
         };
         var ycHist = [
           Object.assign({}, ycBase, {
@@ -509,7 +512,10 @@
             createTime: "2026-04-12 09:18:00",
             invitationCode: "REG-YC-0412",
             cooperationField: "艺术品数字版权确权",
-            contractFileList: [{ name: "雅昌-注册中心申请-撤回稿.pdf", url: "/demo/yc-reg-withdrawn.pdf" }],
+            contractFileList: [
+              { name: "雅昌-注册中心申请-撤回稿.pdf", url: "/demo/yc-reg-withdrawn.pdf" },
+              { name: "雅昌-注册中心申请-撤回稿-补充协议.pdf", url: "/demo/yc-reg-withdrawn-addendum.pdf" },
+            ],
           }),
           Object.assign({}, ycBase, {
             id: "reg-hist-rejected-yachang",
@@ -525,7 +531,10 @@
             linkPhone: "13700005566",
             contractStartDate: "2026-05-01",
             contractEndDate: "2027-04-30",
-            contractFileList: [{ name: "雅昌-注册中心申请-驳回稿.pdf", url: "/demo/yc-reg-rejected.pdf" }],
+            contractFileList: [
+              { name: "雅昌-注册中心申请-驳回稿.pdf", url: "/demo/yc-reg-rejected.pdf" },
+              { name: "雅昌-注册中心申请-驳回稿-补充协议.pdf", url: "/demo/yc-reg-rejected-addendum.pdf" },
+            ],
           }),
         ];
         // Account-center: never return「已通过」history

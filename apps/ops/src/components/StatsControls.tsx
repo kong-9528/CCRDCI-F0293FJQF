@@ -1,8 +1,11 @@
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { StatsPeriod, TrendGrain, TrendPeriod, TrendRange } from "@/lib/statsData";
 import {
   STATS_PERIOD_LABEL,
   TREND_GRAIN_LABEL,
   defaultTrendPeriod,
+  formatDate,
 } from "@/lib/statsData";
 
 type Props<T extends string> = {
@@ -66,81 +69,228 @@ export function TrendRangeToggle({
   );
 }
 
-function clampTrendRange(grain: TrendGrain, start: string, end: string): TrendPeriod {
-  if (!start || !end) return defaultTrendPeriod(grain);
-  if (start <= end) return { grain, start, end };
-  return { grain, start: end, end: start };
+const GRAIN_OPTIONS: TrendGrain[] = ["month", "year"];
+const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
+
+function parseIsoDate(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  date.setHours(12, 0, 0, 0);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
-const YEAR_OPTIONS = (() => {
-  const y = new Date().getFullYear();
-  const out: number[] = [];
-  for (let i = y + 1; i >= y - 15; i -= 1) out.push(i);
-  return out;
-})();
-
-const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => i + 1);
-
-function parseYearMonth(value: string): { year: number; month: number } {
-  const [ys, ms] = value.split("-");
-  const year = Number(ys);
-  const month = Number(ms);
-  return {
-    year: Number.isFinite(year) ? year : new Date().getFullYear(),
-    month: Number.isFinite(month) && month >= 1 && month <= 12 ? month : 1,
-  };
+function monthMatrix(year: number, month: number): Date[] {
+  const first = new Date(year, month, 1);
+  first.setHours(12, 0, 0, 0);
+  const start = new Date(first);
+  start.setDate(1 - first.getDay());
+  return Array.from({ length: 42 }, (_, i) => {
+    const day = new Date(start);
+    day.setDate(start.getDate() + i);
+    return day;
+  });
 }
 
-function toYearMonth(year: number, month: number) {
-  return `${year}-${String(month).padStart(2, "0")}`;
+function shiftMonth(year: number, month: number, delta: number) {
+  const date = new Date(year, month + delta, 1);
+  return { year: date.getFullYear(), month: date.getMonth() };
 }
 
-/** 中文年月选择（避免原生 type=month 英文展示） */
-function ChineseMonthPicker({
-  value,
-  ariaLabel,
+/**
+ * 对齐 ops-dci 首页 el-date-picker type="daterange" size="small"。
+ * 先点开始日期，再点结束日期。
+ */
+function DateRangeEditor({
+  start,
+  end,
   onChange,
 }: {
-  value: string;
-  ariaLabel: string;
-  onChange: (next: string) => void;
+  start: string;
+  end: string;
+  onChange: (start: string, end: string) => void;
 }) {
-  const { year, month } = parseYearMonth(value);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [draftStart, setDraftStart] = useState(start);
+  const [draftEnd, setDraftEnd] = useState(end);
+  const [awaitingEnd, setAwaitingEnd] = useState(false);
+  const [hover, setHover] = useState("");
+  const initial = parseIsoDate(start) ?? new Date();
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+
+  useEffect(() => {
+    if (open) return;
+    setDraftStart(start);
+    setDraftEnd(end);
+    setAwaitingEnd(false);
+  }, [start, end, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const box = rootRef.current?.getBoundingClientRect();
+      if (!box) return;
+      const width = 468;
+      const left = Math.min(Math.max(8, box.left), window.innerWidth - width - 8);
+      setPos({ top: box.bottom + 6, left });
+    };
+    const onPointer = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (rootRef.current?.contains(target) || popRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    place();
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
+
+  const openPanel = () => {
+    const anchor = parseIsoDate(start) ?? new Date();
+    setViewYear(anchor.getFullYear());
+    setViewMonth(anchor.getMonth());
+    setDraftStart(start);
+    setDraftEnd(end);
+    setAwaitingEnd(false);
+    setHover("");
+    setOpen(true);
+  };
+
+  const pick = (iso: string) => {
+    if (!awaitingEnd || !draftStart) {
+      setDraftStart(iso);
+      setDraftEnd("");
+      setAwaitingEnd(true);
+      setHover("");
+      return;
+    }
+    const nextStart = iso < draftStart ? iso : draftStart;
+    const nextEnd = iso < draftStart ? draftStart : iso;
+    setDraftStart(nextStart);
+    setDraftEnd(nextEnd);
+    setAwaitingEnd(false);
+    onChange(nextStart, nextEnd);
+    setOpen(false);
+  };
+
+  const shownStart = open ? draftStart : start;
+  const shownEnd = open ? draftEnd : end;
+  const next = shiftMonth(viewYear, viewMonth, 1);
+  const previewEnd = awaitingEnd && hover ? hover : draftEnd;
+  const rangeStart =
+    previewEnd && draftStart && previewEnd < draftStart ? previewEnd : draftStart;
+  const rangeEnd =
+    previewEnd && draftStart && previewEnd < draftStart ? draftStart : previewEnd;
+
+  const renderMonth = (year: number, month: number) => (
+    <div className="a-range-cal">
+      <div className="a-range-cal__title">
+        {year}年 {month + 1}月
+      </div>
+      <div className="a-range-cal__week">
+        {WEEKDAYS.map((day) => (
+          <span key={day}>{day}</span>
+        ))}
+      </div>
+      <div className="a-range-cal__grid">
+        {monthMatrix(year, month).map((day) => {
+          const iso = formatDate(day);
+          const outside = day.getMonth() !== month;
+          const inRange = Boolean(rangeStart && rangeEnd && iso >= rangeStart && iso <= rangeEnd);
+          const isEdge = iso === rangeStart || iso === rangeEnd;
+          return (
+            <button
+              key={iso + month}
+              type="button"
+              className={`a-range-cal__day${outside ? " is-out" : ""}${inRange ? " is-in" : ""}${isEdge ? " is-edge" : ""}`}
+              onMouseEnter={() => setHover(iso)}
+              onClick={() => pick(iso)}
+            >
+              {day.getDate()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="a-trend-month" role="group" aria-label={ariaLabel}>
-      <select
-        className="a-select a-trend-month__year"
-        value={year}
-        aria-label={`${ariaLabel}年份`}
-        onChange={(e) => onChange(toYearMonth(Number(e.target.value), month))}
-      >
-        {YEAR_OPTIONS.map((y) => (
-          <option key={y} value={y}>
-            {y}年
-          </option>
-        ))}
-      </select>
-      <select
-        className="a-select a-trend-month__month"
-        value={month}
-        aria-label={`${ariaLabel}月份`}
-        onChange={(e) => onChange(toYearMonth(year, Number(e.target.value)))}
-      >
-        {MONTH_OPTIONS.map((m) => (
-          <option key={m} value={m}>
-            {m}月
-          </option>
-        ))}
-      </select>
+    <div className={`a-range-editor${open ? " is-open" : ""}`} ref={rootRef}>
+      <button type="button" className="a-range-editor__box" onClick={openPanel} aria-label="时间范围">
+        <span className={`a-range-editor__text${shownStart ? "" : " is-placeholder"}`}>
+          {shownStart || "开始日期"}
+        </span>
+        <span className="a-range-editor__sep">至</span>
+        <span className={`a-range-editor__text${shownEnd ? "" : " is-placeholder"}`}>
+          {shownEnd || "结束日期"}
+        </span>
+        <svg className="a-range-editor__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="1.6" y="2.6" width="12.8" height="11.2" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M1.6 6.2h12.8M5 1.4v2.4M11 1.4v2.4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        </svg>
+      </button>
+      {open
+        ? createPortal(
+            <div
+              ref={popRef}
+              className="a-range-pop"
+              role="dialog"
+              aria-label="选择日期范围"
+              style={{ top: pos.top, left: pos.left }}
+            >
+              <div className="a-range-pop__nav">
+                <button
+                  type="button"
+                  aria-label="上个月"
+                  onClick={() => {
+                    const prev = shiftMonth(viewYear, viewMonth, -1);
+                    setViewYear(prev.year);
+                    setViewMonth(prev.month);
+                  }}
+                >
+                  ‹
+                </button>
+                <span />
+                <button
+                  type="button"
+                  aria-label="下个月"
+                  onClick={() => {
+                    setViewYear(next.year);
+                    setViewMonth(next.month);
+                  }}
+                >
+                  ›
+                </button>
+              </div>
+              <div className="a-range-pop__months">
+                {renderMonth(viewYear, viewMonth)}
+                {renderMonth(next.year, next.month)}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
 
-const GRAIN_OPTIONS: TrendGrain[] = ["month", "year"];
-
 /**
- * 按月 / 按年 + 自定义时间段（对齐 ops-dci 首页趋势分析交互）。
- * 切换粒度时自动填入默认区间：按月近 12 个月，按年近 5 年。默认按月。
+ * 按月 / 按年 + 日期范围（对齐 ops-dci 首页：daterange + 粒度）。
+ * 默认按月、近 12 个月；切到按年时改为近 5 年。日期范围对两种粒度共用同一控件。
  */
 export function TrendPeriodControls({
   value,
@@ -151,17 +301,18 @@ export function TrendPeriodControls({
   onChange: (v: TrendPeriod) => void;
   className?: string;
 }) {
-  const onGrainChange = (grain: TrendGrain) => {
-    onChange(defaultTrendPeriod(grain));
-  };
-
   return (
     <div className={`a-trend-period${className ? ` ${className}` : ""}`}>
+      <DateRangeEditor
+        start={value.start}
+        end={value.end}
+        onChange={(start, end) => onChange({ ...value, start, end })}
+      />
       <select
         className="a-select a-trend-period__grain"
         value={value.grain}
         aria-label="统计粒度"
-        onChange={(e) => onGrainChange(e.target.value as TrendGrain)}
+        onChange={(e) => onChange(defaultTrendPeriod(e.target.value as TrendGrain))}
       >
         {GRAIN_OPTIONS.map((g) => (
           <option key={g} value={g}>
@@ -169,55 +320,6 @@ export function TrendPeriodControls({
           </option>
         ))}
       </select>
-      <div className="a-date-range a-trend-period__range">
-        {value.grain === "month" ? (
-          <>
-            <ChineseMonthPicker
-              value={value.start}
-              ariaLabel="开始"
-              onChange={(start) => onChange(clampTrendRange("month", start, value.end))}
-            />
-            <span className="a-date-range__sep">至</span>
-            <ChineseMonthPicker
-              value={value.end}
-              ariaLabel="结束"
-              onChange={(end) => onChange(clampTrendRange("month", value.start, end))}
-            />
-          </>
-        ) : (
-          <>
-            <select
-              className="a-select a-trend-period__input a-trend-period__input--year"
-              value={value.start}
-              aria-label="开始年份"
-              onChange={(e) =>
-                onChange(clampTrendRange("year", e.target.value, value.end))
-              }
-            >
-              {YEAR_OPTIONS.map((y) => (
-                <option key={y} value={String(y)}>
-                  {y}年
-                </option>
-              ))}
-            </select>
-            <span className="a-date-range__sep">至</span>
-            <select
-              className="a-select a-trend-period__input a-trend-period__input--year"
-              value={value.end}
-              aria-label="结束年份"
-              onChange={(e) =>
-                onChange(clampTrendRange("year", value.start, e.target.value))
-              }
-            >
-              {YEAR_OPTIONS.map((y) => (
-                <option key={y} value={String(y)}>
-                  {y}年
-                </option>
-              ))}
-            </select>
-          </>
-        )}
-      </div>
     </div>
   );
 }

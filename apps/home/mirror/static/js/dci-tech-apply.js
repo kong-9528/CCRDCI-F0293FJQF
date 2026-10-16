@@ -182,9 +182,9 @@
       '<div class="upload-wrapper tech-upload">' +
       '<label class="el-button el-button--primary upload-btn tech-upload-btn">' +
       "点击上传" +
-      '<input type="file" accept=".pdf,application/pdf" class="tech-file-input" hidden />' +
+      '<input type="file" accept=".pdf,application/pdf" class="tech-file-input" multiple hidden />' +
       "</label>" +
-      '<div class="upload-tip tech-upload-hint">请上传PDF格式合同文件</div>' +
+      '<div class="upload-tip tech-upload-hint">请上传PDF格式合同文件，可上传多个</div>' +
       (list.length
         ? '<div class="file-list">' +
           list
@@ -453,29 +453,32 @@
     var fileInput = HOST.querySelector(".tech-file-input");
     if (fileInput) {
       fileInput.addEventListener("change", function () {
-        var file = fileInput.files && fileInput.files[0];
-        if (!file) return;
-        if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
-          toast("仅支持上传 PDF 文件");
-          fileInput.value = "";
-          return;
-        }
-        if (file.size > 10 * 1024 * 1024) {
-          toast("文件不能超过 10MB");
-          fileInput.value = "";
-          return;
-        }
-        form.contractFileList = [
-          {
+        var files = fileInput.files ? Array.prototype.slice.call(fileInput.files) : [];
+        fileInput.value = "";
+        if (!files.length) return;
+        if (!form.contractFileList) form.contractFileList = [];
+        var added = 0;
+        files.forEach(function (file) {
+          if (!/\.pdf$/i.test(file.name) && file.type !== "application/pdf") {
+            toast("仅支持上传 PDF 文件：" + file.name);
+            return;
+          }
+          if (file.size > 10 * 1024 * 1024) {
+            toast("文件不能超过 10MB：" + file.name);
+            return;
+          }
+          form.contractFileList.push({
             name: file.name,
             size: file.size,
             url: "demo://" + file.name,
             file: file,
-          },
-        ];
+          });
+          added += 1;
+        });
+        if (!added) return;
         errorMsg = "";
         render();
-        toast("合同文件已准备，提交申请时一并上报");
+        toast(added > 1 ? "已添加 " + added + " 份合同附件" : "合同文件已准备，提交申请时一并上报");
       });
     }
 

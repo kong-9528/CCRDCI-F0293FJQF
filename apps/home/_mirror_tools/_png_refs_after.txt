@@ -1,0 +1,12 @@
+index-BGhEYlK7.css /static/png/banner2_index.png
+index-BiQimQRe.js /static/png/login_bg.png
+index-BiQimQRe.js /static/png/login_bg_logo-CNJ3K9yj.png
+index-BiQimQRe.js /static/png/login_bg_logo@2x-BPyh0hYQ.png
+index-CSHWisZW.css /static/png/banner_standard.png
+index-D5Nixirv.css /static/png/banner_ecosystem.png
+index-DXJtz4g7.js /static/png/dci_meaning.png
+index-DogJsFVJ.css /static/png/banner_search.png
+index-DxJ3jNSK.css /static/png/banner_lab.png
+index-LZ7b_aDw.js /static/png/banner2_index.png
+index-T6YfGpUy.js /static/png/lab_result.png
+portal-BQh_66u9.css /static/png/banner_register_center.png

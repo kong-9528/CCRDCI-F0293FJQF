@@ -68,7 +68,7 @@ export const MOCK_APPLY_HISTORY: ApplyHistoryRecord[] = [
     cooperationField: "数字内容发行、版权运营",
     contractStart: "2026-03-01",
     contractEnd: "2027-02-28",
-    contractFiles: [{ id: "ahf-3a", name: "变更申请合同.pdf", size: 980_000 }],
+    contractFiles: [{ id: "ahf-3a", name: "变更申请合同.pdf", size: 980_000 }, { id: "ahf-3b", name: "补充协议.pdf", size: 180_000 }],
     contactName: "赵强",
     contactPhone: "13700005566",
     rejectReason: "合同起止日期与已备案主合同不一致，请核对后重新提交。",

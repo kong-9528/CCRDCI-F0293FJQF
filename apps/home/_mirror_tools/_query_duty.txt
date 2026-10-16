@@ -1,0 +1,61 @@
+=== index-BGhEYlK7.css :: hero-sub @ 1706 ===
+350px}.system-hero-content[data-v-7bdaee41]{width:1200px;max-width:90vw}.hero-title[data-v-7bdaee41]{color:#fff;font-size:42px;font-weight:700;line-height:56px;white-space:nowrap}.hero-sub[data-v-7bdaee41]{color:#ffffffd9;font-size:20px;margin-top:16px;white-space:nowrap}.hero-sub[data-v-7bdaee41]{color:#ffffffd9;font-size:20px;margin-top:16px}.system-inner-container[data-v-7bdaee41],.history-inne
+
+=== index-CSHWisZW.css :: hero-sub @ 1693 ===
+idth:100%;height:350px}.standard-hero-content[data-v-ac23daef]{width:1200px;max-width:90vw}.hero-title[data-v-ac23daef]{color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-ac23daef]{width:617px;max-width:100%;color:#7d98cd;font-size:14px;line-height:19px;margin-top:16px}.standard-section[data-v-ac23daef]{width:100%;padding:80px 0;box-shadow:0 1px #d4d8dc80}.standard-section
+
+=== index-D5Nixirv.css :: hero-sub @ 1684 ===
+ter;width:100%;height:350px}.eco-hero-content[data-v-39109360]{width:1200px;max-width:90vw}.hero-title[data-v-39109360]{color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-39109360]{color:#7d98cd;font-size:20px;line-height:40px;margin-top:16px}.eco-body[data-v-39109360]{width:100%;padding:80px 0;box-shadow:0 1px #d4d8dc80;position:relative;overflow:hidden;background:#fff}.e
+
+=== index-DogJsFVJ.css :: banner_search @ 4864 ===
+a-v-bc73a8d2]{justify-content:space-between}.align-center[data-v-bc73a8d2]{align-items:center}.query-hero[data-v-bc73a8d2]{width:100%;height:200px;background-image:url(/static/png/banner_search.png);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}.query-hero-inner[data-v-bc73a8d2]{width:1000px;max-width:92vw}.hero-title[data-v-bc73a8d2]{color
+
+=== index-DogJsFVJ.css :: query-hero @ 4779 ===
+olumn}.flex-row[data-v-bc73a8d2]{display:flex;flex-direction:row}.justify-between[data-v-bc73a8d2]{justify-content:space-between}.align-center[data-v-bc73a8d2]{align-items:center}.query-hero[data-v-bc73a8d2]{width:100%;height:200px;background-image:url(/static/png/banner_search.png);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center}.query-hero-
+
+=== index-DogJsFVJ.css :: hero-sub @ 5156 ===
+ent:center}.query-hero-inner[data-v-bc73a8d2]{width:1000px;max-width:92vw}.hero-title[data-v-bc73a8d2]{color:#fff;font-size:36px;font-weight:700;line-height:1.3;text-align:center}.hero-subtitle[data-v-bc73a8d2]{margin-top:12px;color:#ffffffe0;font-size:16px;line-height:24px;text-align:center}.query-main[data-v-bc73a8d2]{width:100%;min-height:calc(100vh - 444px);padding:24px 0 80px}.query-inner[dat
+
+=== portal-BQh_66u9.css :: duty-diagram @ 7800 ===
+0]:hover{background:#1345a5;border-color:#1345a5}.partner-card:hover .partner-mark[data-v-58bb0b90]{display:none}.partner-card:hover .partner-name[data-v-58bb0b90]{display:block}
+.duty-diagram-img[data-v-58bb0b90]{display:block;width:100%;max-width:1100px;margin:24px auto 0;height:auto}
+
+=== portal-BQh_66u9.css :: hero-sub @ 1696 ===
+;width:100%;height:350px}.regorg-hero-content[data-v-58bb0b90]{width:1200px;max-width:90vw}.hero-title[data-v-58bb0b90]{color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-58bb0b90]{color:#7d98cd;font-size:20px;line-height:27px;margin-top:16px}.inner-container[data-v-58bb0b90]{width:1200px;max-width:95vw}.regorg-section[data-v-58bb0b90]{width:100%;padding:80px 0;box-shadow:
+
+=== index-BZ7-YeMc.js :: 输入DCI @ 10532 ===
+ee}),e[18]||(e[18]=t("div",{class:"query-hero"},[t("div",{class:"query-hero-inner flex-col align-center"},[t("span",{class:"hero-title"},"DCI查询"),t("span",{class:"hero-subtitle"},"输入DCI码和著作权人或作品信息，快速查询DCI申领状态及权属信息")])],-1)),t("div",Ee,[t("div",Ne,[t("div",Ue,[t("div",{class:L(["search-bar flex-row",{"is-focused":o(f)}])},[H(t("input",{"onUpdate:modelValue":e[0]||(e[0]=l=>X(v)?v.value=l:null),class
+
+=== index-BZ7-YeMc.js :: 快速查询 @ 10549 ===
+]=t("div",{class:"query-hero"},[t("div",{class:"query-hero-inner flex-col align-center"},[t("span",{class:"hero-title"},"DCI查询"),t("span",{class:"hero-subtitle"},"输入DCI码和著作权人或作品信息，快速查询DCI申领状态及权属信息")])],-1)),t("div",Ee,[t("div",Ne,[t("div",Ue,[t("div",{class:L(["search-bar flex-row",{"is-focused":o(f)}])},[H(t("input",{"onUpdate:modelValue":e[0]||(e[0]=l=>X(v)?v.value=l:null),class:"search-input",p
+
+=== index-BZ7-YeMc.js :: query-hero @ 10387 ===
+word)),D.value&&QA.clear()}}catch(err){}D.value&&(v.value||i.value)&&M()}),(s,e)=>{const a=ge("loading");return d(),g("div",Te,[w(Se,{onOpenAuth:ee}),e[18]||(e[18]=t("div",{class:"query-hero"},[t("div",{class:"query-hero-inner flex-col align-center"},[t("span",{class:"hero-title"},"DCI查询"),t("span",{class:"hero-subtitle"},"输入DCI码和著作权人或作品信息，快速查询DCI申领状态及权属信息")])],-1)),t("div",Ee,[t("div",Ne,[t("div"
+
+=== index-BZ7-YeMc.js :: hero-sub @ 10515 ===
+w(Se,{onOpenAuth:ee}),e[18]||(e[18]=t("div",{class:"query-hero"},[t("div",{class:"query-hero-inner flex-col align-center"},[t("span",{class:"hero-title"},"DCI查询"),t("span",{class:"hero-subtitle"},"输入DCI码和著作权人或作品信息，快速查询DCI申领状态及权属信息")])],-1)),t("div",Ee,[t("div",Ne,[t("div",Ue,[t("div",{class:L(["search-bar flex-row",{"is-focused":o(f)}])},[H(t("input",{"onUpdate:modelValue":e[0]||(e[0]=l=>X(v)?v.va
+
+=== index-CTjUIe93.js :: 输入DCI @ 7619 ===
+     t(R,{label:"DCI申领平台名称",prop:"appOrgName"},{default:a(()=>[
+              t(A,{modelValue:s(g).appOrgName,"onUpdate:modelValue":e[0]||(e[0]=l=>s(g).appOrgName=l),placeholder:"请输入DCI申领平台名称"},null,8,["modelValue"])
+            ]),_:1}),
+            t(R,{label:"DCI申领平台标识码",prop:"appOrgCode","label-width":"150px"},{default:a(()=>[
+              t(A,{modelValue:s(g).appOrgCode,"onUpdate:modelValue"
+
+=== index-D8JrnKcV.js :: hero-sub @ 4505 ===
+),e[7]||(e[7]=s("div",{class:"eco-hero flex-col justify-center align-center"},[s("div",{class:"eco-hero-content flex-col"},[s("span",{class:"hero-title"},"DCI生态"),s("span",{class:"hero-sub"},"秉承“共建、共治、共享”理念，共同构建DCI可信生态")])],-1)),s("div",z,[s("div",D,[e[6]||(e[6]=s("span",{class:"section-title"},"DCI可信生态",-1)),s("div",L,[(a(),n(d,null,g(V,(A,E)=>s("div",{key:A.title,class:"eco-card flex-col",style:
+
+=== index-DXJtz4g7.js :: hero-sub @ 42171 ===
+[8]=A("div",{class:"standard-hero flex-col justify-center align-center"},[A("div",{class:"standard-hero-content flex-col"},[A("span",{class:"hero-title"},"DCI标准"),A("span",{class:"hero-sub"}," DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系，并面向音视图文等各垂直领域数字生态及AI新业态新场景开展贯标试点应用。 ")])],-1)),A("div",q,[A("div",F,[i[1]||(i[1]=A("span",{class:"section-title"},"DCI",-1)),i[2]||(i[2]=A("span",{class:"section-desc"}
+
+=== index-rPx1fAAg.js :: hero-sub @ 3977 ===
+v",{class:"system-hero flex-col justify-center align-center"},[s("div",{class:"system-hero-content flex-col"},[s("span",{class:"hero-title"},"DCI体系4.0(全球版权数据中心)"),s("span",{class:"hero-sub"},"——AI时代的版权可信数据基础设施")])],-1)),p(O,null,{header:z(()=>[...e[1]||(e[1]=[s("span",{class:"section-title"},"DCI体系",-1),s("span",{class:"section-desc"}," DCI体系是以DCI国家标准为引领，以标准化标识为基础手段，以AI、区块链等新技术的系统集成应用为驱动，涵盖标准、技术协议
+
+=== portal-CGcjgAeB.js :: regorg_duty @ 12329 ===
+审核执行机构，管理本域内的DCI申领平台的相关服务，帮助其提升服务能力与合规水平。"),e("br"),E(" DCI注册中心涵盖版权登记机构、内容平台、版权专业服务商等主体类型。 ")],-1)),e("img",{class:"duty-diagram-img",referrerpolicy:"no-referrer",src:"/static/png/regorg_duty.png",alt:"DCI注册中心职责"})])])]),e("div",Ke,[e("div",Ze,[s[11]||(s[11]=e("span",{class:"section-title"},"合作伙伴",-1)),e("div",qe,[(l(),r(R,null,C(H,n=>e("div",{key:n.name,class:"partner-card flex-col align-center j
+
+=== portal-CGcjgAeB.js :: duty-diagram @ 12265 ===
+评估认证的DCI可信生态合作伙伴，负责 DCI 业务的标准化落地与数据运营。"),e("br"),E(" 是DCI码的分配与业务审核执行机构，管理本域内的DCI申领平台的相关服务，帮助其提升服务能力与合规水平。"),e("br"),E(" DCI注册中心涵盖版权登记机构、内容平台、版权专业服务商等主体类型。 ")],-1)),e("img",{class:"duty-diagram-img",referrerpolicy:"no-referrer",src:"/static/png/regorg_duty.png",alt:"DCI注册中心职责"})])])]),e("div",Ke,[e("div",Ze,[s[11]||(s[11]=e("span",{class:"section-title"},"合作伙伴",-1)),e("div",qe,[(l(),r(R,null,C(H,n=
+
+=== portal-CGcjgAeB.js :: hero-sub @ 11249 ===
+s[12]=e("div",{class:"regorg-hero flex-col justify-center align-center"},[e("div",{class:"regorg-hero-content flex-col"},[e("span",{class:"hero-title"},"DCI注册中心"),e("span",{class:"hero-sub"},"——DCI可信生态合作伙伴")])],-1)),e("div",Me,[e("div",be,[e("div",{class:"section-head flex-row justify-between align-center"},[s[1]||(s[1]=e("span",{class:"section-title"},"如何申请成为DCI注册中心",-1)),e("span",{class:"apply-l
