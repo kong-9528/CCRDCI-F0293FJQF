@@ -1,0 +1,15 @@
+from bak len=23583
+added image consts
+replaced I
+replaced card media
+added banner class
+merged lead
+removed wave loose 21342-22273
+paren=-5 bracket=-3 brace=0
+has_wave=False
+has_V1=True
+has_banner=True
+final_len=22719
+node_rc=1
+node_err=c:\WORKING_PLACE\CODE_R\sampleA\apps\home\mirror\static\js\index-hnrUP1Bs.js:1
+import{A as R}from"./index-BiQimQRe.js";import{d as b,o as e,c as r,l as o,_ as B,r as g,e as V,N,i as p,h as t,J as k,K as w,k as n,M as z,A as x,O as G,p as P}from"./index-DA8BAxJb.js";import{P as X,a as E}from"./index-_fJendd7.js";import"./passwordRule-CK9dJiC2.js";const H="/static/png/review-duplicate.png",L="/static/png/review-infringement.png",S="/static/png/review-safety.png",TC_BANNER="/static/png/banner_tech_center.png",V1="/static/png/verify_1.png",V2="/static/png/verify_2.png",V3="/static/png/verify_3.png",T=["data-variant"],K={key:0,viewBox:"0 0 560 480",fill:"none",class:"p-hero-visual__svg"},j={key:1,viewBox:"0 0 560 480",fill:"none",class:"p-hero-visual__svg"},F={key:2,viewBox:"0 0 560 480",fill:

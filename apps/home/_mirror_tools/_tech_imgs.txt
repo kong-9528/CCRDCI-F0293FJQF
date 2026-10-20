@@ -1,0 +1,30 @@
+2408024	C:\Users\leste\Downloads\banner_技术服务中心.png
+1547499	C:\Users\leste\Downloads\DCI®技术服务中心 -1.png
+193029	C:\Users\leste\Downloads\DCI®技术服务中心.jpg
+250532	C:\Users\leste\Downloads\DCI®技术服务中心用户需求确认单-V7.0-20260819.docx
+103	C:\Users\leste\Downloads\DCI批量核验模板 (1).csv
+103	C:\Users\leste\Downloads\DCI批量核验模板 (2).csv
+103	C:\Users\leste\Downloads\DCI批量核验模板 (3).csv
+181	C:\Users\leste\Downloads\DCI批量核验模板.csv
+93499	C:\Users\leste\Downloads\DCI技术服务中心-需求规格说明书.docx
+82103	C:\Users\leste\Downloads\DCI技术服务中心-需求规格说明书.md
+2020469	C:\Users\leste\Downloads\DCI技术服务中心业务架构图生成提示.png
+8848532	C:\Users\leste\Downloads\DCI门户技术服务中心原型及UI设计意见0909-业务组反馈.pptx
+455259	C:\Users\leste\Downloads\核验图1.png
+515249	C:\Users\leste\Downloads\核验图2.png
+487087	C:\Users\leste\Downloads\核验图3.png
+4648	C:\Users\leste\Downloads\核验统计_按技术服务_明细报表.csv
+195	C:\Users\leste\Downloads\核验统计_按技术服务_汇总报表.csv
+14649	C:\Users\leste\Downloads\核验统计_按机构_2026-09-01至2026-09-30_明细报表.csv
+469	C:\Users\leste\Downloads\核验统计_按机构_2026-09-01至2026-09-30_汇总报表.csv
+14687	C:\Users\leste\Downloads\版权核验统计_按机构_2026-09-09至2026-10-08_明细报表.csv
+470	C:\Users\leste\Downloads\版权核验统计_按机构_2026-09-09至2026-10-08_汇总报表.csv
+81	C:\Users\leste\Downloads\版权登记信息核验批量模板-数据作品.csv
+81	C:\Users\leste\Downloads\版权登记信息核验批量模板-软件 (1).csv
+98	C:\Users\leste\Downloads\版权登记信息核验批量模板-软件.csv
+3680051	C:\Users\leste\Downloads\版权项目阶段性汇报（20260918）-技术服务中心&DCI管理中心-0916-V4.pptx
+23000	C:\Users\leste\AppData\Roaming\Cursor\User\workspaceStorage\7a99a250099a926a43f880d212352a81\images\banner_技术服务中心-0af366d0-d57c-44da-b9f5-2f1ecbccea69.jpg
+117398	C:\Users\leste\AppData\Roaming\Cursor\User\workspaceStorage\7a99a250099a926a43f880d212352a81\images\DCI®技术服务中心 -1-c51eec2f-eaf0-4f11-ad45-2bad2265d316.jpg
+455259	C:\Users\leste\AppData\Roaming\Cursor\User\workspaceStorage\7a99a250099a926a43f880d212352a81\images\核验图1-fe4e0b84-bf26-45fe-8f47-7250246335a5.png
+515249	C:\Users\leste\AppData\Roaming\Cursor\User\workspaceStorage\7a99a250099a926a43f880d212352a81\images\核验图2-b5e5edbf-e4c9-4a0e-a7ff-206c6b9317e1.png
+487087	C:\Users\leste\AppData\Roaming\Cursor\User\workspaceStorage\7a99a250099a926a43f880d212352a81\images\核验图3-325c4bfe-3a94-4263-a982-64f121882be2.png

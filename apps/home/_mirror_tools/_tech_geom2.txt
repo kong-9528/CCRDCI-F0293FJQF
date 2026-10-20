@@ -1,0 +1,15 @@
+banner_file banner_技术服务中心.png (3840, 700) RGBA
+media y=558-574 h=17
+last_text_y=823 body_approx_h=249
+y0 center_rgb=255,255,255
+y20 center_rgb=255,255,255
+y40 center_rgb=100,101,102
+y60 center_rgb=255,255,255
+y72 center_rgb=19,66,157
+y80 center_rgb=18,65,158
+y90 center_rgb=18,66,158
+y100 center_rgb=19,66,158
+y110 center_rgb=19,66,159
+hero_blue_start y=20 rgb=19,69,165
+media_size design=384x17 source_half=384x216
+gap=24 card_w=384 content=1200

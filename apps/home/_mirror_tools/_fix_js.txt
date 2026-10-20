@@ -1,0 +1,8 @@
+paren_end=-5 min=-5 len=22719
+bracket_end=-3
+brace_end=0
+bak_len=23583 cur_len=22719
+bak_wave_at=21339
+bak_remove=21308-22206
+snippet_len=898
+node_check_rc=1

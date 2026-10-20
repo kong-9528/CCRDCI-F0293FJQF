@@ -1,0 +1,17 @@
+copied banner_技术服务中心.png -> banner_tech_center.png (2408024)
+copied 核验图1.png -> verify_1.png (455259)
+copied 核验图2.png -> verify_2.png (515249)
+copied 核验图3.png -> verify_3.png (487087)
+backed up index-hnrUP1Bs.js.bak_tech
+added image consts
+replaced I card data
+replaced card media render
+added tc-hero--banner class
+wrote JS
+backed up index-DLjiOJYG.css.bak_tech
+card-grid gap 28->24
+hero height 600->350
+hero responsive min-height fixed
+wrote CSS
+appended overrides block
+wrote overrides

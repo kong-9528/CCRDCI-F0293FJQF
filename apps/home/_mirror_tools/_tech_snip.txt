@@ -1,0 +1,43 @@
+=== IMG PATHS ===
+/static/png/review-duplicate.png
+/static/png/review-infringement.png
+/static/png/review-safety.png
+
+=== JS around 版权核验 ===
+ss:"tc-orb tc-orb--a"}),t("span",{class:"tc-orb tc-orb--b"}),t("span",{class:"tc-grid-lines"})],-1)),t("div",dt,[c[4]||(c[4]=t("header",{class:"tc-section__head"},[t("h2",{class:"tc-section__title"},"版权核验"),t("p",{class:"tc-section__lead"}," 基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务 ")],-1)),t("div",ft,[(e(),r(k,null,w(I,s=>t("article",{key:s.title,class:"tc-card"},[t("div",nt,[p(ct,{variant:s.visual},null,8,["variant"])]),t("div",vt,[t("h3",null,x(s.title),1),t("p",null,x(s.desc),1)])])),64))])])]),t("section",pt,[c[9]||(c[9]=t("div",{class:"tc-section__bg","aria-hidden":"true"},[t("span",{class:"tc-orb tc-orb--a"}),t("span",{class:"tc-orb tc-orb--b"}),t("span",{class:"tc-grid-lines"})],-1)),t("div",ht,[c[8]||(c[8]=t("header",{class:"tc-section__head tc-section__head--wide"},[t("h2",{class:"tc-section__title"},"作品智能辅助审核技术能力"),t("p",{class:"tc-section__lead"}," 迭代升级作品版权登记AI辅助审核员“小山”2.0，首创打造集“内容安全审核、作品登记查重、疑似侵权审核”三大核心技术能力、“机读人审、人机协同”的作品版权登记智能辅助审核支撑体系，覆盖图、文、声、像多模态作品，实现“人工智能+版权登记”场景应用零突破。 ")],-1)),t("div",{class:"tc-review",onMouseleave:D},[t("div",gt,[(e(),r(k,null,w(y,(s,f)=>t("article",{key:s.key,class:G(["tc-review-card",{"is-active":f===n(l)}]),onMouseenter:A=>M(f),onClick:A=>M(f)},[t("div",yt,[c[6]||(c[6]=t("span",{class:"tc-review-fx__glow"},null,-1)),c[7]||(c[7]=t("span",{class:"tc-review-fx__scan"},null,-1)),t("span",ut,[f===n(l)?(e(),r("span",{key:n(m),class:"tc-review-f
+
+=== hero refs ===
+js tech-hero -1 tc-hero 18878 banner -1
+
+=== CSS RULES ===
+.tc-hero[data-v-873a6031]{position:relative;height:600px;overflow:hidden;display:flex;align-items:center;background:radial-gradient(ellipse 90% 70% at 75% 0,rgba(0,184,198,.28),transparent 55%),radial-gradient(ellipse 60% 50% at 10% 100%,rgba(11,98,184,.35),transparent 50%),linear-gradient(135deg,#003161,#0b62b8 55%,#00b8c6);color:#fff}
+.tc-hero__bg[data-v-873a6031]{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}
+.tc-hero__mesh[data-v-873a6031]{position:absolute;top:0;right:0;bottom:0;left:0;opacity:.2;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 0),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 0);background-size:72px 72px;-webkit-mask-image:radial-gradient(ellipse 85% 75% at 55% 45%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse 85% 75% at 55% 45%,#000 25%,transparent 78%)}
+.tc-hero__orb[data-v-873a6031]{position:absolute;border-radius:50%;filter:blur(64px);animation:tc-float-873a6031 14s ease-in-out infinite}
+.tc-hero__orb--1[data-v-873a6031]{width:480px;height:480px;right:-120px;top:-100px;background:#00b8c66b}
+.tc-hero__orb--2[data-v-873a6031]{width:360px;height:360px;left:-80px;bottom:-80px;background:#0b62b861;animation-delay:-5s}
+.tc-hero__line[data-v-873a6031]{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)}
+.tc-hero__line--1[data-v-873a6031]{width:55%;top:28%;left:5%;transform:rotate(-8deg)}
+.tc-hero__line--2[data-v-873a6031]{width:40%;bottom:22%;right:8%;transform:rotate(6deg)}
+.tc-hero__inner[data-v-873a6031]{position:relative;z-index:1;width:1200px;max-width:92vw;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:48px;align-items:center}
+.tc-hero__title[data-v-873a6031]{margin:0;font-size:48px;font-weight:700;line-height:1.2;letter-spacing:-.02em;text-shadow:0 4px 32px rgba(0,22,46,.25)}
+.tc-hero__reg[data-v-873a6031]{font-size:18px;vertical-align:super;margin:0 2px}
+.tc-hero__lead[data-v-873a6031]{margin:24px 0 0;font-size:18px;font-weight:600;line-height:1.85;color:#ffffffe0}
+.tc-hero__highlight[data-v-873a6031]{background:linear-gradient(90deg,#fff,#7ceef6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tc-hero__visual[data-v-873a6031]{display:flex;justify-content:center;align-items:center}
+.tc-hero__visual-frame[data-v-873a6031]{position:relative;width:100%;max-width:460px;padding:20px;border-radius:28px;background:#ffffff0f;border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 64px #00162e59,inset 0 1px #ffffff26;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.tc-hero__visual-badge[data-v-873a6031]{position:absolute;left:50%;bottom:-14px;transform:translate(-50%);padding:8px 20px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.12em;color:#004281;background:#fff;box-shadow:0 8px 24px #0243;white-space:nowrap}
+.tc-hero-wave[data-v-873a6031]{position:relative;z-index:2;margin-top:-1px;line-height:0}
+.tc-hero-wave svg[data-v-873a6031]{display:block;width:100%;height:64px}
+.tc-section--verify[data-v-873a6031]{background:linear-gradient(180deg,#fff,#f8fbff 55%,#fff)}
+.85;color:#6b7889}.tc-card-grid[data-v-873a6031]{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.tc-card[data-v-873a6031]{display:flex;flex-direction:column;height:100%;border-radius:0;overflow:hidden;background:#fff;border:1px solid rgba(11,98,184,.1);box-shadow:inset 0 1px #fffffff2,0 16px 40px #00224414;transition:transform .36s cubic-bezier(.22,.8,.32,1),box-shadow .36s ease,border-color .36s ease}
+.tc-card[data-v-873a6031]:hover{transform:translateY(-6px);border-color:#0b62b838;box-shadow:inset 0 1px #fff,0 28px 56px #0022441f}
+.tc-card__media[data-v-873a6031]{overflow:hidden;line-height:0}
+.tc-card__media[data-v-873a6031] .p-product-visual,.tc-card__media[data-v-873a6031] .p-product-visual__svg{display:block;width:100%;height:auto}
+.tc-card__body[data-v-873a6031]{padding:24px 28px 28px;flex:1}
+.tc-card__body h3[data-v-873a6031]{margin:0 0 12px;font-size:20px;font-weight:600;color:#161c24}
+.tc-card__body p[data-v-873a6031]{margin:0;font-size:14px;line-height:1.8;color:#6b7889}
+.tc-hero[data-v-873a6031]{height:auto;min-height:600px;padding:48px 0}
+.tc-hero__inner[data-v-873a6031],.tc-card-grid[data-v-873a6031],.tc-review[data-v-873a6031]{grid-template-columns:1fr}
+.tc-hero__title[data-v-873a6031]{font-size:32px}

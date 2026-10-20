@@ -1,0 +1,1 @@
+,c[10]||(c[10]=t("div",{class:"tc-hero-wave","aria-hidden":"true"},[t("svg",{viewBox:"0 0 1440 80",preserveAspectRatio:"none"},[t("path",{d:"M0 40 Q360 0 720 40 T1440 40 V80 H0 Z",fill:"#fff"}),t("path",{d:"M0 50 Q360 20 720 50 T1440 50",fill:"none",stroke:"rgba(11,98,184,0.08)","stroke-width":"1"})])],-1))

@@ -1,0 +1,2 @@
+removed wave at 21342 len=931
+still has tc-hero-wave: False

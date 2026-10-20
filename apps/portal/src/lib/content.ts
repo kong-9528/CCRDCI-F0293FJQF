@@ -491,7 +491,7 @@ export const ANALYTICS_PAGE: AnalyticsPageContent = {
         ],
         capabilities: ["DCI 核验调用与命中分析", "版权登记信息核验趋势", "版权登记证书验真分析"],
         relatedHref: "/verify",
-        relatedLabel: "了解版权核验能力",
+        relatedLabel: "了解版权核验",
       },
       {
         id: "audit",

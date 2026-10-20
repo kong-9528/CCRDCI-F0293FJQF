@@ -1,0 +1,55 @@
+JS classes:
+tc-card
+tc-card-grid
+tc-card__body
+tc-card__img
+tc-card__media
+tc-grid-lines
+tc-hero tc-hero--banner
+tc-hero-wave
+tc-hero__inner
+tc-hero__visual
+tc-hero__visual-badge
+tc-hero__visual-frame
+tc-orb tc-orb--a
+tc-orb tc-orb--b
+tc-review
+tc-review-card__fx
+tc-review-fx__bar
+tc-review-fx__bar-run
+tc-review-fx__glow
+tc-review-fx__scan
+tc-review__list
+tc-review__visual
+tc-section tc-section--audit
+tc-section tc-section--verify
+tc-section__bg
+tc-section__head
+tc-section__head tc-section__head--wide
+tc-section__inner
+tc-section__lead
+tc-section__title
+HTML classes:
+tc-hero__bg
+tc-hero__copy
+tc-hero__highlight
+tc-hero__lead
+tc-hero__line tc-hero__line--1
+tc-hero__line tc-hero__line--2
+tc-hero__mesh
+tc-hero__orb tc-hero__orb--1
+tc-hero__orb tc-hero__orb--2
+tc-hero__reg
+tc-hero__title
+CSS font rules:
+  position:relative;z-index:1;width:1200px;max-width:92vw;margin:0 auto;display:gr -> 48px
+  .tc-hero__reg[data-v-873a6031] -> 18px
+  .tc-hero__lead[data-v-873a6031] -> 18px
+  position:relative;width:100%;max-width:460px;padding:20px;border-radius:28px;bac -> 12px
+  max-width:100%}.tc-section__title[data-v-873a6031] -> 36px
+  background:linear-gradient(90deg,#0096a3,#4ed3dd)}.tc-section__lead[data-v-873a6 -> 16px
+  padding:24px 28px 28px;flex:1}.tc-card__body h3[data-v-873a6031] -> 20px
+  .tc-card__body p[data-v-873a6031] -> 14px
+  position:relative;z-index:1}.tc-review-card h3[data-v-873a6031] -> 20px
+  .tc-review-card p[data-v-873a6031] -> 13px
+  grid-template-columns:1fr}.tc-hero__title[data-v-873a6031] -> 32px

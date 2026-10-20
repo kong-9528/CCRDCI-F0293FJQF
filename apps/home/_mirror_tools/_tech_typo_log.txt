@@ -1,0 +1,7 @@
+merged hero lead via regex pattern
+wrote JS
+appended typography overrides
+wrote overrides
+lead_has_br=False
+lead_has_highlight=False
+lead_len=113

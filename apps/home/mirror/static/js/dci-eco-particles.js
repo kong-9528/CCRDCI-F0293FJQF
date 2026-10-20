@@ -194,11 +194,20 @@
     };
   }
 
-  function sync() {
+  function resolveHost() {
     var path = location.pathname || "";
-    var onEco = path.indexOf("/dci/eco") >= 0;
-    var host = document.querySelector(".eco-body");
-    if (onEco && host) {
+    if (path.indexOf("/dci/eco") >= 0) {
+      return document.querySelector(".eco-body");
+    }
+    if (path.indexOf("/dci/tech-center") >= 0) {
+      return document.querySelector(".tc-section--verify");
+    }
+    return null;
+  }
+
+  function sync() {
+    var host = resolveHost();
+    if (host) {
       if (!state || state.host !== host) {
         destroy();
         mount(host);

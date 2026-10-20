@@ -1,0 +1,9 @@
+bak paren=0 bracket=0
+remove 21308-21616 len=308
+snip_head=',c[10]||(c[10]=t("div",{class:"tc-hero-wave","aria-hidden":"true"},[t("svg",{vie'
+snip_tail='T1440 50",fill:"none",stroke:"rgba(11,98,184,0.08)","stroke-width":"1"})])],-1))'
+after_wave paren=0 bracket=0
+final paren=0 bracket=0 brace=0
+wave=False V1=True banner=True
+len=23342
+node_rc=0
