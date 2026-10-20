@@ -7,7 +7,6 @@ import { CatalogListModal } from "@/components/CatalogListModal";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TableAction } from "@/components/TableAction";
 import { IconEdit, IconEnable, IconOffline, IconPdf, IconPlus } from "@/components/icons/UiIcons";
-import { paramsToText } from "@ctp/api-catalog";
 import {
   API_STATUS_LABEL,
   PRODUCT_CODES,
@@ -189,8 +188,8 @@ export function ApiServicesPage() {
           catalogIds: values.catalogIds,
           owner: "平台运营",
           docFile: values.docFile,
-          requestParamsText: paramsToText(values.requestParams),
-          responseFieldsText: paramsToText(values.responseParams),
+          requestParamsText: values.requestParamsJson,
+          responseFieldsText: values.responseParamsJson,
           pathParams: [],
           queryParams: [],
           headerParams: [],
@@ -216,8 +215,8 @@ export function ApiServicesPage() {
           productCodes,
           catalogIds: values.catalogIds,
           docFile: values.docFile,
-          requestParamsText: paramsToText(values.requestParams),
-          responseFieldsText: paramsToText(values.responseParams),
+          requestParamsText: values.requestParamsJson,
+          responseFieldsText: values.responseParamsJson,
           pathParams: [],
           queryParams: [],
           headerParams: [],

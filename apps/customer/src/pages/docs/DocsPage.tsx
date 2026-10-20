@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PaneHeader } from "@/components/PaneHeader";
 import {
@@ -15,14 +15,28 @@ import {
   collectRequestParams,
   listApiDocCatalogs,
   listOnlineByCatalog,
+  parseParamTableJson,
+  resolveRequestParamsText,
+  resolveResponseFieldsText,
   subscribeApiCatalog,
   type ApiDocCatalog,
   type ApiEndpoint,
   type ApiParam,
+  type ParamTableDoc,
+  type ParamTableRow,
 } from "@ctp/api-catalog";
 
 function visibleDocsCatalogs(list: ApiDocCatalog[] = listApiDocCatalogs()) {
   return list.filter((c) => !DOCS_HIDDEN_CATALOG_IDS.has(c.id));
+}
+
+function collectExpandableKeys(rows: ParamTableRow[], out: Set<string>) {
+  for (const row of rows) {
+    if (row.children?.length) {
+      out.add(row.rowKey);
+      collectExpandableKeys(row.children, out);
+    }
+  }
 }
 
 function ParamTable({
@@ -60,6 +74,141 @@ function ParamTable({
         </tbody>
       </table>
     </div>
+  );
+}
+
+function NestedParamTable({ doc }: { doc: ParamTableDoc }) {
+  const [expanded, setExpanded] = useState(() => {
+    const keys = new Set<string>();
+    collectExpandableKeys(doc.data, keys);
+    return keys;
+  });
+
+  useEffect(() => {
+    const keys = new Set<string>();
+    collectExpandableKeys(doc.data, keys);
+    setExpanded(keys);
+  }, [doc]);
+
+  const columns = doc.columns?.length
+    ? doc.columns
+    : [
+        { title: "参数名", dataIndex: "name" },
+        { title: "类型", dataIndex: "type" },
+        { title: "必填", dataIndex: "required" },
+        { title: "说明", dataIndex: "desc" },
+      ];
+
+  if (!doc.data?.length) {
+    return <div className="c-docs-empty">暂无参数</div>;
+  }
+
+  const toggle = (key: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const renderRows = (rows: ParamTableRow[], depth: number): ReactNode[] => {
+    const nodes: ReactNode[] = [];
+    for (const row of rows) {
+      const hasChildren = Boolean(row.children?.length);
+      const isOpen = expanded.has(row.rowKey);
+      nodes.push(
+        <tr key={row.rowKey} className={hasChildren ? "c-docs-table__row--branch" : undefined}>
+          {columns.map((col, colIdx) => {
+            const raw = row[col.dataIndex];
+            const text =
+              raw == null || raw === ""
+                ? "—"
+                : typeof raw === "string" || typeof raw === "number" || typeof raw === "boolean"
+                  ? String(raw)
+                  : "—";
+            if (colIdx === 0) {
+              return (
+                <td key={col.dataIndex} className="c-docs-table__name-cell">
+                  <span
+                    className="c-docs-table__indent"
+                    style={{ paddingLeft: depth * 16 }}
+                  >
+                    {hasChildren ? (
+                      <button
+                        type="button"
+                        className="c-docs-table__expand"
+                        aria-expanded={isOpen}
+                        aria-label={isOpen ? "收起" : "展开"}
+                        onClick={() => toggle(row.rowKey)}
+                      >
+                        {isOpen ? "▾" : "▸"}
+                      </button>
+                    ) : (
+                      <span className="c-docs-table__expand-spacer" aria-hidden />
+                    )}
+                    <code>{text === "—" && col.dataIndex === "name" ? String(row.name ?? "—") : text}</code>
+                  </span>
+                </td>
+              );
+            }
+            return <td key={col.dataIndex}>{text}</td>;
+          })}
+        </tr>,
+      );
+      if (hasChildren && isOpen && row.children) {
+        nodes.push(...renderRows(row.children, depth + 1));
+      }
+    }
+    return nodes;
+  };
+
+  return (
+    <div className="c-docs-table-wrap c-docs-table-wrap--nested">
+      <table className="c-docs-table c-docs-table--nested">
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th
+                key={col.dataIndex}
+                style={
+                  col.width != null
+                    ? { width: typeof col.width === "number" ? `${col.width}px` : col.width }
+                    : undefined
+                }
+              >
+                {col.title}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{renderRows(doc.data, 0)}</tbody>
+      </table>
+    </div>
+  );
+}
+
+function DocsParamBlock({
+  title,
+  jsonText,
+  fallbackRows,
+  showRequired,
+}: {
+  title: string;
+  jsonText: string;
+  fallbackRows: ApiParam[];
+  showRequired?: boolean;
+}) {
+  const parsed = useMemo(() => parseParamTableJson(jsonText), [jsonText]);
+  return (
+    <section className="c-docs-block">
+      <h3 className="c-docs-block__title">{title}</h3>
+      {parsed.ok ? (
+        <NestedParamTable doc={parsed.value} />
+      ) : (
+        <ParamTable rows={fallbackRows} showRequired={showRequired} />
+      )}
+    </section>
   );
 }
 
@@ -109,6 +258,8 @@ function ApiAccordionItem({
 }) {
   const requestParams = collectRequestParams(api);
   const responseParams = api.responseParams ?? [];
+  const requestJsonText = resolveRequestParamsText(api);
+  const responseJsonText = resolveResponseFieldsText(api);
 
   const downloadDoc = () => {
     const file = api.docFile;
@@ -193,15 +344,18 @@ function ApiAccordionItem({
             <code className="c-docs-path">{api.path}</code>
           </div>
 
-          <section className="c-docs-block">
-            <h3 className="c-docs-block__title">请求入参</h3>
-            <ParamTable rows={requestParams} showRequired />
-          </section>
+          <DocsParamBlock
+            title="请求入参"
+            jsonText={requestJsonText}
+            fallbackRows={requestParams}
+            showRequired
+          />
 
-          <section className="c-docs-block">
-            <h3 className="c-docs-block__title">请求出参</h3>
-            <ParamTable rows={responseParams} />
-          </section>
+          <DocsParamBlock
+            title="请求出参"
+            jsonText={responseJsonText}
+            fallbackRows={responseParams}
+          />
 
           <ApiCallExamplePanel api={api} />
 

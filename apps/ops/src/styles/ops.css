@@ -537,6 +537,18 @@ body,
   min-height: 110px;
 }
 
+.epf-json-param {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.epf-textarea--json {
+  min-height: 240px;
+  line-height: 1.45;
+}
+
 .epf-block {
   border: 1px solid #e2e7ef;
   border-radius: 6px;

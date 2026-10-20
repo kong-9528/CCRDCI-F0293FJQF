@@ -6485,6 +6485,44 @@ body,
   color: #1449b2;
 }
 
+.c-docs-table--nested .c-docs-table__name-cell {
+  white-space: nowrap;
+}
+
+.c-docs-table__indent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.c-docs-table__expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--n-500, #6b7280);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.c-docs-table__expand:hover {
+  background: var(--n-100, #f3f4f6);
+  color: #1449b2;
+}
+
+.c-docs-table__expand-spacer {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .c-docs-empty {
   padding: 12px;
   color: var(--n-500, #6b7280);

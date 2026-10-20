@@ -40,6 +40,23 @@ export {
   resolveResponseFieldsText,
 } from "./docsDisplay";
 
+export type {
+  ParamTableColumn,
+  ParamTableDoc,
+  ParamTableRow,
+  ParseParamTableResult,
+} from "./paramTableJson";
+export {
+  defaultParamTableColumns,
+  emptyParamTableJson,
+  flattenParamTable,
+  isParamTableDoc,
+  paramsToParamTableDoc,
+  paramsToParamTableJson,
+  parseParamTableJson,
+  stringifyParamTableDoc,
+} from "./paramTableJson";
+
 export {
   apiEndpointTitle,
   countEndpointsInCatalog,

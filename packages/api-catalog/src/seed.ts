@@ -1,4 +1,5 @@
 import { catalogIdForProduct } from "./catalogs";
+import { flattenParamTable, type ParamTableDoc } from "./paramTableJson";
 import type {
   ApiEndpoint,
   ApiErrorCode,
@@ -183,6 +184,151 @@ function ep(input: SeedInput): ApiEndpoint {
     exampleResponse: input.exampleResponse ?? exampleOk({ result: "pass" }),
   };
 }
+
+const INFRINGE_REPORT_REQUEST_TABLE: ParamTableDoc = {
+  columns: [
+    { title: "参数名", dataIndex: "name", width: "22%" },
+    { title: "类型", dataIndex: "type", width: 120 },
+    { title: "必填", dataIndex: "required", width: 80 },
+    { title: "说明", dataIndex: "desc" },
+  ],
+  data: [
+    {
+      rowKey: "->taskId",
+      name: "taskId",
+      type: "string",
+      required: "是",
+      desc: "分析任务 ID",
+      children: [],
+    },
+  ],
+};
+
+const INFRINGE_REPORT_RESPONSE_TABLE: ParamTableDoc = {
+  columns: [
+    { title: "参数名", dataIndex: "name", width: "22%" },
+    { title: "类型", dataIndex: "type", width: 120 },
+    { title: "必填", dataIndex: "required", width: 80 },
+    { title: "说明", dataIndex: "desc" },
+  ],
+  data: [
+    {
+      rowKey: "->code",
+      name: "code",
+      type: "number",
+      required: "是",
+      desc: "业务状态码，0 表示成功",
+      children: [],
+    },
+    {
+      rowKey: "->message",
+      name: "message",
+      type: "string",
+      required: "是",
+      desc: "提示信息",
+      children: [],
+    },
+    {
+      rowKey: "->data",
+      name: "data",
+      type: "object",
+      required: "否",
+      desc: "业务数据",
+      children: [
+        {
+          rowKey: "->data->taskId",
+          name: "taskId",
+          type: "string",
+          required: "是",
+          desc: "分析任务 ID",
+          children: [],
+        },
+        {
+          rowKey: "->data->riskLevel",
+          name: "riskLevel",
+          type: "string",
+          required: "是",
+          desc: "风险等级：low / medium / high",
+          children: [],
+        },
+        {
+          rowKey: "->data->summary",
+          name: "summary",
+          type: "string",
+          required: "否",
+          desc: "风险摘要",
+          children: [],
+        },
+        {
+          rowKey: "->data->items",
+          name: "items",
+          type: "array of object",
+          required: "否",
+          desc: "风险明细列表",
+          children: [
+            {
+              rowKey: "->data->items->type",
+              name: "type",
+              type: "string",
+              required: "是",
+              desc: "风险类型 text / image / audio",
+              children: [],
+            },
+            {
+              rowKey: "->data->items->score",
+              name: "score",
+              type: "number",
+              required: "是",
+              desc: "相似度分数 0~1",
+              children: [],
+            },
+            {
+              rowKey: "->data->items->evidence",
+              name: "evidence",
+              type: "object",
+              required: "否",
+              desc: "证据信息",
+              children: [
+                {
+                  rowKey: "->data->items->evidence->url",
+                  name: "url",
+                  type: "string",
+                  required: "否",
+                  desc: "证据文件地址",
+                  children: [],
+                },
+                {
+                  rowKey: "->data->items->evidence->hash",
+                  name: "hash",
+                  type: "string",
+                  required: "否",
+                  desc: "证据内容哈希",
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          rowKey: "->data->reportUrl",
+          name: "reportUrl",
+          type: "string",
+          required: "否",
+          desc: "风险报告下载地址",
+          children: [],
+        },
+      ],
+    },
+    {
+      rowKey: "->requestId",
+      name: "requestId",
+      type: "string",
+      required: "是",
+      desc: "请求追踪 ID",
+      children: [],
+    },
+  ],
+};
 
 /** 演示种子：对齐控制台原有丰富接口文档，并补全配置模型字段 */
 export function buildSeedEndpoints(): ApiEndpoint[] {
@@ -546,6 +692,22 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       productCode: "workReview",
       description: "查询侵权分析风险报告。",
       queryParams: [p("taskId", "string", true, "分析任务 ID")],
+      requestParamsText: JSON.stringify(INFRINGE_REPORT_REQUEST_TABLE, null, 2),
+      responseFieldsText: JSON.stringify(INFRINGE_REPORT_RESPONSE_TABLE, null, 2),
+      responseParams: flattenParamTable(INFRINGE_REPORT_RESPONSE_TABLE),
+      exampleResponse: exampleOk({
+        taskId: "task-20261020-001",
+        riskLevel: "high",
+        summary: "发现疑似侵权片段 3 处",
+        items: [
+          {
+            type: "text",
+            score: 0.92,
+            evidence: { url: "https://example.com/e/1.png", hash: "sha256:…" },
+          },
+        ],
+        reportUrl: "https://example.com/reports/xxx.pdf",
+      }),
     }),
     ep({
       id: "infringe-evidence",

@@ -12,8 +12,9 @@ import type {
 } from "./types";
 import { PRODUCT_CODES } from "./types";
 
-const STORAGE_KEY = "ctp.api-catalog.v1";
-const CATALOG_STORAGE_KEY = "ctp.api-catalog.catalogs.v1";
+/** v2：请求/响应参数改为 columns+data 嵌套 JSON（requestParamsText / responseFieldsText） */
+const STORAGE_KEY = "ctp.api-catalog.v2";
+const CATALOG_STORAGE_KEY = "ctp.api-catalog.catalogs.v2";
 
 function isProductCode(value: unknown): value is ProductCode {
   return typeof value === "string" && (PRODUCT_CODES as readonly string[]).includes(value);

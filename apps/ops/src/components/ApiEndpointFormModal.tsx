@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { catalogIdForProduct, collectRequestParams } from "@ctp/api-catalog";
+import {
+  catalogIdForProduct,
+  collectRequestParams,
+  emptyParamTableJson,
+  flattenParamTable,
+  parseParamTableJson,
+  paramsToParamTableJson,
+  stringifyParamTableDoc,
+  type ParamTableDoc,
+} from "@ctp/api-catalog";
 import {
   PRODUCT_CODES,
   PRODUCT_NAME,
@@ -12,10 +21,28 @@ import {
 } from "@/lib/apiServicesStore";
 
 const METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE"];
-const PARAM_TYPES = ["String", "Number", "Boolean", "Object", "Array"] as const;
 const MAX_BYTES = 50 * 1024 * 1024;
 const ACCEPT_EXT = ["doc", "docx", "pdf", "md", "txt", "xls", "xlsx"] as const;
 const ACCEPT_ATTR = ".doc,.docx,.pdf,.md,.txt,.xls,.xlsx";
+
+const JSON_PLACEHOLDER = `{
+  "columns": [
+    { "title": "参数名", "dataIndex": "name", "width": "22%" },
+    { "title": "类型", "dataIndex": "type", "width": 120 },
+    { "title": "必填", "dataIndex": "required", "width": 80 },
+    { "title": "说明", "dataIndex": "desc" }
+  ],
+  "data": [
+    {
+      "rowKey": "->paramName",
+      "name": "paramName",
+      "type": "string",
+      "required": "是",
+      "desc": "说明",
+      "children": []
+    }
+  ]
+}`;
 
 export type ApiEndpointFormValues = {
   apiName: string;
@@ -26,6 +53,10 @@ export type ApiEndpointFormValues = {
   productCode: ProductCode;
   productCodes: ProductCode[];
   catalogIds: string[];
+  /** 参数表 JSON（columns + data） */
+  requestParamsJson: string;
+  responseParamsJson: string;
+  /** 解析后的扁平参数（提交时由弹窗填充） */
   requestParams: ApiParam[];
   responseParams: ApiParam[];
   exampleRequest: string;
@@ -42,8 +73,11 @@ type Props = {
   onSubmit: (values: ApiEndpointFormValues) => void;
 };
 
-function emptyParam(): ApiParam {
-  return { name: "", type: "String", required: true, desc: "" };
+function textToParamTableJson(text: string | undefined, fallbackRows: ApiParam[]): string {
+  const parsed = parseParamTableJson(text ?? "");
+  if (parsed.ok) return stringifyParamTableDoc(parsed.value);
+  if (fallbackRows.length) return paramsToParamTableJson(fallbackRows);
+  return emptyParamTableJson();
 }
 
 function emptyValues(productCode: ProductCode = "dci"): ApiEndpointFormValues {
@@ -55,8 +89,10 @@ function emptyValues(productCode: ProductCode = "dci"): ApiEndpointFormValues {
     productCode,
     productCodes: [productCode],
     catalogIds: [catalogIdForProduct(productCode)],
-    requestParams: [emptyParam()],
-    responseParams: [emptyParam()],
+    requestParamsJson: emptyParamTableJson(),
+    responseParamsJson: emptyParamTableJson(),
+    requestParams: [],
+    responseParams: [],
     exampleRequest: "",
     exampleResponse: "",
     docFile: null,
@@ -80,8 +116,10 @@ function fromEndpoint(ep: ApiEndpoint): ApiEndpointFormValues {
     productCode: productCodes[0] ?? ep.productCode ?? "dci",
     productCodes,
     catalogIds,
-    requestParams: requestParams.length ? requestParams.map((p) => ({ ...p })) : [emptyParam()],
-    responseParams: responseParams.length ? responseParams : [emptyParam()],
+    requestParamsJson: textToParamTableJson(ep.requestParamsText, requestParams),
+    responseParamsJson: textToParamTableJson(ep.responseFieldsText, responseParams),
+    requestParams,
+    responseParams,
     exampleRequest: ep.exampleRequest ?? "",
     exampleResponse: ep.exampleResponse ?? "",
     docFile: ep.docFile ?? null,
@@ -97,35 +135,14 @@ function extOf(name: string) {
   return i >= 0 ? name.slice(i + 1).toLowerCase() : "";
 }
 
-function normalizeParamType(type: string) {
-  const hit = PARAM_TYPES.find((t) => t.toLowerCase() === type.toLowerCase());
-  return hit ?? (type.trim() || "String");
-}
-
-function sanitizeParams(rows: ApiParam[]): ApiParam[] {
-  return rows
-    .map((row) => ({
-      name: row.name.trim(),
-      type: normalizeParamType(row.type),
-      required: Boolean(row.required),
-      desc: row.desc.trim(),
-    }))
-    .filter((row) => row.name);
-}
-
-type ParamEditorProps = {
+type JsonParamEditorProps = {
   title: string;
-  rows: ApiParam[];
-  onChange: (next: ApiParam[]) => void;
+  value: string;
+  onChange: (next: string) => void;
 };
 
-/** 参数表：不用 a-table，避免运营台表格主题把内容“冲没” */
-function ParamEditor({ title, rows, onChange }: ParamEditorProps) {
+function JsonParamEditor({ title, value, onChange }: JsonParamEditorProps) {
   const [expanded, setExpanded] = useState(true);
-
-  const updateRow = (index: number, patch: Partial<ApiParam>) => {
-    onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
-  };
 
   return (
     <div className={`epf-block${expanded ? " is-open" : ""}`}>
@@ -141,78 +158,20 @@ function ParamEditor({ title, rows, onChange }: ParamEditorProps) {
           </span>
           <span className="epf-block__title">{title}</span>
         </button>
-        <button
-          type="button"
-          className="epf-add"
-          onClick={() => {
-            setExpanded(true);
-            onChange([...rows, emptyParam()]);
-          }}
-        >
-          + 添加
-        </button>
       </div>
-
       {expanded ? (
-        <div className="epf-params">
-          <div className="epf-params__head" aria-hidden>
-            <span>参数名</span>
-            <span>类型</span>
-            <span>必填</span>
-            <span>说明</span>
-            <span>操作</span>
-          </div>
-          {rows.length === 0 ? (
-            <div className="epf-params__empty">暂无参数，请点击「+ 添加」</div>
-          ) : (
-            rows.map((row, index) => {
-              const typeValue = normalizeParamType(row.type);
-              const known = (PARAM_TYPES as readonly string[]).includes(typeValue);
-              return (
-                <div className="epf-params__row" key={`${title}-${index}`}>
-                  <input
-                    className="epf-input"
-                    value={row.name}
-                    onChange={(e) => updateRow(index, { name: e.target.value })}
-                    placeholder="参数名"
-                  />
-                  <select
-                    className="epf-input"
-                    value={typeValue}
-                    onChange={(e) => updateRow(index, { type: e.target.value })}
-                  >
-                    {PARAM_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                    {!known ? <option value={typeValue}>{typeValue}</option> : null}
-                  </select>
-                  <select
-                    className="epf-input"
-                    value={row.required ? "yes" : "no"}
-                    onChange={(e) => updateRow(index, { required: e.target.value === "yes" })}
-                  >
-                    <option value="yes">是</option>
-                    <option value="no">否</option>
-                  </select>
-                  <input
-                    className="epf-input"
-                    value={row.desc}
-                    onChange={(e) => updateRow(index, { desc: e.target.value })}
-                    placeholder="说明"
-                  />
-                  <button
-                    type="button"
-                    className="epf-del"
-                    onClick={() => onChange(rows.filter((_, i) => i !== index))}
-                  >
-                    删除
-                  </button>
-                </div>
-              );
-            })
-          )}
+        <div className="epf-json-param">
+          <textarea
+            className="epf-input epf-textarea epf-textarea--code epf-textarea--json"
+            rows={12}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={JSON_PLACEHOLDER}
+            spellCheck={false}
+          />
+          <span className="a-field__hint">
+            粘贴 columns + data 的 JSON（支持 children 嵌套）。格式见 docsss/documents/apidoc_json_case.json
+          </span>
         </div>
       ) : null}
     </div>
@@ -282,7 +241,22 @@ export function ApiEndpointFormModal({
       setError("请至少选择一个文档目录");
       return;
     }
+
+    const reqParsed = parseParamTableJson(form.requestParamsJson);
+    if (!reqParsed.ok) {
+      setError(`请求参数 JSON 无效：${reqParsed.error}`);
+      return;
+    }
+    const resParsed = parseParamTableJson(form.responseParamsJson);
+    if (!resParsed.ok) {
+      setError(`返回参数 JSON 无效：${resParsed.error}`);
+      return;
+    }
+
+    const requestDoc: ParamTableDoc = reqParsed.value;
+    const responseDoc: ParamTableDoc = resParsed.value;
     const productCodes = form.productCodes;
+
     onSubmit({
       ...form,
       apiName: form.apiName.trim(),
@@ -291,8 +265,10 @@ export function ApiEndpointFormModal({
       productCodes,
       productCode: productCodes[0] ?? "dci",
       catalogIds: form.catalogIds,
-      requestParams: sanitizeParams(form.requestParams),
-      responseParams: sanitizeParams(form.responseParams),
+      requestParamsJson: stringifyParamTableDoc(requestDoc),
+      responseParamsJson: stringifyParamTableDoc(responseDoc),
+      requestParams: flattenParamTable(requestDoc),
+      responseParams: flattenParamTable(responseDoc),
       exampleRequest: form.exampleRequest.trim(),
       exampleResponse: form.exampleResponse.trim(),
     });
@@ -432,15 +408,15 @@ export function ApiEndpointFormModal({
             </div>
           </div>
 
-          <ParamEditor
+          <JsonParamEditor
             title="请求参数"
-            rows={form.requestParams}
-            onChange={(next) => setField("requestParams", next)}
+            value={form.requestParamsJson}
+            onChange={(next) => setField("requestParamsJson", next)}
           />
-          <ParamEditor
+          <JsonParamEditor
             title="返回参数"
-            rows={form.responseParams}
-            onChange={(next) => setField("responseParams", next)}
+            value={form.responseParamsJson}
+            onChange={(next) => setField("responseParamsJson", next)}
           />
 
           <div className={`epf-block${exampleOpen ? " is-open" : ""}`}>
