@@ -15,7 +15,7 @@ const USERS = [
     expectMenu: ["账号中心", "申请接入技术服务中心", "退出登录"],
     forbid: ["DCI注册中心工作台", "技术服务中心工作台"],
     expectOpened: "暂无",
-    expectOpen: ["未开通", "申请成为DCI注册中心", "申请接入技术服务中心"],
+    expectOpen: ["未开通", "申请成为注册中心", "申请接入技术服务中心"],
   },
   {
     key: "mayi",

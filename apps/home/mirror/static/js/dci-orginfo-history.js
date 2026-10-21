@@ -159,7 +159,7 @@
     var id = String(row.id || "hist-" + idx);
     var open = !!expanded[id];
     var st = statusMeta(row.auditStatus);
-    var name = dash(row.regOrgName || row.orgName || (form && form.regOrgName) || "DCI注册中心申请");
+    var name = dash(row.regOrgName || row.orgName || (form && form.regOrgName) || "注册中心申请");
     var time = dash(row.createTime || row.auditTime);
     var orgCode = row.orgCode || (form && form.orgCode) || "";
 

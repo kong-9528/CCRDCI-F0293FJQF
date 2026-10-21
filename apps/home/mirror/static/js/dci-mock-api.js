@@ -508,7 +508,7 @@
           Object.assign({}, ycBase, {
             id: "reg-hist-withdrawn-yachang",
             auditStatus: "3",
-            auditRemark: "申请人主动撤回本次DCI注册中心开通申请",
+            auditRemark: "申请人主动撤回本次注册中心开通申请",
             createTime: "2026-04-12 09:18:00",
             invitationCode: "REG-YC-0412",
             cooperationField: "艺术品数字版权确权",

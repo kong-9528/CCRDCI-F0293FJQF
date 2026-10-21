@@ -69,7 +69,7 @@ export const CONSOLE_HELP: ConsoleHelpNode[] = [
         id: "ch-keys",
         title: "API key管理",
         html: `
-          <p>每个DCI注册中心仅允许创建一个 API key。创建后不可删除；AK 永久不变，如需轮换请编辑并重新生成 SK / DEK。</p>
+          <p>每个注册中心仅允许创建一个 API key。创建后不可删除；AK 永久不变，如需轮换请编辑并重新生成 SK / DEK。</p>
           <ul>
             <li>请妥善保管 AK、SK、DEK，勿写入前端公开代码</li>
             <li>泄露后请及时通过「编辑」重新生成 SK / DEK，并同步更新调用方配置</li>

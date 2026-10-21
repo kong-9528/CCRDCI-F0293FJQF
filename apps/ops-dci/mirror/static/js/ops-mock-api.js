@@ -179,8 +179,8 @@
     { name: "演示平台戊", count: 15 },
   ];
   var APPLY_REVOKE_DEMO = [
-    { name: "DCI码申领总数", count: 1280 },
-    { name: "DCI码撤销总数", count: 36 },
+    { name: "DCI编码申领总数", count: 1280 },
+    { name: "DCI编码撤销总数", count: 36 },
   ];
   var RELATED_DEMO = {
     "2025-10": [
@@ -351,7 +351,7 @@
         if (
           rp === "/registrOrg" ||
           rt === "DCI注册中心管理" ||
-          rt === "DCI注册中心管理" ||
+          rt === "注册中心管理" ||
           rt === "机构管理"
         ) {
           lead.push(rest[r]);
@@ -374,7 +374,7 @@
         var next = Object.assign({}, n);
         if (n.meta) {
           next.meta = Object.assign({}, n.meta);
-          if (next.meta.title === "DCI注册中心管理") next.meta.title = "DCI注册中心管理";
+          if (next.meta.title === "注册中心管理") next.meta.title = "DCI注册中心管理";
           var name = String(n.name || "");
           var p = String(n.path || "");
           if (

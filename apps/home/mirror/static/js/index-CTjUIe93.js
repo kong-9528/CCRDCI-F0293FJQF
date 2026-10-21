@@ -33,7 +33,7 @@ const Ce=q({...ye,setup(u){
         y.value=String(e)==="1";
         const r={0:"待审核",1:"审核通过",2:"审核不通过"};
         w.value=r[e]||r[String(e)]||"未审核";
-      }else y.value=!1,w.value="未绑定DCI注册中心";
+      }else y.value=!1,w.value="未绑定注册中心";
     }).catch(()=>{y.value=!1,w.value="获取审核状态失败"});
   }
   const j=te({

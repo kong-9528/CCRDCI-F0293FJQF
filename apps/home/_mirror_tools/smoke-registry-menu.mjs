@@ -66,7 +66,7 @@ const pHas = (u, t) => portal[u].some((x) => x.includes(t));
 const rHas = (u, t) => registry[u].some((x) => x.includes(t));
 
 const ok =
-  !pHas("yachang", "DCI注册中心工作台") &&
+  !pHas("yachang", "注册中心工作台") &&
   !pHas("yachang", "技术服务中心工作台") &&
   pHas("mayi", "DCI注册中心工作台") &&
   !pHas("mayi", "技术服务中心工作台") &&
