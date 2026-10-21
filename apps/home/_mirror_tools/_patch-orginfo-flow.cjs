@@ -10,9 +10,9 @@ if (s.includes('regOrgType:"03"')) {
 
 // After successful change submit, switch demo to reviewing
 const oldSuccess =
-  'U.success(S.value?"机构信息变更申请已提交，请等待管理员审核！":_.id?"注册中心申请已重新提交，请等待审核！":"注册中心申请已成功提交，请等待审核！"),ee()';
+  'U.success(S.value?"机构信息变更申请已提交，请等待管理员审核！":_.id?"DCI注册中心申请已重新提交，请等待审核！":"DCI注册中心申请已成功提交，请等待审核！"),ee()';
 const newSuccess =
-  'U.success(S.value?"机构信息变更申请已提交，请等待管理员审核！":_.id?"注册中心申请已重新提交，请等待审核！":"注册中心申请已成功提交，请等待审核！");try{if(S.value&&xe.value&&window.__DCI_ORGINFO_DEMO__&&typeof window.__DCI_ORGINFO_DEMO__.setModeId==="function")window.__DCI_ORGINFO_DEMO__.setModeId("reviewing")}catch(_s){}ee()';
+  'U.success(S.value?"机构信息变更申请已提交，请等待管理员审核！":_.id?"DCI注册中心申请已重新提交，请等待审核！":"DCI注册中心申请已成功提交，请等待审核！");try{if(S.value&&xe.value&&window.__DCI_ORGINFO_DEMO__&&typeof window.__DCI_ORGINFO_DEMO__.setModeId==="function")window.__DCI_ORGINFO_DEMO__.setModeId("reviewing")}catch(_s){}ee()';
 if (!s.includes(oldSuccess)) {
   console.error("success msg missing");
   process.exit(1);

@@ -1,0 +1,17 @@
+imports_head=import{d as es,u as vs,a as ms,r as ls,D as _s,x as bs,G as gs,f as c,o,c as a,h as s,i as d,j as r,y as f,m as _,F as R,t,z as ts,k as m,X as C,n as k,aC as ys,V as Rs,aD as Cs,a6 as O,_ as ks}from"./index-DsYmzmNg.js";import{g as Os}from"./codeManage-CIC4UakA.js";const Ds={class:"detail-page"},Bs={class:"page-title"},hs={class:"section-card"},Ns={class:"info-grid"},ws={class:"info-item"},Is={class:"dci-code"},Ss={class:"info-item"},Ts={class:"info-item"},As={class:"info-item"},xs={class:"info-
+get[A-Za-z]+\( count=0
+fetch[A-Za-z]*\( count=0
+request\( count=0
+\.get\( count=0
+\.post\( count=0
+codeManage count=1
+  ctx=mNg.js";import{g as Os}from"./codeManage-CIC4UakA.js";const Ds={class:"detail-page"},Bs={class:"page-title"},h
+dciManage count=0
+opus count=3
+  ctx=OpusBaseRinfo)==null?void 0:T.opusName)||"-"),1)]),s("div",Ls,[l[10]||(l[10]=s("label",null,"作品类别：",-1)),s("sp
+  ctx=OpusBaseRinfo)==null?void 0:A.opusCategoryName)||"-"),1)]),s("div",zs,[l[11]||(l[11]=s("label",null,"创作性质：",-1
+  ctx=OpusBaseRinfo)==null?void 0:x.opusCreationNature)||"-"),1)]),s("div",qs,[l[12]||(l[12]=s("label",null,"创作完成日期：
+slash_strings=[]
+slash_strings2=[]
+refs=['index-DsYmzmNg.js']
+route_files=['dataset-cXmRoDti.js', 'index-DsYmzmNg.js', 'opus-DCRymxdq.js', 'soft-D-V6yNun.js']

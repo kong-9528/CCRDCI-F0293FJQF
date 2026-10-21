@@ -26,7 +26,7 @@ copies = {
     "industry_standard.png": "行业标准.png",
     "dci_app_scenes.png": "DCI贯标应用.png",
     "banner_register_center.png": "banner_register_center.png",
-    "regorg_duty.png": "注册中心职责配图.png",
+    "regorg_duty.png": "DCI注册中心职责配图.png",
     "banner_ecosystem.png": "banner_ecosystem.png",
     "banner_lab.png": "banner_lab.png",
     "lab_result.png": "lab_result.png",

@@ -34,9 +34,9 @@ console.log("cancel label present", cancel >= 0);
 // Check label for type field in template
 const lab = s.indexOf('label:"DCI注册中心类型"');
 console.log("type field label", lab, JSON.stringify(s.slice(lab, lab + 80)));
-const lab2 = s.indexOf("注册中心类型");
+const lab2 = s.indexOf("DCI注册中心类型");
 let from = 0, n = 0;
-while ((from = s.indexOf("注册中心类型", from)) !== -1 && n < 8) {
+while ((from = s.indexOf("DCI注册中心类型", from)) !== -1 && n < 8) {
   console.log("label hit", n, JSON.stringify(s.slice(from - 30, from + 40)));
   from += 5; n++;
 }

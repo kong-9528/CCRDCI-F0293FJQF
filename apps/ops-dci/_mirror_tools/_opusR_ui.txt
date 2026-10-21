@@ -1,0 +1,87 @@
+=== field-like strings ===
+}function os(n){v[n]=!v[n]}function as(n){return{申领:
+,已申领:
+,已撤销:
+,审核中:
+缺少主键参数
+DCI 码已复制：
+DCI 码已复制：
+DCI码详情
+原始分配
+DCI码基本信息
+DCI码：
+DCI分配时间：
+DCI码类型：
+原始分配
+DCI注册中心：
+DCI申领平台：
+DC注册中心同步时间：
+作品基本信息
+作品名称：
+作品类别：
+创作性质：
+创作完成日期：
+创作完成地点：
+发表状态：
+首次发表日期：
+首次发表地点：
+作者名称：
+作者署名：
+著作权人真实意愿的确认方式：
+委托事项：
+著作权人申请确认时间：
+作品样本
+作品样本：
+作品样本
+作品样本摘要：
+暂无作品样本
+著作权人信息
+著作权人名称：
+著作权人类型：
+著作权人区域：
+证件类型：
+证件号码：
+证件有效起始期：
+证件有效终止期：
+联系人：
+手机号：
+证件正面照：
+证件正面照
+证件反面照：
+证件反面照
+权利信息
+权利取得方式：
+权利归属方式：
+权利范围：
+关联登记信息
+登记号：
+登记时间：
+登记机构：
+数字版权链信息
+区块哈希：
+上链时间：
+撤销信息
+撤销申请人：
+撤销时间：
+撤销原因：
+关联DCI信息
+DCI码
+著作权人
+DCI码分配时间
+状态
+未查询到作品 R 码详情
+
+=== setup / data access ===
+optional_chains sample:
+
+=== Os call context ===
+Os(n);e.value=l.data||{};const u=e.value.dciOpusRightOwnerRinfos||[];v.length=0,u.forEach(()=>v.push(!1))}catch{e.value={}}finally{b.value=!1}}async function us(){var l;const n=(l=e.value.dciCodeOpusBaseRinfo)==null?void 0:l.dciCode;if(n)try{await navigator.clipboard.writeText(n),O.success("DCI 码已复制："+n)}catch{const u=document.createElement("input");u.value=n,document.body.appendChild(u),u.select(
+
+=== sections ===
+DCI码基本信息: True
+作品基本信息: True
+作品样本: True
+著作权人信息: True
+权利信息: True
+关联登记信息: True
+数字版权链: True

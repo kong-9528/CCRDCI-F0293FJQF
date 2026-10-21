@@ -1,6 +1,6 @@
 /**
  * Tech service center open-apply UI (开通管理 → 申请接入).
- * Layout / interaction mirror RegOrgInfo (注册中心申请); fields mirror customer /account edit.
+ * Layout / interaction mirror RegOrgInfo (DCI注册中心申请); fields mirror customer /account edit.
  */
 (function () {
   var HOST = null;

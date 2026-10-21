@@ -30,7 +30,7 @@ for (const l of labels) {
 
 // Card header structure
 console.log("\n=== CARD HEADER SNIPPET ===");
-const cardHdr = region.indexOf("注册中心申请");
+const cardHdr = region.indexOf("DCI注册中心申请");
 console.log(region.slice(cardHdr - 400, cardHdr + 500));
 
 // cooperationField on main form

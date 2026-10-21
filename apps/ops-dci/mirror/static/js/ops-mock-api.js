@@ -179,8 +179,8 @@
     { name: "演示平台戊", count: 15 },
   ];
   var APPLY_REVOKE_DEMO = [
-    { name: "DCI编码申领总数", count: 1280 },
-    { name: "DCI编码撤销总数", count: 36 },
+    { name: "DCI码申领总数", count: 1280 },
+    { name: "DCI码撤销总数", count: 36 },
   ];
   var RELATED_DEMO = {
     "2025-10": [
@@ -351,7 +351,7 @@
         if (
           rp === "/registrOrg" ||
           rt === "DCI注册中心管理" ||
-          rt === "注册中心管理" ||
+          rt === "DCI注册中心管理" ||
           rt === "机构管理"
         ) {
           lead.push(rest[r]);
@@ -374,7 +374,7 @@
         var next = Object.assign({}, n);
         if (n.meta) {
           next.meta = Object.assign({}, n.meta);
-          if (next.meta.title === "注册中心管理") next.meta.title = "DCI注册中心管理";
+          if (next.meta.title === "DCI注册中心管理") next.meta.title = "DCI注册中心管理";
           var name = String(n.name || "");
           var p = String(n.path || "");
           if (
@@ -542,6 +542,54 @@
         },
         opusDwcrApplyInfoList: [],
       });
+    }
+
+    // 作品页签详情：opus R/C/X 码详情（allocation → codeManage-details/opus*）
+    var opusInfoMatch = path.match(
+      /^\/dci\/applyDoc\/opus\/([rcx])Info\/([^/]+)$/i,
+    );
+    if (m === "GET" && opusInfoMatch) {
+      var kind = String(opusInfoMatch[1]).toLowerCase(); // r|c|x
+      var opusId = decodeURIComponent(opusInfoMatch[2]);
+      var opusStore = window.__OPS_MOCK_STORE__ || {};
+      var opusKey =
+        "GET /api/v1/dciManage/dci/applyDoc/opus/" + kind + "Info/" + opusId;
+      var opusHit = opusStore[opusKey] || opusStore["GET /dci/applyDoc/opus/" + kind + "Info/" + opusId];
+      if (opusHit) return opusHit;
+      // fallback：用同 id 的 R 详情或首个 dciCodeDetail.detail
+      var rFallback =
+        opusStore["GET /api/v1/dciManage/dci/applyDoc/opus/rInfo/" + opusId];
+      if (rFallback) return rFallback;
+      for (var dk in opusStore) {
+        if (!Object.prototype.hasOwnProperty.call(opusStore, dk)) continue;
+        if (dk.indexOf("dciCodeDetail/") < 0) continue;
+        var dv = opusStore[dk];
+        if (dv && dv.data && dv.data.detail) return ok100(dv.data.detail);
+      }
+      return ok100({});
+    }
+
+    // 作品列表 cursorList：按 caseType 过滤（作品/软件/数据集页签）
+    if (m === "POST" && /\/dci\/applyDoc\/cursorList$/.test(path)) {
+      var clStore = window.__OPS_MOCK_STORE__ || {};
+      var clHit = clStore["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
+      if (clHit && clHit.data && Array.isArray(clHit.data.rows)) {
+        var wantType = String((data && data.caseType) || "opus").toLowerCase();
+        var filteredRows = clHit.data.rows.filter(function (row) {
+          if (!row) return false;
+          var t = String(row.caseType || "opus").toLowerCase();
+          return t === wantType;
+        });
+        return ok100({
+          rows: filteredRows,
+          total: filteredRows.length,
+          totalApproximate: false,
+          nextSearchAfter: null,
+          hasMore: false,
+          pageSize: String((data && data.pageSize) || 10),
+          caseType: wantType,
+        });
+      }
     }
 
     // DCI 码查询：按码/关键词从 cursorList mock 过滤

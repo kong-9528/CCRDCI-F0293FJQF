@@ -1,0 +1,56 @@
+{
+  "code": 1000000,
+  "msg": "成功",
+  "success": true,
+  "data": {
+    "caseType": "opus",
+    "dciCodeType": "R",
+    "detail": {
+      "dciCodeOpusBaseRinfo": {
+        "applyOrgName": "上海映文数字科技有限公司",
+        "dciApplyTime": "2026-09-01 14:02:21",
+        "dciCode": "DCI:RQZ010ANT.156.20260820A7K3M9P2Q1",
+        "dciCodeTypeName": "原始分配",
+        "dciRegisterSyncTime": "2026-08-20 19:05:00",
+        "registerName": "雅昌文化集团"
+      },
+      "dciOpusBaseRinfo": {
+        "authorNames": "吴十",
+        "authorSignatures": "吴十",
+        "completeAddress": "中国上海市黄浦区",
+        "completeDate": "2026-06-10",
+        "mattersEntrusted": "委托平台代为提交著作权登记申请",
+        "opusCategoryName": "文字作品",
+        "opusCreationNature": "原创",
+        "opusName": "智能版权监测系统",
+        "preRegUserApplyConfirmTime": "2026-08-19 14:30:00",
+        "preRegistrationTrueWillDesc": "密码",
+        "publishStatusDesc": "未发表"
+      },
+      "dciOpusBlockchainRinfo": {
+        "blockTime": "2026-08-20"
+      },
+      "dciOpusRegisterRinfo": {
+        "registerDate": "2026-07-15",
+        "registerNo": "2026-S-000010",
+        "registerOrgName": "雅昌文化集团"
+      },
+      "dciOpusRightOwnerRinfos": [
+        {
+          "cardBackName": "身份证反面",
+          "cardBackUrl": "opus_sample/opus_image_ocr/20260720/2079084658633068545.png",
+          "cardFrontName": "身份证正面",
+          "cardFrontUrl": "opus_sample/opus_image_ocr/20260720/2079086953542307840.png",
+          "cardNumber": "310101199001010019",
+          "cardTypeDesc": "居民身份证",
+          "cardValidEndDate": "2040-01-01",
+          "cardValidStartDate": "2020-01-01",
+          "ccpcOwnerId": "OWNER-019-UUID",
+          "contactPerson": "吴十",
+          "ownerName": "吴十",
+          "phone": "13800138018"
+        }
+      ]
+    }
+  }
+}

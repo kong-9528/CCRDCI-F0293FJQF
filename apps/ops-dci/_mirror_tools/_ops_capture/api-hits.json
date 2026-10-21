@@ -357,7 +357,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -4489,7 +4489,7 @@
       "msg": "成功",
       "data": {
         "code": null,
-        "name": "审核通过注册中心数量",
+        "name": "审核通过DCI注册中心数量",
         "count": "38",
         "time": null
       },
@@ -4925,7 +4925,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -5140,7 +5140,7 @@
       "msg": "成功",
       "data": {
         "code": null,
-        "name": "审核通过注册中心数量",
+        "name": "审核通过DCI注册中心数量",
         "count": "38",
         "time": null
       },
@@ -9493,7 +9493,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -9708,7 +9708,7 @@
       "msg": "成功",
       "data": {
         "code": null,
-        "name": "审核通过注册中心数量",
+        "name": "审核通过DCI注册中心数量",
         "count": "38",
         "time": null
       },
@@ -14061,7 +14061,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -14593,7 +14593,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -19951,7 +19951,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -20238,10 +20238,10 @@
           "deptIds": null,
           "permissions": null,
           "permissionsList": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "DCI码管理",
-            "门户内容管理",
+            "门户管理",
             "待审核",
             "我的审核",
             "全部审核",
@@ -20257,7 +20257,7 @@
           ],
           "admin": false,
           "menuNames": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "DCI码管理",
             "门户内容管理",
@@ -20295,7 +20295,7 @@
           "deptIds": null,
           "permissions": null,
           "permissionsList": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI码管理",
             "门户内容管理",
             "全部审核",
@@ -20307,7 +20307,7 @@
           ],
           "admin": false,
           "menuNames": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI码管理",
             "门户内容管理",
             "全部审核",
@@ -20338,14 +20338,14 @@
           "deptIds": null,
           "permissions": null,
           "permissionsList": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "待审核",
             "我的审核",
             "全部审核"
           ],
           "admin": false,
           "menuNames": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "待审核",
             "我的审核",
             "全部审核"
@@ -20417,7 +20417,7 @@
           "permissions": null,
           "permissionsList": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "用户管理",
             "角色管理",
@@ -20439,7 +20439,7 @@
           "admin": false,
           "menuNames": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "用户管理",
             "角色管理",
@@ -20479,14 +20479,14 @@
           "deptIds": null,
           "permissions": null,
           "permissionsList": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "待审核",
             "我的审核",
             "全部审核"
           ],
           "admin": false,
           "menuNames": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "待审核",
             "我的审核",
             "全部审核"
@@ -20513,7 +20513,7 @@
           "permissions": null,
           "permissionsList": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "DCI码管理",
             "门户内容管理",
@@ -20542,7 +20542,7 @@
           "admin": false,
           "menuNames": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "DCI码管理",
             "门户内容管理",
@@ -20590,7 +20590,7 @@
           "permissions": null,
           "permissionsList": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "用户管理",
             "角色管理",
@@ -20612,7 +20612,7 @@
           "admin": false,
           "menuNames": [
             "系统管理",
-            "注册中心管理",
+            "DCI注册中心管理",
             "DCI发码统计",
             "用户管理",
             "角色管理",
@@ -20652,13 +20652,13 @@
           "deptIds": null,
           "permissions": null,
           "permissionsList": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "全部审核",
             "申领平台备案"
           ],
           "admin": false,
           "menuNames": [
-            "注册中心管理",
+            "DCI注册中心管理",
             "全部审核",
             "申领平台备案"
           ]
@@ -24944,7 +24944,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -25476,7 +25476,7 @@
           "updateTime": null,
           "remark": null,
           "operId": "2029",
-          "title": "注册中心申请",
+          "title": "DCI注册中心申请",
           "businessType": 1,
           "businessTypes": null,
           "method": "com.ccpc.bigdata.dci.controller.dci.DciRegOrgController.apply()",
@@ -25580,7 +25580,7 @@
           "updateTime": null,
           "remark": null,
           "operId": "2025",
-          "title": "注册中心重新提交",
+          "title": "DCI注册中心重新提交",
           "businessType": 2,
           "businessTypes": null,
           "method": "com.ccpc.bigdata.dci.controller.dci.DciRegOrgController.resubmit()",
@@ -25606,7 +25606,7 @@
           "updateTime": null,
           "remark": null,
           "operId": "2024",
-          "title": "注册中心审核",
+          "title": "DCI注册中心审核",
           "businessType": 11,
           "businessTypes": null,
           "method": "com.ccpc.bigdata.dci.controller.dci.DciRegOrgController.regOrgReview()",
@@ -30027,7 +30027,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -34712,7 +34712,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -39333,7 +39333,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -43908,7 +43908,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -48526,7 +48526,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -53673,7 +53673,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -58588,7 +58588,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -63989,7 +63989,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -68490,7 +68490,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -73256,7 +73256,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -77718,7 +77718,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -82180,7 +82180,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -86629,7 +86629,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -91145,7 +91145,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -96195,7 +96195,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null
@@ -100800,7 +100800,7 @@
           "component": "Layout",
           "alwaysShow": true,
           "meta": {
-            "title": "注册中心管理",
+            "title": "DCI注册中心管理",
             "icon": "system",
             "noCache": false,
             "link": null

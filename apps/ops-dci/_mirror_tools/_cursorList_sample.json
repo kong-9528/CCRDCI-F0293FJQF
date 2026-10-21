@@ -1,0 +1,62 @@
+{
+  "code": 1000000,
+  "msg": "成功",
+  "data": {
+    "rows": [
+      {
+        "id": "1788328941895",
+        "docId": "1788328941895",
+        "dciCode": "DCI:RQZ010ANT.156.20260820A7K3M9P2Q1",
+        "caseName": "智能版权监测系统",
+        "caseCategoryCode": 100,
+        "caseType": "opus",
+        "ownerName": "吴十 郑一",
+        "registerName": "雅昌文化集团",
+        "applyOrgName": "上海映文数字科技有限公司",
+        "relatedRegNo": "2026-S-000010",
+        "dciStatus": 1,
+        "dciCodeType": "R",
+        "dciApplyTime": "2026-09-01 14:02:21"
+      },
+      {
+        "id": "1788328710207",
+        "docId": "1788328710207",
+        "dciCode": "DCI:RQZWK1ANT.156.20260818G1H3J5K7L9",
+        "caseName": "数字版权保护技术规范",
+        "caseCategoryCode": 100,
+        "caseType": "opus",
+        "ownerName": "王五",
+        "registerName": "蚂蚁科技集团股份有限公司",
+        "applyOrgName": "杭州云启版权服务有限公司",
+        "relatedRegNo": "2026-S-000018",
+        "dciStatus": 1,
+        "dciCodeType": "R",
+        "dciApplyTime": "2026-09-01 13:58:30"
+      },
+      {
+        "id": "1788328608723",
+        "docId": "1788328608723",
+        "dciCode": "DCI:RQZSW0ANT.156.20260815B2C4D6E8F0",
+        "caseName": "版权链存证客户端",
+        "caseCategoryCode": 200,
+        "caseType": "soft",
+        "ownerName": "蚂蚁数科",
+        "registerName": "腾讯云计算（北京）有限责任公司",
+        "applyOrgName": "深圳市星河内容科技有限公司",
+        "relatedRegNo": "2026-R-000022",
+        "dciStatus": 1,
+        "dciCodeType": "R",
+        "dciApplyTime": "2026-09-01 13:56:48"
+      }
+    ],
+    "total": 3,
+    "totalApproximate": false,
+    "nextSearchAfter": null,
+    "hasMore": false,
+    "pageSize": "10",
+    "caseType": "opus"
+  },
+  "traceId": "",
+  "timestamp": "2026-09-21T08:13:15.603609224",
+  "success": true
+}

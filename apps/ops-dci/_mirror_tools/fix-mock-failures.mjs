@@ -48,8 +48,8 @@ const nameCount = okData([
 ]);
 
 const applyRevoke = okData([
-  { name: "DCI编码申领总数", count: 1280 },
-  { name: "DCI编码撤销总数", count: 36 },
+  { name: "DCI码申领总数", count: 1280 },
+  { name: "DCI码撤销总数", count: 36 },
 ]);
 
 const related = okData({

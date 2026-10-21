@@ -6,7 +6,7 @@ export const API_DOC_PRODUCTS_META: ApiDocProductMeta[] = [
     id: "dci",
     productCode: "dci",
     name: "DCI核验接口",
-    summary: "DCI编码核验 · 作品信息核验 · 证书核验",
+    summary: "DCI码核验 · 作品信息核验 · 证书核验",
     category: "verify",
   },
   {

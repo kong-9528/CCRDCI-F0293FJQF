@@ -191,7 +191,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
     ep({
       id: "dci-single",
       apiCode: "dci_single",
-      apiName: "DCI编码核验",
+      apiName: "DCI码核验",
       path: "/v1/verify/dci/single",
       method: "POST",
       productCode: "dci",
@@ -200,7 +200,7 @@ export function buildSeedEndpoints(): ApiEndpoint[] {
       updatedAt: "2026-03-20 14:30:00",
       docFile: {
         id: "doc-dci-single",
-        name: "DCI编码核验接口文档.pdf",
+        name: "DCI码核验接口文档.pdf",
         size: 420_000,
       },
       bodyParams: [p("dciCode", "string", true, "待核验 DCI 编码", { example: "DCI-2026-0001", validation: "非空" })],

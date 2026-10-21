@@ -9,7 +9,7 @@ const fs = require("fs");
   let s = fs.readFileSync(p, "utf8");
 
   // Fix history labels 注册中心类型 → DCI注册中心类型
-  s = s.replaceAll('label:"注册中心类型"', 'label:"DCI注册中心类型"');
+  s = s.replaceAll('label:"DCI注册中心类型"', 'label:"DCI注册中心类型"');
 
   // Button text: 更新机构信息 → 更新
   s = s.replace('s(" 更新机构信息 ",-1)', 's(" 更新 ",-1)');
