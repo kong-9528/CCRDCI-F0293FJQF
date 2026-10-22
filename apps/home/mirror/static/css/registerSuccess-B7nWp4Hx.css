@@ -1,0 +1,24 @@
+.page-container[data-v-a1b2c3d4]{width:100%;min-height:100vh;display:flex;flex-direction:column;background:#f3f7fc;font-family:Microsoft YaHei,微软雅黑,sans-serif}
+.reg-success-main[data-v-a1b2c3d4]{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:64px 24px;position:relative;background:
+  radial-gradient(ellipse 80% 60% at 15% 20%,rgba(19,69,165,.06),transparent 55%),
+  radial-gradient(ellipse 70% 50% at 85% 75%,rgba(91,156,246,.08),transparent 50%),
+  linear-gradient(180deg,#eef4fb 0%,#f7fafd 45%,#f0f5fb 100%);
+  overflow:hidden}
+.reg-success-main[data-v-a1b2c3d4]:before{content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;background-image:
+  linear-gradient(rgba(19,69,165,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(19,69,165,.04) 1px,transparent 1px);
+  background-size:48px 48px}
+.reg-success-card[data-v-a1b2c3d4]{position:relative;z-index:1;width:720px;height:465px;max-width:92vw;background:#fff;border-radius:4px;box-shadow:0 8px 28px rgba(18,27,44,.08);padding:93px 161px 99px;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
+.reg-success-icon[data-v-a1b2c3d4]{width:42px;height:42px;border-radius:50%;background:#31a513;display:flex;align-items:center;justify-content:center;margin:0 0 23px;flex-shrink:0}
+.reg-success-icon svg[data-v-a1b2c3d4]{width:22px;height:22px;display:block}
+.reg-success-title[data-v-a1b2c3d4]{margin:0 0 64px;width:168px;height:32px;font-size:24px;font-weight:600;font-family:Microsoft YaHei,微软雅黑,sans-serif;color:#303133;line-height:32px;letter-spacing:0}
+.reg-success-btn[data-v-a1b2c3d4]{width:398px;max-width:100%;height:48px;border:none;border-radius:4px;font-size:16px;font-weight:400;font-family:Microsoft YaHei,微软雅黑,sans-serif;cursor:pointer;transition:opacity .2s ease,transform .15s ease;line-height:48px;padding:0}
+.reg-success-btn[data-v-a1b2c3d4]:hover{opacity:.9}
+.reg-success-btn[data-v-a1b2c3d4]:active{transform:translateY(1px)}
+.reg-success-btn--primary[data-v-a1b2c3d4]{background:#1345a5;color:#fff;margin:0 0 16px}
+.reg-success-btn--secondary[data-v-a1b2c3d4]{background:#eef1f5;color:#606266}
+@media (max-width:760px){
+.reg-success-card[data-v-a1b2c3d4]{width:100%;height:auto;min-height:465px;padding:72px 24px 64px}
+.reg-success-btn[data-v-a1b2c3d4]{width:100%}
+.reg-success-title[data-v-a1b2c3d4]{width:auto}
+}
