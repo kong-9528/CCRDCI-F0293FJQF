@@ -10,7 +10,7 @@ export default function SystemPage() {
       <PageHero
         title={
           <>
-            DCI体系4.0(全球版权数据中心)
+            DCI体系4.0（全球版权数据中心）
             <br />
             ——AI时代的版权可信数智基础设施
           </>

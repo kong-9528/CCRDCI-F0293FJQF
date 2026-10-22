@@ -63,7 +63,7 @@ ro-content flex-col"},[s("span",{class:"hero-title"},"DCI生态"),s("span",{clas
 ro-content flex-col"},[A("span",{class:"hero-title"},"DCI标准"),A("span",{class:"hero-sub"}," DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系
 
 === JS index-rPx1fAAg.js ===
-ro-content flex-col"},[s("span",{class:"hero-title"},"DCI体系4.0(全球版权数据中心)"),s("span",{class:"hero-sub"},"——AI时代的版权可信数智基础设施")])],-1)
+ro-content flex-col"},[s("span",{class:"hero-title"},"DCI体系4.0（全球版权数据中心）"),s("span",{class:"hero-sub"},"——AI时代的版权可信数智基础设施")])],-1)
 
 === JS index-T6YfGpUy.js ===
 ro-content flex-col"},[e("span",{class:"hero-title"},"DCI技术研究与应用联合实验室")])],-1)),e("div",L,[e("div",M,[s[1]||(s[1]=e("div",{class:"
