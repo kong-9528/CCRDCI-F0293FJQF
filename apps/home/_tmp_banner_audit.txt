@@ -1,0 +1,72 @@
+home count 了解DCI体系: 1
+home count 了解更多标准: 1
+home count /dci/system: 0
+home count /dci/standard: 0
+home count push(: 10
+home count href: 0
+--- home link ---
+"text_17 cursor-pointer hover-link",onClick:e[0]||(e[0]=o=>H("dci-standard"))},"了解DCI体系  →")]),e[14]||(e[14]=t("span",{class:"text_18"}," DCI体系是以DCI国家标准为引领，以标准化标识为基础手段，以AI、区块链等新技术的系统集成应用为驱动，涵盖标准、技术协议、产品服务、新型
+--- home link ---
+s:"text_32 cursor-pointer hover-link",onClick:e[1]||(e[1]=o=>H("dci-regorg"))},"了解更多标准  →")]),e[16]||(e[16]=t("span",{class:"text_33"}," DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系，并面向音视图文等各垂直领域数字生态及AI新业态新场景开展贯标
+route /dci/system: 3
+  ,11,12,13,37,38,14,15,39])),"../../views/dci/system/index.vue":()=>Ot(()=>import("./index-rPx1fAAg.js"),__vite__mapDeps([40,11,12,13,41,42,14,15,43])),"../../views/dci/techCenter/index.vue":()=>Ot(()=
+  ,38,41,42,14,15,51])),hidden:!0},{path:"/dci/system",component:()=>Ot(()=>import("./index-rPx1fAAg.js"),__vite__mapDeps([40,11,12,13,41,42,14,15,43])),hidden:!0,meta:{title:"DCI体系 - DCI 技术服务中心"}},{pat
+route /dci/standard: 3
+  ps([34,11,12,13,14,15,35])),"../../views/dci/standard/index.vue":()=>Ot(()=>import("./index-DXJtz4g7.js"),__vite__mapDeps([36,11,12,13,37,38,14,15,39])),"../../views/dci/system/index.vue":()=>Ot(()=>i
+  ta:{title:"DCI体系 - DCI 技术服务中心"}},{path:"/dci/standard",component:()=>Ot(()=>import("./index-DXJtz4g7.js"),__vite__mapDeps([36,11,12,13,37,38,14,15,39])),hidden:!0,meta:{title:"DCI标准 - DCI 技术服务中心"}},{p
+route /dci/regorg/portal: 3
+  _vite__mapDeps([32,24,33])),"../../views/dci/regorg/portal.vue":()=>Ot(()=>import("./portal-CGcjgAeB.js"),__vite__mapDeps([34,11,12,13,14,15,35])),"../../views/dci/standard/index.vue":()=>Ot(()=>impor
+  ta:{title:"DCI标准 - DCI 技术服务中心"}},{path:"/dci/regorg/portal",component:()=>Ot(()=>import("./portal-CGcjgAeB.js"),__vite__mapDeps([34,11,12,13,14,15,35])),hidden:!0,meta:{title:"DCI注册中心 - DCI 技术服务中心"}},
+route /dci/lab: 3
+  Deps([26,23,24,25,8,9,27])),"../../views/dci/lab/index.vue":()=>Ot(()=>import("./index-T6YfGpUy.js"),__vite__mapDeps([28,11,12,13,14,15,29])),"../../views/dci/query/index.vue":()=>Ot(()=>import("./ind
+  ta:{title:"DCI生态 - DCI 技术服务中心"}},{path:"/dci/lab",component:()=>Ot(()=>import("./index-T6YfGpUy.js"),__vite__mapDeps([28,11,12,13,14,15,29])),hidden:!0,meta:{title:"DCI实验室 - DCI 技术服务中心"}},{path:"/dci/
+route /dci/ecology: 0
+route /dci/tech: 3
+  ,11,12,13,41,42,14,15,43])),"../../views/dci/techCenter/index.vue":()=>Ot(()=>import("./index-hnrUP1Bs.js"),__vite__mapDeps([44,11,12,13,14,15,45])),"../../views/error/401.vue":()=>Ot(()=>import("./40
+  eta:{title:"联系我们 - DCI 技术服务中心"}},{path:"/dci/tech-center",component:()=>Ot(()=>import("./index-hnrUP1Bs.js"),__vite__mapDeps([44,11,12,13,14,15,45])),hidden:!0,meta:{title:"DCI®技术服务中心"}},{path:"/lock"
+route tech-center: 2
+  title:"联系我们 - DCI 技术服务中心"}},{path:"/dci/tech-center",component:()=>Ot(()=>import("./index-hnrUP1Bs.js"),__vite__mapDeps([44,11,12,13,14,15,45])),hidden:!0,meta:{title:"DCI®技术服务中心"}},{path:"/lock",comp
+  /query","/dci/faq","/dci/contact","/dci/tech-center"],Xd=e=>whe.some(t=>j1e(t,e));mo.beforeEach(async(e,t)=>{if(Qa.start(),hl()){e.meta.title&&ma().setTitle(e.meta.title);const n=I2().isLock;if(e.path
+route ecology: 0
+
+=== CSS index-BGhEYlK7.css ===
+color:#fff;font-size:42px;font-weight:700;line-height:56px;white-space:nowrap}.hero-sub[data-v-7bdaee41]{color:#ffffffd9;font-size:20px;margin-top:16px;white-space:nowrap}
+.hero-sub[data-v-7bdaee41]{color:#ffffffd9;font-size:20px;margin-top:16px}
+width:1200px;max-width:90vw}.hero-title[data-v-7bdaee41]{color:#fff;font-size:42px;font-weight:700;line-height:56px;white-space:nowrap}
+
+=== CSS index-CSHWisZW.css ===
+color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-ac23daef]{width:617px;max-width:100%;color:#7d98cd;font-size:14px;line-height:19px;margin-top:16px}
+width:1200px;max-width:90vw}.hero-title[data-v-ac23daef]{color:#fff;font-size:40px;font-weight:700;line-height:53px}
+
+=== CSS index-D5Nixirv.css ===
+color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-39109360]{color:#7d98cd;font-size:20px;line-height:40px;margin-top:16px}
+width:1200px;max-width:90vw}.hero-title[data-v-39109360]{color:#fff;font-size:40px;font-weight:700;line-height:53px}
+
+=== CSS index-DogJsFVJ.css ===
+color:#fff;font-size:36px;font-weight:700;line-height:1.3;text-align:center;width:100%}.hero-subtitle[data-v-bc73a8d2]{margin-top:12px;color:#ffffffe0;font-size:16px;line-height:24px;text-align:center}
+width:1000px;max-width:92vw}.hero-title[data-v-bc73a8d2]{color:#fff;font-size:36px;font-weight:700;line-height:1.3;text-align:center;width:100%}
+
+=== CSS portal-BQh_66u9.css ===
+color:#fff;font-size:40px;font-weight:700;line-height:53px}.hero-sub[data-v-58bb0b90]{color:#7d98cd;font-size:20px;line-height:27px;margin-top:16px}
+width:1200px;max-width:90vw}.hero-title[data-v-58bb0b90]{color:#fff;font-size:40px;font-weight:700;line-height:53px}
+
+=== JS index-BZ7-YeMc.js ===
+ex-col align-center"},[t("span",{class:"hero-title"},"DCI查询")])],-1)),t("div",Ee,[t("div",Ne,[t("div",Ue,[t("div",{class:L(["searc
+
+=== JS index-D8JrnKcV.js ===
+ro-content flex-col"},[s("span",{class:"hero-title"},"DCI生态"),s("span",{class:"hero-sub"},"秉承“共建、共治、共享”理念，共同构建DCI可信生态")])],-1)),s(
+
+=== JS index-D_FAjFVe.js ===
+一标识符",-1))]),s[4]||(s[4]=a("h1",{class:"hero-title"},"基于DCI国家标准构建可信版权数智基础设施",-1)),s[5]||(s[5]=a("p",{class:"hero-desc"}," 保护数字内容创作
+
+=== JS index-DXJtz4g7.js ===
+ro-content flex-col"},[A("span",{class:"hero-title"},"DCI标准"),A("span",{class:"hero-sub"}," DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系
+
+=== JS index-rPx1fAAg.js ===
+ro-content flex-col"},[s("span",{class:"hero-title"},"DCI体系4.0(全球版权数据中心)"),s("span",{class:"hero-sub"},"——AI时代的版权可信数智基础设施")])],-1)
+
+=== JS index-T6YfGpUy.js ===
+ro-content flex-col"},[e("span",{class:"hero-title"},"DCI技术研究与应用联合实验室")])],-1)),e("div",L,[e("div",M,[s[1]||(s[1]=e("div",{class:"
+
+=== JS portal-CGcjgAeB.js ===
+ro-content flex-col"},[e("span",{class:"hero-title"},"DCI注册中心"),e("span",{class:"hero-sub"},"——DCI可信生态合作伙伴")])],-1)),e("div",Me,[e
