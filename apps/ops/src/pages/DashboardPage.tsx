@@ -1,8 +1,17 @@
 import { useMemo, useState } from "react";
 // import { Link } from "react-router-dom"; // 快速入口暂隐
+import { AlgoModelIcon } from "@/components/AlgoModelIcon";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Switch } from "@/components/Switch";
 import { TrendChart, chartColor } from "@/components/TrendChart";
 import { SegmentedControl, TrendPeriodControls } from "@/components/StatsControls";
 import { StatsCardGlyph } from "@/components/StatsCardGlyph";
+import {
+  formatCompactNumber,
+  useAlgoModelsStore,
+  type AlgoModel,
+  type AlgoModelId,
+} from "@/lib/algoModelsStore";
 import { PRODUCTS, isVerifyProduct, type ProductCode } from "@/lib/catalog";
 import { useCustomerStore } from "@/lib/customersStore";
 import {
@@ -19,13 +28,16 @@ import {
 } from "@/lib/statsData";
 import { getCurrentUserPermissions } from "@/lib/usersStore";
 
-type DashboardTab = "verify" | "audit";
+type DashboardTab = "verify" | "audit" | "models";
 type TrendMetric = "activeAccounts" | "calls";
 
 const TAB_LABEL: Record<DashboardTab, string> = {
   verify: "版权核验",
   audit: "作品智能辅助审核",
+  models: "算法模型可视化",
 };
+
+const TAB_ORDER: DashboardTab[] = ["verify", "audit", "models"];
 
 const TREND_METRIC_LABEL: Record<TrendMetric, string> = {
   activeAccounts: "调用机构数",
@@ -46,6 +58,7 @@ function hasPerm(userPerms: string[], required: string[]) {
 
 export function DashboardPage() {
   useCustomerStore();
+  const { models, setEnabled } = useAlgoModelsStore();
   const data = useMemo(() => {
     refreshStatsData();
     return getStatsData();
@@ -63,6 +76,29 @@ export function DashboardPage() {
   const [tab, setTab] = useState<DashboardTab>("verify");
   const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>(() => defaultTrendPeriod());
   const [trendMetric, setTrendMetric] = useState<TrendMetric>("calls");
+  const [pendingModel, setPendingModel] = useState<{
+    model: AlgoModel;
+    next: boolean;
+  } | null>(null);
+
+  const modelsOverview = useMemo(() => {
+    const enabledCount = models.filter((m) => m.enabled).length;
+    const todayCalls = models.reduce((s, m) => s + m.todayCalls, 0);
+    const todayTokens = models.reduce((s, m) => s + m.todayTokens, 0);
+    const totalCalls = models.reduce((s, m) => s + m.totalCalls, 0);
+    return [
+      { label: "已启用模型", value: `${enabledCount}/${models.length}` },
+      { label: "当日调用次数", value: formatCompactNumber(todayCalls) },
+      { label: "当日消耗 Token", value: formatCompactNumber(todayTokens) },
+      { label: "累积调用次数", value: formatCompactNumber(totalCalls) },
+    ];
+  }, [models]);
+
+  const confirmModelSwitch = () => {
+    if (!pendingModel) return;
+    setEnabled(pendingModel.model.id as AlgoModelId, pendingModel.next);
+    setPendingModel(null);
+  };
 
   const trendBuckets = useMemo(() => listTrendBuckets(trendPeriod), [trendPeriod]);
   const trendLabels = useMemo(
@@ -218,17 +254,21 @@ export function DashboardPage() {
     ];
   }, [data, trendBuckets, trendMetric, trendPeriod.grain]);
 
-  const overviewMetrics = tab === "verify" ? verifyOverview : auditOverview;
+  const overviewMetrics =
+    tab === "verify" ? verifyOverview : tab === "audit" ? auditOverview : modelsOverview;
   const series = tab === "verify" ? verifySeries : auditSeries;
   const metricOptions = (["activeAccounts", "calls"] as TrendMetric[]).map((k) => ({
     value: k,
     label: TREND_METRIC_LABEL[k],
   }));
+  const isModelsTab = tab === "models";
+  const showLegacyBoard = showBoard && !isModelsTab;
+  const showLegacyTrend = showTrend && !isModelsTab;
 
   return (
     <div className="a-stack a-dash-page">
       <div className="a-dash-tabs" role="tablist" aria-label="首页业务分类">
-        {(Object.keys(TAB_LABEL) as DashboardTab[]).map((key) => (
+        {TAB_ORDER.map((key) => (
           <button
             key={key}
             type="button"
@@ -243,18 +283,24 @@ export function DashboardPage() {
         ))}
       </div>
 
-      {showBoard ? (
+      {showBoard || isModelsTab ? (
         <>
           <section className="a-stats-overview">
-            <article className="a-stats-strip a-stats-strip--tone-0">
+            <article
+              className={`a-stats-strip${
+                isModelsTab ? " a-stats-strip--models" : " a-stats-strip--tone-0"
+              }`}
+            >
               <header className="a-stats-strip__head">
-                <h3 className="a-stats-strip__title">平台数据概览</h3>
+                <h3 className="a-stats-strip__title">
+                  {isModelsTab ? "算法模型运行概览" : "平台数据概览"}
+                </h3>
               </header>
               <div
                 className={`a-stats-strip__metrics${
-                  tab === "verify"
-                    ? " a-stats-strip__metrics--4"
-                    : " a-stats-strip__metrics--2"
+                  tab === "audit"
+                    ? " a-stats-strip__metrics--2"
+                    : " a-stats-strip__metrics--4"
                 }`}
               >
                 {overviewMetrics.map((item) => (
@@ -264,11 +310,11 @@ export function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <StatsCardGlyph kind="trend" />
+              {!isModelsTab ? <StatsCardGlyph kind="trend" /> : null}
             </article>
           </section>
 
-          {tab === "verify" ? (
+          {tab === "verify" && showLegacyBoard ? (
             <section className="a-stats-overview">
               <div className="a-product-board a-product-board--compact">
                 {verifyProductBoard.map((p, i) => {
@@ -304,10 +350,62 @@ export function DashboardPage() {
               </div>
             </section>
           ) : null}
+
+          {isModelsTab ? (
+            <section className="a-stats-overview" aria-label="算法模型列表">
+              <div className="a-algo-board">
+                {models.map((m, i) => {
+                  const metrics = [
+                    { label: "当日调用次数", value: formatCompactNumber(m.todayCalls) },
+                    { label: "累积调用次数", value: formatCompactNumber(m.totalCalls) },
+                    { label: "当日消耗 Token", value: formatCompactNumber(m.todayTokens) },
+                    { label: "累积消耗 Token", value: formatCompactNumber(m.totalTokens) },
+                  ];
+                  return (
+                    <article
+                      key={m.id}
+                      className={`a-algo-card a-algo-card--tone-${i % 3}${
+                        m.enabled ? " is-on" : " is-off"
+                      }`}
+                      style={{ animationDelay: `${i * 45}ms` }}
+                    >
+                      <header className="a-algo-card__head">
+                        <div className="a-algo-card__title-block">
+                          <span className="a-algo-card__icon-wrap" aria-hidden>
+                            <AlgoModelIcon id={m.id} className="a-algo-card__icon" />
+                          </span>
+                          <h3 className="a-algo-card__name">{m.name}</h3>
+                        </div>
+                        <div className="a-algo-card__switch">
+                          <span className={`a-algo-card__status${m.enabled ? " is-on" : ""}`}>
+                            {m.enabled ? "已启用" : "已停用"}
+                          </span>
+                          <Switch
+                            checked={m.enabled}
+                            aria-label={`${m.name}${m.enabled ? "停用" : "启用"}`}
+                            onChange={(next) => setPendingModel({ model: m, next })}
+                          />
+                        </div>
+                      </header>
+                      <div className="a-stats-strip__metrics a-algo-card__metrics a-stats-strip__metrics--4">
+                        {metrics.map((item) => (
+                          <div key={item.label} className="a-stats-strip__cell">
+                            <span className="a-stats-strip__value">{item.value}</span>
+                            <span className="a-stats-strip__label">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <AlgoModelIcon id={m.id} className="a-algo-card__glyph" />
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
         </>
       ) : null}
 
-      {showTrend ? (
+      {showLegacyTrend ? (
         <div className="a-card">
           <div className="a-card__head">
             调用趋势
@@ -326,11 +424,25 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      {!showBoard && !showTrend ? (
+      {!showBoard && !showTrend && !isModelsTab ? (
         <div className="a-card">
           <div className="a-placeholder">当前账号暂无可展示的首页模块，请联系管理员开通权限。</div>
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={Boolean(pendingModel)}
+        title={pendingModel?.next ? "确认启用模型" : "确认停用模型"}
+        description={
+          pendingModel?.next
+            ? `确定启用「${pendingModel.model.name}」吗？启用后该模型将参与业务调用。`
+            : `确定停用「${pendingModel?.model.name ?? ""}」吗？停用后该模型将不再接受新的调用请求。`
+        }
+        confirmText={pendingModel?.next ? "启用" : "停用"}
+        danger={pendingModel ? !pendingModel.next : false}
+        onCancel={() => setPendingModel(null)}
+        onConfirm={confirmModelSwitch}
+      />
     </div>
   );
 }

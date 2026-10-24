@@ -5568,6 +5568,11 @@ body,
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 3.2h6.2L12 5v7.8H4V3.2Z' stroke='%23000' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M10 3.2V5h1.9M6 8h4M6 10.2h3' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
+.a-dash-tabs__icon--models {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='2.2' stroke='%23000' stroke-width='1.4'/%3E%3Ccircle cx='3.2' cy='4.2' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='12.8' cy='4.2' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='3.2' cy='11.8' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='12.8' cy='11.8' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Cpath d='M4.4 4.9 6.4 7.1M11.6 4.9 9.6 7.1M4.4 11.1 6.4 8.9M11.6 11.1 9.6 8.9' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='2.2' stroke='%23000' stroke-width='1.4'/%3E%3Ccircle cx='3.2' cy='4.2' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='12.8' cy='4.2' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='3.2' cy='11.8' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Ccircle cx='12.8' cy='11.8' r='1.4' stroke='%23000' stroke-width='1.3'/%3E%3Cpath d='M4.4 4.9 6.4 7.1M11.6 4.9 9.6 7.1M4.4 11.1 6.4 8.9M11.6 11.1 9.6 8.9' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
 .a-dash-tabs__label {
   line-height: 1;
 }
@@ -5581,5 +5586,225 @@ body,
     flex: 1;
     justify-content: center;
     padding: 0 12px;
+  }
+}
+
+/* —— 算法模型可视化（深底高对比，对齐产品看板结构） —— */
+.a-stats-strip--models {
+  background: linear-gradient(135deg, #2a9a96 0%, #1d828a 48%, #156f7a 100%);
+  box-shadow: 0 10px 28px rgba(20, 90, 110, 0.22);
+}
+
+.a-algo-board {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ad-sp-4, 16px);
+}
+
+.a-algo-card {
+  position: relative;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  min-height: 148px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  animation: a-dash-rise 420ms ease both;
+  box-shadow: 0 10px 28px rgba(20, 90, 110, 0.2);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.a-algo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(20, 90, 110, 0.28);
+}
+
+.a-algo-card--tone-0 {
+  background: linear-gradient(135deg, #2aa8a0 0%, #1e8f92 48%, #157880 100%);
+}
+
+.a-algo-card--tone-1 {
+  background: linear-gradient(135deg, #2b96c4 0%, #1f7fb0 48%, #16699a 100%);
+}
+
+.a-algo-card--tone-2 {
+  background: linear-gradient(135deg, #2f9d82 0%, #23856d 52%, #1a6f5c 100%);
+}
+
+/* 停用：统一偏灰，与启用色明确区分 */
+.a-algo-card.is-off,
+.a-algo-card.is-off.a-algo-card--tone-0,
+.a-algo-card.is-off.a-algo-card--tone-1,
+.a-algo-card.is-off.a-algo-card--tone-2 {
+  background: linear-gradient(135deg, #9aa3ab 0%, #7f8892 48%, #667078 100%);
+  box-shadow: 0 8px 22px rgba(60, 70, 80, 0.16);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.a-algo-card.is-off:hover {
+  box-shadow: 0 12px 28px rgba(60, 70, 80, 0.22);
+}
+
+.a-algo-card.is-off .a-algo-card__name,
+.a-algo-card.is-off .a-algo-card__metrics .a-stats-strip__value {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.a-algo-card.is-off .a-algo-card__metrics .a-stats-strip__label {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.a-algo-card.is-off .a-algo-card__icon-wrap {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.a-algo-card.is-off .a-algo-card__glyph {
+  opacity: 0.1;
+}
+
+.a-algo-card.is-off .a-algo-card__status {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.a-algo-card.is-off .a-switch__track {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.a-algo-card__head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 8px;
+}
+
+.a-algo-card__title-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.a-algo-card__icon-wrap {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.a-algo-card__icon {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.a-algo-card__name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+.a-algo-card__switch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.a-algo-card__status {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.a-algo-card__status.is-on {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.a-algo-card__metrics {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding: 0 18px 16px;
+  flex: 1;
+  align-content: end;
+}
+
+.a-algo-card__metrics .a-stats-strip__cell {
+  padding: 4px 10px 0 0;
+}
+
+.a-algo-card__metrics .a-stats-strip__cell + .a-stats-strip__cell {
+  padding-left: 12px;
+}
+
+.a-algo-card__metrics .a-stats-strip__value {
+  font-size: 24px;
+  color: #fff;
+}
+
+.a-algo-card__metrics .a-stats-strip__label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.a-algo-card__glyph {
+  position: absolute;
+  right: 6px;
+  bottom: -10px;
+  width: 96px;
+  height: 96px;
+  color: #fff;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.a-algo-card .a-switch__track {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.a-algo-card .a-switch.is-on .a-switch__track {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.a-algo-card .a-switch.is-on .a-switch__thumb {
+  background: #1a7a82;
+}
+
+@media (max-width: 1100px) {
+  .a-algo-board {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .a-algo-card {
+    animation: none;
+  }
+  .a-algo-card:hover {
+    transform: none;
   }
 }
