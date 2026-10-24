@@ -354,51 +354,63 @@ export function DashboardPage() {
           {isModelsTab ? (
             <section className="a-stats-overview" aria-label="算法模型列表">
               <div className="a-algo-board">
-                {models.map((m, i) => {
-                  const metrics = [
-                    { label: "当日调用次数", value: formatCompactNumber(m.todayCalls) },
-                    { label: "累积调用次数", value: formatCompactNumber(m.totalCalls) },
-                    { label: "当日消耗 Token", value: formatCompactNumber(m.todayTokens) },
-                    { label: "累积消耗 Token", value: formatCompactNumber(m.totalTokens) },
-                  ];
-                  return (
-                    <article
-                      key={m.id}
-                      className={`a-algo-card a-algo-card--tone-${i % 3}${
-                        m.enabled ? " is-on" : " is-off"
-                      }`}
-                      style={{ animationDelay: `${i * 45}ms` }}
-                    >
-                      <header className="a-algo-card__head">
-                        <div className="a-algo-card__title-block">
-                          <span className="a-algo-card__icon-wrap" aria-hidden>
-                            <AlgoModelIcon id={m.id} className="a-algo-card__icon" />
-                          </span>
-                          <h3 className="a-algo-card__name">{m.name}</h3>
-                        </div>
-                        <div className="a-algo-card__switch">
-                          <span className={`a-algo-card__status${m.enabled ? " is-on" : ""}`}>
-                            {m.enabled ? "已启用" : "已停用"}
-                          </span>
-                          <Switch
-                            checked={m.enabled}
-                            aria-label={`${m.name}${m.enabled ? "停用" : "启用"}`}
-                            onChange={(next) => setPendingModel({ model: m, next })}
-                          />
-                        </div>
-                      </header>
-                      <div className="a-stats-strip__metrics a-algo-card__metrics a-stats-strip__metrics--4">
-                        {metrics.map((item) => (
-                          <div key={item.label} className="a-stats-strip__cell">
-                            <span className="a-stats-strip__value">{item.value}</span>
-                            <span className="a-stats-strip__label">{item.label}</span>
-                          </div>
-                        ))}
+                {models.map((m, i) => (
+                  <article
+                    key={m.id}
+                    className={`a-algo-card a-algo-card--tone-${i % 3}${
+                      m.enabled ? " is-on" : " is-off"
+                    }`}
+                    style={{ animationDelay: `${i * 45}ms` }}
+                  >
+                    <header className="a-algo-card__head">
+                      <div className="a-algo-card__title-block">
+                        <span className="a-algo-card__icon-wrap" aria-hidden>
+                          <AlgoModelIcon id={m.id} className="a-algo-card__icon" />
+                        </span>
+                        <h3 className="a-algo-card__name">{m.name}</h3>
                       </div>
-                      <AlgoModelIcon id={m.id} className="a-algo-card__glyph" />
-                    </article>
-                  );
-                })}
+                      <Switch
+                        checked={m.enabled}
+                        aria-label={`${m.name}${m.enabled ? "停用" : "启用"}`}
+                        onChange={(next) => setPendingModel({ model: m, next })}
+                      />
+                    </header>
+
+                    <div className="a-algo-card__body">
+                      <div className="a-algo-card__today">
+                        <div className="a-algo-card__metric">
+                          <span className="a-algo-card__metric-label">当日调用</span>
+                          <span className="a-algo-card__metric-value">
+                            {formatCompactNumber(m.todayCalls)}
+                          </span>
+                        </div>
+                        <div className="a-algo-card__metric">
+                          <span className="a-algo-card__metric-label">当日 Token</span>
+                          <span className="a-algo-card__metric-value">
+                            {formatCompactNumber(m.todayTokens)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="a-algo-card__lifetime">
+                        <div className="a-algo-card__stat">
+                          <span className="a-algo-card__stat-label">累积调用</span>
+                          <span className="a-algo-card__stat-value">
+                            {formatCompactNumber(m.totalCalls)}
+                          </span>
+                        </div>
+                        <div className="a-algo-card__stat">
+                          <span className="a-algo-card__stat-label">累积 Token</span>
+                          <span className="a-algo-card__stat-value">
+                            {formatCompactNumber(m.totalTokens)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <AlgoModelIcon id={m.id} className="a-algo-card__glyph" />
+                  </article>
+                ))}
               </div>
             </section>
           ) : null}
