@@ -2,6 +2,10 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { OpsLayout } from "@/layouts/OpsLayout";
 import { ContentManagePage } from "@/pages/content/ContentManagePage";
 import { ArticleEditPage } from "@/pages/content/ArticleEditPage";
+import { CmsArticleEditPage } from "@/pages/content/CmsArticleEditPage";
+import { CmsManagePage } from "@/pages/content/CmsManagePage";
+import { ColumnEditPage } from "@/pages/content/ColumnEditPage";
+import { ColumnManagePage } from "@/pages/content/ColumnManagePage";
 import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { PortalHomeEditPage } from "@/pages/content/PortalHomeEditPage";
 import { PortalHomeManagePage } from "@/pages/content/PortalHomeManagePage";
@@ -73,6 +77,11 @@ export function App() {
         <Route path="/stats/:scope/products" element={<ProductStatsPage />} />
         <Route path="/stats/:scope/account-products" element={<AccountProductStatsPage />} />
         <Route path="/stats/:scope/usage-records" element={<ProductUsageRecordsPage />} />
+        <Route path="/content/columns" element={<ColumnManagePage />} />
+        <Route path="/content/columns/:id/edit" element={<ColumnEditPage />} />
+        <Route path="/content/articles" element={<CmsManagePage />} />
+        <Route path="/content/articles/new" element={<CmsArticleEditPage />} />
+        <Route path="/content/articles/:id/edit" element={<CmsArticleEditPage />} />
         <Route path="/content/home" element={<PortalHomeManagePage />} />
         <Route path="/content/home/:id/edit" element={<PortalHomeEditPage />} />
         <Route path="/content/portal" element={<PortalContentPage />} />

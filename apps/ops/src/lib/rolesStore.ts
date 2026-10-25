@@ -154,11 +154,29 @@ export const PERMISSION_TREE: PermNode[] = [
   },
   {
     id: "content",
-    label: "门户内容管理",
+    label: "内容管理",
     children: [
       {
+        id: "content.columns",
+        label: "栏目管理",
+        children: [
+          { id: "content.columns.editMeta", label: "编辑栏目" },
+          { id: "content.columns.editPage", label: "编辑页面内容" },
+        ],
+      },
+      {
+        id: "content.cms",
+        label: "文章管理",
+        children: [
+          { id: "content.cms.catalog", label: "目录增删改" },
+          { id: "content.cms.article", label: "文章增删改" },
+          { id: "content.cms.submit", label: "提交审批" },
+          { id: "content.cms.approve", label: "审批通过/驳回" },
+        ],
+      },
+      {
         id: "content.portal",
-        label: "技术服务中心专题管理",
+        label: "技术服务中心专题管理（兼容）",
         children: [
           { id: "content.portal.create", label: "新增主题按钮" },
           { id: "content.portal.edit", label: "编辑按钮" },
@@ -168,7 +186,7 @@ export const PERMISSION_TREE: PermNode[] = [
       },
       {
         id: "content.center",
-        label: "技术服务中心内容管理",
+        label: "技术服务中心内容管理（兼容）",
         children: [
           { id: "content.center.createCatalog", label: "新增目录按钮" },
           { id: "content.center.createArticle", label: "新增文章/问题按钮" },
@@ -323,6 +341,14 @@ let roles: Role[] = [
       "stats.accountProducts",
       "stats.usageRecords",
       "content",
+      "content.columns",
+      "content.columns.editMeta",
+      "content.columns.editPage",
+      "content.cms",
+      "content.cms.catalog",
+      "content.cms.article",
+      "content.cms.submit",
+      "content.cms.approve",
       "content.portal",
       "content.portal.create",
       "content.portal.edit",

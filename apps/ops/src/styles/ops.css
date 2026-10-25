@@ -5997,3 +5997,60 @@ body,
     max-height: 320px;
   }
 }
+
+/* —— 内容管理：栏目 / 文章 —— */
+.a-column-edit__preview {
+  margin-top: 8px;
+  max-width: 360px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--ad-border, #e5e8eb);
+  background: #f6f8fa;
+}
+
+.a-column-edit__preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: cover;
+}
+
+.a-form-success {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #0d6b4c;
+  background: #e8f7f0;
+  border: 1px solid #b7e4d0;
+}
+
+.a-cms-status {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.4;
+}
+
+.a-cms-status--draft {
+  color: #5a6570;
+  background: #eef1f4;
+}
+
+.a-cms-status--pending {
+  color: #9a5b00;
+  background: #fff3dd;
+}
+
+.a-cms-status--published {
+  color: #0d6b4c;
+  background: #e8f7f0;
+}
+
+.a-cms-status--rejected {
+  color: #a12828;
+  background: #fdecec;
+}

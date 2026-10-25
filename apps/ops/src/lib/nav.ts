@@ -61,9 +61,11 @@ export const OPS_NAV: NavGroup[] = [
   },
   {
     key: "content",
-    title: "门户内容管理",
+    title: "内容管理",
     icon: "content",
     items: [
+      { to: "/content/columns", label: "栏目管理", ready: true },
+      { to: "/content/articles", label: "文章管理", ready: true },
       { to: "/content/portal", label: "技术服务中心专题管理", ready: true, hidden: true },
       { to: "/content/home", label: "门户内容管理", ready: true, hidden: true },
       { to: "/content/center", label: "技术服务中心内容管理", ready: true, hidden: true },
@@ -109,6 +111,11 @@ export function findNavLabel(pathname: string): string {
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "编辑客户";
   if (/^\/customers\/[^/]+\/contracts$/.test(pathname)) return "合同管理";
   if (/^\/customers\/[^/]+$/.test(pathname)) return "客户详情";
+  if (pathname === "/content/columns") return "栏目管理";
+  if (/^\/content\/columns\/[^/]+\/edit$/.test(pathname)) return "编辑栏目页面内容";
+  if (pathname === "/content/articles") return "文章管理";
+  if (pathname === "/content/articles/new") return "新增文章";
+  if (/^\/content\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";
   if (pathname === "/content/center/articles/new") return "新增内容";
   if (/^\/content\/center\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑内容";
   if (pathname === "/content/guide/articles/new") return "新增指南文章";
