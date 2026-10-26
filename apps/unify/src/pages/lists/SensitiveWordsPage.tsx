@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SensitiveWordsImportModal } from "@/components/SensitiveWordsImportModal";
 import { TableAction } from "@/components/TableAction";
 import { IconDisable, IconEdit, IconEnable, IconTrash } from "@/components/icons/UiIcons";
 import {
   RISK_LEVEL_LABEL,
   deleteSensitiveWord,
+  downloadTextFile,
   exportSensitiveWordsCsv,
-  importSensitiveWordsCsv,
   listSensitiveWords,
   setSensitiveWordEnabled,
   upsertSensitiveWord,
@@ -16,11 +17,12 @@ import {
 import { useUnifyTick } from "@/lib/useUnifyTick";
 
 export function SensitiveWordsPage() {
-  useUnifyTick();
+  const tick = useUnifyTick();
   const [q, setQ] = useState("");
   const [level, setLevel] = useState<"" | RiskLevel>("");
   const [editing, setEditing] = useState<SensitiveWord | null | "new">(null);
   const [deleteTarget, setDeleteTarget] = useState<SensitiveWord | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [form, setForm] = useState({ word: "", level: "medium" as RiskLevel, enabled: true, note: "" });
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
@@ -31,7 +33,7 @@ export function SensitiveWordsPage() {
       if (q.trim() && !w.word.includes(q.trim())) return false;
       return true;
     });
-  }, [q, level]);
+  }, [q, level, tick]);
 
   const openNew = () => {
     setForm({ word: "", level: "medium", enabled: true, note: "" });
@@ -59,20 +61,7 @@ export function SensitiveWordsPage() {
   };
 
   const onExport = () => {
-    const blob = new Blob([exportSensitiveWordsCsv()], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "sensitive-words.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const onImport = () => {
-    const raw = window.prompt("粘贴 CSV（词条,危级,备注）", "示例词,高危,备注");
-    if (!raw) return;
-    const r = importSensitiveWordsCsv(raw);
-    setMsg(`导入成功 ${r.ok} 条${r.fail.length ? `；失败：${r.fail.join("；")}` : ""}`);
+    downloadTextFile("敏感词库导出.csv", exportSensitiveWordsCsv());
   };
 
   return (
@@ -109,7 +98,7 @@ export function SensitiveWordsPage() {
           <button type="button" className="a-btn a-btn--primary" onClick={openNew}>
             新增
           </button>
-          <button type="button" className="a-btn" onClick={onImport}>
+          <button type="button" className="a-btn" onClick={() => setImportOpen(true)}>
             批量导入
           </button>
           <button type="button" className="a-btn" onClick={onExport}>
@@ -237,6 +226,18 @@ export function SensitiveWordsPage() {
           </div>
         </div>
       ) : null}
+
+      <SensitiveWordsImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={({ ok, failCount }) => {
+          setMsg(
+            failCount
+              ? `导入完成：成功 ${ok} 条，失败 ${failCount} 条`
+              : `导入完成：成功 ${ok} 条`,
+          );
+        }}
+      />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

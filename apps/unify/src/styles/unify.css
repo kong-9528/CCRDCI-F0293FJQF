@@ -173,3 +173,54 @@
 .un-table-wrap .a-table {
   min-width: 1280px;
 }
+
+/* 敏感词批量导入 */
+.un-import-drop {
+  border: 1px dashed var(--n-300, #d9d9d9);
+  border-radius: var(--ad-radius, 8px);
+  background: var(--n-50, #fafafa);
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.un-import-drop:hover,
+.un-import-drop.is-dragging {
+  border-color: var(--p-500, #0075c1);
+  background: var(--p-50, #e6f3fa);
+}
+
+.un-import-drop__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--n-800);
+  margin-bottom: 6px;
+}
+
+.un-import-drop__hint {
+  font-size: 12px;
+  color: var(--n-500);
+}
+
+.un-import-fail {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #fff5f5;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  max-height: 160px;
+  overflow: auto;
+  font-size: 12px;
+  color: #c62828;
+}
+
+.un-import-fail__title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.un-import-fail ul {
+  margin: 0;
+  padding-left: 18px;
+}

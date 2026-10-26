@@ -14,7 +14,6 @@ import {
   BLACKLIST_DIM_LABEL,
   deleteUserBlacklist,
   exportUserBlacklistCsv,
-  importUserBlacklistCsv,
   isBlacklistExpired,
   listBlacklistHits,
   listUserBlacklist,
@@ -26,7 +25,7 @@ import {
 import { useUnifyTick } from "@/lib/useUnifyTick";
 
 export function UserBlacklistPage() {
-  useUnifyTick();
+  const tick = useUnifyTick();
   const { session } = useAuth();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<UserBlacklistItem | null | "new">(null);
@@ -48,7 +47,7 @@ export function UserBlacklistPage() {
       if (!q.trim()) return true;
       return r.value.includes(q.trim()) || r.note.includes(q.trim());
     });
-  }, [q]);
+  }, [q, tick]);
 
   const openNew = () => {
     setForm({
@@ -111,21 +110,6 @@ export function UserBlacklistPage() {
           </div>
           <button type="button" className="a-btn a-btn--primary" onClick={openNew}>
             新增
-          </button>
-          <button
-            type="button"
-            className="a-btn"
-            onClick={() => {
-              const raw = window.prompt(
-                "粘贴 CSV（类型,匹配值,生效,失效,备注）",
-                "用户ID,10001,2026-01-01 00:00:00,2099-12-31 23:59:59,备注",
-              );
-              if (!raw) return;
-              const r = importUserBlacklistCsv(raw, session?.username || "admin");
-              setMsg(`导入成功 ${r.ok} 条${r.fail.length ? `；失败：${r.fail.join("；")}` : ""}`);
-            }}
-          >
-            批量导入
           </button>
           <button
             type="button"

@@ -13,7 +13,6 @@ import {
   IP_TYPE_LABEL,
   deleteIpWhitelist,
   exportIpWhitelistCsv,
-  importIpWhitelistCsv,
   listIpHits,
   listIpWhitelist,
   setIpWhitelistEnabled,
@@ -24,7 +23,7 @@ import {
 import { useUnifyTick } from "@/lib/useUnifyTick";
 
 export function IpWhitelistPage() {
-  useUnifyTick();
+  const tick = useUnifyTick();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<IpWhitelistItem | null | "new">(null);
   const [hitsFor, setHitsFor] = useState<string | null>(null);
@@ -43,7 +42,7 @@ export function IpWhitelistPage() {
       if (!q.trim()) return true;
       return r.expression.includes(q.trim()) || r.note.includes(q.trim());
     });
-  }, [q]);
+  }, [q, tick]);
 
   const openNew = () => {
     setForm({ type: "single", expression: "", note: "", enabled: true });
@@ -93,18 +92,6 @@ export function IpWhitelistPage() {
           </div>
           <button type="button" className="a-btn a-btn--primary" onClick={openNew}>
             新增
-          </button>
-          <button
-            type="button"
-            className="a-btn"
-            onClick={() => {
-              const raw = window.prompt("粘贴 CSV（类型,表达式,备注）", "单IP,1.2.3.4,备注");
-              if (!raw) return;
-              const r = importIpWhitelistCsv(raw);
-              setMsg(`导入成功 ${r.ok} 条${r.fail.length ? `；失败：${r.fail.join("；")}` : ""}`);
-            }}
-          >
-            批量导入
           </button>
           <button
             type="button"

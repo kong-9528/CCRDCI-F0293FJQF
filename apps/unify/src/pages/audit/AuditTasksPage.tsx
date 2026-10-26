@@ -5,6 +5,7 @@ import { IconAudit, IconEye, IconRevoke } from "@/components/icons/UiIcons";
 import { useAuth } from "@/lib/auth";
 import {
   ORDER_STATUS_LABEL,
+  WORK_CATEGORIES,
   contentRiskLabel,
   filterAuditTasks,
   getAuditTask,
@@ -21,8 +22,7 @@ const emptyFilter = {
   orderId: "",
   workName: "",
   workCategory: "",
-  applyType: "",
-  ownerId: "",
+  ownerName: "",
   channelType: "",
   submittedFrom: "",
   submittedTo: "",
@@ -30,7 +30,7 @@ const emptyFilter = {
 };
 
 export function AuditTasksPage() {
-  useUnifyTick();
+  const tick = useUnifyTick();
   const { session } = useAuth();
   const [draft, setDraft] = useState(emptyFilter);
   const [applied, setApplied] = useState(emptyFilter);
@@ -39,7 +39,7 @@ export function AuditTasksPage() {
   const [reviewNote, setReviewNote] = useState("");
   const [toast, setToast] = useState("");
 
-  const rows = useMemo(() => filterAuditTasks(applied), [applied]);
+  const rows = useMemo(() => filterAuditTasks(applied), [applied, tick]);
   const active = activeId ? getAuditTask(activeId) : null;
 
   const setFilter = <K extends keyof typeof emptyFilter>(key: K, value: string) => {
@@ -93,42 +93,32 @@ export function AuditTasksPage() {
             />
           </div>
           <div className="a-field">
-            <span className="a-field__label">作品类别</span>
+            <span className="a-field__label">作品类型</span>
             <select
               className="a-select"
               value={draft.workCategory}
               onChange={(e) => setFilter("workCategory", e.target.value)}
+              style={{ minWidth: 200 }}
             >
               <option value="">请选择</option>
-              <option value="美术作品">美术作品</option>
-              <option value="摄影作品">摄影作品</option>
-              <option value="文字作品">文字作品</option>
-              <option value="视听作品">视听作品</option>
+              {WORK_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
           <div className="a-field">
-            <span className="a-field__label">申领类型</span>
-            <select
-              className="a-select"
-              value={draft.applyType}
-              onChange={(e) => setFilter("applyType", e.target.value)}
-            >
-              <option value="">请选择</option>
-              <option value="常规">常规</option>
-              <option value="系列图">系列图</option>
-            </select>
-          </div>
-          <div className="a-field">
-            <span className="a-field__label">著作权人ID</span>
+            <span className="a-field__label">著作权人名称</span>
             <input
               className="a-input"
               placeholder="请输入"
-              value={draft.ownerId}
-              onChange={(e) => setFilter("ownerId", e.target.value)}
+              value={draft.ownerName}
+              onChange={(e) => setFilter("ownerName", e.target.value)}
             />
           </div>
           <div className="a-field">
-            <span className="a-field__label">渠道类型</span>
+            <span className="a-field__label">DCI申领平台</span>
             <select
               className="a-select"
               value={draft.channelType}
@@ -197,11 +187,10 @@ export function AuditTasksPage() {
               <tr>
                 <th>DCI申领记录ID</th>
                 <th>作品名称</th>
-                <th>作品类别</th>
-                <th>申领类型</th>
+                <th>作品类型</th>
                 <th>著作权人</th>
                 <th>登记提交时间</th>
-                <th>渠道类型</th>
+                <th>DCI申领平台</th>
                 <th>渠道名</th>
                 <th>最后更新时间</th>
                 <th>风险灯</th>
@@ -213,7 +202,7 @@ export function AuditTasksPage() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={13}>
+                  <td colSpan={12}>
                     <div className="a-empty">暂无任务</div>
                   </td>
                 </tr>
@@ -228,7 +217,6 @@ export function AuditTasksPage() {
                       </td>
                       <td>{t.workName}</td>
                       <td>{t.workCategory}</td>
-                      <td>{t.applyType}</td>
                       <td>{t.ownerName}</td>
                       <td>{t.submittedAt}</td>
                       <td>{t.channelType}</td>
@@ -341,10 +329,8 @@ function TaskDetailBody({
           <dd>{task.orderId}</dd>
           <dt>作品名称</dt>
           <dd>{task.workName}</dd>
-          <dt>作品类别</dt>
+          <dt>作品类型</dt>
           <dd>{task.workCategory}</dd>
-          <dt>申领类型</dt>
-          <dd>{task.applyType}</dd>
           <dt>著作权人</dt>
           <dd>
             {task.ownerName}（{task.ownerId}）

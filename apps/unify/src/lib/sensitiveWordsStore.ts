@@ -138,33 +138,153 @@ export function matchSensitiveText(text: string): {
   return { hits, riskLevel: "low", failed: true };
 }
 
-export function importSensitiveWordsCsv(csv: string): { ok: number; fail: string[] } {
+export type SensitiveWordImportRow = {
+  line: number;
+  word: string;
+  level: RiskLevel;
+  enabled: boolean;
+  note: string;
+};
+
+export type SensitiveWordParseResult = {
+  valid: SensitiveWordImportRow[];
+  fail: string[];
+};
+
+/** 导入模板（含表头与示例行） */
+export function getSensitiveWordsImportTemplateCsv() {
+  return [
+    "词条,危级,状态,备注",
+    "示例高危词,高危,启用,可删除此行后填写真实词条",
+    "示例中危词,中危,启用,",
+    "示例低危词,低危,停用,停用状态示例",
+  ].join("\n");
+}
+
+function parseLevel(raw: string): RiskLevel | null {
+  const v = raw.trim();
+  if (v === "高危" || v.toLowerCase() === "high") return "high";
+  if (v === "中危" || v.toLowerCase() === "medium") return "medium";
+  if (v === "低危" || v.toLowerCase() === "low") return "low";
+  return null;
+}
+
+function parseEnabled(raw: string | undefined): boolean {
+  if (raw == null || raw.trim() === "") return true;
+  const v = raw.trim();
+  if (v === "停用" || v === "禁用" || v.toLowerCase() === "disabled" || v === "0" || v === "false") {
+    return false;
+  }
+  return true;
+}
+
+/** 简单 CSV 行拆分（支持双引号包裹字段） */
+function splitCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]!;
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cur += ch;
+      }
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = true;
+      continue;
+    }
+    if (ch === ",") {
+      out.push(cur.trim());
+      cur = "";
+      continue;
+    }
+    cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+/** 仅解析校验，不写入；用于导入预览 */
+export function parseSensitiveWordsCsv(csv: string): SensitiveWordParseResult {
+  const text = csv.replace(/^\uFEFF/, "");
+  const lines = text.split(/\r?\n/);
+  const valid: SensitiveWordImportRow[] = [];
   const fail: string[] = [];
-  let ok = 0;
-  const lines = csv
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-  lines.forEach((line, i) => {
-    if (i === 0 && /词条|word/i.test(line)) return;
-    const [word, levelRaw, note = ""] = line.split(",").map((s) => s.trim());
-    const level =
-      levelRaw === "高危" || levelRaw === "high"
-        ? "high"
-        : levelRaw === "中危" || levelRaw === "medium"
-          ? "medium"
-          : levelRaw === "低危" || levelRaw === "low"
-            ? "low"
-            : null;
-    if (!word || !level) {
-      fail.push(`第 ${i + 1} 行：格式错误`);
+  const seen = new Set<string>();
+
+  lines.forEach((rawLine, idx) => {
+    const lineNo = idx + 1;
+    const line = rawLine.trim();
+    if (!line) return;
+    if (idx === 0 && /词条|word/i.test(line)) return;
+
+    const cols = splitCsvLine(line);
+    const word = (cols[0] || "").trim();
+    const level = parseLevel(cols[1] || "");
+    // 兼容：词条,危级,备注  或  词条,危级,状态,备注
+    const hasStatusCol = cols.length >= 4 || /启用|停用|enabled|disabled/i.test(cols[2] || "");
+    const enabled = hasStatusCol ? parseEnabled(cols[2]) : true;
+    const note = hasStatusCol ? (cols[3] || "").trim() : (cols[2] || "").trim();
+
+    if (!word) {
+      fail.push(`第 ${lineNo} 行：词条不能为空`);
       return;
     }
-    const err = upsertSensitiveWord({ word, level, enabled: true, note });
-    if (err) fail.push(`第 ${i + 1} 行：${err}`);
-    else ok++;
+    if (!level) {
+      fail.push(`第 ${lineNo} 行：危级须为「高危/中危/低危」`);
+      return;
+    }
+    const key = word.toLowerCase();
+    if (seen.has(key)) {
+      fail.push(`第 ${lineNo} 行：文件内词条「${word}」重复`);
+      return;
+    }
+    seen.add(key);
+    if (words.some((w) => w.word.toLowerCase() === key)) {
+      fail.push(`第 ${lineNo} 行：词条「${word}」已存在`);
+      return;
+    }
+    valid.push({ line: lineNo, word, level, enabled, note });
   });
+
+  return { valid, fail };
+}
+
+/** 将预览通过的行写入词库 */
+export function commitSensitiveWordsImport(rows: SensitiveWordImportRow[]): {
+  ok: number;
+  fail: string[];
+} {
+  const fail: string[] = [];
+  let ok = 0;
+  for (const row of rows) {
+    const err = upsertSensitiveWord({
+      word: row.word,
+      level: row.level,
+      enabled: row.enabled,
+      note: row.note,
+    });
+    if (err) fail.push(`第 ${row.line} 行：${err}`);
+    else ok++;
+  }
   return { ok, fail };
+}
+
+/** 解析并直接导入（兼容旧调用） */
+export function importSensitiveWordsCsv(csv: string): { ok: number; fail: string[] } {
+  const parsed = parseSensitiveWordsCsv(csv);
+  if (!parsed.valid.length) return { ok: 0, fail: parsed.fail };
+  const committed = commitSensitiveWordsImport(parsed.valid);
+  return { ok: committed.ok, fail: [...parsed.fail, ...committed.fail] };
 }
 
 export function exportSensitiveWordsCsv() {
@@ -174,4 +294,14 @@ export function exportSensitiveWordsCsv() {
       `${w.word},${RISK_LEVEL_LABEL[w.level]},${w.enabled ? "启用" : "停用"},${w.note},${w.updatedAt}`,
   );
   return [header, ...rows].join("\n");
+}
+
+export function downloadTextFile(filename: string, content: string, mime = "text/csv;charset=utf-8") {
+  const blob = new Blob(["\uFEFF" + content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }

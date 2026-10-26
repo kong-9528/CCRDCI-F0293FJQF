@@ -20,7 +20,27 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   manual_passed: "人工复核通过",
 };
 
-export type WorkCategory = "美术作品" | "摄影作品" | "文字作品" | "视听作品";
+export const WORK_CATEGORIES = [
+  "摄影作品",
+  "美术作品",
+  "文字作品",
+  "音乐作品",
+  "口述作品",
+  "戏曲作品",
+  "曲艺作品",
+  "舞蹈作品",
+  "杂技作品",
+  "模型作品",
+  "建筑作品",
+  "电影作品",
+  "类似摄制电影方法创作作品",
+  "工程设计图、产品设计图",
+  "示意图",
+] as const;
+
+export type WorkCategory = (typeof WORK_CATEGORIES)[number];
+
+/** 数据字段保留，页面已隐藏申领类型 */
 export type ApplyType = "常规" | "系列图";
 export type ChannelType = "腾讯" | "阿里" | "自有渠道" | "其他";
 
@@ -353,7 +373,8 @@ export type AuditTaskFilter = {
   workName?: string;
   workCategory?: string;
   applyType?: string;
-  ownerId?: string;
+  /** 著作权人名称模糊匹配 */
+  ownerName?: string;
   channelType?: string;
   submittedFrom?: string;
   submittedTo?: string;
@@ -366,7 +387,7 @@ export function filterAuditTasks(f: AuditTaskFilter) {
     if (f.workName && !t.workName.includes(f.workName.trim())) return false;
     if (f.workCategory && t.workCategory !== f.workCategory) return false;
     if (f.applyType && t.applyType !== f.applyType) return false;
-    if (f.ownerId && !t.ownerId.includes(f.ownerId.trim())) return false;
+    if (f.ownerName && !t.ownerName.includes(f.ownerName.trim())) return false;
     if (f.channelType && t.channelType !== f.channelType) return false;
     if (f.orderStatus && t.orderStatus !== f.orderStatus) return false;
     if (f.submittedFrom && t.submittedAt.slice(0, 10) < f.submittedFrom) return false;
