@@ -5608,57 +5608,60 @@ body,
   flex-direction: column;
   color: #fff;
   animation: a-dash-rise 420ms ease both;
-  box-shadow: 0 10px 28px rgba(25, 80, 180, 0.22);
+  box-shadow: 0 10px 28px rgba(30, 90, 180, 0.16);
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .a-algo-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(25, 80, 180, 0.3);
+  box-shadow: 0 14px 32px rgba(30, 90, 180, 0.22);
 }
 
-/* 对齐看板截图：天蓝→宝蓝 / 紫→ラベンダー / 宝蓝→午夜蓝 */
+/*
+ * 对齐「版权核验」产品卡色板（sky / indigo-lilac / deep blue），
+ * 渐变跨度收窄：避开过浅起点，保持中段饱和。
+ */
 .a-algo-card--tone-0 {
-  background: linear-gradient(90deg, #4facfe 0%, #1976d2 52%, #0062ff 100%);
+  background: linear-gradient(135deg, #5eb8e4 0%, #4aaedc 50%, #359dcd 100%);
 }
 
 .a-algo-card--tone-1 {
-  background: linear-gradient(90deg, #8e44ad 0%, #7e6bd9 48%, #8592fe 100%);
+  background: linear-gradient(135deg, #6d9ff5 0%, #7488f2 50%, #8079ef 100%);
 }
 
 .a-algo-card--tone-2 {
-  background: linear-gradient(90deg, #2575fc 0%, #2a3f9e 52%, #1a2a6c 100%);
+  background: linear-gradient(135deg, #3f82e4 0%, #2f6fd4 52%, #2563c4 100%);
 }
 
 .a-algo-card--tone-0:hover {
-  box-shadow: 0 14px 32px rgba(0, 98, 255, 0.32);
+  box-shadow: 0 14px 32px rgba(47, 150, 200, 0.28);
 }
 
 .a-algo-card--tone-1:hover {
-  box-shadow: 0 14px 32px rgba(142, 68, 173, 0.32);
+  box-shadow: 0 14px 32px rgba(116, 136, 242, 0.28);
 }
 
 .a-algo-card--tone-2:hover {
-  box-shadow: 0 14px 32px rgba(26, 42, 108, 0.36);
+  box-shadow: 0 14px 32px rgba(47, 111, 212, 0.3);
 }
 
 .a-stats-strip--models {
-  background: linear-gradient(90deg, #4facfe 0%, #1976d2 52%, #0062ff 100%);
-  box-shadow: 0 10px 28px rgba(0, 98, 255, 0.26);
+  background: linear-gradient(135deg, #5eb8e4 0%, #4aaedc 50%, #359dcd 100%);
+  box-shadow: 0 10px 28px rgba(30, 90, 180, 0.16);
 }
 
-/* 停用：统一偏灰 */
+/* 停用：统一偏灰（略浅，避免过重） */
 .a-algo-card.is-off,
 .a-algo-card.is-off.a-algo-card--tone-0,
 .a-algo-card.is-off.a-algo-card--tone-1,
 .a-algo-card.is-off.a-algo-card--tone-2 {
-  background: linear-gradient(135deg, #7a838b 0%, #616a74 48%, #4c545c 100%);
-  box-shadow: 0 8px 22px rgba(50, 58, 66, 0.2);
-  color: rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, #9aa3ab 0%, #848e98 50%, #737c86 100%);
+  box-shadow: 0 8px 22px rgba(80, 90, 100, 0.14);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .a-algo-card.is-off:hover {
-  box-shadow: 0 12px 28px rgba(60, 70, 80, 0.22);
+  box-shadow: 0 12px 28px rgba(80, 90, 100, 0.18);
 }
 
 .a-algo-card.is-off .a-algo-card__name,
@@ -5711,8 +5714,9 @@ body,
   border-radius: 9px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .a-algo-card__icon {
@@ -5755,8 +5759,10 @@ body,
   gap: 0;
   padding: 10px 0;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* 子方框：半透明白底，叠在中饱和蓝上仍有层次、不过曝 */
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .a-algo-card__metric {
@@ -5796,8 +5802,10 @@ body,
   gap: 6px;
   padding: 9px 12px;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  /* 累积区略压暗，与「当日」子框形成深浅对比 */
+  background: rgba(15, 45, 90, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .a-algo-card__stat {
