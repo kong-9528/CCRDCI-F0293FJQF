@@ -291,34 +291,48 @@ export function CmsArticleEditPage() {
   const store = useCmsArticleStore();
   const isCreate = !id;
 
-  const existing = id ? getCmsArticle(id) : undefined;
+  // 用 store 快照读取，避免 getXxx 每次拷贝新对象导致 effect 死循环
+  const existing = id ? store.getArticle(id) : undefined;
   const catalogIdFromQuery = searchParams.get("catalogId") ?? "";
   const catalogId = existing?.catalogId || catalogIdFromQuery;
-  const catalog = catalogId ? getCmsCatalog(catalogId) : undefined;
+  const catalog = catalogId ? store.getCatalog(catalogId) : undefined;
 
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  const fieldDefs = useMemo(() => catalog?.fields ?? [], [catalog]);
+  const fieldDefs = useMemo(() => catalog?.fields ?? [], [catalog?.id, catalog?.fields]);
+  const articleId = existing?.id;
+  const articleStatus = existing?.status;
+  const articleUpdatedAt = existing?.updatedAt;
 
   useEffect(() => {
     if (isCreate) {
-      if (!catalog) {
+      if (!catalogId) {
         setReady(true);
         return;
       }
-      setFields(emptyFields(catalog.fields));
+      const cat = getCmsCatalog(catalogId);
+      if (!cat) {
+        setReady(true);
+        return;
+      }
+      setFields(emptyFields(cat.fields));
       setReady(true);
       return;
     }
-    if (existing) {
-      setFields({ ...emptyFields(fieldDefs), ...existing.fields });
+    if (!articleId) {
       setReady(true);
       return;
+    }
+    const row = getCmsArticle(articleId);
+    const cat = row ? getCmsCatalog(row.catalogId) : undefined;
+    if (row && cat) {
+      setFields({ ...emptyFields(cat.fields), ...row.fields });
     }
     setReady(true);
-  }, [isCreate, existing, catalog, fieldDefs]);
+    // 仅在路由/文章身份变化时灌入表单，避免引用变化触发重渲染死循环
+  }, [isCreate, catalogId, articleId, articleUpdatedAt]);
 
   const title = isCreate ? "新增文章" : "编辑文章";
 
@@ -346,7 +360,7 @@ export function CmsArticleEditPage() {
     );
   }
 
-  if (existing?.status === "pending") {
+  if (articleStatus === "pending") {
     return (
       <div className="a-card">
         <div className="a-card__head">{title}</div>
@@ -369,9 +383,9 @@ export function CmsArticleEditPage() {
       if (isCreate) {
         const created = store.createArticle({ catalogId: catalog.id, fields });
         if (andSubmit) store.submit(created.id);
-      } else if (existing) {
-        store.updateArticle(existing.id, { fields });
-        if (andSubmit) store.submit(existing.id);
+      } else if (articleId) {
+        store.updateArticle(articleId, { fields });
+        if (andSubmit) store.submit(articleId);
       }
       setError(null);
       navigate("/content/articles");
@@ -381,8 +395,7 @@ export function CmsArticleEditPage() {
   };
 
   const goBack = () => navigate("/content/articles");
-  const isVisibilityArticle =
-    existing?.status === "visible" || existing?.status === "hidden";
+  const isVisibilityArticle = articleStatus === "visible" || articleStatus === "hidden";
 
   return (
     <div className="a-stack a-cms-article-edit">
@@ -395,31 +408,50 @@ export function CmsArticleEditPage() {
           </button>
         </div>
         <div className="a-card__body a-cms-article-edit__body">
+          <div className="a-cms-ref-bar">
+            <span>
+              目录 ID：<code className="a-code a-cms-id">{catalog.id}</code>
+            </span>
+            <span>
+              文章 ID：
+              <code className="a-code a-cms-id">{articleId ?? "（新建后生成）"}</code>
+            </span>
+            <span className="a-muted">
+              元素引用：目录 ID / 文章 ID / 字段标识
+            </span>
+          </div>
           <p className="a-muted" style={{ marginTop: 0 }}>
             表单字段由目录「表单编排」定义。
             {isVisibilityArticle
               ? "保存后保持当前显示/隐藏状态。"
               : "保存后为草稿；提交审批通过后方可发布。"}
-            {existing?.status === "published"
+            {articleStatus === "published"
               ? " 当前为已发布稿，修改后将回到草稿并需重新审批。"
               : null}
           </p>
           {error ? <div className="a-form-error">{error}</div> : null}
           <div className="a-form a-form--stack">
-            {fieldDefs.map((field) => (
-              <div key={field.key} className="a-field a-field--stack">
-                <span className="a-field__label">
-                  {field.label}
-                  {field.required ? <span className="a-req"> *</span> : null}
-                </span>
-                <FieldControl
-                  field={field}
-                  value={fields[field.key] ?? ""}
-                  onChange={(v) => setField(field.key, v)}
-                />
-                {field.hint ? <span className="a-field__hint">{field.hint}</span> : null}
-              </div>
-            ))}
+            {fieldDefs.map((field) => {
+              const articleIdPart = articleId ?? "{articleId}";
+              const refPath = `${catalog.id}/${articleIdPart}/${field.key}`;
+              return (
+                <div key={field.key} className="a-field a-field--stack">
+                  <span className="a-field__label">
+                    {field.label}
+                    {field.required ? <span className="a-req"> *</span> : null}
+                    <code className="a-code a-cms-field-ref" title="元素定位路径">
+                      {refPath}
+                    </code>
+                  </span>
+                  <FieldControl
+                    field={field}
+                    value={fields[field.key] ?? ""}
+                    onChange={(v) => setField(field.key, v)}
+                  />
+                  {field.hint ? <span className="a-field__hint">{field.hint}</span> : null}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -103,7 +103,7 @@ export function CmsCatalogManagePage() {
         <div className="a-card__head">
           目录管理
           <span className="a-card__extra a-muted">
-            维护文章目录树；可为每个目录编排文章表单字段
+            维护文章目录树；目录 ID + 文章 ID + 字段标识可唯一定位表单元素
           </span>
           <button type="button" className="a-btn a-btn--primary a-btn--sm" onClick={openCreateRoot}>
             新增根目录
@@ -121,6 +121,7 @@ export function CmsCatalogManagePage() {
             <thead>
               <tr>
                 <th className="a-cms-catalog-table__name">目录名称</th>
+                <th className="a-cms-id-col">目录 ID</th>
                 <th style={{ width: 100 }}>排序</th>
                 <th style={{ width: 320 }}>操作</th>
               </tr>
@@ -128,7 +129,7 @@ export function CmsCatalogManagePage() {
             <tbody>
               {store.flatCatalogs.length === 0 ? (
                 <tr>
-                  <td colSpan={3}>
+                  <td colSpan={4}>
                     <div className="a-empty">暂无目录，请新增根目录</div>
                   </td>
                 </tr>
@@ -147,6 +148,9 @@ export function CmsCatalogManagePage() {
                       <span className="a-muted" style={{ marginLeft: 8, fontSize: 12 }}>
                         {catalog.fields.length} 个字段
                       </span>
+                    </td>
+                    <td className="a-cms-id-col">
+                      <code className="a-code a-cms-id">{catalog.id}</code>
                     </td>
                     <td>{catalog.sort}</td>
                     <td>

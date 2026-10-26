@@ -60,7 +60,9 @@ export function CmsManagePage() {
       <div className="a-card">
         <div className="a-card__head">
           文章管理
-          <span className="a-card__extra a-muted">按目录筛选并管理文章；发布需审批</span>
+          <span className="a-card__extra a-muted">
+            按目录筛选；元素定位：目录 ID + 文章 ID + 字段标识
+          </span>
         </div>
 
         <div className="a-toolbar a-cms-articles__toolbar">
@@ -80,6 +82,11 @@ export function CmsManagePage() {
                 </option>
               ))}
             </select>
+            {selected ? (
+              <span className="a-field__hint">
+                目录 ID：<code className="a-code a-cms-id">{selected.id}</code>
+              </span>
+            ) : null}
           </div>
           <div className="a-field a-cms-articles__search">
             <span className="a-field__label">标题关键词</span>
@@ -148,6 +155,7 @@ export function CmsManagePage() {
             <thead>
               <tr>
                 <th>标题</th>
+                <th className="a-cms-id-col">文章 ID</th>
                 <th>状态</th>
                 <th>更新时间</th>
                 <th>操作</th>
@@ -156,7 +164,7 @@ export function CmsManagePage() {
             <tbody>
               {!flatCatalogs.length ? (
                 <tr>
-                  <td colSpan={4}>
+                  <td colSpan={5}>
                     <div className="a-empty">
                       暂无目录，请先在「目录管理」中创建目录
                     </div>
@@ -164,7 +172,7 @@ export function CmsManagePage() {
                 </tr>
               ) : articles.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>
+                  <td colSpan={5}>
                     <div className="a-empty">
                       {keywordApplied ? "无匹配文章" : "该目录下暂无文章"}
                     </div>
@@ -174,6 +182,9 @@ export function CmsManagePage() {
                 articles.map((row) => (
                   <tr key={row.id}>
                     <td>{row.title}</td>
+                    <td className="a-cms-id-col">
+                      <code className="a-code a-cms-id">{row.id}</code>
+                    </td>
                     <td>
                       <span className={`a-cms-status a-cms-status--${row.status}`}>
                         {CMS_STATUS_LABEL[row.status]}

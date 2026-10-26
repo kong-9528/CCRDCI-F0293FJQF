@@ -126,9 +126,17 @@ export function CmsFormSchemaPage() {
           </div>
         </div>
         <div className="a-card__body" style={{ paddingBottom: 8 }}>
+          <div className="a-cms-ref-bar">
+            <span>
+              目录 ID：<code className="a-code a-cms-id">{catalog.id}</code>
+            </span>
+            <span className="a-muted">
+              元素引用格式：目录 ID / 文章 ID / 字段标识
+            </span>
+          </div>
           <p className="a-muted" style={{ margin: 0 }}>
             为本目录下的文章配置表单字段。须保留标识为 <code>title</code>{" "}
-            的标题字段；支持拖拽调整顺序。
+            的标题字段；支持拖拽调整顺序。字段标识将作为引用路径的第三段。
           </p>
           {error ? <div className="a-form-error" style={{ marginTop: 8 }}>{error}</div> : null}
           {savedTip ? (
