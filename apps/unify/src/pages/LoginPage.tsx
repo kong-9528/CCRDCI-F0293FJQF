@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
 export function LoginPage() {
   const { session, ready, login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from || "/";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -14,7 +12,7 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   if (ready && session) {
-    return <Navigate to={from === "/login" ? "/" : from} replace />;
+    return <Navigate to="/" replace />;
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -31,7 +29,7 @@ export function LoginPage() {
       setError(result.message);
       return;
     }
-    navigate(from === "/login" ? "/" : from, { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (
