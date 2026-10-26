@@ -155,6 +155,7 @@ export function CmsManagePage() {
             <thead>
               <tr>
                 <th>标题</th>
+                <th style={{ width: 88 }}>排序</th>
                 <th className="a-cms-id-col">文章 ID</th>
                 <th>状态</th>
                 <th>更新时间</th>
@@ -164,7 +165,7 @@ export function CmsManagePage() {
             <tbody>
               {!flatCatalogs.length ? (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div className="a-empty">
                       暂无目录，请先在「目录管理」中创建目录
                     </div>
@@ -172,7 +173,7 @@ export function CmsManagePage() {
                 </tr>
               ) : articles.length === 0 ? (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div className="a-empty">
                       {keywordApplied ? "无匹配文章" : "该目录下暂无文章"}
                     </div>
@@ -182,6 +183,7 @@ export function CmsManagePage() {
                 articles.map((row) => (
                   <tr key={row.id}>
                     <td>{row.title}</td>
+                    <td>{row.sort == null ? "—" : row.sort}</td>
                     <td className="a-cms-id-col">
                       <code className="a-code a-cms-id">{row.id}</code>
                     </td>

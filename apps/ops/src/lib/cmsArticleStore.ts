@@ -103,7 +103,7 @@ export const CMS_SCHEMA_TEMPLATES: Record<
   },
   topic: {
     label: "专题条目",
-    description: "标题 + 标题图 + 引用文章 + 排序（用于首页/频道汇总）",
+    description: "标题 + 标题图 + 引用文章（排序为文章默认选填字段）",
     fields: [
       { key: "title", label: "标题", type: "text", required: true },
       { key: "cover", label: "标题图", type: "image" },
@@ -114,7 +114,6 @@ export const CMS_SCHEMA_TEMPLATES: Record<
         required: true,
         hint: "通过搜索对话框关联一篇源文章",
       },
-      { key: "sort", label: "排序", type: "integer", hint: "数值越小越靠前" },
     ],
   },
   faq: {
@@ -190,8 +189,14 @@ export type CmsCatalog = {
 export type CmsArticle = {
   id: string;
   catalogId: string;
-  /** 列表展示用标题（冗余自 fields.title） */
+  /**
+   * 默认强制字段：标题（冗余自 fields.title，必填）
+   */
   title: string;
+  /**
+   * 默认强制字段：排序（选填；空表示未设置；数值越小越靠前）
+   */
+  sort: number | null;
   fields: Record<string, string>;
   status: CmsPublishStatus;
   changeNote: string;
@@ -285,6 +290,7 @@ function buildNavColumnSeed(): { catalogs: CmsCatalog[]; articles: CmsArticle[] 
       id: portalColumnArticleId(col),
       catalogId: catId,
       title: col.name,
+      sort: col.sort,
       fields: { title: col.name, ...col.content },
       status: col.hidden ? "hidden" : "visible",
       changeNote: "",
@@ -336,6 +342,7 @@ const SEED_ARTICLES: CmsArticle[] = [
     id: "cms-a-1",
     catalogId: "cms-c-faq",
     title: "DCI是什么？",
+    sort: 10,
     fields: {
       title: "DCI是什么？",
       body: "<p>DCI，英文全称 Digital Copyright Identifier，中文名称为数字版权唯一标识符……</p>",
@@ -350,6 +357,7 @@ const SEED_ARTICLES: CmsArticle[] = [
     id: "cms-a-2",
     catalogId: "cms-c-industry",
     title: "数字版权基础设施发展趋势",
+    sort: null,
     fields: {
       title: "数字版权基础设施发展趋势",
       thumb: "",
@@ -368,12 +376,12 @@ const SEED_ARTICLES: CmsArticle[] = [
     id: "cms-a-topic-1",
     catalogId: "cms-c-topic",
     title: "焦点：数字版权基础设施",
+    sort: 10,
     fields: {
       title: "焦点：数字版权基础设施",
       cover:
         "https://miaoda-conversation-file.cdn.bcebos.com/user-bmjekvlpgirk/app-ck03sng4kykh/20260722/6666.jpg",
       refArticle: "cms-a-2",
-      sort: "10",
     },
     status: "visible",
     changeNote: "",
@@ -585,12 +593,30 @@ export function createDefaultField(type: CmsFieldType): CmsFieldDef {
   }
 }
 
+function byArticleSort(a: CmsArticle, b: CmsArticle) {
+  const as = a.sort;
+  const bs = b.sort;
+  if (as == null && bs == null) return b.updatedAt.localeCompare(a.updatedAt);
+  if (as == null) return 1;
+  if (bs == null) return -1;
+  if (as !== bs) return as - bs;
+  return b.updatedAt.localeCompare(a.updatedAt);
+}
+
+/** 解析排序输入：空 → null；否则须为整数 */
+export function parseArticleSortInput(raw: string): number | null {
+  const t = raw.trim();
+  if (!t) return null;
+  if (!/^-?\d+$/.test(t)) throw new Error("排序须为整数或留空");
+  return Number(t);
+}
+
 export function listCmsArticles(catalogId?: string, titleKeyword = ""): CmsArticle[] {
   const kw = titleKeyword.trim().toLowerCase();
   return articles
     .filter((a) => (catalogId ? a.catalogId === catalogId : true))
     .filter((a) => (kw ? a.title.toLowerCase().includes(kw) : true))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .sort(byArticleSort)
     .map((a) => ({ ...a, fields: { ...a.fields } }));
 }
 
@@ -701,6 +727,7 @@ function validateFields(fieldDefs: CmsFieldDef[], fields: Record<string, string>
 export function createCmsArticle(input: {
   catalogId: string;
   fields: Record<string, string>;
+  sort?: number | null;
 }): CmsArticle {
   const catalog = getCmsCatalog(input.catalogId);
   if (!catalog) throw new Error("请选择目录");
@@ -720,6 +747,7 @@ export function createCmsArticle(input: {
     id: `cms-a-${articleSeq}`,
     catalogId: input.catalogId,
     title,
+    sort: input.sort ?? null,
     fields: { ...input.fields },
     status: "draft",
     changeNote: "",
@@ -734,7 +762,7 @@ export function createCmsArticle(input: {
 
 export function updateCmsArticle(
   id: string,
-  input: { fields: Record<string, string> },
+  input: { fields: Record<string, string>; sort?: number | null },
 ): CmsArticle {
   const idx = articles.findIndex((a) => a.id === id);
   if (idx < 0) throw new Error("文章不存在");
@@ -747,6 +775,7 @@ export function updateCmsArticle(
   const next: CmsArticle = {
     ...prev,
     title,
+    sort: input.sort !== undefined ? input.sort : prev.sort,
     fields: { ...input.fields },
     // 已发布稿再改 → 草稿需重审；显示/隐藏类导航内容保持状态
     status:

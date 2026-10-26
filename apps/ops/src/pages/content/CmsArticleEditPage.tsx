@@ -5,6 +5,7 @@ import { RichTextEditor } from "@/components/RichTextEditor";
 import {
   getCmsArticle,
   getCmsCatalog,
+  parseArticleSortInput,
   useCmsArticleStore,
   type CmsFieldDef,
 } from "@/lib/cmsArticleStore";
@@ -312,10 +313,15 @@ export function CmsArticleEditPage() {
   const catalog = catalogId ? store.getCatalog(catalogId) : undefined;
 
   const [fields, setFields] = useState<Record<string, string>>({});
+  const [sortInput, setSortInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  const fieldDefs = useMemo(() => catalog?.fields ?? [], [catalog?.id, catalog?.fields]);
+  // 标题在表单编排中；排序为文章默认字段，不从编排里渲染（避免重复）
+  const fieldDefs = useMemo(
+    () => (catalog?.fields ?? []).filter((f) => f.key !== "sort"),
+    [catalog?.id, catalog?.fields],
+  );
   const articleId = existing?.id;
   const articleStatus = existing?.status;
   const articleUpdatedAt = existing?.updatedAt;
@@ -331,7 +337,8 @@ export function CmsArticleEditPage() {
         setReady(true);
         return;
       }
-      setFields(emptyFields(cat.fields));
+      setFields(emptyFields(cat.fields.filter((f) => f.key !== "sort")));
+      setSortInput("");
       setReady(true);
       return;
     }
@@ -342,7 +349,10 @@ export function CmsArticleEditPage() {
     const row = getCmsArticle(articleId);
     const cat = row ? getCmsCatalog(row.catalogId) : undefined;
     if (row && cat) {
-      setFields({ ...emptyFields(cat.fields), ...row.fields });
+      const defs = cat.fields.filter((f) => f.key !== "sort");
+      const { sort: _legacySort, ...restFields } = row.fields;
+      setFields({ ...emptyFields(defs), ...restFields });
+      setSortInput(row.sort == null ? "" : String(row.sort));
     }
     setReady(true);
     // 仅在路由/文章身份变化时灌入表单，避免引用变化触发重渲染死循环
@@ -394,11 +404,12 @@ export function CmsArticleEditPage() {
 
   const save = (andSubmit: boolean) => {
     try {
+      const sort = parseArticleSortInput(sortInput);
       if (isCreate) {
-        const created = store.createArticle({ catalogId: catalog.id, fields });
+        const created = store.createArticle({ catalogId: catalog.id, fields, sort });
         if (andSubmit) store.submit(created.id);
       } else if (articleId) {
-        store.updateArticle(articleId, { fields });
+        store.updateArticle(articleId, { fields, sort });
         if (andSubmit) store.submit(articleId);
       }
       setError(null);
@@ -435,7 +446,7 @@ export function CmsArticleEditPage() {
             </span>
           </div>
           <p className="a-muted" style={{ marginTop: 0 }}>
-            表单字段由目录「表单编排」定义。
+            标题与排序为文章默认字段（排序选填）；其余由目录「表单编排」定义。
             {isVisibilityArticle
               ? "保存后保持当前显示/隐藏状态。"
               : "保存后为草稿；提交审批通过后方可发布。"}
@@ -445,6 +456,22 @@ export function CmsArticleEditPage() {
           </p>
           {error ? <div className="a-form-error">{error}</div> : null}
           <div className="a-form a-form--stack">
+            <div className="a-field a-field--stack">
+              <span className="a-field__label">
+                排序
+                <code className="a-code a-cms-field-ref" title="文章默认字段">
+                  sort
+                </code>
+              </span>
+              <input
+                className="a-input"
+                inputMode="numeric"
+                value={sortInput}
+                placeholder="选填；数值越小越靠前"
+                onChange={(e) => setSortInput(e.target.value.replace(/[^\d-]/g, ""))}
+              />
+              <span className="a-field__hint">文章默认字段，可留空</span>
+            </div>
             {fieldDefs.map((field) => {
               const articleIdPart = articleId ?? "{articleId}";
               const refPath = `${catalog.id}/${articleIdPart}/${field.key}`;
