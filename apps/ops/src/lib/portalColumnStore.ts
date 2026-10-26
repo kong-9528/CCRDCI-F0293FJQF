@@ -337,7 +337,8 @@ export const COLUMN_SECTION_SCHEMAS: Record<string, ColumnSectionDef[]> = {
   ],
 };
 
-const SEED: PortalColumn[] = [
+/** 门户导航栏目种子（同步至 CMS「导航栏目」目录树） */
+export const PORTAL_COLUMN_SEED: PortalColumn[] = [
   {
     id: "col-home",
     path: "/",
@@ -556,7 +557,7 @@ const SEED: PortalColumn[] = [
   },
 ];
 
-let columns: PortalColumn[] = SEED.map((c) => ({
+let columns: PortalColumn[] = PORTAL_COLUMN_SEED.map((c) => ({
   ...c,
   content: { ...c.content },
 }));

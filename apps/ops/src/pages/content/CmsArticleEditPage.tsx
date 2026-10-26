@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import {
-  CMS_SCHEMAS,
   getCmsArticle,
   getCmsCatalog,
   useCmsArticleStore,
@@ -11,8 +10,30 @@ import {
 
 function emptyFields(defs: CmsFieldDef[]): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const f of defs) out[f.key] = "";
+  for (const f of defs) {
+    if (f.type === "numberRange") out[f.key] = JSON.stringify({ min: "", max: "" });
+    else if (f.type === "checkbox" || f.type === "images") out[f.key] = "[]";
+    else out[f.key] = "";
+  }
   return out;
+}
+
+function parseJsonArray(raw: string): string[] {
+  try {
+    const v = JSON.parse(raw || "[]");
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseRange(raw: string): { min: string; max: string } {
+  try {
+    const v = JSON.parse(raw || "{}") as { min?: string; max?: string };
+    return { min: String(v.min ?? ""), max: String(v.max ?? "") };
+  } catch {
+    return { min: "", max: "" };
+  }
 }
 
 function FieldControl({
@@ -43,11 +64,63 @@ function FieldControl({
       />
     );
   }
-  if (field.type === "select") {
+  if (field.type === "number" || field.type === "integer") {
+    return (
+      <input
+        className="a-input"
+        inputMode={field.type === "integer" ? "numeric" : "decimal"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+  if (field.type === "numberRange") {
+    const range = parseRange(value);
+    return (
+      <div className="a-cms-range">
+        <input
+          className="a-input"
+          placeholder="最小值"
+          value={range.min}
+          onChange={(e) =>
+            onChange(JSON.stringify({ min: e.target.value, max: range.max }))
+          }
+        />
+        <span className="a-muted">至</span>
+        <input
+          className="a-input"
+          placeholder="最大值"
+          value={range.max}
+          onChange={(e) =>
+            onChange(JSON.stringify({ min: range.min, max: e.target.value }))
+          }
+        />
+      </div>
+    );
+  }
+  if (field.type === "radio") {
+    const options = field.options ?? [];
+    if (field.selectLayout === "flat") {
+      return (
+        <div className="a-cms-flat-options">
+          {options.map((opt) => (
+            <label key={opt} className="a-check">
+              <input
+                type="radio"
+                name={field.key}
+                checked={value === opt}
+                onChange={() => onChange(opt)}
+              />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </div>
+      );
+    }
     return (
       <select className="a-select" value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">请选择</option>
-        {(field.options ?? []).map((opt) => (
+        {options.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
@@ -55,21 +128,155 @@ function FieldControl({
       </select>
     );
   }
+  if (field.type === "checkbox") {
+    const selected = parseJsonArray(value);
+    const options = field.options ?? [];
+    const allSelected = options.length > 0 && options.every((o) => selected.includes(o));
+    const toggle = (opt: string) => {
+      const set = new Set(selected);
+      if (set.has(opt)) set.delete(opt);
+      else set.add(opt);
+      onChange(JSON.stringify([...set]));
+    };
+    const toggleAll = () => {
+      onChange(JSON.stringify(allSelected ? [] : [...options]));
+    };
+    if (field.selectLayout === "dropdown") {
+      return (
+        <select
+          className="a-select"
+          multiple
+          value={selected}
+          onChange={(e) => {
+            const vals = Array.from(e.target.selectedOptions).map((o) => o.value);
+            onChange(JSON.stringify(vals));
+          }}
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      );
+    }
+    return (
+      <div className="a-cms-flat-options">
+        {field.allowSelectAll ? (
+          <label className="a-check">
+            <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+            <span>全部</span>
+          </label>
+        ) : null}
+        {options.map((opt) => (
+          <label key={opt} className="a-check">
+            <input
+              type="checkbox"
+              checked={selected.includes(opt)}
+              onChange={() => toggle(opt)}
+            />
+            <span>{opt}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
   if (field.type === "image") {
+    const constraints: string[] = [];
+    if (field.imageMinWidth || field.imageMaxWidth) {
+      constraints.push(
+        `宽 ${field.imageMinWidth ?? "不限"}–${field.imageMaxWidth ?? "不限"}px`,
+      );
+    }
+    if (field.imageMinHeight || field.imageMaxHeight) {
+      constraints.push(
+        `高 ${field.imageMinHeight ?? "不限"}–${field.imageMaxHeight ?? "不限"}px`,
+      );
+    }
+    if (field.imageAspectRatio) constraints.push(`比例 ${field.imageAspectRatio}`);
     return (
       <>
         <input
           className="a-input"
           value={value}
-          placeholder="请输入图片 URL"
+          placeholder="请输入图片 URL（演示）"
           onChange={(e) => onChange(e.target.value)}
         />
+        {constraints.length ? (
+          <span className="a-field__hint">{constraints.join(" · ")}</span>
+        ) : null}
         {value.trim() ? (
           <div className="a-column-edit__preview">
             <img src={value.trim()} alt="" />
           </div>
         ) : null}
       </>
+    );
+  }
+  if (field.type === "images") {
+    const list = parseJsonArray(value);
+    return (
+      <div className="a-form a-form--stack">
+        {list.map((url, i) => (
+          <div key={`${url}-${i}`} className="a-cms-multi-row">
+            <input
+              className="a-input"
+              value={url}
+              onChange={(e) => {
+                const next = [...list];
+                next[i] = e.target.value;
+                onChange(JSON.stringify(next));
+              }}
+            />
+            <button
+              type="button"
+              className="a-btn a-btn--sm"
+              onClick={() => onChange(JSON.stringify(list.filter((_, j) => j !== i)))}
+            >
+              移除
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="a-btn a-btn--sm"
+          disabled={list.length >= (field.maxCount ?? 9)}
+          onClick={() => onChange(JSON.stringify([...list, ""]))}
+        >
+          添加图片 URL
+        </button>
+        <span className="a-field__hint">最多 {field.maxCount ?? 9} 张（演示以 URL 录入）</span>
+      </div>
+    );
+  }
+  if (field.type === "file") {
+    return (
+      <input
+        className="a-input"
+        value={value}
+        placeholder="请输入附件 URL（演示）"
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+  if (field.type === "date") {
+    return (
+      <input
+        className="a-input"
+        type="date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+  if (field.type === "datetime") {
+    return (
+      <input
+        className="a-input"
+        type="datetime-local"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     );
   }
   return (
@@ -89,20 +296,19 @@ export function CmsArticleEditPage() {
   const catalogId = existing?.catalogId || catalogIdFromQuery;
   const catalog = catalogId ? getCmsCatalog(catalogId) : undefined;
 
-  const schema = catalog ? CMS_SCHEMAS[catalog.schemaId] : null;
   const [fields, setFields] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  const fieldDefs = useMemo(() => schema?.fields ?? [], [schema]);
+  const fieldDefs = useMemo(() => catalog?.fields ?? [], [catalog]);
 
   useEffect(() => {
     if (isCreate) {
-      if (!catalog || !schema) {
+      if (!catalog) {
         setReady(true);
         return;
       }
-      setFields(emptyFields(schema.fields));
+      setFields(emptyFields(catalog.fields));
       setReady(true);
       return;
     }
@@ -112,7 +318,7 @@ export function CmsArticleEditPage() {
       return;
     }
     setReady(true);
-  }, [isCreate, existing, catalog, schema, fieldDefs]);
+  }, [isCreate, existing, catalog, fieldDefs]);
 
   const title = isCreate ? "新增文章" : "编辑文章";
 
@@ -126,7 +332,7 @@ export function CmsArticleEditPage() {
     );
   }
 
-  if (!catalog || !schema) {
+  if (!catalog) {
     return (
       <div className="a-card">
         <div className="a-card__head">{title}</div>
@@ -174,18 +380,26 @@ export function CmsArticleEditPage() {
     }
   };
 
+  const goBack = () => navigate("/content/articles");
+  const isVisibilityArticle =
+    existing?.status === "visible" || existing?.status === "hidden";
+
   return (
-    <div className="a-stack">
+    <div className="a-stack a-cms-article-edit">
       <div className="a-card">
         <div className="a-card__head">
           {title}
-          <span className="a-card__extra a-muted">
-            目录：{catalog.name} · 模型：{schema.label}
-          </span>
+          <span className="a-card__extra a-muted">目录：{catalog.name}</span>
+          <button type="button" className="a-btn" onClick={goBack}>
+            返回
+          </button>
         </div>
-        <div className="a-card__body">
+        <div className="a-card__body a-cms-article-edit__body">
           <p className="a-muted" style={{ marginTop: 0 }}>
-            {schema.description}。保存后为草稿；提交审批通过后方可发布。
+            表单字段由目录「表单编排」定义。
+            {isVisibilityArticle
+              ? "保存后保持当前显示/隐藏状态。"
+              : "保存后为草稿；提交审批通过后方可发布。"}
             {existing?.status === "published"
               ? " 当前为已发布稿，修改后将回到草稿并需重新审批。"
               : null}
@@ -207,17 +421,28 @@ export function CmsArticleEditPage() {
               </div>
             ))}
           </div>
-          <div className="a-form-actions" style={{ marginTop: 20 }}>
-            <button type="button" className="a-btn" onClick={() => navigate("/content/articles")}>
-              取消
+        </div>
+      </div>
+
+      <div className="a-cms-article-edit__footer">
+        <div className="a-cms-article-edit__footer-inner">
+          <button type="button" className="a-btn" onClick={goBack}>
+            取消
+          </button>
+          {isVisibilityArticle ? (
+            <button type="button" className="a-btn a-btn--primary" onClick={() => save(false)}>
+              保存
             </button>
-            <button type="button" className="a-btn" onClick={() => save(false)}>
-              保存草稿
-            </button>
-            <button type="button" className="a-btn a-btn--primary" onClick={() => save(true)}>
-              保存并提交审批
-            </button>
-          </div>
+          ) : (
+            <>
+              <button type="button" className="a-btn" onClick={() => save(false)}>
+                保存草稿
+              </button>
+              <button type="button" className="a-btn a-btn--primary" onClick={() => save(true)}>
+                保存并提交审批
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

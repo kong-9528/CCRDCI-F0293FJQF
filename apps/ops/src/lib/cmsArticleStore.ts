@@ -1,25 +1,95 @@
 import { useEffect, useState } from "react";
+import {
+  COLUMN_SECTION_SCHEMAS,
+  PORTAL_COLUMN_SEED,
+  getColumnSchemaKey,
+  type ColumnFieldDef,
+  type PortalColumn,
+} from "@/lib/portalColumnStore";
 
-/** 文章字段类型：用于按目录二次开发不同表单 */
-export type CmsFieldType = "text" | "textarea" | "richtext" | "image" | "select";
+/** 文章表单字段类型（目录表单编排） */
+export type CmsFieldType =
+  | "text"
+  | "textarea"
+  | "richtext"
+  | "number"
+  | "integer"
+  | "numberRange"
+  | "radio"
+  | "checkbox"
+  | "image"
+  | "images"
+  | "file"
+  | "date"
+  | "datetime";
+
+export type CmsSelectLayout = "dropdown" | "flat";
+export type CmsTextFormat = "any" | "email" | "url" | "phone" | "idcard";
 
 export type CmsFieldDef = {
   key: string;
   label: string;
   type: CmsFieldType;
   required?: boolean;
-  options?: string[];
-  rows?: number;
   hint?: string;
+  /** 单行文本内容格式 */
+  format?: CmsTextFormat;
+  rows?: number;
+  min?: number;
+  max?: number;
+  /** 单选/多选选项 */
+  options?: string[];
+  /** 单选/多选展示：下拉 / 平铺 */
+  selectLayout?: CmsSelectLayout;
+  /** 多选是否可选「全部」 */
+  allowSelectAll?: boolean;
+  /** 单图：尺寸与比例约束 */
+  imageMinWidth?: number;
+  imageMaxWidth?: number;
+  imageMinHeight?: number;
+  imageMaxHeight?: number;
+  /** 如 16:9 */
+  imageAspectRatio?: string;
+  /** 多图上限 */
+  maxCount?: number;
 };
 
-/** 内置文章内容模型（目录可绑定） */
-export type CmsSchemaId = "faq" | "productDetail" | "industry";
+export const CMS_FIELD_TYPE_LABEL: Record<CmsFieldType, string> = {
+  text: "单行文本",
+  textarea: "多行文本",
+  richtext: "富文本",
+  number: "数值",
+  integer: "整数",
+  numberRange: "数值范围",
+  radio: "单选",
+  checkbox: "多选",
+  image: "上传单个图片",
+  images: "上传多个图片",
+  file: "上传普通附件",
+  date: "日期",
+  datetime: "年月日时分",
+};
 
-export const CMS_SCHEMAS: Record<
-  CmsSchemaId,
+export const CMS_TEXT_FORMAT_LABEL: Record<CmsTextFormat, string> = {
+  any: "不限",
+  email: "邮箱",
+  url: "网址",
+  phone: "手机号",
+  idcard: "身份证号",
+};
+
+/** 内置模板（新建目录时可选用，实际字段存于目录） */
+export type CmsSchemaTemplateId = "faq" | "productDetail" | "industry" | "blank";
+
+export const CMS_SCHEMA_TEMPLATES: Record<
+  CmsSchemaTemplateId,
   { label: string; description: string; fields: CmsFieldDef[] }
 > = {
+  blank: {
+    label: "空白表单",
+    description: "仅含标题，可在表单编排中自由添加字段",
+    fields: [{ key: "title", label: "标题", type: "text", required: true }],
+  },
   faq: {
     label: "常见问题",
     description: "标题 + 单个富文本（问答）",
@@ -43,13 +113,14 @@ export const CMS_SCHEMAS: Record<
     description: "标题、缩略图、摘要、关键词、行业类别、正文",
     fields: [
       { key: "title", label: "标题", type: "text", required: true },
-      { key: "thumb", label: "缩略图 URL", type: "image" },
+      { key: "thumb", label: "缩略图", type: "image" },
       { key: "summary", label: "摘要", type: "textarea", rows: 3 },
       { key: "keywords", label: "关键词", type: "text", hint: "逗号分隔" },
       {
         key: "industry",
         label: "行业类别",
-        type: "select",
+        type: "radio",
+        selectLayout: "dropdown",
         options: ["传媒", "互联网", "出版", "教育", "文娱", "其他"],
       },
       { key: "body", label: "正文", type: "richtext", required: true, rows: 12 },
@@ -57,13 +128,27 @@ export const CMS_SCHEMAS: Record<
   },
 };
 
-export type CmsPublishStatus = "draft" | "pending" | "published" | "rejected";
+/** @deprecated 兼容旧引用 */
+export type CmsSchemaId = CmsSchemaTemplateId;
+export const CMS_SCHEMAS = CMS_SCHEMA_TEMPLATES;
+
+export type CmsPublishStatus =
+  | "draft"
+  | "pending"
+  | "published"
+  | "rejected"
+  /** 导航栏目等内容：前台显示 */
+  | "visible"
+  /** 导航栏目等内容：前台隐藏 */
+  | "hidden";
 
 export const CMS_STATUS_LABEL: Record<CmsPublishStatus, string> = {
   draft: "草稿",
   pending: "待审批",
   published: "已发布",
   rejected: "已驳回",
+  visible: "显示",
+  hidden: "隐藏",
 };
 
 export type CmsCatalog = {
@@ -71,7 +156,8 @@ export type CmsCatalog = {
   name: string;
   parentId: string | null;
   sort: number;
-  schemaId: CmsSchemaId;
+  /** 该目录文章表单字段（表单编排结果） */
+  fields: CmsFieldDef[];
 };
 
 export type CmsArticle = {
@@ -81,7 +167,6 @@ export type CmsArticle = {
   title: string;
   fields: Record<string, string>;
   status: CmsPublishStatus;
-  /** 待审批时相对已发布稿的变更说明 */
   changeNote: string;
   rejectReason: string;
   updatedAt: string;
@@ -94,13 +179,125 @@ function nowStamp() {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
+function cloneFields(fields: CmsFieldDef[]): CmsFieldDef[] {
+  return fields.map((f) => ({
+    ...f,
+    options: f.options ? [...f.options] : undefined,
+  }));
+}
+
+function columnFieldToCms(f: ColumnFieldDef): CmsFieldDef {
+  if (f.type === "image") {
+    return { key: f.key, label: f.label, type: "image", hint: f.hint };
+  }
+  if (f.type === "textarea") {
+    return {
+      key: f.key,
+      label: f.label,
+      type: "textarea",
+      rows: f.rows ?? 4,
+      hint: f.hint,
+    };
+  }
+  if (f.type === "url") {
+    return { key: f.key, label: f.label, type: "text", format: "url", hint: f.hint };
+  }
+  return { key: f.key, label: f.label, type: "text", hint: f.hint };
+}
+
+/** 将门户栏目版块字段扁平为 CMS 表单（含必填 title） */
+export function fieldsFromPortalColumn(col: PortalColumn): CmsFieldDef[] {
+  const sections = COLUMN_SECTION_SCHEMAS[getColumnSchemaKey(col)] ?? [];
+  const fields: CmsFieldDef[] = [
+    { key: "title", label: "标题", type: "text", required: true },
+  ];
+  for (const section of sections) {
+    for (const f of section.fields) {
+      const cms = columnFieldToCms(f);
+      const sectionHint = section.title;
+      cms.hint = [sectionHint, cms.hint].filter(Boolean).join(" · ") || undefined;
+      fields.push(cms);
+    }
+  }
+  return fields;
+}
+
+export function portalColumnCatalogId(col: PortalColumn) {
+  return `cms-c-nav-${col.id.replace(/^col-/, "")}`;
+}
+
+export function portalColumnArticleId(col: PortalColumn) {
+  return `cms-a-nav-${col.id.replace(/^col-/, "")}`;
+}
+
+function buildNavColumnSeed(): { catalogs: CmsCatalog[]; articles: CmsArticle[] } {
+  const rootId = "cms-c-nav";
+  const catalogs: CmsCatalog[] = [
+    {
+      id: rootId,
+      name: "导航栏目",
+      parentId: null,
+      sort: 5,
+      fields: cloneFields(CMS_SCHEMA_TEMPLATES.blank.fields),
+    },
+  ];
+  const articles: CmsArticle[] = [];
+  const sorted = [...PORTAL_COLUMN_SEED].sort(
+    (a, b) => a.sort - b.sort || a.id.localeCompare(b.id),
+  );
+  for (const col of sorted) {
+    const catId = portalColumnCatalogId(col);
+    catalogs.push({
+      id: catId,
+      name: col.name,
+      parentId: rootId,
+      sort: col.sort,
+      fields: fieldsFromPortalColumn(col),
+    });
+    articles.push({
+      id: portalColumnArticleId(col),
+      catalogId: catId,
+      title: col.name,
+      fields: { title: col.name, ...col.content },
+      status: col.hidden ? "hidden" : "visible",
+      changeNote: "",
+      rejectReason: "",
+      updatedAt: "2026-08-01 10:00:00",
+      publishedAt: col.hidden ? null : "2026-08-01 10:00:00",
+    });
+  }
+  return { catalogs, articles };
+}
+
+const NAV_COLUMN_SEED = buildNavColumnSeed();
+
 const SEED_CATALOGS: CmsCatalog[] = [
-  { id: "cms-c-faq", name: "常见问题", parentId: null, sort: 10, schemaId: "faq" },
-  { id: "cms-c-product", name: "服务详情", parentId: null, sort: 20, schemaId: "productDetail" },
-  { id: "cms-c-industry", name: "行业资讯", parentId: null, sort: 30, schemaId: "industry" },
+  ...NAV_COLUMN_SEED.catalogs,
+  {
+    id: "cms-c-faq",
+    name: "常见问题",
+    parentId: null,
+    sort: 10,
+    fields: cloneFields(CMS_SCHEMA_TEMPLATES.faq.fields),
+  },
+  {
+    id: "cms-c-product",
+    name: "服务详情",
+    parentId: null,
+    sort: 20,
+    fields: cloneFields(CMS_SCHEMA_TEMPLATES.productDetail.fields),
+  },
+  {
+    id: "cms-c-industry",
+    name: "行业资讯",
+    parentId: null,
+    sort: 30,
+    fields: cloneFields(CMS_SCHEMA_TEMPLATES.industry.fields),
+  },
 ];
 
 const SEED_ARTICLES: CmsArticle[] = [
+  ...NAV_COLUMN_SEED.articles,
   {
     id: "cms-a-1",
     catalogId: "cms-c-faq",
@@ -135,13 +332,17 @@ const SEED_ARTICLES: CmsArticle[] = [
   },
 ];
 
-let catalogs: CmsCatalog[] = SEED_CATALOGS.map((c) => ({ ...c }));
+let catalogs: CmsCatalog[] = SEED_CATALOGS.map((c) => ({
+  ...c,
+  fields: cloneFields(c.fields),
+}));
 let articles: CmsArticle[] = SEED_ARTICLES.map((a) => ({
   ...a,
   fields: { ...a.fields },
 }));
 let catalogSeq = 100;
 let articleSeq = 100;
+let fieldKeySeq = 1000;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -161,11 +362,12 @@ function bySort(a: { sort: number; id: string }, b: { sort: number; id: string }
 }
 
 export function listCmsCatalogs(): CmsCatalog[] {
-  return [...catalogs].sort(bySort).map((c) => ({ ...c }));
+  return [...catalogs].sort(bySort).map((c) => ({ ...c, fields: cloneFields(c.fields) }));
 }
 
 export function getCmsCatalog(id: string): CmsCatalog | undefined {
-  return catalogs.find((c) => c.id === id);
+  const c = catalogs.find((x) => x.id === id);
+  return c ? { ...c, fields: cloneFields(c.fields) } : undefined;
 }
 
 export function flattenCmsCatalogTree(): { catalog: CmsCatalog; depth: number }[] {
@@ -179,7 +381,7 @@ export function flattenCmsCatalogTree(): { catalog: CmsCatalog; depth: number }[
   const out: { catalog: CmsCatalog; depth: number }[] = [];
   const walk = (parentId: string | null, depth: number) => {
     for (const c of byParent.get(parentId) ?? []) {
-      out.push({ catalog: c, depth });
+      out.push({ catalog: { ...c, fields: cloneFields(c.fields) }, depth });
       walk(c.id, depth + 1);
     }
   };
@@ -187,50 +389,85 @@ export function flattenCmsCatalogTree(): { catalog: CmsCatalog; depth: number }[
   return out;
 }
 
+/** 树状下拉展示名（含缩进前缀） */
+export function catalogOptionLabel(name: string, depth: number) {
+  if (depth <= 0) return name;
+  return `${"　".repeat(depth)}└ ${name}`;
+}
+
 export function createCmsCatalog(input: {
   name: string;
   parentId: string | null;
   sort: number;
-  schemaId: CmsSchemaId;
+  /** 选用模板初始化字段；默认 blank */
+  templateId?: CmsSchemaTemplateId;
+  fields?: CmsFieldDef[];
 }): CmsCatalog {
   const name = input.name.trim();
   if (!name) throw new Error("请填写目录名称");
-  if (!CMS_SCHEMAS[input.schemaId]) throw new Error("请选择内容模型");
   if (input.parentId && !catalogs.some((c) => c.id === input.parentId)) {
     throw new Error("上级目录不存在");
   }
+  const templateId = input.templateId ?? "blank";
+  const template = CMS_SCHEMA_TEMPLATES[templateId];
+  if (!template) throw new Error("无效的表单模板");
   catalogSeq += 1;
   const created: CmsCatalog = {
     id: `cms-c-${catalogSeq}`,
     name,
     parentId: input.parentId,
     sort: input.sort,
-    schemaId: input.schemaId,
+    fields: cloneFields(input.fields ?? template.fields),
   };
   catalogs = [...catalogs, created];
   emit();
-  return created;
+  return { ...created, fields: cloneFields(created.fields) };
 }
 
 export function updateCmsCatalog(
   id: string,
-  input: { name: string; parentId: string | null; sort: number; schemaId: CmsSchemaId },
+  input: { name: string; sort: number },
 ): CmsCatalog {
   const idx = catalogs.findIndex((c) => c.id === id);
   if (idx < 0) throw new Error("目录不存在");
   const name = input.name.trim();
   if (!name) throw new Error("请填写目录名称");
-  if (input.parentId === id) throw new Error("不能将自身设为上级");
   const next: CmsCatalog = {
     ...catalogs[idx]!,
     name,
-    parentId: input.parentId,
     sort: input.sort,
-    schemaId: input.schemaId,
   };
   catalogs = catalogs.map((c, i) => (i === idx ? next : c));
   emit();
-  return next;
+  return { ...next, fields: cloneFields(next.fields) };
+}
+
+export function updateCmsCatalogFields(id: string, fields: CmsFieldDef[]): CmsCatalog {
+  const idx = catalogs.findIndex((c) => c.id === id);
+  if (idx < 0) throw new Error("目录不存在");
+  if (!fields.length) throw new Error("请至少保留一个字段");
+  if (!fields.some((f) => f.key === "title")) {
+    throw new Error("表单须包含字段标识为 title 的标题字段");
+  }
+  const keys = new Set<string>();
+  for (const f of fields) {
+    const key = f.key.trim();
+    const label = f.label.trim();
+    if (!key) throw new Error("字段标识不能为空");
+    if (!label) throw new Error("字段名称不能为空");
+    if (keys.has(key)) throw new Error(`字段标识重复：${key}`);
+    keys.add(key);
+    if ((f.type === "radio" || f.type === "checkbox") && !(f.options?.length)) {
+      throw new Error(`「${label}」请至少配置一个选项`);
+    }
+  }
+  const next: CmsCatalog = {
+    ...catalogs[idx]!,
+    fields: cloneFields(fields),
+  };
+  catalogs = catalogs.map((c, i) => (i === idx ? next : c));
+  emit();
+  return { ...next, fields: cloneFields(next.fields) };
 }
 
 export function deleteCmsCatalog(id: string): string | null {
@@ -241,9 +478,63 @@ export function deleteCmsCatalog(id: string): string | null {
   return null;
 }
 
-export function listCmsArticles(catalogId?: string): CmsArticle[] {
+export function newCmsFieldKey(type: CmsFieldType) {
+  fieldKeySeq += 1;
+  return `f_${type}_${fieldKeySeq}`;
+}
+
+export function createDefaultField(type: CmsFieldType): CmsFieldDef {
+  const key = newCmsFieldKey(type);
+  const base: CmsFieldDef = {
+    key,
+    label: CMS_FIELD_TYPE_LABEL[type],
+    type,
+    required: false,
+  };
+  switch (type) {
+    case "text":
+      return { ...base, format: "any" };
+    case "textarea":
+      return { ...base, rows: 4 };
+    case "richtext":
+      return { ...base, rows: 8 };
+    case "number":
+    case "integer":
+      return { ...base };
+    case "numberRange":
+      return { ...base };
+    case "radio":
+      return {
+        ...base,
+        selectLayout: "dropdown",
+        options: ["选项一", "选项二"],
+      };
+    case "checkbox":
+      return {
+        ...base,
+        selectLayout: "flat",
+        options: ["选项一", "选项二"],
+        allowSelectAll: false,
+      };
+    case "image":
+      return { ...base };
+    case "images":
+      return { ...base, maxCount: 9 };
+    case "file":
+      return { ...base };
+    case "date":
+    case "datetime":
+      return { ...base };
+    default:
+      return base;
+  }
+}
+
+export function listCmsArticles(catalogId?: string, titleKeyword = ""): CmsArticle[] {
+  const kw = titleKeyword.trim().toLowerCase();
   return articles
     .filter((a) => (catalogId ? a.catalogId === catalogId : true))
+    .filter((a) => (kw ? a.title.toLowerCase().includes(kw) : true))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .map((a) => ({ ...a, fields: { ...a.fields } }));
 }
@@ -253,11 +544,42 @@ export function getCmsArticle(id: string): CmsArticle | undefined {
   return a ? { ...a, fields: { ...a.fields } } : undefined;
 }
 
-function validateFields(schemaId: CmsSchemaId, fields: Record<string, string>) {
-  const schema = CMS_SCHEMAS[schemaId];
-  for (const f of schema.fields) {
-    if (f.required && !String(fields[f.key] ?? "").trim()) {
+function validateFields(fieldDefs: CmsFieldDef[], fields: Record<string, string>) {
+  for (const f of fieldDefs) {
+    const raw = String(fields[f.key] ?? "").trim();
+    if (f.required && !raw) {
       throw new Error(`请填写${f.label}`);
+    }
+    if (!raw) continue;
+    if (f.type === "integer" && !/^-?\d+$/.test(raw)) {
+      throw new Error(`${f.label}须为整数`);
+    }
+    if (f.type === "number" && Number.isNaN(Number(raw))) {
+      throw new Error(`${f.label}须为数值`);
+    }
+    if (f.type === "numberRange") {
+      try {
+        const parsed = JSON.parse(raw) as { min?: string; max?: string };
+        if (f.required && !String(parsed.min ?? "").trim() && !String(parsed.max ?? "").trim()) {
+          throw new Error(`请填写${f.label}`);
+        }
+      } catch {
+        throw new Error(`${f.label}格式无效`);
+      }
+    }
+    if (f.type === "text" && f.format && f.format !== "any") {
+      if (f.format === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
+        throw new Error(`${f.label}须为有效邮箱`);
+      }
+      if (f.format === "url" && !/^https?:\/\//i.test(raw)) {
+        throw new Error(`${f.label}须为 http(s) 网址`);
+      }
+      if (f.format === "phone" && !/^1\d{10}$/.test(raw)) {
+        throw new Error(`${f.label}须为 11 位手机号`);
+      }
+      if (f.format === "idcard" && !/^\d{17}[\dXx]$/.test(raw)) {
+        throw new Error(`${f.label}须为身份证号`);
+      }
     }
   }
 }
@@ -268,7 +590,16 @@ export function createCmsArticle(input: {
 }): CmsArticle {
   const catalog = getCmsCatalog(input.catalogId);
   if (!catalog) throw new Error("请选择目录");
-  validateFields(catalog.schemaId, input.fields);
+  if (catalog.id === "cms-c-nav") {
+    throw new Error("请在「导航栏目」的子目录下创建文章");
+  }
+  if (
+    catalog.parentId === "cms-c-nav" &&
+    articles.some((a) => a.catalogId === catalog.id)
+  ) {
+    throw new Error("导航栏目子目录仅允许配置一篇文章，请编辑已有文章");
+  }
+  validateFields(catalog.fields, input.fields);
   const title = (input.fields.title || "").trim() || "未命名文章";
   articleSeq += 1;
   const created: CmsArticle = {
@@ -297,14 +628,19 @@ export function updateCmsArticle(
   if (prev.status === "pending") throw new Error("待审批中，暂不可编辑");
   const catalog = getCmsCatalog(prev.catalogId);
   if (!catalog) throw new Error("所属目录不存在");
-  validateFields(catalog.schemaId, input.fields);
+  validateFields(catalog.fields, input.fields);
   const title = (input.fields.title || "").trim() || prev.title;
   const next: CmsArticle = {
     ...prev,
     title,
     fields: { ...input.fields },
-    // 已发布稿再次修改 → 回到草稿，需重新提交审批
-    status: prev.status === "published" ? "draft" : prev.status === "rejected" ? "draft" : prev.status,
+    // 已发布稿再改 → 草稿需重审；显示/隐藏类导航内容保持状态
+    status:
+      prev.status === "published"
+        ? "draft"
+        : prev.status === "rejected"
+          ? "draft"
+          : prev.status,
     rejectReason: "",
     updatedAt: nowStamp(),
   };
@@ -322,7 +658,6 @@ export function deleteCmsArticle(id: string): string | null {
   return null;
 }
 
-/** 提交审批 */
 export function submitCmsArticle(id: string, changeNote = "") {
   const idx = articles.findIndex((a) => a.id === id);
   if (idx < 0) throw new Error("文章不存在");
@@ -364,6 +699,35 @@ export function approveCmsArticle(id: string) {
   emit();
 }
 
+/** 是否为「导航栏目」或其子目录（门户栏目迁移） */
+export function isNavColumnCatalog(catalogId: string): boolean {
+  const c = catalogs.find((x) => x.id === catalogId);
+  if (!c) return false;
+  return c.id === "cms-c-nav" || c.parentId === "cms-c-nav";
+}
+
+/** 切换导航类文章显示/隐藏 */
+export function setCmsArticleVisibility(id: string, visible: boolean) {
+  const idx = articles.findIndex((a) => a.id === id);
+  if (idx < 0) throw new Error("文章不存在");
+  const prev = articles[idx]!;
+  if (prev.status !== "visible" && prev.status !== "hidden") {
+    throw new Error("仅「显示/隐藏」状态的文章可切换可见性");
+  }
+  const stamp = nowStamp();
+  articles = articles.map((a, i) =>
+    i === idx
+      ? {
+          ...a,
+          status: visible ? ("visible" as const) : ("hidden" as const),
+          publishedAt: visible ? a.publishedAt ?? stamp : a.publishedAt,
+          updatedAt: stamp,
+        }
+      : a,
+  );
+  emit();
+}
+
 export function rejectCmsArticle(id: string, reason: string) {
   const idx = articles.findIndex((a) => a.id === id);
   if (idx < 0) throw new Error("文章不存在");
@@ -393,6 +757,7 @@ export function useCmsArticleStore() {
     getArticle: getCmsArticle,
     createCatalog: createCmsCatalog,
     updateCatalog: updateCmsCatalog,
+    updateCatalogFields: updateCmsCatalogFields,
     deleteCatalog: deleteCmsCatalog,
     createArticle: createCmsArticle,
     updateArticle: updateCmsArticle,
@@ -400,5 +765,7 @@ export function useCmsArticleStore() {
     submit: submitCmsArticle,
     approve: approveCmsArticle,
     reject: rejectCmsArticle,
+    setVisibility: setCmsArticleVisibility,
+    isNavColumnCatalog,
   };
 }

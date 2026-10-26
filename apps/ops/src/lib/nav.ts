@@ -64,8 +64,9 @@ export const OPS_NAV: NavGroup[] = [
     title: "内容管理",
     icon: "content",
     items: [
-      { to: "/content/columns", label: "栏目管理", ready: true },
+      { to: "/content/catalogs", label: "目录管理", ready: true },
       { to: "/content/articles", label: "文章管理", ready: true },
+      { to: "/content/columns", label: "栏目管理", ready: true, hidden: true },
       { to: "/content/portal", label: "技术服务中心专题管理", ready: true, hidden: true },
       { to: "/content/home", label: "门户内容管理", ready: true, hidden: true },
       { to: "/content/center", label: "技术服务中心内容管理", ready: true, hidden: true },
@@ -113,6 +114,8 @@ export function findNavLabel(pathname: string): string {
   if (/^\/customers\/[^/]+$/.test(pathname)) return "客户详情";
   if (pathname === "/content/columns") return "栏目管理";
   if (/^\/content\/columns\/[^/]+\/edit$/.test(pathname)) return "编辑栏目页面内容";
+  if (pathname === "/content/catalogs") return "目录管理";
+  if (/^\/content\/catalogs\/[^/]+\/schema$/.test(pathname)) return "表单编排";
   if (pathname === "/content/articles") return "文章管理";
   if (pathname === "/content/articles/new") return "新增文章";
   if (/^\/content\/articles\/[^/]+\/edit$/.test(pathname)) return "编辑文章";

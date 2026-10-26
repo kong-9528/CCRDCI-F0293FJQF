@@ -166,9 +166,10 @@ export const PERMISSION_TREE: PermNode[] = [
       },
       {
         id: "content.cms",
-        label: "文章管理",
+        label: "文章与目录管理",
         children: [
           { id: "content.cms.catalog", label: "目录增删改" },
+          { id: "content.cms.schema", label: "表单编排" },
           { id: "content.cms.article", label: "文章增删改" },
           { id: "content.cms.submit", label: "提交审批" },
           { id: "content.cms.approve", label: "审批通过/驳回" },
@@ -346,6 +347,7 @@ let roles: Role[] = [
       "content.columns.editPage",
       "content.cms",
       "content.cms.catalog",
+      "content.cms.schema",
       "content.cms.article",
       "content.cms.submit",
       "content.cms.approve",

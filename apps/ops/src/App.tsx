@@ -3,9 +3,9 @@ import { OpsLayout } from "@/layouts/OpsLayout";
 import { ContentManagePage } from "@/pages/content/ContentManagePage";
 import { ArticleEditPage } from "@/pages/content/ArticleEditPage";
 import { CmsArticleEditPage } from "@/pages/content/CmsArticleEditPage";
+import { CmsCatalogManagePage } from "@/pages/content/CmsCatalogManagePage";
+import { CmsFormSchemaPage } from "@/pages/content/CmsFormSchemaPage";
 import { CmsManagePage } from "@/pages/content/CmsManagePage";
-import { ColumnEditPage } from "@/pages/content/ColumnEditPage";
-import { ColumnManagePage } from "@/pages/content/ColumnManagePage";
 import { PortalContentPage } from "@/pages/content/PortalContentPage";
 import { PortalHomeEditPage } from "@/pages/content/PortalHomeEditPage";
 import { PortalHomeManagePage } from "@/pages/content/PortalHomeManagePage";
@@ -77,8 +77,13 @@ export function App() {
         <Route path="/stats/:scope/products" element={<ProductStatsPage />} />
         <Route path="/stats/:scope/account-products" element={<AccountProductStatsPage />} />
         <Route path="/stats/:scope/usage-records" element={<ProductUsageRecordsPage />} />
-        <Route path="/content/columns" element={<ColumnManagePage />} />
-        <Route path="/content/columns/:id/edit" element={<ColumnEditPage />} />
+        <Route path="/content/columns" element={<Navigate to="/content/catalogs" replace />} />
+        <Route
+          path="/content/columns/:id/edit"
+          element={<Navigate to="/content/catalogs" replace />}
+        />
+        <Route path="/content/catalogs" element={<CmsCatalogManagePage />} />
+        <Route path="/content/catalogs/:id/schema" element={<CmsFormSchemaPage />} />
         <Route path="/content/articles" element={<CmsManagePage />} />
         <Route path="/content/articles/new" element={<CmsArticleEditPage />} />
         <Route path="/content/articles/:id/edit" element={<CmsArticleEditPage />} />
@@ -112,8 +117,6 @@ export function App() {
           element={<Navigate to="/content/center/articles/new?channel=portal_guide" replace />}
         />
         <Route path="/content/hc/articles/:id/edit" element={<RedirectGuideArticleEdit />} />
-        <Route path="/content/catalogs" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
-        <Route path="/content/articles" element={<Navigate to="/content/center?channel=portal_guide" replace />} />
         <Route path="/content/faqs" element={<Navigate to="/content/center?channel=portal_faq" replace />} />
         <Route path="/system/roles" element={<RolesPage />} />
         <Route path="/system/users" element={<UsersPage />} />
