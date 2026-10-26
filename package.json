@@ -12,6 +12,7 @@
     "dev:dci": "pnpm --filter @ctp/dci dev",
     "dev:home": "pnpm --filter @ctp/home dev",
     "dev:ops-dci": "pnpm --filter @ctp/ops-dci dev",
+    "dev:unify": "pnpm --filter @ctp/unify dev",
     "build:portal": "pnpm --filter @ctp/portal build",
     "build:ops": "pnpm --filter @ctp/ops build",
     "build:customer": "pnpm --filter @ctp/customer build",
@@ -21,6 +22,7 @@
     "build:dci": "pnpm --filter @ctp/dci build",
     "build:home": "pnpm --filter @ctp/home build",
     "build:ops-dci": "pnpm --filter @ctp/ops-dci build",
+    "build:unify": "pnpm --filter @ctp/unify build",
     "lint": "pnpm -r lint"
   },
   "engines": {

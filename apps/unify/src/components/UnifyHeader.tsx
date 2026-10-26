@@ -1,0 +1,87 @@
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { IconFullscreen, IconSidebarToggle } from "@/components/icons/UiIcons";
+import { useAuth } from "@/lib/auth";
+
+type Props = {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+  displayName?: string;
+};
+
+const PLATFORM_NAME = "Unify 智能辅助审核";
+
+export function UnifyHeader({ collapsed, onToggleCollapse, displayName }: Props) {
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const { logout } = useAuth();
+  const label = displayName || "管理员";
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      void document.documentElement.requestFullscreen?.();
+    } else {
+      void document.exitFullscreen?.();
+    }
+  };
+
+  return (
+    <header className="a-header">
+      <div className="a-header__brand">
+        <img className="a-header__logo" src="/icon_dci.png" alt="" width={40} height={40} />
+        <span className="a-header__logo-text">{PLATFORM_NAME}</span>
+        <button
+          type="button"
+          className="a-header__icon-btn"
+          aria-label={collapsed ? "展开侧栏" : "收起侧栏"}
+          onClick={onToggleCollapse}
+        >
+          <IconSidebarToggle />
+        </button>
+      </div>
+
+      <div className="a-header__actions">
+        <button type="button" className="a-header__icon-btn" aria-label="全屏" onClick={toggleFullscreen}>
+          <IconFullscreen />
+        </button>
+
+        <div className="a-header__user">
+          <button type="button" className="a-header__user-btn" aria-haspopup="menu">
+            <span className="a-header__avatar">{label.slice(0, 1)}</span>
+            <span className="a-header__user-meta">
+              <span className="a-header__user-role">{label}</span>
+            </span>
+            <span className="a-header__chevron" aria-hidden>
+              ▾
+            </span>
+          </button>
+          <div className="a-header__user-dropdown">
+            <div className="a-header__user-menu" role="menu">
+              <div className="a-header__user-menu-name">{label}</div>
+              <button
+                type="button"
+                role="menuitem"
+                className="a-header__user-menu-item"
+                onClick={() => setLogoutConfirm(true)}
+              >
+                退出登录
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        open={logoutConfirm}
+        title="确认退出登录"
+        description="退出后需重新输入账号密码登录。"
+        confirmText="退出"
+        danger
+        onConfirm={() => {
+          setLogoutConfirm(false);
+          logout();
+        }}
+        onCancel={() => setLogoutConfirm(false)}
+      />
+    </header>
+  );
+}
