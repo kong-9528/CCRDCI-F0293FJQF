@@ -149,6 +149,9 @@ export function AuditTasksPage() {
               ))}
             </select>
           </div>
+          <button type="button" className="a-btn a-btn--primary" onClick={() => setApplied({ ...draft })}>
+            查询
+          </button>
           <button
             type="button"
             className="a-btn"
@@ -158,9 +161,6 @@ export function AuditTasksPage() {
             }}
           >
             重置
-          </button>
-          <button type="button" className="a-btn a-btn--primary" onClick={() => setApplied({ ...draft })}>
-            查询
           </button>
         </div>
 
