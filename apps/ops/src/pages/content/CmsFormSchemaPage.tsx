@@ -508,6 +508,29 @@ export function CmsFormSchemaPage() {
                     />
                   </div>
                 ) : null}
+
+                {selected.type === "articleRefs" ? (
+                  <div className="a-field a-field--stack">
+                    <span className="a-field__label">最多引用篇数</span>
+                    <input
+                      className="a-input"
+                      inputMode="numeric"
+                      value={String(selected.maxCount ?? 20)}
+                      onChange={(e) =>
+                        updateField(selected.key, {
+                          maxCount: Number(e.target.value.replace(/\D/g, "") || "20"),
+                        })
+                      }
+                    />
+                    <span className="a-field__hint">编辑文章时通过搜索对话框多选关联</span>
+                  </div>
+                ) : null}
+
+                {selected.type === "articleRef" ? (
+                  <span className="a-field__hint">
+                    编辑文章时通过搜索对话框单选关联一篇源文章（存文章 ID）
+                  </span>
+                ) : null}
               </div>
             )}
           </div>

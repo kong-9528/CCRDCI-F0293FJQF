@@ -21,7 +21,11 @@ export type CmsFieldType =
   | "images"
   | "file"
   | "date"
-  | "datetime";
+  | "datetime"
+  /** 引用一篇文章（存 articleId） */
+  | "articleRef"
+  /** 引用多篇文章（存 JSON 字符串数组） */
+  | "articleRefs";
 
 export type CmsSelectLayout = "dropdown" | "flat";
 export type CmsTextFormat = "any" | "email" | "url" | "phone" | "idcard";
@@ -50,7 +54,7 @@ export type CmsFieldDef = {
   imageMaxHeight?: number;
   /** 如 16:9 */
   imageAspectRatio?: string;
-  /** 多图上限 */
+  /** 多图 / 多文章引用上限 */
   maxCount?: number;
 };
 
@@ -68,6 +72,8 @@ export const CMS_FIELD_TYPE_LABEL: Record<CmsFieldType, string> = {
   file: "上传普通附件",
   date: "日期",
   datetime: "年月日时分",
+  articleRef: "引用文章（单选）",
+  articleRefs: "引用文章（多选）",
 };
 
 export const CMS_TEXT_FORMAT_LABEL: Record<CmsTextFormat, string> = {
@@ -79,7 +85,12 @@ export const CMS_TEXT_FORMAT_LABEL: Record<CmsTextFormat, string> = {
 };
 
 /** 内置模板（新建目录时可选用，实际字段存于目录） */
-export type CmsSchemaTemplateId = "faq" | "productDetail" | "industry" | "blank";
+export type CmsSchemaTemplateId =
+  | "faq"
+  | "productDetail"
+  | "industry"
+  | "topic"
+  | "blank";
 
 export const CMS_SCHEMA_TEMPLATES: Record<
   CmsSchemaTemplateId,
@@ -89,6 +100,22 @@ export const CMS_SCHEMA_TEMPLATES: Record<
     label: "空白表单",
     description: "仅含标题，可在表单编排中自由添加字段",
     fields: [{ key: "title", label: "标题", type: "text", required: true }],
+  },
+  topic: {
+    label: "专题条目",
+    description: "标题 + 标题图 + 引用文章 + 排序（用于首页/频道汇总）",
+    fields: [
+      { key: "title", label: "标题", type: "text", required: true },
+      { key: "cover", label: "标题图", type: "image" },
+      {
+        key: "refArticle",
+        label: "引用的文章",
+        type: "articleRef",
+        required: true,
+        hint: "通过搜索对话框关联一篇源文章",
+      },
+      { key: "sort", label: "排序", type: "integer", hint: "数值越小越靠前" },
+    ],
   },
   faq: {
     label: "常见问题",
@@ -294,6 +321,13 @@ const SEED_CATALOGS: CmsCatalog[] = [
     sort: 30,
     fields: cloneFields(CMS_SCHEMA_TEMPLATES.industry.fields),
   },
+  {
+    id: "cms-c-topic",
+    name: "首页专题",
+    parentId: null,
+    sort: 40,
+    fields: cloneFields(CMS_SCHEMA_TEMPLATES.topic.fields),
+  },
 ];
 
 const SEED_ARTICLES: CmsArticle[] = [
@@ -329,6 +363,23 @@ const SEED_ARTICLES: CmsArticle[] = [
     rejectReason: "",
     updatedAt: "2026-09-12 14:20:00",
     publishedAt: null,
+  },
+  {
+    id: "cms-a-topic-1",
+    catalogId: "cms-c-topic",
+    title: "焦点：数字版权基础设施",
+    fields: {
+      title: "焦点：数字版权基础设施",
+      cover:
+        "https://miaoda-conversation-file.cdn.bcebos.com/user-bmjekvlpgirk/app-ck03sng4kykh/20260722/6666.jpg",
+      refArticle: "cms-a-2",
+      sort: "10",
+    },
+    status: "visible",
+    changeNote: "",
+    rejectReason: "",
+    updatedAt: "2026-09-20 09:00:00",
+    publishedAt: "2026-09-20 09:00:00",
   },
 ];
 
@@ -520,6 +571,10 @@ export function createDefaultField(type: CmsFieldType): CmsFieldDef {
       return { ...base };
     case "images":
       return { ...base, maxCount: 9 };
+    case "articleRef":
+      return { ...base, label: "引用的文章" };
+    case "articleRefs":
+      return { ...base, label: "引用的文章", maxCount: 20 };
     case "file":
       return { ...base };
     case "date":
@@ -539,14 +594,72 @@ export function listCmsArticles(catalogId?: string, titleKeyword = ""): CmsArtic
     .map((a) => ({ ...a, fields: { ...a.fields } }));
 }
 
+/** 搜索可选被引用文章（排除指定文章自身；可按目录筛选） */
+export function searchCmsArticlesForRef(opts: {
+  keyword?: string;
+  catalogId?: string;
+  excludeArticleId?: string;
+}): CmsArticle[] {
+  const kw = (opts.keyword ?? "").trim().toLowerCase();
+  return articles
+    .filter((a) => (opts.excludeArticleId ? a.id !== opts.excludeArticleId : true))
+    .filter((a) => (opts.catalogId ? a.catalogId === opts.catalogId : true))
+    .filter((a) => {
+      if (!kw) return true;
+      return (
+        a.title.toLowerCase().includes(kw) ||
+        a.id.toLowerCase().includes(kw) ||
+        a.catalogId.toLowerCase().includes(kw)
+      );
+    })
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .map((a) => ({ ...a, fields: { ...a.fields } }));
+}
+
 export function getCmsArticle(id: string): CmsArticle | undefined {
   const a = articles.find((x) => x.id === id);
   return a ? { ...a, fields: { ...a.fields } } : undefined;
 }
 
+function parseArticleIdList(raw: string): string[] {
+  try {
+    const v = JSON.parse(raw || "[]");
+    return Array.isArray(v) ? v.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 function validateFields(fieldDefs: CmsFieldDef[], fields: Record<string, string>) {
   for (const f of fieldDefs) {
     const raw = String(fields[f.key] ?? "").trim();
+
+    if (f.type === "articleRefs") {
+      const ids = parseArticleIdList(raw || "[]");
+      if (f.required && ids.length === 0) {
+        throw new Error(`请选择${f.label}`);
+      }
+      if (f.maxCount != null && ids.length > f.maxCount) {
+        throw new Error(`${f.label}最多选择 ${f.maxCount} 篇`);
+      }
+      for (const id of ids) {
+        if (!articles.some((a) => a.id === id)) {
+          throw new Error(`${f.label}中的文章不存在：${id}`);
+        }
+      }
+      continue;
+    }
+
+    if (f.type === "articleRef") {
+      if (f.required && !raw) {
+        throw new Error(`请选择${f.label}`);
+      }
+      if (raw && !articles.some((a) => a.id === raw)) {
+        throw new Error(`${f.label}关联的文章不存在：${raw}`);
+      }
+      continue;
+    }
+
     if (f.required && !raw) {
       throw new Error(`请填写${f.label}`);
     }
@@ -563,7 +676,8 @@ function validateFields(fieldDefs: CmsFieldDef[], fields: Record<string, string>
         if (f.required && !String(parsed.min ?? "").trim() && !String(parsed.max ?? "").trim()) {
           throw new Error(`请填写${f.label}`);
         }
-      } catch {
+      } catch (e) {
+        if (e instanceof Error && e.message.startsWith("请填写")) throw e;
         throw new Error(`${f.label}格式无效`);
       }
     }
@@ -753,6 +867,7 @@ export function useCmsArticleStore() {
     catalogs: listCmsCatalogs(),
     flatCatalogs: flattenCmsCatalogTree(),
     listArticles: listCmsArticles,
+    searchArticlesForRef: searchCmsArticlesForRef,
     getCatalog: getCmsCatalog,
     getArticle: getCmsArticle,
     createCatalog: createCmsCatalog,

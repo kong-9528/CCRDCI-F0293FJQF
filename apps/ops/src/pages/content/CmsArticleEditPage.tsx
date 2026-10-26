@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { ArticleRefField } from "@/components/cms/ArticleRefField";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import {
   getCmsArticle,
@@ -12,8 +13,9 @@ function emptyFields(defs: CmsFieldDef[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const f of defs) {
     if (f.type === "numberRange") out[f.key] = JSON.stringify({ min: "", max: "" });
-    else if (f.type === "checkbox" || f.type === "images") out[f.key] = "[]";
-    else out[f.key] = "";
+    else if (f.type === "checkbox" || f.type === "images" || f.type === "articleRefs") {
+      out[f.key] = "[]";
+    } else out[f.key] = "";
   }
   return out;
 }
@@ -40,11 +42,23 @@ function FieldControl({
   field,
   value,
   onChange,
+  excludeArticleId,
 }: {
   field: CmsFieldDef;
   value: string;
   onChange: (v: string) => void;
+  excludeArticleId?: string;
 }) {
+  if (field.type === "articleRef" || field.type === "articleRefs") {
+    return (
+      <ArticleRefField
+        field={field}
+        value={value}
+        onChange={onChange}
+        excludeArticleId={excludeArticleId}
+      />
+    );
+  }
   if (field.type === "richtext") {
     return (
       <RichTextEditor
@@ -447,6 +461,7 @@ export function CmsArticleEditPage() {
                     field={field}
                     value={fields[field.key] ?? ""}
                     onChange={(v) => setField(field.key, v)}
+                    excludeArticleId={articleId}
                   />
                   {field.hint ? <span className="a-field__hint">{field.hint}</span> : null}
                 </div>
