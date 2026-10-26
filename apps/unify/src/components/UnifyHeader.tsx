@@ -9,7 +9,7 @@ type Props = {
   displayName?: string;
 };
 
-const PLATFORM_NAME = "Unify 智能辅助审核";
+const PLATFORM_NAME = "统一后台管理系统";
 
 export function UnifyHeader({ collapsed, onToggleCollapse, displayName }: Props) {
   const [logoutConfirm, setLogoutConfirm] = useState(false);

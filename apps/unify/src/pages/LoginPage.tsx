@@ -39,8 +39,8 @@ export function LoginPage() {
       <div className="un-login__bg" aria-hidden />
       <div className="un-login__panel">
         <div className="un-login__brand">
-          <h1>Unify</h1>
-          <p>智能辅助审核安全风险监控</p>
+          <h1>统一后台管理系统</h1>
+          {/* <p>智能辅助审核安全风险监控</p> */}
         </div>
         <form className="un-login__form" onSubmit={(e) => void onSubmit(e)}>
           <div className="a-field a-field--stack">
