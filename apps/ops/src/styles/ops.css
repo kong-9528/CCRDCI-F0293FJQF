@@ -5608,30 +5608,43 @@ body,
   flex-direction: column;
   color: #fff;
   animation: a-dash-rise 420ms ease both;
-  box-shadow: 0 10px 28px rgba(20, 90, 110, 0.2);
+  box-shadow: 0 10px 28px rgba(25, 80, 180, 0.22);
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .a-algo-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(20, 90, 110, 0.28);
+  box-shadow: 0 14px 32px rgba(25, 80, 180, 0.3);
 }
 
+/* 对齐看板截图：天蓝→宝蓝 / 紫→ラベンダー / 宝蓝→午夜蓝 */
 .a-algo-card--tone-0 {
-  background: linear-gradient(135deg, #1c8880 0%, #146e72 48%, #0e5a62 100%);
+  background: linear-gradient(90deg, #4facfe 0%, #1976d2 52%, #0062ff 100%);
 }
 
 .a-algo-card--tone-1 {
-  background: linear-gradient(135deg, #1d78a4 0%, #16628e 48%, #104f78 100%);
+  background: linear-gradient(90deg, #8e44ad 0%, #7e6bd9 48%, #8592fe 100%);
 }
 
 .a-algo-card--tone-2 {
-  background: linear-gradient(135deg, #207a62 0%, #186452 52%, #125244 100%);
+  background: linear-gradient(90deg, #2575fc 0%, #2a3f9e 52%, #1a2a6c 100%);
+}
+
+.a-algo-card--tone-0:hover {
+  box-shadow: 0 14px 32px rgba(0, 98, 255, 0.32);
+}
+
+.a-algo-card--tone-1:hover {
+  box-shadow: 0 14px 32px rgba(142, 68, 173, 0.32);
+}
+
+.a-algo-card--tone-2:hover {
+  box-shadow: 0 14px 32px rgba(26, 42, 108, 0.36);
 }
 
 .a-stats-strip--models {
-  background: linear-gradient(135deg, #1c8880 0%, #146e72 48%, #0e5a62 100%);
-  box-shadow: 0 10px 28px rgba(16, 70, 90, 0.26);
+  background: linear-gradient(90deg, #4facfe 0%, #1976d2 52%, #0062ff 100%);
+  box-shadow: 0 10px 28px rgba(0, 98, 255, 0.26);
 }
 
 /* 停用：统一偏灰 */
