@@ -90,7 +90,7 @@ export function UserBlacklistPage() {
       <div className="a-card">
         <div className="a-card__head">
           用户黑名单管理
-          <span className="a-card__extra a-muted">按用户ID / 账号 / 设备ID 管控</span>
+          {/* <span className="a-card__extra a-muted">按用户ID / 账号 / 设备ID 管控</span> */}
         </div>
 
         <div className="a-toolbar">

@@ -69,7 +69,7 @@ export function SensitiveWordsPage() {
       <div className="a-card">
         <div className="a-card__head">
           敏感词库
-          <span className="a-card__extra a-muted">内容安全审核仅匹配启用中的文字敏感词</span>
+          {/* <span className="a-card__extra a-muted">内容安全审核仅匹配启用中的文字敏感词</span> */}
         </div>
 
         <div className="a-toolbar">

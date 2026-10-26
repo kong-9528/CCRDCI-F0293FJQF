@@ -71,7 +71,7 @@ export function IpWhitelistPage() {
         <div className="a-card__head">
           IP白名单管理
           <span className="a-card__extra a-muted">
-            单 IP / IP 段 / CIDR；与黑名单并存时黑名单优先
+            {/* 单 IP / IP 段 / CIDR；与黑名单并存时黑名单优先 */}
           </span>
         </div>
 

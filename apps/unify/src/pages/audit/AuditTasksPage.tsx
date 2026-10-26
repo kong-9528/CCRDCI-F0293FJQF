@@ -68,7 +68,7 @@ export function AuditTasksPage() {
         <div className="a-card__head">
           智能辅助审核任务列表
           <span className="a-card__extra a-muted">
-            红：内容安全不通过；黄：查重/侵权不通过；绿：全过或人工复核通过
+            {/* 红：内容安全不通过；黄：查重/侵权不通过；绿：全过或人工复核通过 */}
           </span>
         </div>
 
