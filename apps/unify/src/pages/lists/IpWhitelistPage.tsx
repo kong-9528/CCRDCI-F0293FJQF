@@ -1,19 +1,16 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Drawer } from "@/components/Drawer";
 import { TableAction } from "@/components/TableAction";
 import {
   IconDisable,
   IconEdit,
   IconEnable,
-  IconLog,
   IconTrash,
 } from "@/components/icons/UiIcons";
 import {
   IP_TYPE_LABEL,
   deleteIpWhitelist,
   exportIpWhitelistCsv,
-  listIpHits,
   listIpWhitelist,
   setIpWhitelistEnabled,
   upsertIpWhitelist,
@@ -26,7 +23,6 @@ export function IpWhitelistPage() {
   const tick = useUnifyTick();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<IpWhitelistItem | null | "new">(null);
-  const [hitsFor, setHitsFor] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<IpWhitelistItem | null>(null);
   const [form, setForm] = useState({
     type: "single" as IpType,
@@ -154,9 +150,6 @@ export function IpWhitelistPage() {
                         >
                           {r.enabled ? "停用" : "启用"}
                         </TableAction>
-                        <TableAction icon={<IconLog />} onClick={() => setHitsFor(r.id)}>
-                          命中明细
-                        </TableAction>
                         <TableAction
                           icon={<IconTrash />}
                           danger
@@ -242,36 +235,6 @@ export function IpWhitelistPage() {
           </div>
         </div>
       ) : null}
-
-      <Drawer open={!!hitsFor} title="命中明细" onClose={() => setHitsFor(null)}>
-        <table className="a-table">
-          <thead>
-            <tr>
-              <th>时间</th>
-              <th>来源 IP</th>
-              <th>关联申领记录ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {hitsFor && listIpHits(hitsFor).length === 0 ? (
-              <tr>
-                <td colSpan={3}>
-                  <div className="a-empty">暂无命中</div>
-                </td>
-              </tr>
-            ) : (
-              hitsFor &&
-              listIpHits(hitsFor).map((h) => (
-                <tr key={h.id}>
-                  <td>{h.at}</td>
-                  <td>{h.source}</td>
-                  <td>{h.orderId ? <code>{h.orderId}</code> : "—"}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </Drawer>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

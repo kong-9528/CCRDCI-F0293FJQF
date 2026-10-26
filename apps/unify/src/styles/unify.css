@@ -89,7 +89,7 @@
   color: var(--n-500);
 }
 
-/* ===== 审核风险灯 / 危级 ===== */
+/* ===== 审核风险 / 危级 ===== */
 .un-light {
   display: inline-block;
   width: 10px;

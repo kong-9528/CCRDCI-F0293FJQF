@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Drawer } from "@/components/Drawer";
 import { TableAction } from "@/components/TableAction";
 import {
   IconDisable,
   IconEdit,
   IconEnable,
-  IconLog,
   IconTrash,
 } from "@/components/icons/UiIcons";
 import { useAuth } from "@/lib/auth";
@@ -15,7 +13,6 @@ import {
   deleteUserBlacklist,
   exportUserBlacklistCsv,
   isBlacklistExpired,
-  listBlacklistHits,
   listUserBlacklist,
   setUserBlacklistEnabled,
   upsertUserBlacklist,
@@ -29,7 +26,6 @@ export function UserBlacklistPage() {
   const { session } = useAuth();
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<UserBlacklistItem | null | "new">(null);
-  const [hitsFor, setHitsFor] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserBlacklistItem | null>(null);
   const [form, setForm] = useState({
     dim: "userId" as BlacklistDim,
@@ -180,9 +176,6 @@ export function UserBlacklistPage() {
                           >
                             {r.enabled ? "停用" : "启用"}
                           </TableAction>
-                          <TableAction icon={<IconLog />} onClick={() => setHitsFor(r.id)}>
-                            命中日志
-                          </TableAction>
                           <TableAction
                             icon={<IconTrash />}
                             danger
@@ -278,40 +271,6 @@ export function UserBlacklistPage() {
           </div>
         </div>
       ) : null}
-
-      <Drawer open={!!hitsFor} title="命中日志" onClose={() => setHitsFor(null)}>
-        <table className="a-table">
-          <thead>
-            <tr>
-              <th>时间</th>
-              <th>申领记录ID</th>
-              <th>维度</th>
-              <th>匹配值</th>
-            </tr>
-          </thead>
-          <tbody>
-            {hitsFor && listBlacklistHits(hitsFor).length === 0 ? (
-              <tr>
-                <td colSpan={4}>
-                  <div className="a-empty">暂无命中</div>
-                </td>
-              </tr>
-            ) : (
-              hitsFor &&
-              listBlacklistHits(hitsFor).map((h) => (
-                <tr key={h.id}>
-                  <td>{h.at}</td>
-                  <td>
-                    <code>{h.orderId}</code>
-                  </td>
-                  <td>{BLACKLIST_DIM_LABEL[h.dim]}</td>
-                  <td>{h.value}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </Drawer>
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

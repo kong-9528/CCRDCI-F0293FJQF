@@ -23,7 +23,6 @@ const emptyFilter = {
   workName: "",
   workCategory: "",
   ownerName: "",
-  channelType: "",
   submittedFrom: "",
   submittedTo: "",
   orderStatus: "",
@@ -75,7 +74,7 @@ export function AuditTasksPage() {
 
         <div className="a-toolbar">
           <div className="a-field">
-            <span className="a-field__label">DCI申领记录ID</span>
+            <span className="a-field__label">审核任务ID</span>
             <input
               className="a-input"
               placeholder="请输入"
@@ -116,20 +115,6 @@ export function AuditTasksPage() {
               value={draft.ownerName}
               onChange={(e) => setFilter("ownerName", e.target.value)}
             />
-          </div>
-          <div className="a-field">
-            <span className="a-field__label">DCI申领平台</span>
-            <select
-              className="a-select"
-              value={draft.channelType}
-              onChange={(e) => setFilter("channelType", e.target.value)}
-            >
-              <option value="">请选择</option>
-              <option value="腾讯">腾讯</option>
-              <option value="阿里">阿里</option>
-              <option value="自有渠道">自有渠道</option>
-              <option value="其他">其他</option>
-            </select>
           </div>
           <div className="a-field">
             <span className="a-field__label">提交时间</span>
@@ -185,13 +170,11 @@ export function AuditTasksPage() {
           <table className="a-table">
             <thead>
               <tr>
-                <th>DCI申领记录ID</th>
+                <th>审核任务ID</th>
                 <th>作品名称</th>
                 <th>作品类型</th>
                 <th>著作权人</th>
                 <th>登记提交时间</th>
-                <th>DCI申领平台</th>
-                <th>渠道名</th>
                 <th>最后更新时间</th>
                 <th>风险灯</th>
                 <th>内容安全等级</th>
@@ -202,7 +185,7 @@ export function AuditTasksPage() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={12}>
+                  <td colSpan={10}>
                     <div className="a-empty">暂无任务</div>
                   </td>
                 </tr>
@@ -219,8 +202,6 @@ export function AuditTasksPage() {
                       <td>{t.workCategory}</td>
                       <td>{t.ownerName}</td>
                       <td>{t.submittedAt}</td>
-                      <td>{t.channelType}</td>
-                      <td>{t.channelName || "-"}</td>
                       <td>{t.updatedAt}</td>
                       <td>
                         <span
@@ -325,7 +306,7 @@ function TaskDetailBody({
       <section className="un-detail-section">
         <h3>订单信息</h3>
         <dl className="un-kv">
-          <dt>申领记录ID</dt>
+          <dt>审核任务ID</dt>
           <dd>{task.orderId}</dd>
           <dt>作品名称</dt>
           <dd>{task.workName}</dd>
@@ -367,15 +348,6 @@ function TaskDetailBody({
             </ul>
           </dd>
         </dl>
-        <div className="a-toolbar" style={{ marginTop: 10, padding: 0 }}>
-          <button
-            type="button"
-            className="a-btn a-btn--sm"
-            onClick={() => alert("演示：提交/补传材料入口（未接真实上传）")}
-          >
-            提交材料
-          </button>
-        </div>
       </section>
 
       <section className="un-detail-section">
@@ -428,7 +400,8 @@ function TaskDetailBody({
           <h3>复核意见</h3>
           <textarea
             className="a-input"
-            rows={3}
+            rows={8}
+            style={{ width: "100%", minHeight: 160, resize: "vertical" }}
             placeholder="可选：填写人工通过说明"
             value={reviewNote}
             onChange={(e) => setReviewNote(e.target.value)}
