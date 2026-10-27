@@ -58,7 +58,7 @@ export function AuditTasksPage() {
       setToast(err);
       return;
     }
-    setToast("已标记为人工复核通过");
+    setToast("已标记为人工审核通过");
     setActiveId(null);
   };
 
@@ -68,7 +68,7 @@ export function AuditTasksPage() {
         <div className="a-card__head">
           智能辅助审核任务列表
           <span className="a-card__extra a-muted">
-            {/* 红：内容安全不通过；黄：查重/侵权不通过；绿：全过或人工复核通过 */}
+            {/* 红：内容安全不通过；黄：查重/侵权不通过；绿：全过或人工审核通过 */}
           </span>
         </div>
 
@@ -237,7 +237,7 @@ export function AuditTasksPage() {
                           </TableAction>
                           {hasAuditFailure(t) ? (
                             <TableAction icon={<IconAudit />} onClick={() => openTask(t.id, "review")}>
-                              人工复核
+                              人工审核
                             </TableAction>
                           ) : null}
                           {t.orderStatus === "dci_success" ? (
@@ -261,7 +261,7 @@ export function AuditTasksPage() {
 
       <Drawer
         open={!!active}
-        title={mode === "review" ? "人工复核" : "任务详情"}
+        title={mode === "review" ? "人工审核" : "任务详情"}
         onClose={() => setActiveId(null)}
         footer={
           mode === "review" && active && hasAuditFailure(active) ? (
@@ -383,7 +383,7 @@ function TaskDetailBody({
 
       {task.manualReview ? (
         <section className="un-detail-section">
-          <h3>人工复核记录</h3>
+          <h3>人工审核记录</h3>
           <dl className="un-kv">
             <dt>复核人</dt>
             <dd>{task.manualReview.passedBy}</dd>

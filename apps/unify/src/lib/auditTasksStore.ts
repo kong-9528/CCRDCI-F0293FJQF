@@ -17,7 +17,7 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   audit_failed: "未通过审核",
   dci_success: "DCI申领成功",
   dci_revoked: "DCI撤销",
-  manual_passed: "人工复核通过",
+  manual_passed: "人工审核通过",
 };
 
 export const WORK_CATEGORIES = [
@@ -320,7 +320,7 @@ export function getAuditTask(id: string) {
     : null;
 }
 
-/** 红黄绿：内容安全失败 → 红；其余两项有不过 → 黄；全过 → 绿。人工复核通过视为绿。 */
+/** 红黄绿：内容安全失败 → 红；其余两项有不过 → 黄；全过 → 绿。人工审核通过视为绿。 */
 export function trafficLightOf(task: AuditTask): TrafficLight {
   if (task.manualReview) return "green";
   const { contentSafety, duplicateCheck, infringement } = task.audits;
@@ -353,7 +353,7 @@ export function manualPassTask(id: string, passedBy: string, note = ""): string 
   const idx = tasks.findIndex((t) => t.id === id);
   if (idx < 0) return "任务不存在";
   const prev = tasks[idx]!;
-  if (!hasAuditFailure(prev) && !prev.manualReview) return "当前无需人工复核";
+  if (!hasAuditFailure(prev) && !prev.manualReview) return "当前无需人工审核";
   tasks[idx] = {
     ...prev,
     orderStatus: "manual_passed",
