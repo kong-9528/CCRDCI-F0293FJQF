@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import {
   ORDER_STATUS_LABEL,
   WORK_CATEGORIES,
+  contentRiskLabel,
   filterAuditTasks,
   getAuditTask,
   hasAuditFailure,
@@ -176,6 +177,7 @@ export function AuditTasksPage() {
                 <th>登记提交时间</th>
                 <th>最后更新时间</th>
                 <th>风险灯</th>
+                <th>内容安全等级</th>
                 <th>状态</th>
                 <th>操作</th>
               </tr>
@@ -183,13 +185,14 @@ export function AuditTasksPage() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={9}>
+                  <td colSpan={10}>
                     <div className="a-empty">暂无任务</div>
                   </td>
                 </tr>
               ) : (
                 rows.map((t) => {
                   const light = trafficLightOf(t);
+                  const risk = contentRiskLabel(t);
                   return (
                     <tr key={t.id}>
                       <td>
@@ -205,6 +208,19 @@ export function AuditTasksPage() {
                           className={`un-light un-light--${light}`}
                           title={light === "red" ? "红" : light === "yellow" ? "黄" : "绿"}
                         />
+                      </td>
+                      <td>
+                        {risk === "—" ? (
+                          "—"
+                        ) : (
+                          <span
+                            className={`un-risk un-risk--${
+                              risk === "高危" ? "high" : risk === "中危" ? "medium" : "low"
+                            }`}
+                          >
+                            {risk}
+                          </span>
+                        )}
                       </td>
                       <td>
                         {ORDER_STATUS_LABEL[t.orderStatus]}
