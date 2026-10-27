@@ -11,6 +11,9 @@ import {
 
 type CatalogForm = {
   name: string;
+  code: string;
+  /** 仅编辑态展示，创建时由系统生成 */
+  seqNo: string;
   parentId: string;
   sort: string;
 };
@@ -20,7 +23,7 @@ type ServiceForm = {
   enabled: boolean;
 };
 
-const EMPTY_CATALOG: CatalogForm = { name: "", parentId: "", sort: "10" };
+const EMPTY_CATALOG: CatalogForm = { name: "", code: "", seqNo: "", parentId: "", sort: "10" };
 const EMPTY_SERVICE: ServiceForm = { name: "", enabled: true };
 
 function StatusSwitchCell({
@@ -154,6 +157,8 @@ export function ProductManagePage() {
     setEditingCatalog(c);
     setCatalogForm({
       name: c.name,
+      code: c.code,
+      seqNo: String(c.seqNo),
       parentId: c.parentId ?? "",
       sort: String(c.sort),
     });
@@ -165,6 +170,7 @@ export function ProductManagePage() {
     try {
       const input = {
         name: catalogForm.name,
+        code: catalogForm.code,
         parentId: catalogForm.parentId || null,
         sort: Number(catalogForm.sort || "10"),
       };
@@ -364,6 +370,24 @@ export function ProductManagePage() {
                   onChange={(e) => setCatalogForm((p) => ({ ...p, name: e.target.value }))}
                 />
               </div>
+              <div className="a-field a-field--stack">
+                <span className="a-field__label">
+                  目录编码 <span className="a-req">*</span>
+                </span>
+                <input
+                  className="a-input"
+                  value={catalogForm.code}
+                  onChange={(e) => setCatalogForm((p) => ({ ...p, code: e.target.value }))}
+                  placeholder="请输入目录编码"
+                />
+              </div>
+              {catalogDialog === "edit" ? (
+                <div className="a-field a-field--stack">
+                  <span className="a-field__label">目录序号</span>
+                  <input className="a-input" value={catalogForm.seqNo} disabled readOnly />
+                  <span className="a-field__hint">系统自动生成，不可修改</span>
+                </div>
+              ) : null}
               <div className="a-field a-field--stack">
                 <span className="a-field__label">排序值（同级越小越靠前）</span>
                 <input

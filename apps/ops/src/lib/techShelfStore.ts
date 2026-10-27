@@ -5,6 +5,10 @@ import { setShelfStatus } from "@/lib/productsStore";
 export type TechShelfCatalog = {
   id: string;
   name: string;
+  /** 目录编码（业务可读，可录入） */
+  code: string;
+  /** 目录序号（系统生成，不可改） */
+  seqNo: number;
   /** null = 根节点 */
   parentId: string | null;
   /** 同级排序，越小越靠前 */
@@ -24,6 +28,7 @@ export type TechShelfService = {
 
 export type TechShelfCatalogInput = {
   name: string;
+  code: string;
   parentId: string | null;
   sort: number;
 };
@@ -40,8 +45,8 @@ export type TechShelfTreeNode = {
 };
 
 const SEED_CATALOGS: TechShelfCatalog[] = [
-  { id: "tsc-verify", name: "版权核验", parentId: null, sort: 10 },
-  { id: "tsc-audit", name: "智能辅助审核", parentId: null, sort: 20 },
+  { id: "tsc-verify", name: "版权核验", code: "VERIFY", seqNo: 1, parentId: null, sort: 10 },
+  { id: "tsc-audit", name: "智能辅助审核", code: "AUDIT", seqNo: 2, parentId: null, sort: 20 },
 ];
 
 const SEED_SERVICES: TechShelfService[] = [
@@ -82,6 +87,7 @@ const SEED_SERVICES: TechShelfService[] = [
 let catalogs: TechShelfCatalog[] = SEED_CATALOGS.map((c) => ({ ...c }));
 let services: TechShelfService[] = SEED_SERVICES.map((s) => ({ ...s }));
 let catalogSeq = 100;
+let catalogSeqNo = Math.max(0, ...SEED_CATALOGS.map((c) => c.seqNo));
 let serviceSeq = 100;
 const listeners = new Set<() => void>();
 
@@ -167,16 +173,33 @@ export function catalogParentOptions(excludeId?: string): { catalog: TechShelfCa
   return flattenTechShelfTree().filter((row) => !blocked.has(row.catalog.id));
 }
 
+function normalizeCatalogCode(raw: string) {
+  return raw.trim();
+}
+
+function assertCatalogCode(code: string, excludeId?: string) {
+  if (!code) throw new Error("请填写目录编码");
+  const dup = catalogs.find(
+    (c) => c.code.toLowerCase() === code.toLowerCase() && c.id !== excludeId,
+  );
+  if (dup) throw new Error("目录编码已存在");
+}
+
 export function createTechShelfCatalog(input: TechShelfCatalogInput): TechShelfCatalog {
   const name = input.name.trim();
   if (!name) throw new Error("请填写目录名称");
+  const code = normalizeCatalogCode(input.code);
+  assertCatalogCode(code);
   if (input.parentId && !catalogs.some((c) => c.id === input.parentId)) {
     throw new Error("父级目录不存在");
   }
   catalogSeq += 1;
+  catalogSeqNo += 1;
   const created: TechShelfCatalog = {
     id: `tsc-${catalogSeq}`,
     name,
+    code,
+    seqNo: catalogSeqNo,
     parentId: input.parentId,
     sort: Number.isFinite(input.sort) ? input.sort : 10,
   };
@@ -190,6 +213,8 @@ export function updateTechShelfCatalog(id: string, input: TechShelfCatalogInput)
   if (idx < 0) throw new Error("目录不存在");
   const name = input.name.trim();
   if (!name) throw new Error("请填写目录名称");
+  const code = normalizeCatalogCode(input.code);
+  assertCatalogCode(code, id);
   if (input.parentId === id) throw new Error("不能将自身设为父级");
   if (input.parentId) {
     const blocked = new Set<string>([id]);
@@ -205,11 +230,15 @@ export function updateTechShelfCatalog(id: string, input: TechShelfCatalogInput)
     if (blocked.has(input.parentId)) throw new Error("不能将子孙目录设为父级");
     if (!catalogs.some((c) => c.id === input.parentId)) throw new Error("父级目录不存在");
   }
+  const prev = catalogs[idx]!;
   const next: TechShelfCatalog = {
-    ...catalogs[idx]!,
+    ...prev,
     name,
+    code,
+    /* 目录序号创建后不变 */
+    seqNo: prev.seqNo,
     parentId: input.parentId,
-    sort: Number.isFinite(input.sort) ? input.sort : catalogs[idx]!.sort,
+    sort: Number.isFinite(input.sort) ? input.sort : prev.sort,
   };
   catalogs = catalogs.map((c, i) => (i === idx ? next : c));
   emit();
