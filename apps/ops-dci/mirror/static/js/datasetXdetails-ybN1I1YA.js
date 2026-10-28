@@ -1,1 +1,43 @@
-import{d as i,u as v,a as g,r as l,G as y,f as c,o as k,c as x,h as b,i as s,j as n,y as r,a6 as X,_ as h}from"./index-DsYmzmNg.js";import{k as w}from"./codeManage-CIC4UakA.js";import B from"./OpusInfoTemplate-C6SUGu0T.js";const C={class:"app-container"},D={class:"header-bar"},N=i({name:"DciDatasetXdetails"}),T=i({...N,setup(V){const d=v(),u=g(),t=l(!0),a=l({});function f(){u.back()}async function _(){const o=d.params.id;if(!o){X.warning("缺少主键参数"),t.value=!1;return}t.value=!0;try{const e=await w(o);a.value=e.data||{}}catch{a.value={}}finally{t.value=!1}}return y(()=>{_()}),(o,e)=>{const p=c("el-button"),m=c("el-tag");return k(),x("div",C,[b("div",D,[s(p,{onClick:f,icon:"ArrowLeft"},{default:n(()=>[...e[0]||(e[0]=[r("返回",-1)])]),_:1})]),s(B,{info:a.value,loading:t.value,"code-type-label":"X 码（原始分配）","empty-text":"未查询到数据集 X 码详情"},{codeTag:n(()=>[s(m,{type:"info"},{default:n(()=>[...e[1]||(e[1]=[r("原始分配",-1)])]),_:1})]),_:1},8,["info","loading"])])}}}),R=h(T,[["__scopeId","data-v-1f738cfc"]]);export{R as default};
+import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{k as fetchInfo}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";import"../css/DciEntityDetail.css";
+const _hoisted_1={class:"ded-alloc"};
+const _hoisted_2={class:"header-bar"};
+const Comp=defineComponent({name:"DciDatasetXdetails",setup(){
+  const route=useRoute(),router=useRouter(),loading=ref(!0),info=ref({});
+  function back(){
+    var target="/dciCodeManage/allocation";
+    try{
+      var r=router&&typeof router.replace==="function"?router:null;
+      if(r){
+        var p=r.replace(target);
+        if(p&&typeof p.catch==="function")p.catch(function(){location.assign(target)});
+        return;
+      }
+    }catch(e){}
+    location.assign(target);
+  }
+  async function load(){
+    const id=route.params.id;
+    if(!id){ElMessage.warning("缺少主键参数");loading.value=!1;return}
+    loading.value=!0;
+    try{const res=await fetchInfo(id);info.value=(res&&res.data)||{}}catch{info.value={}}
+    finally{loading.value=!1}
+  }
+  onMounted(load);
+  return(ctx,cache)=>{
+    const ElButton=resolveComponent("el-button");
+    return openBlock(),createElementBlock("div",_hoisted_1,[
+      createElementVNode("div",_hoisted_2,[
+        createVNode(ElButton,{onClick:back,class:"back-btn",type:"default"},{default:withCtx(()=>[createTextVNode("← 返回")]),_:1})
+      ]),
+      createVNode(Detail,{
+        detail:info.value,
+        loading:loading.value,
+        "entity-type":"dataset",
+        "code-type":"X",
+        "show-title":true,
+        "empty-text":"未查询到数据集 X 码详情"
+      },null,8,["detail","loading"])
+    ]);
+  }
+}});
+export default _export_sfc(Comp,[["__scopeId","data-v-datasetx"]]);
