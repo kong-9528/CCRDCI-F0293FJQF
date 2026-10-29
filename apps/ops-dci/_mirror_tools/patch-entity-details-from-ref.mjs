@@ -26,7 +26,7 @@ function wrapperSrc(w) {
     : w.api;
 
   if (w.entity === "dataset" && w.code === "R") {
-    return `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,a8 as request,_ as _export_sfc}from"./index-DsYmzmNg.js";import Detail from"./DciEntityDetail.js";import"../css/DciEntityDetail.css";
+    return `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,a8 as request,_ as _export_sfc}from"./index-DsYmzmNg.js";import Detail from"./DciEntityDetail.js";
 const _hoisted_1={class:"ded-alloc"};
 const _hoisted_2={class:"header-bar"};
 function fetchInfo(id){return request({url:"/dci/applyDoc/dataset/rInfo/"+id,method:"get"})}
@@ -73,7 +73,7 @@ export default _export_sfc(Comp,[["__scopeId",${JSON.stringify(w.scope)}]]);
 `.replace("\\u2190 \\u8fd4\\u56de", "\u2190 \u8fd4\u56de");
   }
 
-  return `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{${apiImport}}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";import"../css/DciEntityDetail.css";
+  return `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{${apiImport}}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";
 const _hoisted_1={class:"ded-alloc"};
 const _hoisted_2={class:"header-bar"};
 const Comp=defineComponent({name:${JSON.stringify(w.name)},setup(){
@@ -166,7 +166,7 @@ for (const w of wrappers) {
 
 // opusC: replace with wrapper using DciEntityDetail for consistent layout
 {
-  const body = `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{b as fetchInfo}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";import"../css/DciEntityDetail.css";
+  const body = `import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{b as fetchInfo}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";
 const _hoisted_1={class:"ded-alloc"};
 const _hoisted_2={class:"header-bar"};
 const Comp=defineComponent({name:"DciOpusCdetails",setup(){
