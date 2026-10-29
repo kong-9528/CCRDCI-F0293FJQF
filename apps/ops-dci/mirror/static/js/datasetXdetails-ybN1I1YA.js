@@ -1,4 +1,4 @@
-import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{k as fetchInfo}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";import"../css/DciEntityDetail.css";
+import{d as defineComponent,u as useRoute,a as useRouter,r as ref,G as onMounted,f as resolveComponent,o as openBlock,c as createElementBlock,h as createElementVNode,i as createVNode,j as withCtx,y as createTextVNode,a6 as ElMessage,_ as _export_sfc}from"./index-DsYmzmNg.js";import{k as fetchInfo}from"./codeManage-CIC4UakA.js";import Detail from"./DciEntityDetail.js";;
 const _hoisted_1={class:"ded-alloc"};
 const _hoisted_2={class:"header-bar"};
 const Comp=defineComponent({name:"DciDatasetXdetails",setup(){

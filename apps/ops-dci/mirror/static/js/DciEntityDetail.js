@@ -12,7 +12,17 @@ import {
   n as createCommentVNode,
   _ as _export_sfc,
 } from "./index-DsYmzmNg.js";
-import "../css/DciEntityDetail.css";
+
+/** 静态托管（COS/云开发）下原生 ESM 不能 import CSS，改为注入 <link> */
+(function ensureDciEntityDetailCss() {
+  if (typeof document === "undefined") return;
+  if (document.querySelector('link[data-ded-css="1"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/static/css/DciEntityDetail.css";
+  link.setAttribute("data-ded-css", "1");
+  document.head.appendChild(link);
+})();
 
 function pick(obj, ...keys) {
   if (!obj) return "";
