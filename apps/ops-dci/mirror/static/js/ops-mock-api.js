@@ -452,10 +452,120 @@
     };
   }
 
+
+  var CATEGORY_LABEL = {100:"文字作品",110:"音乐作品",120:"戏剧作品",130:"曲艺作品",140:"舞蹈作品",150:"美术作品",160:"摄影作品",170:"电影作品",180:"视听作品",190:"工程设计图/产品设计图",200:"地图/示意图",210:"其他作品",220:"口述作品",230:"杂技艺术",240:"建筑作品",250:"模型作品",260:"录音制品",270:"录像制品",280:"软件",290:"汇编作品（数据集）"};
+  var STATUS_LABEL = {0:"申领",1:"撤销"};
+
+  function parseFormBody(body) {
+    if (body == null || body === "") return {};
+    if (typeof body === "object" && typeof body !== "string") return body;
+    var s = String(body);
+    if (s.charAt(0) === "{") {
+      try { return JSON.parse(s); } catch (e) { return {}; }
+    }
+    var out = {};
+    try {
+      var sp = new URLSearchParams(s);
+      sp.forEach(function (v, k) { out[k] = v; });
+    } catch (e) {}
+    return out;
+  }
+
+  function csvEscape(v) {
+    var t = v == null ? "" : String(v);
+    if (/[",\n\r]/.test(t)) return '"' + t.replace(/"/g, '""') + '"';
+    return t;
+  }
+
+  function mockApplyDocExport(rawUrl, body) {
+    var params = parseFormBody(body);
+    var caseType = params.caseType || "opus";
+    var store = window.__OPS_MOCK_STORE__ || {};
+    var listBody = store["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
+    var allRows =
+      (listBody && listBody.data && listBody.data.rows) ||
+      (listBody && listBody.rows) ||
+      [];
+    var rows = (allRows || []).filter(function (r) {
+      if (!caseType) return true;
+      var t = r.caseType || r.case_type;
+      return !t || String(t) === String(caseType);
+    });
+    // mock 库可能缺某 caseType 样例；列表页仍会展示 cursorList 全量，导出与可见列表对齐
+    if (!rows.length) rows = allRows || [];
+    var headers;
+    var mapRow;
+    if (caseType === "soft") {
+      headers = ["序号","DCI码","软件名称","著作权人","DCI注册中心","DCI申领平台","DCI分配时间","状态"];
+      mapRow = function (r, i) {
+        return [i+1, r.dciCode, r.caseName, r.ownerName, r.registerName, r.applyOrgName, r.dciApplyTime || r.dciApplyTimeStr || "", STATUS_LABEL[r.dciStatus] != null ? STATUS_LABEL[r.dciStatus] : (r.dciStatus == null ? "-" : r.dciStatus)];
+      };
+    } else if (caseType === "dataset") {
+      headers = ["序号","DCI码","数据集名称","著作权人","DCI注册中心","DCI申领平台","DCI分配时间","状态"];
+      mapRow = function (r, i) {
+        return [i+1, r.dciCode, r.caseName, r.ownerName, r.registerName, r.applyOrgName, r.dciApplyTime || r.dciApplyTimeStr || "", STATUS_LABEL[r.dciStatus] != null ? STATUS_LABEL[r.dciStatus] : (r.dciStatus == null ? "-" : r.dciStatus)];
+      };
+    } else {
+      headers = ["序号","DCI码","作品名称","作品类别","著作权人","DCI注册中心","DCI申领平台","DCI分配时间","状态"];
+      mapRow = function (r, i) {
+        var cat = CATEGORY_LABEL[r.caseCategoryCode] || r.caseCategoryName || r.caseCategoryCode || "";
+        return [i+1, r.dciCode, r.caseName, cat, r.ownerName, r.registerName, r.applyOrgName, r.dciApplyTime || r.dciApplyTimeStr || "", STATUS_LABEL[r.dciStatus] != null ? STATUS_LABEL[r.dciStatus] : (r.dciStatus == null ? "-" : r.dciStatus)];
+      };
+    }
+    var lines = [headers.map(csvEscape).join(",")];
+    for (var i = 0; i < rows.length; i++) {
+      lines.push(mapRow(rows[i], i).map(csvEscape).join(","));
+    }
+    // UTF-8 BOM so Excel opens Chinese correctly; content-type non-json so download helper accepts blob
+    var csv = "\uFEFF" + lines.join("\r\n");
+    return {
+      __opsMockBlob: true,
+      contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      body: csv,
+      filename: "codeManage_" + caseType + "_export.xlsx",
+    };
+  }
+
+
+  function filterCursorListByCaseType(body, reqBody) {
+    if (!body || !body.data || !Array.isArray(body.data.rows)) return body;
+    var params = parseFormBody(reqBody);
+    if (!params || typeof params !== "object") {
+      try {
+        params = typeof reqBody === "string" ? JSON.parse(reqBody || "{}") : reqBody || {};
+      } catch (e) {
+        params = {};
+      }
+    }
+    var caseType = params.caseType || params.case_type;
+    if (!caseType) return body;
+    var rows = body.data.rows.filter(function (r) {
+      return String(r.caseType || r.case_type || "") === String(caseType);
+    });
+    var out = JSON.parse(JSON.stringify(body));
+    out.data.rows = rows;
+    out.data.total = rows.length;
+    out.data.hasMore = false;
+    out.data.caseType = caseType;
+    return out;
+  }
+
   function handle(method, rawUrl, body) {
     var m = String(method || "GET").toUpperCase();
     var path = apiPath(rawUrl);
     var data = parseBody(body);
+
+
+    // DCI码分配列表：按 tab caseType 过滤
+    if ((m === "POST" || m === "GET") && /\/dci\/applyDoc\/cursorList$/.test(path)) {
+      var listHit = lookup(m, rawUrl);
+      if (listHit) return filterCursorListByCaseType(listHit, body);
+    }
+
+    // DCI码分配列表导出：字段与列表列一致，返回可下载 blob
+    if ((m === "POST" || m === "GET") && /\/dci\/applyDoc\/export/.test(path)) {
+      return mockApplyDocExport(rawUrl, body);
+    }
 
     // 机构配置详情：本地 mock，不走真实接口
     var voMatch = path.match(/^\/dci\/regorg\/([^/]+)\/vo$/);
@@ -542,54 +652,6 @@
         },
         opusDwcrApplyInfoList: [],
       });
-    }
-
-    // 作品页签详情：opus R/C/X 码详情（allocation → codeManage-details/opus*）
-    var opusInfoMatch = path.match(
-      /^\/dci\/applyDoc\/opus\/([rcx])Info\/([^/]+)$/i,
-    );
-    if (m === "GET" && opusInfoMatch) {
-      var kind = String(opusInfoMatch[1]).toLowerCase(); // r|c|x
-      var opusId = decodeURIComponent(opusInfoMatch[2]);
-      var opusStore = window.__OPS_MOCK_STORE__ || {};
-      var opusKey =
-        "GET /api/v1/dciManage/dci/applyDoc/opus/" + kind + "Info/" + opusId;
-      var opusHit = opusStore[opusKey] || opusStore["GET /dci/applyDoc/opus/" + kind + "Info/" + opusId];
-      if (opusHit) return opusHit;
-      // fallback：用同 id 的 R 详情或首个 dciCodeDetail.detail
-      var rFallback =
-        opusStore["GET /api/v1/dciManage/dci/applyDoc/opus/rInfo/" + opusId];
-      if (rFallback) return rFallback;
-      for (var dk in opusStore) {
-        if (!Object.prototype.hasOwnProperty.call(opusStore, dk)) continue;
-        if (dk.indexOf("dciCodeDetail/") < 0) continue;
-        var dv = opusStore[dk];
-        if (dv && dv.data && dv.data.detail) return ok100(dv.data.detail);
-      }
-      return ok100({});
-    }
-
-    // 作品列表 cursorList：按 caseType 过滤（作品/软件/数据集页签）
-    if (m === "POST" && /\/dci\/applyDoc\/cursorList$/.test(path)) {
-      var clStore = window.__OPS_MOCK_STORE__ || {};
-      var clHit = clStore["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
-      if (clHit && clHit.data && Array.isArray(clHit.data.rows)) {
-        var wantType = String((data && data.caseType) || "opus").toLowerCase();
-        var filteredRows = clHit.data.rows.filter(function (row) {
-          if (!row) return false;
-          var t = String(row.caseType || "opus").toLowerCase();
-          return t === wantType;
-        });
-        return ok100({
-          rows: filteredRows,
-          total: filteredRows.length,
-          totalApproximate: false,
-          nextSearchAfter: null,
-          hasMore: false,
-          pageSize: String((data && data.pageSize) || 10),
-          caseType: wantType,
-        });
-      }
     }
 
     // DCI 码查询：按码/关键词从 cursorList mock 过滤
@@ -718,6 +780,9 @@
       return ok100(CODE_TYPE_DEMO);
     }
 
+    var applyDetail = mockApplyDocDetail(path);
+    if (applyDetail) return applyDetail;
+
     var hit = lookup(m, rawUrl);
     if (hit != null) {
       if (path === "/getInfo") return sanitizeGetInfo(hit);
@@ -730,8 +795,348 @@
     return placeholderFor(path, data);
   }
 
+
+  function mockOwner(i, id) {
+    var n = Number(id) || 12;
+    return {
+      ownerName: "著作权人" + n + (i > 0 ? "-" + i : ""),
+      ccpcOwnerId: "AUTH" + String(n).padStart(8, "0") + "00",
+      rightOwnerTypeDesc: i % 2 ? "法人" : "自然人",
+      rightOwnerRegion: "中国-北京市-北京市",
+      cardTypeDesc: i % 2 ? "营业执照" : "居民身份证",
+      cardNumber: i % 2 ? "911******0" + n + "X" : "110******123" + (n % 10),
+      cardValidStartDate: "2016-01-01",
+      cardValidEndDate: "2036-12-31",
+      contactPerson: "联系人" + n + "-" + (i || 1),
+      phone: "1380013" + String(100 + (n % 90) + i),
+      email: "owner" + n + "_" + (i || 1) + "@example.com",
+      cardFrontName: "证件正面照_" + n + "_1.jpg",
+      cardBackName: "证件反面照_" + n + "_1.jpg",
+      publicCardFrontUrl: "/static/favicon.ico",
+      publicCardBackUrl: "/static/favicon.ico",
+    };
+  }
+
+  function mockLinks(n, prefix) {
+    return [1, 2, 3].map(function (i) {
+      var linkMid = (prefix + String(n % 100000).padStart(5, "0") + "0" + i + "A").slice(
+        0,
+        10,
+      );
+      if (linkMid.length < 9) linkMid = (linkMid + "0ANT").slice(0, 9);
+      return {
+        dciCode: "DCI:" + linkMid + ".156.2025010" + i + "00000157" + i,
+        ownerName: "著作权人" + i,
+        dciApplyTime: "2025-0" + i + "-14 09:00:00",
+        applyStatus: i === 3 ? "撤销" : "申领",
+      };
+    });
+  }
+
+
+  function findAllocListRow(id) {
+    var store = window.__OPS_MOCK_STORE__ || {};
+    var listBody = store["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
+    var all =
+      (listBody && listBody.data && listBody.data.rows) ||
+      (listBody && listBody.rows) ||
+      [];
+    var sid = String(id);
+    for (var i = 0; i < all.length; i++) {
+      if (String(all[i].id) === sid || String(all[i].docId) === sid) return all[i];
+    }
+    return null;
+  }
+
+  function findOriginRCode(listRow) {
+    if (!listRow || listRow.dciCodeType !== "C") return "";
+    var store = window.__OPS_MOCK_STORE__ || {};
+    var listBody = store["POST /api/v1/dciManage/dci/applyDoc/cursorList"];
+    var all =
+      (listBody && listBody.data && listBody.data.rows) ||
+      (listBody && listBody.rows) ||
+      [];
+    for (var i = 0; i < all.length; i++) {
+      var r = all[i];
+      if (
+        r.caseType === listRow.caseType &&
+        r.dciCodeType === "R" &&
+        r.ownerName === listRow.ownerName
+      ) {
+        return r.dciCode;
+      }
+    }
+    for (var j = 0; j < all.length; j++) {
+      if (all[j].caseType === listRow.caseType && all[j].dciCodeType === "R") {
+        return all[j].dciCode;
+      }
+    }
+    return "";
+  }
+
+  function mockApplyDocDetail(path) {
+    var m = path.match(/\/dci\/applyDoc\/(opus|soft|dataset)\/(r|c|x)Info\/([^/]+)/i);
+    if (!m) return null;
+    var entity = m[1].toLowerCase();
+    var code = m[2].toUpperCase();
+    var id = decodeURIComponent(m[3]);
+    var n = Number(id) || 12;
+    var typeName =
+      entity === "opus"
+        ? code === "C"
+          ? "授权分配"
+          : code === "X"
+            ? "其他"
+            : "原始分配"
+        : code === "C"
+          ? "C码"
+          : code === "X"
+            ? "其他"
+            : "R码";
+    var prefix = code === "C" ? "C" : code === "X" ? "X" : "R";
+    var listRow = findAllocListRow(id);
+    var mid =
+      prefix +
+      String(Math.abs(n % 100000000)).padStart(8, "0").slice(0, 8 + (n % 3));
+    if (mid.length < 9) mid = (mid + "0ANT").slice(0, 9);
+    if (mid.length > 12) mid = mid.slice(0, 12);
+    var dciCode =
+      listRow && listRow.dciCode
+        ? listRow.dciCode
+        : "DCI:" + mid + ".156.20261001" + String(n).padStart(6, "0");
+    var originDciCode = code === "C" ? findOriginRCode(listRow) || "" : "";
+    if (code === "C" && !originDciCode) {
+      originDciCode =
+        "DCI:R" + String(n).padStart(8, "0").slice(0, 8) + "A.156.20250101000017";
+    }
+    var listName = (listRow && listRow.caseName) || "";
+    var listOwner = (listRow && listRow.ownerName) || "";
+    var catLabel =
+      (listRow && CATEGORY_LABEL[listRow.caseCategoryCode]) || "";
+
+    var base = {
+      dciCode: dciCode,
+      originDciCode: originDciCode,
+      dciApplyTime: (listRow && listRow.dciApplyTime) || "2026-09-22 10:50:03",
+      dciCodeType: code,
+      dciCodeTypeName: typeName,
+      registerName: (listRow && listRow.registerName) || "中国版权保护中心",
+      applyOrgName:
+        (listRow && listRow.applyOrgName) || "DCI申领平台" + ((n % 3) + 1),
+      dciRegisterSyncTime: "2026-09-27 09:00:00",
+    };
+
+    var owners = [mockOwner(1, id)];
+    if (listOwner) owners[0].ownerName = listOwner;
+    var chain = {
+      sDatahash: "0x" + (n * 7919).toString(16) + "a1b2c3d4e5f6",
+      blockTime: "2026-09-27 09:00:00",
+    };
+    var register = {
+      registerNo: "DJ2025" + String(n).padStart(3, "0"),
+      registerDate: "2026-11-21",
+      registerOrgName: "中华人民共和国国家版权局",
+    };
+    var rights = {
+      methodAcquiringRights: "原始取得",
+      methodOwnershipRights: "个人所有",
+      rightsScope: "全部财产权利",
+      registeredDesc: "是",
+      originRegisterNo: register.registerNo,
+      registerDate: register.registerDate,
+      registerOrgName: register.registerOrgName,
+      changedDesc: "是",
+      isRegistered: "是",
+      softRegisterNo: register.registerNo,
+      hasChange: "是",
+    };
+
+    var data = {
+      dciLinkInfoVO: mockLinks(n, prefix),
+    };
+
+    if (entity === "opus") {
+      data.dciCodeOpusBaseRinfo = base;
+      data.dciOpusBaseRinfo = {
+        opusName: listName || ("作品名称" + n),
+        opusCategoryName: catLabel || (code === "C" ? "曲艺作品" : code === "X" ? "音乐作品" : "戏剧作品"),
+        opusCreationNature: code === "C" ? "改编" : code === "X" ? "汇编" : "原创",
+        completeDate: "2026-10-22",
+        completeAddress: "中国-广东省深圳市",
+        publishStatusDesc: code === "R" ? "已发表" : "未发表",
+        firstPublishDate: code === "R" ? "2026-10-02" : "-",
+        firstAddress: code === "R" ? "中国-广东省深圳市" : "-",
+        authorNames: "作者" + n,
+        authorSignatures: code === "R" ? "署名" + n : "-",
+        preRegistrationTrueWillDesc: "密码或确认短信",
+        mattersEntrusted: "委托创作",
+        preRegUserApplyConfirmTime: "2026-09-22 10:50:03",
+      };
+      data.dciOpusSampleRinfos = [
+        {
+          attachmentName: "作品样本 - " + (listName || ("作品名称" + n)) + ".pdf",
+          sampleSummary:
+            "由" + (listOwner || ("著作权人" + n)) + "创作完成，内容涉及 DCI 数字版权相关主题。",
+          publicAttachmentUrl: "/static/favicon.ico",
+        },
+        {
+          attachmentName: "作品样本附图 - " + (listName || ("作品名称" + n)) + ".zip",
+          sampleSummary: "",
+          publicAttachmentUrl: "/static/favicon.ico",
+        },
+      ];
+      data.dciOpusRightOwnerRinfos = owners;
+      data.dciOpusRightRinfo = rights;
+      data.dciOpusRegisterRinfo = register;
+      data.dciOpusBlockchainRinfo = chain;
+      if (code === "C") {
+        data.dciAuthContractRinfo = {
+          contractType: "许可合同",
+          applyType: "许可",
+          effectDate: "2026-10-14",
+          attachmentName: "合同附件_" + n + ".pdf",
+          publicAttachmentUrl: "/static/favicon.ico",
+        };
+        data.transferorList = [Object.assign(mockOwner(1, id), { ownerName: "转让方" + n + "-1" })];
+        data.transfereeList = [Object.assign(mockOwner(2, id), { ownerName: "受让方" + n + "-1" })];
+        data.dciAuthScopeRinfo = {
+          methodAcquiringRights: "原始取得",
+          authRightsScope: "发行权",
+          sublicensePermit: "不允许",
+          authStartDate: "2026-10-09",
+          authEndDate: "2027-09-19",
+          regionScope: "全球",
+          otherLimit: "仅限中国大陆地区使用",
+        };
+      }
+    } else if (entity === "soft") {
+      data.dciCodeSoftBaseRinfo = base;
+      data.dciSoftBaseRinfo = {
+        softFullName: listName || ("软件全称" + n),
+        softShortName: listName ? listName.slice(0, 6) : ("简称" + n),
+        version: "V" + ((n % 5) + 1) + ".2.0",
+        softCategoryName: code === "C" ? "嵌入式软件" : "应用软件",
+        creationNature: "修改（含翻译软件、合成软件）",
+        needAuthDesc: "是",
+        modifyDesc:
+          code === "C"
+            ? "合成多个模块形成新软件"
+            : "在原软件基础上进行功能修改与界面优化",
+        developMode: "单独开发",
+        completeDate: "2026-11-03",
+        publishStatusDesc: code === "R" ? "已发表" : "未发表",
+        firstPublishDate: code === "R" ? "2026-10-14" : "-",
+        firstPublishAddress: code === "R" ? "中国-北京市" : "-",
+        preRegistrationTrueWillDesc: "密码或确认短信",
+        mattersEntrusted: "委托开发",
+        preRegUserApplyConfirmTime: "2026-10-04 10:51:03",
+        devHardwareEnv: "Intel Core i7 / 16GB RAM",
+        runHardwareEnv: "Intel Core i5 / 8GB RAM",
+        devOs: "Windows 10",
+        devTools: "Visual Studio 2022",
+        runOs: "Linux",
+        runSupport: "Java 17",
+        programLanguage: "C++",
+        sourceLines: "16000 行",
+        developPurpose: "开发目的" + n + "：为用户提供高效便捷的数字版权管理工具",
+        industry: "教育",
+        mainFunction: "主要功能" + n + "：支持 DCI 码申领、查询、撤销及状态变更等核心业务",
+        techFeature: "技术特点" + n + "：采用微服务架构，支持高并发、分布式部署",
+      };
+      data.dciSoftFeatureRinfo = data.dciSoftBaseRinfo;
+      data.dciSoftSampleRinfo = {
+        sourceName: "程序源代码.zip",
+        docName: "软件说明文档.pdf",
+        publicSourceUrl: "/static/favicon.ico",
+        publicDocUrl: "/static/favicon.ico",
+      };
+      data.dciSoftRightOwnerRinfos = owners;
+      data.dciSoftRightRinfo = rights;
+      data.dciSoftRegisterRinfo = register;
+      data.dciSoftBlockchainRinfo = chain;
+      if (code === "C") {
+        data.dciAuthContractRinfo = {
+          contractType: "专有许可合同",
+          softRegisteredDesc: "否",
+          softRegisterNo: "软著登字第2025011号",
+          changeCertNo: "无",
+          attachmentName: "软件授权合同_" + n + ".pdf",
+          publicAttachmentUrl: "/static/favicon.ico",
+        };
+        data.transferorList = [Object.assign(mockOwner(1, id), { ownerName: "转让方" + n + "-1" })];
+        data.transfereeList = [Object.assign(mockOwner(2, id), { ownerName: "受让方" + n + "-1" })];
+        data.dciAuthScopeRinfo = {
+          methodAcquiringRights: "原始取得",
+          authRightsScope: "信息网络传播权",
+          regionScope: "亚太地区",
+          contractEffectDate: "2026-11-05",
+          licenseStartDate: "2024-01-01",
+          licenseEndDate: "2029-12-31",
+        };
+      }
+    } else {
+      data.dciCodeDatasetBaseRinfo = base;
+      data.dciDatasetBaseRinfo = {
+        datasetName: listName || ("数据集名称" + n),
+        dataScale: n * 32 + " 万条数据",
+        dataLevel: "一级：科技 / 二级：人工智能",
+        structureType: "非结构化数据",
+        dataFormat: "图片 / 文本",
+        datasetType: "商业数据集",
+        authorNames: "作者" + n,
+        opusCategoryName: "数据集",
+        opusCreationNature: "改编",
+        completeDate: "2026-04-11",
+        completeAddress: "中国-北京市",
+        publishStatusDesc: "已发表",
+        firstPublishDate: "2026-04-11",
+        firstPublishAddress: "中国-北京市",
+        publishChannel: "科研数据共享平台",
+      };
+      data.dciDatasetSampleRinfo = {
+        attachmentName: "数据集样本.zip",
+        sampleSummary:
+          "该数据集样本包含部分代表性数据条目及字段说明文档，用于版权登记审核与数据确权。",
+        publicAttachmentUrl: "/static/favicon.ico",
+      };
+      data.dciDatasetRightOwnerRinfos = owners;
+      data.dciDatasetRightRinfo = Object.assign({}, rights, {
+        methodOwnershipRights: "职务作品",
+        rightsScope: "人身权利及财产权利",
+      });
+      data.dciDatasetRegisterRinfo = register;
+      data.dciDatasetBlockchainRinfo = chain;
+      if (code === "C") {
+        data.dciAuthContractRinfo = {
+          contractType: "许可合同",
+          applyType: "许可",
+          effectDate: "2026-10-14",
+          attachmentName: "合同附件_" + n + ".pdf",
+          publicAttachmentUrl: "/static/favicon.ico",
+        };
+        data.transferorList = [Object.assign(mockOwner(1, id), { ownerName: "转让方" + n + "-1" })];
+        data.transfereeList = [Object.assign(mockOwner(2, id), { ownerName: "受让方" + n + "-1" })];
+        data.dciAuthScopeRinfo = {
+          methodAcquiringRights: "原始取得",
+          authRightsScope: "复制权",
+          sublicensePermit: "不允许",
+          authStartDate: "2026-01-01",
+          authEndDate: "2028-12-31",
+          regionScope: "中国",
+          otherLimit: "-",
+        };
+      }
+    }
+    return ok100(data);
+  }
+
   function respondXhr(xhr, payload) {
-    var text = JSON.stringify(payload);
+    var isBlob = payload && payload.__opsMockBlob;
+    var contentType = isBlob
+      ? payload.contentType || "application/octet-stream"
+      : "application/json;charset=utf-8";
+    var text = isBlob ? String(payload.body || "") : JSON.stringify(payload);
+    var blobObj = isBlob ? new Blob([text], { type: contentType }) : null;
     var done = false;
     function finish() {
       if (done) return;
@@ -784,21 +1189,31 @@
         Object.defineProperty(xhr, "response", {
           configurable: true,
           get: function () {
-            return text;
+            return blobObj || text;
           },
         });
       } catch (e) {
         try {
-          xhr.response = text;
+          xhr.response = blobObj || text;
         } catch (e2) {}
       }
       xhr.getResponseHeader = function (name) {
-        return String(name || "").toLowerCase() === "content-type"
-          ? "application/json;charset=utf-8"
-          : null;
+        var n = String(name || "").toLowerCase();
+        if (n === "content-type") return contentType;
+        if (n === "content-disposition" && isBlob && payload.filename) {
+          return 'attachment; filename="' + payload.filename + '"';
+        }
+        return null;
       };
       xhr.getAllResponseHeaders = function () {
-        return "content-type: application/json;charset=utf-8\r\n";
+        var h = "content-type: " + contentType + "\r\n";
+        if (isBlob && payload.filename) {
+          h +=
+            'content-disposition: attachment; filename="' +
+            payload.filename +
+            '"\r\n';
+        }
+        return h;
       };
       try {
         if (typeof xhr.onreadystatechange === "function") xhr.onreadystatechange();
@@ -857,8 +1272,24 @@
       if (!isDciApi(url)) return realFetch(input, init);
       var method = (init && init.method) || (input && input.method) || "GET";
       var b = init && init.body;
+      var payload = handle(method, url, b);
+      if (payload && payload.__opsMockBlob) {
+        return Promise.resolve(
+          new Response(payload.body || "", {
+            status: 200,
+            headers: {
+              "Content-Type":
+                payload.contentType || "application/octet-stream",
+              "Content-Disposition":
+                'attachment; filename="' +
+                (payload.filename || "export.xlsx") +
+                '"',
+            },
+          }),
+        );
+      }
       return Promise.resolve(
-        new Response(JSON.stringify(handle(method, url, b)), {
+        new Response(JSON.stringify(payload), {
           status: 200,
           headers: { "Content-Type": "application/json;charset=utf-8" },
         }),
