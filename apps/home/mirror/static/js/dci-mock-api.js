@@ -608,9 +608,7 @@
       return ok(Object.assign({}, target), { msg: "状态已更新（演示）" });
     }
     if (path === "/dci/applyDoc/listByDciCodeAndKeyword" && m === "GET") {
-      // 与页面「例如：…」提示一致 → 有结果；否则无结果（UI 读 data，不用 rows）
-      var tipCode = "DCI:RQZ010ANT.156.202607012098976446";
-      var tipKeyword = "《数字版权保护技术规范》";
+      // 第一框：DCI码或登记证书编号精准匹配；第二框：著作权人/作品(软件)名称
       function normQuery(s) {
         return String(s || "")
           .trim()
@@ -623,25 +621,17 @@
           .replace(/[\s\u3000]+/g, "")
           .replace(/[《》]/g, "");
       }
-      var hit =
-        normQuery(q.dciCode) === normQuery(tipCode) &&
-        normKeyword(q.keyword) === normKeyword(tipKeyword);
-      if (!hit) return ok([]);
-      return ok([
-        {
-          id: "mock-apply-doc-tip-1",
-          dciCode: tipCode,
-          // 查询结果标签：仅「撤销」或无标签；演示默认无标签
-          dciStatus: "",
-          caseName: tipKeyword,
-          caseCategoryCode: "01",
-          dciApplyTime: "2026-07-01 10:28:36",
-          registerName: "中国版权保护中心",
-          ownerName: "中国版权保护中心",
-          regOrgName: "蚂蚁科技集团股份有限公司",
-          applyOrgName: "蚂蚁科技集团股份有限公司",
-        },
-      ]);
+      var codeOrReg = normQuery(q.dciCode);
+      var kw = normKeyword(q.keyword);
+      var catalog = (window.__DCI_QUERY_MOCK_CATALOG__ || []).slice();
+      var hits = catalog.filter(function (row) {
+        var codes = (row.matchCodes || []).map(normQuery);
+        var keys = (row.matchKeywords || []).map(normKeyword);
+        var hitCode = !!codeOrReg && codes.indexOf(codeOrReg) >= 0;
+        var hitKw = !!kw && keys.indexOf(kw) >= 0;
+        return hitCode && hitKw;
+      });
+      return ok(hits);
     }
     if (path === "/businessInterface/listByIds" && m === "GET") {
       var ids = String((q && q.ids) || "")
