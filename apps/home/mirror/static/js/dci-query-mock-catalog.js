@@ -1,0 +1,402 @@
+/**
+ * Home DCI 查询页 — 各业务类型公告查询 mock 样例
+ * 字段对齐：docsss/documents/业务梳理-版权各业务线字段.xlsx 第一个 sheet「公告信息查询」
+ * 第一框：DCI码 / 登记号（titleNo）精准匹配
+ * 第二框：著作权人 / 作品(软件)名称 精准匹配（忽略书名号与空白）
+ */
+(function (global) {
+  function inventNoticeDci(seed) {
+    var s = String(seed || "0").replace(/[^0-9A-Za-z\u4e00-\u9fff]/g, "");
+    var n = "";
+    for (var i = 0; i < s.length; i++) n += String(s.charCodeAt(i) % 10);
+    while (n.length < 18) n += "0";
+    return "DCI:RQZ010ANT.156." + n.slice(0, 18);
+  }
+  function noticeLabel(typeName) {
+    var s = String(typeName || "");
+    if (!s) return "";
+    if (/公告$/.test(s) || s === "DCI编码") return s;
+    return s + "公告";
+  }
+
+  function item(cfg) {
+    var fields = (cfg.fields || []).map(function (f) {
+      return {
+        label: f.label,
+        value: f.value,
+        full: !!f.full,
+        link: !!f.link,
+      };
+    });
+    var keywords = cfg.keywords || [];
+    return {
+      id: cfg.id,
+      kind: cfg.kind || "notice",
+      bizLine: cfg.bizLine,
+      noticeType: cfg.noticeType,
+      noticeTypeLabel: noticeLabel(cfg.noticeType),
+      titleLabel: cfg.titleLabel || "登记号",
+      titleNo: cfg.titleNo,
+      dciCode: cfg.dciCode || (cfg.kind === "dci" ? "" : inventNoticeDci(cfg.titleNo || cfg.id)),
+      dciStatus: cfg.dciStatus || "",
+      relatedRegNo: cfg.relatedRegNo || (cfg.kind === "dci" ? "" : cfg.titleNo),
+      caseName: cfg.caseName || "",
+      caseCategoryCode: cfg.caseCategoryCode || "",
+      dciApplyTime: cfg.dciApplyTime || "",
+      registerName: cfg.registerName || "",
+      ownerName: cfg.ownerName || "",
+      regOrgName: cfg.regOrgName || "",
+      applyOrgName: cfg.applyOrgName || "",
+      fields: fields,
+      matchCodes: cfg.matchCodes || [cfg.titleNo, cfg.dciCode].filter(Boolean),
+      matchKeywords: keywords,
+    };
+  }
+
+  var CATALOG = [
+    // —— 作品线 ——
+    item({
+      id: "mock-z11-1",
+      bizLine: "Z11",
+      noticeType: "作品著作权登记",
+      titleNo: "国作登字-2022-F-10143281",
+      dciCode: "DCI:RQZ010ANT.156.2022071910143281",
+      caseName: "海森药业标志设计",
+      registerName: "浙江海森药业股份有限公司",
+      keywords: ["海森药业标志设计", "浙江海森药业股份有限公司"],
+      fields: [
+        { label: "作品名称", value: "海森药业标志设计", full: true },
+        { label: "作品类别", value: "美术" },
+        { label: "著作权人", value: "浙江海森药业股份有限公司", link: true },
+        { label: "登记日期", value: "2022年07月19日" },
+      ],
+    }),
+    item({
+      id: "mock-z21-1",
+      bizLine: "Z21",
+      noticeType: "著作权合同备案",
+      titleNo: "国作登字-2023-F-20010001",
+      caseName: "星河影业剧本授权合同",
+      registerName: "星河影业有限公司",
+      keywords: ["星河影业剧本授权合同", "星河影业有限公司", "华彩传媒股份有限公司"],
+      fields: [
+        { label: "作品名称", value: "星河影业剧本授权合同", full: true },
+        { label: "作品类别", value: "文字" },
+        { label: "转让(许可)方", value: "星河影业有限公司", link: true },
+        { label: "受让(被许可)方", value: "华彩传媒股份有限公司", link: true },
+        { label: "备案日期", value: "2023年03月12日" },
+      ],
+    }),
+    item({
+      id: "mock-z31-1",
+      bizLine: "Z31",
+      noticeType: "与著作权相关权利事项登记",
+      titleNo: "国作登字-2024-F-30020088",
+      caseName: "江南丝竹录音制品",
+      registerName: "江南音乐工作室",
+      keywords: ["江南丝竹录音制品", "江南音乐工作室"],
+      fields: [
+        { label: "作品名称", value: "江南丝竹录音制品", full: true },
+        { label: "作品类别", value: "录音制品" },
+        { label: "权利人", value: "江南音乐工作室", link: true },
+        { label: "登记日期", value: "2024年01月18日" },
+      ],
+    }),
+    item({
+      id: "mock-z51-1",
+      bizLine: "Z51",
+      noticeType: "著作权质权登记",
+      titleLabel: "登记号",
+      titleNo: "著质登字-2023-00005678",
+      caseName: "云端小说系列作品",
+      registerName: "云端文学有限公司",
+      keywords: ["云端小说系列作品", "云端文学有限公司", "东方信托有限公司"],
+      fields: [
+        { label: "作品名称", value: "云端小说系列作品", full: true },
+        { label: "出质人", value: "云端文学有限公司", link: true },
+        { label: "质权人", value: "东方信托有限公司", link: true },
+        { label: "登记日期", value: "2023年09月05日" },
+      ],
+    }),
+    item({
+      id: "mock-z53-1",
+      bizLine: "Z53",
+      noticeType: "著作权质权变更登记",
+      titleNo: "著质登字-2023-00005678-BG01",
+      caseName: "云端小说系列作品",
+      registerName: "云端文学有限公司",
+      keywords: ["云端小说系列作品", "云端文学有限公司", "东方信托有限公司"],
+      fields: [
+        { label: "作品名称", value: "云端小说系列作品", full: true },
+        { label: "出质人", value: "云端文学有限公司", link: true },
+        { label: "质权人", value: "东方信托有限公司", link: true },
+        { label: "变更项", value: "质权担保主债权数额" },
+        { label: "变更前内容", value: "人民币500万元" },
+        { label: "变更后内容", value: "人民币800万元" },
+        { label: "登记日期", value: "2024年02月20日" },
+      ],
+    }),
+    item({
+      id: "mock-z54-1",
+      bizLine: "Z54",
+      noticeType: "著作权质权注销撤销登记",
+      titleNo: "著质登字-2023-00005678-ZX01",
+      caseName: "云端小说系列作品",
+      registerName: "云端文学有限公司",
+      keywords: ["云端小说系列作品", "云端文学有限公司", "东方信托有限公司"],
+      fields: [
+        { label: "作品名称", value: "云端小说系列作品", full: true },
+        { label: "出质人", value: "云端文学有限公司", link: true },
+        { label: "质权人", value: "东方信托有限公司", link: true },
+        { label: "注销/撤销编号", value: "著质注销字-2025-000012" },
+        { label: "登记日期", value: "2025年04月08日" },
+      ],
+    }),
+    item({
+      id: "mock-z61-1",
+      bizLine: "Z61",
+      noticeType: "作品著作权和合同变更登记",
+      titleNo: "国作登字-2022-F-10143281-BG01",
+      caseName: "海森药业标志设计",
+      registerName: "浙江海森药业股份有限公司",
+      keywords: ["海森药业标志设计", "浙江海森药业股份有限公司"],
+      fields: [
+        { label: "作品名称", value: "海森药业标志设计", full: true },
+        { label: "原登记类型", value: "作品著作权登记" },
+        { label: "变更项", value: "著作权人名称" },
+        { label: "变更前内容", value: "浙江海森药业有限公司" },
+        { label: "变更后内容", value: "浙江海森药业股份有限公司" },
+        { label: "登记日期", value: "2024年06月11日" },
+      ],
+    }),
+    item({
+      id: "mock-z62-1",
+      bizLine: "Z62",
+      noticeType: "撤销作品著作权和合同登记",
+      titleNo: "国作登字-2021-F-00088776",
+      caseName: "旧版宣传册设计稿",
+      registerName: "蓝图设计工作室",
+      keywords: ["旧版宣传册设计稿", "蓝图设计工作室"],
+      fields: [
+        { label: "作品名称", value: "旧版宣传册设计稿", full: true },
+        { label: "原登记类型", value: "作品著作权登记" },
+        { label: "撤销登记申请人", value: "蓝图设计工作室", link: true },
+        { label: "撤销日期", value: "2025年01月09日" },
+      ],
+    }),
+    item({
+      id: "mock-zqc1-1",
+      bizLine: "ZQC（1）",
+      noticeType: "司法冻结/解冻登记",
+      titleNo: "国作登字-2020-F-00033445",
+      caseName: "城市夜景摄影集",
+      registerName: "光影文化传播有限公司",
+      keywords: ["城市夜景摄影集", "光影文化传播有限公司", "某市中级人民法院"],
+      fields: [
+        { label: "作品名称", value: "城市夜景摄影集", full: true },
+        { label: "司法机关名称", value: "某市中级人民法院" },
+        { label: "著作权人", value: "光影文化传播有限公司", link: true },
+        { label: "类型", value: "冻结" },
+        { label: "冻结/解冻日期", value: "2024年11月03日" },
+      ],
+    }),
+    item({
+      id: "mock-zqc4-1",
+      bizLine: "ZQC（4）",
+      noticeType: "司法撤销登记",
+      titleNo: "国作登字-2019-F-00055667",
+      caseName: "争议漫画作品甲",
+      registerName: "墨点漫画社",
+      keywords: ["争议漫画作品甲", "墨点漫画社"],
+      fields: [
+        { label: "作品名称", value: "争议漫画作品甲", full: true },
+        { label: "司法/行政机关名称", value: "某市市场监督管理局" },
+        { label: "著作权人", value: "墨点漫画社", link: true },
+        { label: "撤销依据", value: "行政处罚决定书〔2025〕12号" },
+        { label: "撤销日期", value: "2025年05月16日" },
+      ],
+    }),
+
+    // —— 软件线 ——
+    item({
+      id: "mock-r11-1",
+      bizLine: "R11",
+      noticeType: "计算机软件著作权登记公告",
+      titleLabel: "登记号",
+      titleNo: "2021SR1109203",
+      caseName: "沁恒USB以太网控制芯片驱动软件",
+      registerName: "南京沁恒微电子股份有限公司",
+      keywords: [
+        "沁恒USB以太网控制芯片驱动软件",
+        "沁恒CH337DRV驱动软件",
+        "南京沁恒微电子股份有限公司",
+      ],
+      fields: [
+        { label: "软件全称", value: "沁恒USB以太网控制芯片驱动软件", full: true },
+        { label: "简称", value: "沁恒CH337DRV驱动软件" },
+        { label: "著作权人", value: "南京沁恒微电子股份有限公司", link: true },
+        { label: "版本号", value: "V1.0" },
+        { label: "登记日期", value: "2021年07月27日" },
+      ],
+    }),
+    item({
+      id: "mock-r21-ar-1",
+      bizLine: "R21",
+      noticeType: "计算机软件著作权转让合同登记公告",
+      titleNo: "2022AR0000888",
+      caseName: "智联仓储管理系统",
+      registerName: "智联科技股份有限公司",
+      keywords: ["智联仓储管理系统", "智联科技股份有限公司", "云仓软件有限公司"],
+      fields: [
+        { label: "软件全称", value: "智联仓储管理系统", full: true },
+        { label: "软件著作权登记号", value: "2020SR0555123" },
+        { label: "版本号", value: "V2.1" },
+        { label: "转让方", value: "智联科技股份有限公司", link: true },
+        { label: "受让方", value: "云仓软件有限公司", link: true },
+        { label: "登记日期", value: "2022年08月15日" },
+      ],
+    }),
+    item({
+      id: "mock-r21-lr-1",
+      bizLine: "R21",
+      noticeType: "计算机软件著作权专有许可合同登记公告",
+      titleNo: "2023LR0000456",
+      caseName: "慧眼视频分析平台",
+      registerName: "慧眼智能科技有限公司",
+      keywords: ["慧眼视频分析平台", "慧眼智能科技有限公司", "安防集成服务有限公司"],
+      fields: [
+        { label: "软件全称", value: "慧眼视频分析平台", full: true },
+        { label: "软件著作权登记号", value: "2021SR0888001" },
+        { label: "版本号", value: "V3.0" },
+        { label: "许可方", value: "慧眼智能科技有限公司", link: true },
+        { label: "被许可方", value: "安防集成服务有限公司", link: true },
+        { label: "许可期限", value: "2023-01-01 至 2027-12-31" },
+        { label: "许可权利项", value: "复制权、发行权、信息网络传播权" },
+        { label: "地域范围", value: "中华人民共和国境内" },
+        { label: "登记日期", value: "2023年02月28日" },
+      ],
+    }),
+    item({
+      id: "mock-r31-1",
+      bizLine: "R31",
+      noticeType: "计算机软件著作权质押合同登记公告",
+      titleNo: "2022SR2000888",
+      caseName: "易付支付清算系统",
+      registerName: "易付网络科技有限公司",
+      keywords: ["易付支付清算系统", "易付网络科技有限公司", "华信银行股份有限公司"],
+      fields: [
+        { label: "软件全称", value: "易付支付清算系统", full: true },
+        { label: "出质人", value: "易付网络科技有限公司", link: true },
+        { label: "质权人", value: "华信银行股份有限公司", link: true },
+        { label: "质物情况", value: "软件著作权（登记号 2022SR2000888）全部权利" },
+        { label: "登记日期", value: "2022年12月01日" },
+      ],
+    }),
+    item({
+      id: "mock-r32-1",
+      bizLine: "R32",
+      noticeType: "计算机软件著作权质押合同注销登记公告",
+      titleNo: "2022SR2000888-ZX",
+      caseName: "易付支付清算系统",
+      registerName: "易付网络科技有限公司",
+      keywords: ["易付支付清算系统", "易付网络科技有限公司", "华信银行股份有限公司"],
+      fields: [
+        { label: "软件全称", value: "易付支付清算系统", full: true },
+        { label: "出质人", value: "易付网络科技有限公司", link: true },
+        { label: "质权人", value: "华信银行股份有限公司", link: true },
+        { label: "质物情况", value: "软件著作权质押已注销" },
+        { label: "登记日期", value: "2025年03月22日" },
+      ],
+    }),
+    item({
+      id: "mock-r41-1",
+      bizLine: "R41",
+      noticeType: "计算机软件著作权变更补充登记公告",
+      titleLabel: "编号",
+      titleNo: "2024BB0000333",
+      caseName: "行程助手移动客户端",
+      registerName: "旅途信息科技有限公司",
+      keywords: ["行程助手移动客户端", "旅途信息科技有限公司"],
+      fields: [
+        { label: "软件全称", value: "行程助手移动客户端", full: true },
+        { label: "软件著作权登记号", value: "2021SR0666123" },
+        { label: "变更或补充事项", value: "软件全称" },
+        { label: "变更/补充前", value: "行程助手APP" },
+        { label: "变更/补充后", value: "行程助手移动客户端" },
+        { label: "登记日期", value: "2024年09月10日" },
+      ],
+    }),
+    item({
+      id: "mock-r42-1",
+      bizLine: "R42R44",
+      noticeType: "计算机软件著作权登记撤销公告",
+      titleNo: "2018SR0999001",
+      caseName: "旧版报税辅助工具",
+      registerName: "财税通软件有限公司",
+      keywords: ["旧版报税辅助工具", "财税通软件有限公司"],
+      fields: [
+        { label: "软件全称", value: "旧版报税辅助工具", full: true },
+        { label: "版本号", value: "V1.2" },
+        { label: "原登记者", value: "财税通软件有限公司", link: true },
+        { label: "撤销日期", value: "2025年06月30日" },
+      ],
+    }),
+
+    // —— DCI ——
+    item({
+      id: "mock-dci11-1",
+      kind: "dci",
+      bizLine: "DCI11",
+      noticeType: "DCI编码",
+      titleLabel: "DCI编码",
+      titleNo: "DCI:RQZ010ANT.156.202607012098976446",
+      dciCode: "DCI:RQZ010ANT.156.202607012098976446",
+      relatedRegNo: "国作登字-2026-F-00012345",
+      caseName: "《数字版权保护技术规范》",
+      caseCategoryCode: "01",
+      dciApplyTime: "2026-07-01 10:28:36",
+      registerName: "中国版权保护中心",
+      ownerName: "中国版权保护中心",
+      regOrgName: "蚂蚁科技集团股份有限公司",
+      applyOrgName: "蚂蚁科技集团股份有限公司",
+      // 仅 DCI 码命中本条；登记号走公告类结果，不走 DCI 结果卡
+      matchCodes: ["DCI:RQZ010ANT.156.202607012098976446"],
+      keywords: ["《数字版权保护技术规范》", "数字版权保护技术规范", "中国版权保护中心"],
+      // 与历史 DCI 查询结果卡一致：作品名称 / 作品类型 / DCI分配日期 / 著作权人 / DCI注册中心
+      fields: [
+        { label: "作品名称", value: "《数字版权保护技术规范》", full: true },
+        { label: "作品类型", value: "文字" },
+        { label: "DCI分配日期", value: "2026-07-01" },
+        { label: "著作权人", value: "中国版权保护中心" },
+        { label: "DCI注册中心", value: "蚂蚁科技集团股份有限公司" },
+      ],
+    }),
+
+    // —— 全国作品（地方简写登记号） ——
+    item({
+      id: "mock-nation-1",
+      bizLine: "全国作品",
+      noticeType: "登记号（国作登字+地方简写）",
+      noticeTypeOverride: "作品著作权登记公告",
+      titleNo: "浙作登字-2024-F-0009988",
+      caseName: "西湖印象摄影作品",
+      registerName: "杭州印象文化有限公司",
+      keywords: ["西湖印象摄影作品", "杭州印象文化有限公司"],
+      fields: [
+        { label: "作品名称", value: "西湖印象摄影作品", full: true },
+        { label: "作品类型", value: "摄影" },
+        { label: "著作权人", value: "杭州印象文化有限公司", link: true },
+        { label: "登记日期", value: "2024年05月21日" },
+      ],
+    }),
+  ];
+
+  // fix notice label override for 全国作品
+  CATALOG.forEach(function (row) {
+    if (row.id === "mock-nation-1") {
+      row.noticeTypeLabel = "作品著作权登记公告";
+    }
+  });
+
+  global.__DCI_QUERY_MOCK_CATALOG__ = CATALOG;
+})(typeof window !== "undefined" ? window : globalThis);
