@@ -29,17 +29,30 @@
       };
     });
     var keywords = cfg.keywords || [];
+    var relatedRegNo = cfg.relatedRegNo || (cfg.kind === "dci" ? "" : cfg.titleNo || "");
+    var titleNo = cfg.titleNo == null ? "" : cfg.titleNo;
+    var showTitleNo = Object.prototype.hasOwnProperty.call(cfg, "showTitleNo")
+      ? !!cfg.showTitleNo
+      : !!String(titleNo).trim();
+    var dciCode = Object.prototype.hasOwnProperty.call(cfg, "dciCode")
+      ? String(cfg.dciCode || "")
+      : cfg.kind === "dci"
+        ? ""
+        : inventNoticeDci(titleNo || relatedRegNo || cfg.id);
     return {
       id: cfg.id,
       kind: cfg.kind || "notice",
       bizLine: cfg.bizLine,
       noticeType: cfg.noticeType,
-      noticeTypeLabel: noticeLabel(cfg.noticeType),
+      noticeTypeLabel: cfg.noticeTypeLabel || noticeLabel(cfg.noticeType),
       titleLabel: cfg.titleLabel || "登记号",
-      titleNo: cfg.titleNo,
-      dciCode: cfg.dciCode || (cfg.kind === "dci" ? "" : inventNoticeDci(cfg.titleNo || cfg.id)),
+      titleNo: titleNo,
+      showTitleNo: showTitleNo,
+      statusLabel: cfg.statusLabel || "",
+      eventDate: cfg.eventDate || "",
+      dciCode: dciCode,
       dciStatus: cfg.dciStatus || "",
-      relatedRegNo: cfg.relatedRegNo || (cfg.kind === "dci" ? "" : cfg.titleNo),
+      relatedRegNo: relatedRegNo,
       caseName: cfg.caseName || "",
       caseCategoryCode: cfg.caseCategoryCode || "",
       dciApplyTime: cfg.dciApplyTime || "",
@@ -48,7 +61,7 @@
       regOrgName: cfg.regOrgName || "",
       applyOrgName: cfg.applyOrgName || "",
       fields: fields,
-      matchCodes: cfg.matchCodes || [cfg.titleNo, cfg.dciCode].filter(Boolean),
+      matchCodes: cfg.matchCodes || [titleNo, relatedRegNo, dciCode].filter(Boolean),
       matchKeywords: keywords,
     };
   }
@@ -61,14 +74,35 @@
       noticeType: "作品著作权登记",
       titleNo: "国作登字-2022-F-10143281",
       dciCode: "DCI:RQZ010ANT.156.2022071910143281",
+      eventDate: "2022-07-19",
       caseName: "海森药业标志设计",
       registerName: "浙江海森药业股份有限公司",
       keywords: ["海森药业标志设计", "浙江海森药业股份有限公司"],
       fields: [
-        { label: "作品名称", value: "海森药业标志设计", full: true },
+        { label: "作品名称", value: "海森药业标志设计", full: true, link: true },
         { label: "作品类别", value: "美术" },
         { label: "著作权人", value: "浙江海森药业股份有限公司", link: true },
         { label: "登记日期", value: "2022年07月19日" },
+      ],
+    }),
+    item({
+      id: "mock-z11-revoke-1",
+      bizLine: "Z62",
+      noticeType: "撤销作品著作权和合同登记",
+      titleNo: "",
+      showTitleNo: false,
+      relatedRegNo: "国作登字-2022-F-10143281",
+      matchCodes: ["国作登字-2022-F-10143281"],
+      dciCode: "",
+      eventDate: "2023-02-01",
+      caseName: "海森药业标志设计",
+      registerName: "浙江海森药业股份有限公司",
+      keywords: ["海森药业标志设计", "浙江海森药业股份有限公司"],
+      fields: [
+        { label: "作品名称", value: "海森药业标志设计", full: true, link: true },
+        { label: "撤销登记申请人", value: "浙江海森药业股份有限公司", link: true },
+        { label: "原登记类型", value: "作品著作权登记" },
+        { label: "撤销日期", value: "2023年02月01日" },
       ],
     }),
     item({
@@ -339,6 +373,46 @@
         { label: "版本号", value: "V1.2" },
         { label: "原登记者", value: "财税通软件有限公司", link: true },
         { label: "撤销日期", value: "2025年06月30日" },
+      ],
+    }),
+
+    // —— 同登记号多业务记录（登记 + 撤销） ——
+    item({
+      id: "mock-multi-reg-1",
+      bizLine: "Z11",
+      noticeType: "作品著作权登记",
+      titleNo: "国作登字-2026-G-00000004",
+      dciCode: "DCI:RQZ010ANT.156.2026010800000004",
+      statusLabel: "已撤销",
+      eventDate: "2026-01-08",
+      caseName: "汇编之美",
+      registerName: "鲍朵朵",
+      keywords: ["汇编之美", "鲍朵朵"],
+      fields: [
+        { label: "作品名称", value: "汇编之美", full: true, link: true },
+        { label: "作品类别", value: "摄影" },
+        { label: "著作权人", value: "鲍朵朵", link: true },
+        { label: "登记日期", value: "2026年01月08日" },
+      ],
+    }),
+    item({
+      id: "mock-multi-revoke-1",
+      bizLine: "Z62",
+      noticeType: "撤销作品著作权和合同登记",
+      titleNo: "",
+      showTitleNo: false,
+      relatedRegNo: "国作登字-2026-G-00000004",
+      matchCodes: ["国作登字-2026-G-00000004"],
+      dciCode: "",
+      eventDate: "2026-02-05",
+      caseName: "汇编之美",
+      registerName: "鲍朵朵",
+      keywords: ["汇编之美", "鲍朵朵"],
+      fields: [
+        { label: "作品名称", value: "汇编之美", full: true, link: true },
+        { label: "撤销登记申请人", value: "鲍朵朵", link: true },
+        { label: "原登记类型", value: "" },
+        { label: "撤销日期", value: "2026年02月05日" },
       ],
     }),
 
