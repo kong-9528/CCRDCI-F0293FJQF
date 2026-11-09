@@ -639,6 +639,54 @@
         if (!da && db) return 1;
         return String((a && a.id) || "").localeCompare(String((b && b.id) || ""));
       });
+      // 深拷贝，避免污染 catalog；按时间线最后一条异常状态标记到首条
+      hits = hits.map(function (row) {
+        return Object.assign({}, row, {
+          fields: Array.isArray(row.fields) ? row.fields.slice() : [],
+        });
+      });
+      function fieldVal(row, label) {
+        var list = row.fields || [];
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] && list[i].label === label) return String(list[i].value || "");
+        }
+        return "";
+      }
+      function deriveFinalStatus(rows) {
+        for (var i = rows.length - 1; i >= 0; i--) {
+          var row = rows[i] || {};
+          if (row.kind === "dci") continue;
+          var biz = String(row.bizLine || "");
+          var notice = String(row.noticeType || "") + String(row.noticeTypeLabel || "");
+          var typeVal = fieldVal(row, "类型");
+          // 冻结/解冻：看「类型」字段
+          if (biz.indexOf("ZQC") >= 0 || /冻结|解冻/.test(notice) || /冻结|解冻|轮候/.test(typeVal)) {
+            if (/解冻/.test(typeVal) || (/解冻/.test(notice) && !/冻结/.test(typeVal))) {
+              return "已解冻";
+            }
+            if (/冻结|轮候/.test(typeVal) || /冻结/.test(notice)) {
+              return "已冻结";
+            }
+          }
+          if (
+            biz === "Z62" ||
+            biz === "ZQC（4）" ||
+            biz === "R42R44" ||
+            /撤销/.test(notice)
+          ) {
+            return "已撤销";
+          }
+        }
+        return "";
+      }
+      var finalStatus = deriveFinalStatus(hits);
+      hits.forEach(function (row, idx) {
+        if (row.kind === "dci") {
+          row.statusLabel = "";
+          return;
+        }
+        row.statusLabel = idx === 0 ? finalStatus : "";
+      });
       return ok(hits);
     }
     if (path === "/businessInterface/listByIds" && m === "GET") {
