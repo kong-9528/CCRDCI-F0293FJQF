@@ -631,6 +631,14 @@
         var hitKw = !!kw && keys.indexOf(kw) >= 0;
         return hitCode && hitKw;
       });
+      hits.sort(function (a, b) {
+        var da = String((a && a.eventDate) || "");
+        var db = String((b && b.eventDate) || "");
+        if (da && db && da !== db) return da < db ? -1 : 1;
+        if (da && !db) return -1;
+        if (!da && db) return 1;
+        return String((a && a.id) || "").localeCompare(String((b && b.id) || ""));
+      });
       return ok(hits);
     }
     if (path === "/businessInterface/listByIds" && m === "GET") {
