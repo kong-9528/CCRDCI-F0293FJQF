@@ -3334,3 +3334,12 @@ button.tc-apply-btn {
   font-weight: 600 !important;
   line-height: 24px !important;
 }
+
+/* DCI 查询页声明：结果卡片下方 */
+.query-disclaimer {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #909399;
+  text-align: left;
+}
