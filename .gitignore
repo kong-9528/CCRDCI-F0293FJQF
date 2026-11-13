@@ -8,3 +8,4 @@ dist
 !.env.example
 .DS_Store
 /docsss
+apps/home/_mirror_tools/_manual_style_ref.txt
