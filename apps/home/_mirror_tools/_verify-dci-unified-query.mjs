@@ -32,10 +32,27 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-assert(Array.isArray(catalog) && catalog.length === 12, `expect 12 rows, got ${catalog.length}`);
+assert(Array.isArray(catalog) && catalog.length >= 12, `expect >=12 rows, got ${catalog.length}`);
 assert(pageJs.includes("function __isDciResult(l){return!!l}"), "page must force DCI result format");
 assert(pageJs.includes('function __renderRelatedDci(l,idx){return T("",!0)}'), "related DCI under notice head disabled");
 assert(!pageJs.includes("result-reg-title"), "notice-style reg title head should be gone");
+
+const classic = catalog.find((r) => r.id === "mock-dci11-1");
+assert(classic, "missing classic mock-dci11-1");
+assert(classic.dciCode === "DCI:RQZ010ANT.156.202607012098976446", "classic dciCode");
+assert(has(classic, "作品名称") && has(classic, "作品类型"), "classic labels");
+assert(
+  classic.fields.find((f) => f.label === "作品名称")?.value === "《数字版权保护技术规范》",
+  "classic work name",
+);
+assert(classic.fields.find((f) => f.label === "作品类型")?.value === "文字", "classic work type");
+assert(classic.fields.find((f) => f.label === "DCI分配日期")?.value === "2026-07-01", "classic apply date");
+assert(classic.fields.find((f) => f.label === "著作权人")?.value === "中国版权保护中心", "classic owner");
+assert(
+  classic.fields.find((f) => f.label === "DCI注册中心")?.value === "中国版权保护中心",
+  "classic reg org",
+);
+assert(pageJs.includes("DCI:RQZ010ANT.156.202607012098976446"), "page hint should use classic DCI");
 
 const expected = [
   ["mock-work-dci-ok", "work", false, false, ["作品名称", "作品类型"]],
@@ -75,7 +92,7 @@ for (const [id, assetType, hasReg, revoked, needLabels] of expected) {
   assert((row.matchKeywords || []).length >= 1, `${id} keywords`);
 }
 
-console.log("OK: 12 unified DCI query scenarios verified");
+console.log(`OK: ${catalog.length} unified DCI query scenarios verified`);
 for (const row of catalog) {
   console.log(
     `- ${row.id}: ${row.dciCode}${row.relatedRegNo ? " / " + row.relatedRegNo : ""} | ${row.dciStatus === "2" ? "撤销" : "正常"} | ${labels(row).join("、")}`,

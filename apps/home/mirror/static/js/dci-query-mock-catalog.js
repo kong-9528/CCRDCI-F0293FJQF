@@ -91,11 +91,38 @@
   var ORG = "蚂蚁科技集团股份有限公司";
 
   var CATALOG = [
+    // ========== 经典示例（页面提示文案） ==========
+    item({
+      id: "mock-dci11-1",
+      assetType: "work",
+      dciCode: "DCI:RQZ010ANT.156.202607012098976446",
+      dciApplyTime: "2026-07-01",
+      caseName: "《数字版权保护技术规范》",
+      caseCategoryCode: "01",
+      caseCategoryLabel: "文字",
+      registerName: "中国版权保护中心",
+      regOrgName: "中国版权保护中心",
+      keywords: [
+        "《数字版权保护技术规范》",
+        "数字版权保护技术规范",
+        "中国版权保护中心",
+      ],
+      fields: dciFields({
+        nameLabel: "作品名称",
+        typeLabel: "作品类型",
+        typeValue: "文字",
+        name: "《数字版权保护技术规范》",
+        owner: "中国版权保护中心",
+        org: "中国版权保护中心",
+        applyDate: "2026-07-01",
+      }),
+    }),
+
     // ========== 作品 ==========
     item({
       id: "mock-work-dci-ok",
       assetType: "work",
-      dciCode: "DCI:RQZ010WK.001.2026010100000001",
+      dciCode: "DCI:RQZ010ANT.156.20260108A1C3E5G7I9",
       dciApplyTime: "2026-01-08",
       caseName: "春日写生",
       caseCategoryCode: "08",
@@ -116,7 +143,7 @@
     item({
       id: "mock-work-dci-rev",
       assetType: "work",
-      dciCode: "DCI:RQZ010WK.001.2026010100000002",
+      dciCode: "DCI:RQZWK1ANT.156.20250312B2D4F6H8J0",
       dciStatus: "2",
       dciApplyTime: "2025-03-12",
       dciRevokeDate: "2026-02-18",
@@ -141,7 +168,7 @@
     item({
       id: "mock-work-reg-ok",
       assetType: "work",
-      dciCode: "DCI:RQZ010WK.001.2026010100000003",
+      dciCode: "DCI:RQZPHOANT.156.20260120C3E5G7I9K1",
       relatedRegNo: "国作登字-2026-F-10000001",
       dciApplyTime: "2026-01-20",
       regDate: "2026-01-15",
@@ -166,7 +193,7 @@
     item({
       id: "mock-work-reg-rev",
       assetType: "work",
-      dciCode: "DCI:RQZ010WK.001.2026010100000004",
+      dciCode: "DCI:RQZARTANT.156.20250601D4F6H8J0L2",
       relatedRegNo: "国作登字-2026-F-10000002",
       dciStatus: "2",
       dciApplyTime: "2025-06-01",
@@ -199,7 +226,7 @@
     item({
       id: "mock-soft-dci-ok",
       assetType: "software",
-      dciCode: "DCI:RQZ010SF.001.2026010100000011",
+      dciCode: "DCI:RQZSW0ANT.156.20260110E5G7I9K1M3",
       dciApplyTime: "2026-01-10",
       caseName: "云端任务调度系统",
       caseCategoryLabel: "应用软件",
@@ -219,7 +246,7 @@
     item({
       id: "mock-soft-dci-rev",
       assetType: "software",
-      dciCode: "DCI:RQZ010SF.001.2026010100000012",
+      dciCode: "DCI:RQZSW1ANT.156.20240816F6H8J0L2N4",
       dciStatus: "2",
       dciApplyTime: "2024-08-16",
       dciRevokeDate: "2026-01-22",
@@ -243,7 +270,7 @@
     item({
       id: "mock-soft-reg-ok",
       assetType: "software",
-      dciCode: "DCI:RQZ010SF.001.2026010100000013",
+      dciCode: "DCI:RQZSW2ANT.156.20260201G7I9K1M3P5",
       relatedRegNo: "2026SR10000013",
       dciApplyTime: "2026-02-01",
       regDate: "2026-01-28",
@@ -267,7 +294,7 @@
     item({
       id: "mock-soft-reg-rev",
       assetType: "software",
-      dciCode: "DCI:RQZ010SF.001.2026010100000014",
+      dciCode: "DCI:RQZSW3ANT.156.20250410H8J0L2N4Q6",
       relatedRegNo: "2025SR10000014",
       dciStatus: "2",
       dciApplyTime: "2025-04-10",
@@ -299,7 +326,7 @@
     item({
       id: "mock-data-dci-ok",
       assetType: "data",
-      dciCode: "DCI:RQZ010DT.001.2026010100000021",
+      dciCode: "DCI:RQZDS0ANT.156.20260118I9K1M3P5R7",
       dciApplyTime: "2026-01-18",
       caseName: "东方纹样素材库",
       caseCategoryLabel: "美术作品汇编",
@@ -319,7 +346,7 @@
     item({
       id: "mock-data-dci-rev",
       assetType: "data",
-      dciCode: "DCI:RQZ010DT.001.2026010100000022",
+      dciCode: "DCI:RQZDS1ANT.156.20250220J0L2N4Q6S8",
       dciStatus: "2",
       dciApplyTime: "2025-02-20",
       dciRevokeDate: "2026-02-10",
@@ -343,7 +370,7 @@
     item({
       id: "mock-data-reg-ok",
       assetType: "data",
-      dciCode: "DCI:RQZ010DT.001.2026010100000023",
+      dciCode: "DCI:RQZDS2ANT.156.20260212K1M3P5R7T9",
       relatedRegNo: "国作登字-2026-G-20000023",
       dciApplyTime: "2026-02-12",
       regDate: "2026-02-08",
@@ -367,7 +394,7 @@
     item({
       id: "mock-data-reg-rev",
       assetType: "data",
-      dciCode: "DCI:RQZ010DT.001.2026010100000024",
+      dciCode: "DCI:RQZDS3ANT.156.20250715L2N4Q6S8U0",
       relatedRegNo: "国作登字-2025-G-20000024",
       dciStatus: "2",
       dciApplyTime: "2025-07-15",
