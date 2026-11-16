@@ -230,7 +230,7 @@
       regOrgName: ORG,
       keywords: ["跨境电商库存同步软件", "海纳互联科技有限公司"],
       fields: rows([
-        { label: "软件名称", value: "跨境电商库存同步软件" },
+        { label: "软件全称", value: "跨境电商库存同步软件" },
         { label: "DCI撤销日期", value: "2026-03-08" },
         { label: "登记号", value: "2025SR10000014" },
         { label: "登记撤销日期", value: "2026-03-05" },
