@@ -241,7 +241,7 @@
     item({
       id: "mock-data-reg-ok",
       assetType: "data",
-      dciCode: "DCI:RQZDS2ANT.156.20260212K1M3P5R7T9",
+      dciCode: "DCI:RBQHB1CPC.156.20260212K1M3P5R7T9",
       relatedRegNo: "HBD-2026-2000023",
       dciApplyTime: "2026-02-12 10:18:45",
       regDate: "2026-02-08",
@@ -263,7 +263,7 @@
     item({
       id: "mock-data-reg-rev",
       assetType: "data",
-      dciCode: "DCI:RQZDS3ANT.156.20250715L2N4Q6S8U0",
+      dciCode: "DCI:RBQHB1CPC.156.20250715L2N4Q6S8U0",
       relatedRegNo: "HBD-2026-2000024",
       dciStatus: "2",
       dciApplyTime: "2025-07-15 13:27:08",
