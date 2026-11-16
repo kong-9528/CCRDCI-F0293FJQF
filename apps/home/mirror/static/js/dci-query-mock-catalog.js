@@ -76,7 +76,7 @@
     item({
       id: "mock-dci11-1",
       assetType: "work",
-      dciCode: "DCI:RBQDJZCPC.156.202607012098976446",
+      dciCode: "DCI:RQZ010ANT.156.202607012098976446",
       relatedRegNo: "国作登字-2026-F-10000123",
       dciApplyTime: "2026-07-01 09:30:00",
       regDate: "2026-01-15",

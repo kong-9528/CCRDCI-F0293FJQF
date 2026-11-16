@@ -10,7 +10,7 @@ const indexHtml = path.join(root, "mirror/index.html");
 const OLD =
   "例如：DCI:RQZ010ANT.156.202607012098976446　《数字版权保护技术规范》";
 const NEW =
-  "例如：DCI:RBQDJZCPC.156.202607012098976446　《数字版权保护技术规范》";
+  "例如：DCI:RQZ010ANT.156.202607012098976446　《数字版权保护技术规范》";
 
 let s = fs.readFileSync(page, "utf8");
 if (s.includes(NEW)) {
