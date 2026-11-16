@@ -1,5 +1,5 @@
 /**
- * Verify unified DCI query mock catalog: 12 scenarios + required fields.
+ * Verify unified DCI query mock catalog against 样例_新.md.
  */
 import fs from "node:fs";
 import vm from "node:vm";
@@ -25,6 +25,10 @@ const catalog = sandbox.__DCI_QUERY_MOCK_CATALOG__;
 function labels(row) {
   return (row.fields || []).map((f) => f.label);
 }
+function val(row, label) {
+  const f = (row.fields || []).find((x) => x.label === label);
+  return f ? f.value : undefined;
+}
 function has(row, label) {
   return labels(row).includes(label);
 }
@@ -39,34 +43,30 @@ assert(!pageJs.includes("result-reg-title"), "notice-style reg title head should
 
 const classic = catalog.find((r) => r.id === "mock-dci11-1");
 assert(classic, "missing classic mock-dci11-1");
-assert(classic.dciCode === "DCI:RQZ010ANT.156.202607012098976446", "classic dciCode");
-assert(has(classic, "作品名称") && has(classic, "作品类型"), "classic labels");
-assert(
-  classic.fields.find((f) => f.label === "作品名称")?.value === "《数字版权保护技术规范》",
-  "classic work name",
-);
-assert(classic.fields.find((f) => f.label === "作品类型")?.value === "文字", "classic work type");
-assert(classic.fields.find((f) => f.label === "DCI分配日期")?.value === "2026-07-01", "classic apply date");
-assert(classic.fields.find((f) => f.label === "著作权人")?.value === "中国版权保护中心", "classic owner");
-assert(
-  classic.fields.find((f) => f.label === "DCI注册中心")?.value === "中国版权保护中心",
-  "classic reg org",
-);
-assert(pageJs.includes("DCI:RQZ010ANT.156.202607012098976446"), "page hint should use classic DCI");
+assert(classic.dciCode === "DCI:RBQDJZCPC.156.202607012098976446", "classic dciCode");
+assert(classic.relatedRegNo === "国作登字-2026-F-10000123", "classic reg");
+assert(val(classic, "作品名称") === "《数字版权保护技术规范》", "classic name");
+assert(val(classic, "作品类型") === "文字", "classic type");
+assert(val(classic, "DCI分配日期") === "2026-07-01", "classic apply");
+assert(val(classic, "著作权人") === "中国版权保护中心", "classic owner");
+assert(val(classic, "DCI注册中心") === "中国版权保护中心", "classic org");
+assert(val(classic, "登记号") === "国作登字-2026-F-10000123", "classic reg field");
+assert(val(classic, "登记日期") === "2026-01-15", "classic reg date");
+assert(pageJs.includes("DCI:RBQDJZCPC.156.202607012098976446"), "page hint classic DCI");
 
 const expected = [
-  ["mock-work-dci-ok", "work", false, false, ["作品名称", "作品类型"]],
-  ["mock-work-dci-rev", "work", false, true, ["作品名称", "作品类型", "DCI撤销日期"]],
+  ["mock-work-dci-ok", "work", false, false, ["作品名称", "作品类型", "DCI分配日期", "著作权人", "DCI注册中心"]],
+  ["mock-work-dci-rev", "work", false, true, ["作品名称", "DCI撤销日期"]],
   ["mock-work-reg-ok", "work", true, false, ["作品名称", "作品类型", "登记号", "登记日期"]],
-  ["mock-work-reg-rev", "work", true, true, ["作品名称", "作品类型", "登记号", "登记日期", "DCI撤销日期", "登记撤销日期"]],
-  ["mock-soft-dci-ok", "software", false, false, ["软件名称", "软件分类"]],
-  ["mock-soft-dci-rev", "software", false, true, ["软件名称", "软件分类", "DCI撤销日期"]],
-  ["mock-soft-reg-ok", "software", true, false, ["软件名称", "软件分类", "登记号", "登记日期"]],
-  ["mock-soft-reg-rev", "software", true, true, ["软件名称", "软件分类", "登记号", "登记日期", "DCI撤销日期", "登记撤销日期"]],
-  ["mock-data-dci-ok", "data", false, false, ["数据名称", "数据类型"]],
-  ["mock-data-dci-rev", "data", false, true, ["数据名称", "数据类型", "DCI撤销日期"]],
-  ["mock-data-reg-ok", "data", true, false, ["数据名称", "数据类型", "登记号", "登记日期"]],
-  ["mock-data-reg-rev", "data", true, true, ["数据名称", "数据类型", "登记号", "登记日期", "DCI撤销日期", "登记撤销日期"]],
+  ["mock-work-reg-rev", "work", true, true, ["作品名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
+  ["mock-soft-dci-ok", "software", false, false, ["软件名称", "DCI分配日期", "DCI注册中心"]],
+  ["mock-soft-dci-rev", "software", false, true, ["软件名称", "DCI撤销日期"]],
+  ["mock-soft-reg-ok", "software", true, false, ["软件名称", "DCI分配日期", "登记号", "登记日期"]],
+  ["mock-soft-reg-rev", "software", true, true, ["软件名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
+  ["mock-data-dci-ok", "data", false, false, ["数据名称", "作品类别", "权利人", "DCI注册中心"]],
+  ["mock-data-dci-rev", "data", false, true, ["数据名称", "DCI撤销日期"]],
+  ["mock-data-reg-ok", "data", true, false, ["数据名称", "作品类别", "权利人", "登记号", "登记日期"]],
+  ["mock-data-reg-rev", "data", true, true, ["数据名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
 ];
 
 const byId = Object.fromEntries(catalog.map((r) => [r.id, r]));
@@ -81,16 +81,16 @@ for (const [id, assetType, hasReg, revoked, needLabels] of expected) {
   for (const lab of needLabels) {
     assert(has(row, lab), `${id} missing field ${lab}; got ${labels(row).join(",")}`);
   }
-  if (assetType === "data") {
-    assert(has(row, "数据类型"), `${id} 数据类型`);
-    const f = row.fields.find((x) => x.label === "数据类型");
-    assert(f && f.value === "美术作品汇编", `${id} 数据类型示例`);
-  }
-  // match by dci and by reg if present
   assert(row.matchCodes.includes(row.dciCode), `${id} matchCodes includes dci`);
   if (hasReg) assert(row.matchCodes.includes(row.relatedRegNo), `${id} matchCodes includes reg`);
   assert((row.matchKeywords || []).length >= 1, `${id} keywords`);
 }
+
+assert(byId["mock-data-dci-ok"].dciCode === "DCI:RTDK11TJI.156.20260118I9K1M3P5R7", "data ok dci");
+assert(val(byId["mock-data-dci-ok"], "数据名称") === "2025年全国媒体行业用户情感分析数据", "data ok name");
+assert(val(byId["mock-data-reg-ok"], "登记号") === "HBD-2026-2000023", "data reg ok no");
+assert(val(byId["mock-data-reg-rev"], "登记号") === "HBD-2026-2000024", "data reg rev no");
+assert(val(byId["mock-work-reg-ok"], "登记日期") === "2026-01-25", "work reg date");
 
 console.log(`OK: ${catalog.length} unified DCI query scenarios verified`);
 for (const row of catalog) {

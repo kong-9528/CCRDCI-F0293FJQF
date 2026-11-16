@@ -1,12 +1,9 @@
 /**
  * Home DCI 查询页 mock 样例（统一 DCI 结果卡格式）
+ * 与 docsss/documents/DCI查询页-统一结果卡mock样例_新.md 保持同步。
  *
  * 约定：每条记录必有 DCI 码；登记号可选。
- * 覆盖作品 / 软件 / 数据 × 四种状态：
- *  1) 仅 DCI，正常
- *  2) 仅 DCI，撤销（含 DCI撤销日期）
- *  3) DCI + 登记号，正常（含 登记号、登记日期）
- *  4) DCI + 登记号，撤销（含 登记号、登记日期、登记撤销日期）
+ * 查询需同时命中「第一框码」与「第二框关键词」。
  */
 (function (global) {
   function item(cfg) {
@@ -60,32 +57,15 @@
     };
   }
 
-  function dciFields(opts) {
-    var nameLabel = opts.nameLabel;
-    var typeLabel = opts.typeLabel;
-    var typeValue = opts.typeValue;
-    var name = opts.name;
-    var owner = opts.owner;
-    var org = opts.org;
-    var applyDate = opts.applyDate;
-    var rows = [
-      { label: nameLabel, value: name, full: true },
-      { label: typeLabel, value: typeValue },
-      { label: "DCI分配日期", value: applyDate },
-      { label: "著作权人", value: owner },
-      { label: "DCI注册中心", value: org },
-    ];
-    if (opts.regNo) {
-      rows.push({ label: "登记号", value: opts.regNo });
-      rows.push({ label: "登记日期", value: opts.regDate });
-    }
-    if (opts.revoked) {
-      rows.push({ label: "DCI撤销日期", value: opts.dciRevokeDate });
-      if (opts.regNo) {
-        rows.push({ label: "登记撤销日期", value: opts.regRevokeDate });
-      }
-    }
-    return rows;
+  function rows(list) {
+    return list.map(function (f) {
+      return {
+        label: f.label,
+        value: f.value,
+        full: !!f.full,
+        link: !!f.link,
+      };
+    });
   }
 
   var ORG = "蚂蚁科技集团股份有限公司";
@@ -95,8 +75,10 @@
     item({
       id: "mock-dci11-1",
       assetType: "work",
-      dciCode: "DCI:RQZ010ANT.156.202607012098976446",
+      dciCode: "DCI:RBQDJZCPC.156.202607012098976446",
+      relatedRegNo: "国作登字-2026-F-10000123",
       dciApplyTime: "2026-07-01",
+      regDate: "2026-01-15",
       caseName: "《数字版权保护技术规范》",
       caseCategoryCode: "01",
       caseCategoryLabel: "文字",
@@ -107,15 +89,15 @@
         "数字版权保护技术规范",
         "中国版权保护中心",
       ],
-      fields: dciFields({
-        nameLabel: "作品名称",
-        typeLabel: "作品类型",
-        typeValue: "文字",
-        name: "《数字版权保护技术规范》",
-        owner: "中国版权保护中心",
-        org: "中国版权保护中心",
-        applyDate: "2026-07-01",
-      }),
+      fields: rows([
+        { label: "作品名称", value: "《数字版权保护技术规范》", full: true },
+        { label: "作品类型", value: "文字" },
+        { label: "DCI分配日期", value: "2026-07-01" },
+        { label: "著作权人", value: "中国版权保护中心" },
+        { label: "DCI注册中心", value: "中国版权保护中心" },
+        { label: "登记号", value: "国作登字-2026-F-10000123" },
+        { label: "登记日期", value: "2026-01-15" },
+      ]),
     }),
 
     // ========== 作品 ==========
@@ -130,15 +112,13 @@
       registerName: "林晓",
       regOrgName: ORG,
       keywords: ["春日写生", "林晓"],
-      fields: dciFields({
-        nameLabel: "作品名称",
-        typeLabel: "作品类型",
-        typeValue: "美术",
-        name: "春日写生",
-        owner: "林晓",
-        org: ORG,
-        applyDate: "2026-01-08",
-      }),
+      fields: rows([
+        { label: "作品名称", value: "春日写生", full: true },
+        { label: "作品类型", value: "美术" },
+        { label: "DCI分配日期", value: "2026-01-08" },
+        { label: "著作权人", value: "林晓" },
+        { label: "DCI注册中心", value: ORG },
+      ]),
     }),
     item({
       id: "mock-work-dci-rev",
@@ -153,17 +133,10 @@
       registerName: "周启",
       regOrgName: ORG,
       keywords: ["旧海报设计", "周启"],
-      fields: dciFields({
-        nameLabel: "作品名称",
-        typeLabel: "作品类型",
-        typeValue: "美术",
-        name: "旧海报设计",
-        owner: "周启",
-        org: ORG,
-        applyDate: "2025-03-12",
-        revoked: true,
-        dciRevokeDate: "2026-02-18",
-      }),
+      fields: rows([
+        { label: "作品名称", value: "旧海报设计", full: true },
+        { label: "DCI撤销日期", value: "2026-02-18" },
+      ]),
     }),
     item({
       id: "mock-work-reg-ok",
@@ -171,24 +144,22 @@
       dciCode: "DCI:RQZPHOANT.156.20260120C3E5G7I9K1",
       relatedRegNo: "国作登字-2026-F-10000001",
       dciApplyTime: "2026-01-20",
-      regDate: "2026-01-15",
+      regDate: "2026-01-25",
       caseName: "海风摄影集",
       caseCategoryCode: "10",
       caseCategoryLabel: "摄影",
       registerName: "陈默",
       regOrgName: ORG,
       keywords: ["海风摄影集", "陈默"],
-      fields: dciFields({
-        nameLabel: "作品名称",
-        typeLabel: "作品类型",
-        typeValue: "摄影",
-        name: "海风摄影集",
-        owner: "陈默",
-        org: ORG,
-        applyDate: "2026-01-20",
-        regNo: "国作登字-2026-F-10000001",
-        regDate: "2026-01-15",
-      }),
+      fields: rows([
+        { label: "作品名称", value: "海风摄影集", full: true },
+        { label: "作品类型", value: "摄影" },
+        { label: "DCI分配日期", value: "2026-01-20" },
+        { label: "著作权人", value: "陈默" },
+        { label: "DCI注册中心", value: ORG },
+        { label: "登记号", value: "国作登字-2026-F-10000001" },
+        { label: "登记日期", value: "2026-01-25" },
+      ]),
     }),
     item({
       id: "mock-work-reg-rev",
@@ -206,20 +177,12 @@
       registerName: "苏晚",
       regOrgName: ORG,
       keywords: ["城市速写本", "苏晚"],
-      fields: dciFields({
-        nameLabel: "作品名称",
-        typeLabel: "作品类型",
-        typeValue: "美术",
-        name: "城市速写本",
-        owner: "苏晚",
-        org: ORG,
-        applyDate: "2025-06-01",
-        regNo: "国作登字-2026-F-10000002",
-        regDate: "2025-05-28",
-        revoked: true,
-        dciRevokeDate: "2026-03-01",
-        regRevokeDate: "2026-02-25",
-      }),
+      fields: rows([
+        { label: "作品名称", value: "城市速写本", full: true },
+        { label: "DCI撤销日期", value: "2026-03-01" },
+        { label: "登记号", value: "国作登字-2026-F-10000002" },
+        { label: "登记撤销日期", value: "2026-02-25" },
+      ]),
     }),
 
     // ========== 软件 ==========
@@ -233,15 +196,11 @@
       registerName: "星河软件有限公司",
       regOrgName: ORG,
       keywords: ["云端任务调度系统", "星河软件有限公司"],
-      fields: dciFields({
-        nameLabel: "软件名称",
-        typeLabel: "软件分类",
-        typeValue: "应用软件",
-        name: "云端任务调度系统",
-        owner: "星河软件有限公司",
-        org: ORG,
-        applyDate: "2026-01-10",
-      }),
+      fields: rows([
+        { label: "软件名称", value: "云端任务调度系统", full: true },
+        { label: "DCI分配日期", value: "2026-01-10" },
+        { label: "DCI注册中心", value: ORG },
+      ]),
     }),
     item({
       id: "mock-soft-dci-rev",
@@ -255,17 +214,10 @@
       registerName: "财税通软件有限公司",
       regOrgName: ORG,
       keywords: ["旧版报税辅助工具", "财税通软件有限公司"],
-      fields: dciFields({
-        nameLabel: "软件名称",
-        typeLabel: "软件分类",
-        typeValue: "应用软件",
-        name: "旧版报税辅助工具",
-        owner: "财税通软件有限公司",
-        org: ORG,
-        applyDate: "2024-08-16",
-        revoked: true,
-        dciRevokeDate: "2026-01-22",
-      }),
+      fields: rows([
+        { label: "软件名称", value: "旧版报税辅助工具", full: true },
+        { label: "DCI撤销日期", value: "2026-01-22" },
+      ]),
     }),
     item({
       id: "mock-soft-reg-ok",
@@ -279,17 +231,13 @@
       registerName: "智造联科技股份有限公司",
       regOrgName: ORG,
       keywords: ["工业视觉检测软件", "智造联科技股份有限公司"],
-      fields: dciFields({
-        nameLabel: "软件名称",
-        typeLabel: "软件分类",
-        typeValue: "嵌入式软件",
-        name: "工业视觉检测软件",
-        owner: "智造联科技股份有限公司",
-        org: ORG,
-        applyDate: "2026-02-01",
-        regNo: "2026SR10000013",
-        regDate: "2026-01-28",
-      }),
+      fields: rows([
+        { label: "软件名称", value: "工业视觉检测软件", full: true },
+        { label: "DCI分配日期", value: "2026-02-01" },
+        { label: "DCI注册中心", value: ORG },
+        { label: "登记号", value: "2026SR10000013" },
+        { label: "登记日期", value: "2026-01-28" },
+      ]),
     }),
     item({
       id: "mock-soft-reg-rev",
@@ -306,120 +254,100 @@
       registerName: "海纳互联科技有限公司",
       regOrgName: ORG,
       keywords: ["跨境电商库存同步软件", "海纳互联科技有限公司"],
-      fields: dciFields({
-        nameLabel: "软件名称",
-        typeLabel: "软件分类",
-        typeValue: "应用软件",
-        name: "跨境电商库存同步软件",
-        owner: "海纳互联科技有限公司",
-        org: ORG,
-        applyDate: "2025-04-10",
-        regNo: "2025SR10000014",
-        regDate: "2025-04-02",
-        revoked: true,
-        dciRevokeDate: "2026-03-08",
-        regRevokeDate: "2026-03-05",
-      }),
+      fields: rows([
+        { label: "软件名称", value: "跨境电商库存同步软件", full: true },
+        { label: "DCI撤销日期", value: "2026-03-08" },
+        { label: "登记号", value: "2025SR10000014" },
+        { label: "登记撤销日期", value: "2026-03-05" },
+      ]),
     }),
 
     // ========== 数据 ==========
     item({
       id: "mock-data-dci-ok",
       assetType: "data",
-      dciCode: "DCI:RQZDS0ANT.156.20260118I9K1M3P5R7",
+      dciCode: "DCI:RTDK11TJI.156.20260118I9K1M3P5R7",
       dciApplyTime: "2026-01-18",
-      caseName: "东方纹样素材库",
-      caseCategoryLabel: "美术作品汇编",
-      registerName: "纹样数据实验室",
-      regOrgName: ORG,
-      keywords: ["东方纹样素材库", "纹样数据实验室"],
-      fields: dciFields({
-        nameLabel: "数据名称",
-        typeLabel: "数据类型",
-        typeValue: "美术作品汇编",
-        name: "东方纹样素材库",
-        owner: "纹样数据实验室",
-        org: ORG,
-        applyDate: "2026-01-18",
-      }),
+      caseName: "2025年全国媒体行业用户情感分析数据",
+      caseCategoryLabel: "符合作品特征的其他智力成果",
+      registerName: "太极计算机股份有限公司",
+      regOrgName: "太极计算机股份有限公司",
+      keywords: [
+        "2025年全国媒体行业用户情感分析数据",
+        "太极计算机股份有限公司",
+      ],
+      fields: rows([
+        {
+          label: "数据名称",
+          value: "2025年全国媒体行业用户情感分析数据",
+          full: true,
+        },
+        { label: "作品类别", value: "符合作品特征的其他智力成果" },
+        { label: "DCI分配日期", value: "2026-01-18" },
+        { label: "权利人", value: "太极计算机股份有限公司" },
+        { label: "DCI注册中心", value: "太极计算机股份有限公司" },
+      ]),
     }),
     item({
       id: "mock-data-dci-rev",
       assetType: "data",
-      dciCode: "DCI:RQZDS1ANT.156.20250220J0L2N4Q6S8",
+      dciCode: "DCI:RQZDS1ANT.156.20260220J0L2N4Q6S8",
       dciStatus: "2",
-      dciApplyTime: "2025-02-20",
-      dciRevokeDate: "2026-02-10",
+      dciApplyTime: "2026-02-20",
+      dciRevokeDate: "2026-03-10",
       caseName: "旧版插画合集数据包",
-      caseCategoryLabel: "美术作品汇编",
+      caseCategoryLabel: "符合作品特征的其他智力成果",
       registerName: "青禾数字内容中心",
       regOrgName: ORG,
       keywords: ["旧版插画合集数据包", "青禾数字内容中心"],
-      fields: dciFields({
-        nameLabel: "数据名称",
-        typeLabel: "数据类型",
-        typeValue: "美术作品汇编",
-        name: "旧版插画合集数据包",
-        owner: "青禾数字内容中心",
-        org: ORG,
-        applyDate: "2025-02-20",
-        revoked: true,
-        dciRevokeDate: "2026-02-10",
-      }),
+      fields: rows([
+        { label: "数据名称", value: "旧版插画合集数据包", full: true },
+        { label: "DCI撤销日期", value: "2026-03-10" },
+      ]),
     }),
     item({
       id: "mock-data-reg-ok",
       assetType: "data",
       dciCode: "DCI:RQZDS2ANT.156.20260212K1M3P5R7T9",
-      relatedRegNo: "国作登字-2026-G-20000023",
+      relatedRegNo: "HBD-2026-2000023",
       dciApplyTime: "2026-02-12",
       regDate: "2026-02-08",
       caseName: "非遗彩绘图样数据集",
-      caseCategoryLabel: "美术作品汇编",
+      caseCategoryLabel: "符合作品特征的其他智力成果",
       registerName: "文博数据研究院",
       regOrgName: ORG,
       keywords: ["非遗彩绘图样数据集", "文博数据研究院"],
-      fields: dciFields({
-        nameLabel: "数据名称",
-        typeLabel: "数据类型",
-        typeValue: "美术作品汇编",
-        name: "非遗彩绘图样数据集",
-        owner: "文博数据研究院",
-        org: ORG,
-        applyDate: "2026-02-12",
-        regNo: "国作登字-2026-G-20000023",
-        regDate: "2026-02-08",
-      }),
+      fields: rows([
+        { label: "数据名称", value: "非遗彩绘图样数据集", full: true },
+        { label: "作品类别", value: "符合作品特征的其他智力成果" },
+        { label: "DCI分配日期", value: "2026-02-12" },
+        { label: "权利人", value: "文博数据研究院" },
+        { label: "DCI注册中心", value: ORG },
+        { label: "登记号", value: "HBD-2026-2000023" },
+        { label: "登记日期", value: "2026-02-08" },
+      ]),
     }),
     item({
       id: "mock-data-reg-rev",
       assetType: "data",
       dciCode: "DCI:RQZDS3ANT.156.20250715L2N4Q6S8U0",
-      relatedRegNo: "国作登字-2025-G-20000024",
+      relatedRegNo: "HBD-2026-2000024",
       dciStatus: "2",
       dciApplyTime: "2025-07-15",
       dciRevokeDate: "2026-03-12",
       regDate: "2025-07-10",
       regRevokeDate: "2026-03-09",
       caseName: "近代海报图样汇编包",
-      caseCategoryLabel: "美术作品汇编",
+      caseCategoryLabel: "符合作品特征的其他智力成果",
       registerName: "时代视觉档案馆",
       regOrgName: ORG,
       keywords: ["近代海报图样汇编包", "时代视觉档案馆"],
-      fields: dciFields({
-        nameLabel: "数据名称",
-        typeLabel: "数据类型",
-        typeValue: "美术作品汇编",
-        name: "近代海报图样汇编包",
-        owner: "时代视觉档案馆",
-        org: ORG,
-        applyDate: "2025-07-15",
-        regNo: "国作登字-2025-G-20000024",
-        regDate: "2025-07-10",
-        revoked: true,
-        dciRevokeDate: "2026-03-12",
-        regRevokeDate: "2026-03-09",
-      }),
+      fields: rows([
+        { label: "数据名称", value: "近代海报图样汇编包", full: true },
+        { label: "DCI撤销日期", value: "2026-03-12" },
+        { label: "登记号", value: "HBD-2026-2000024" },
+        { label: "登记撤销日期", value: "2026-03-09" },
+      ]),
     }),
   ];
 
