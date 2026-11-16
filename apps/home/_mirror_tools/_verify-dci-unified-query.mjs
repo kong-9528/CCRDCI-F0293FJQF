@@ -1,5 +1,5 @@
 /**
- * Verify unified DCI query mock catalog against 样例_新.md.
+ * Verify DCI query mock catalog after field/scenario updates.
  */
 import fs from "node:fs";
 import vm from "node:vm";
@@ -36,63 +36,53 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-assert(Array.isArray(catalog) && catalog.length >= 12, `expect >=12 rows, got ${catalog.length}`);
-assert(pageJs.includes("function __isDciResult(l){return!!l}"), "page must force DCI result format");
-assert(pageJs.includes('function __renderRelatedDci(l,idx){return T("",!0)}'), "related DCI under notice head disabled");
-assert(!pageJs.includes("result-reg-title"), "notice-style reg title head should be gone");
+assert(Array.isArray(catalog) && catalog.length === 9, `expect 9 rows, got ${catalog.length}`);
+assert(!catalog.some((r) => ["mock-soft-dci-ok", "mock-soft-dci-rev", "mock-data-dci-ok", "mock-data-dci-rev"].includes(r.id)), "removed scenarios still present");
+assert(!catalog.some((r) => has(r, "作品类型")), "作品类型 should be renamed");
+assert(!catalog.some((r) => has(r, "DCI分配日期")), "DCI分配日期 should be renamed");
 
 const classic = catalog.find((r) => r.id === "mock-dci11-1");
-assert(classic, "missing classic mock-dci11-1");
-assert(classic.dciCode === "DCI:RBQDJZCPC.156.202607012098976446", "classic dciCode");
-assert(classic.relatedRegNo === "国作登字-2026-F-10000123", "classic reg");
-assert(val(classic, "作品名称") === "《数字版权保护技术规范》", "classic name");
-assert(val(classic, "作品类型") === "文字", "classic type");
-assert(val(classic, "DCI分配日期") === "2026-07-01", "classic apply");
-assert(val(classic, "著作权人") === "中国版权保护中心", "classic owner");
-assert(val(classic, "DCI注册中心") === "中国版权保护中心", "classic org");
-assert(val(classic, "登记号") === "国作登字-2026-F-10000123", "classic reg field");
-assert(val(classic, "登记日期") === "2026-01-15", "classic reg date");
-assert(pageJs.includes("DCI:RBQDJZCPC.156.202607012098976446"), "page hint classic DCI");
+assert(classic, "missing classic");
+assert(val(classic, "著作权人") === "华章版权文化有限公司", "classic owner");
+assert(val(classic, "DCI注册中心") === "蚂蚁科技集团股份有限公司", "classic org");
+assert(val(classic, "作品类别") === "文字", "classic category");
+assert(val(classic, "DCI申领时间") === "2026-07-01 09:30:00", "classic apply datetime");
 
-const expected = [
-  ["mock-work-dci-ok", "work", false, false, ["作品名称", "作品类型", "DCI分配日期", "著作权人", "DCI注册中心"]],
-  ["mock-work-dci-rev", "work", false, true, ["作品名称", "DCI撤销日期"]],
-  ["mock-work-reg-ok", "work", true, false, ["作品名称", "作品类型", "登记号", "登记日期"]],
-  ["mock-work-reg-rev", "work", true, true, ["作品名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
-  ["mock-soft-dci-ok", "software", false, false, ["软件名称", "DCI分配日期", "DCI注册中心"]],
-  ["mock-soft-dci-rev", "software", false, true, ["软件名称", "DCI撤销日期"]],
-  ["mock-soft-reg-ok", "software", true, false, ["软件名称", "DCI分配日期", "登记号", "登记日期"]],
-  ["mock-soft-reg-rev", "software", true, true, ["软件名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
-  ["mock-data-dci-ok", "data", false, false, ["数据名称", "作品类别", "权利人", "DCI注册中心"]],
-  ["mock-data-dci-rev", "data", false, true, ["数据名称", "DCI撤销日期"]],
-  ["mock-data-reg-ok", "data", true, false, ["数据名称", "作品类别", "权利人", "登记号", "登记日期"]],
-  ["mock-data-reg-rev", "data", true, true, ["数据名称", "DCI撤销日期", "登记号", "登记撤销日期"]],
-];
+const data11 = catalog.find((r) => r.id === "mock-data-reg-ok");
+assert(data11, "missing scenario 11");
+assert(val(data11, "DCI注册中心") === "中国版权保护中心", "scenario 11 org");
+assert(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(val(data11, "DCI申领时间")), "scenario 11 datetime");
 
-const byId = Object.fromEntries(catalog.map((r) => [r.id, r]));
-for (const [id, assetType, hasReg, revoked, needLabels] of expected) {
-  const row = byId[id];
-  assert(row, `missing ${id}`);
-  assert(row.kind === "dci", `${id} kind`);
-  assert(!!row.dciCode, `${id} must have dciCode`);
-  assert(row.assetType === assetType, `${id} assetType`);
-  assert(!!(row.relatedRegNo || "").trim() === hasReg, `${id} relatedRegNo`);
-  assert((row.dciStatus === "2") === revoked, `${id} dciStatus`);
-  for (const lab of needLabels) {
-    assert(has(row, lab), `${id} missing field ${lab}; got ${labels(row).join(",")}`);
-  }
-  assert(row.matchCodes.includes(row.dciCode), `${id} matchCodes includes dci`);
-  if (hasReg) assert(row.matchCodes.includes(row.relatedRegNo), `${id} matchCodes includes reg`);
-  assert((row.matchKeywords || []).length >= 1, `${id} keywords`);
+const soft7 = catalog.find((r) => r.id === "mock-soft-reg-ok");
+assert(soft7, "missing scenario 7");
+assert(val(soft7, "软件全称") === "工业视觉检测软件", "soft7 full name");
+assert(!has(soft7, "软件名称"), "soft7 should use 软件全称");
+assert(!(soft7.fields[0] || {}).full, "soft7 name should share row");
+assert(val(soft7, "DCI申领时间") === "2026-02-01 16:40:00", "soft7 apply");
+assert(val(soft7, "著作权人") === "智造联科技股份有限公司", "soft7 owner");
+assert(val(soft7, "软件简称") === "智造视检", "soft7 short name");
+assert(val(soft7, "版本号") === "V3.2.1", "soft7 version");
+assert(
+  labels(soft7).join("|") ===
+    "软件全称|DCI申领时间|著作权人|DCI注册中心|软件简称|版本号|登记号|登记日期",
+  "soft7 field order",
+);
+
+assert(pageJs.includes('typeLabel:"作品类别"'), "page typeLabel");
+assert(pageJs.includes('label:"DCI申领时间"'), "page apply label");
+assert(pageJs.includes("function __formatDateTime("), "page datetime formatter");
+assert(!pageJs.includes('typeLabel:"作品类型"'), "page should not keep 作品类型");
+
+for (const row of catalog) {
+  assert(row.kind === "dci", `${row.id} kind`);
+  assert(!!row.dciCode, `${row.id} dciCode`);
+  assert(row.matchCodes.includes(row.dciCode), `${row.id} matchCodes`);
+  assert((row.matchKeywords || []).length >= 1, `${row.id} keywords`);
+  const apply = val(row, "DCI申领时间");
+  if (apply) assert(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(apply), `${row.id} apply format`);
 }
 
-assert(byId["mock-data-dci-ok"].dciCode === "DCI:RTDK11TJI.156.20260118I9K1M3P5R7", "data ok dci");
-assert(val(byId["mock-data-dci-ok"], "数据名称") === "2025年全国媒体行业用户情感分析数据", "data ok name");
-assert(val(byId["mock-data-reg-ok"], "登记号") === "HBD-2026-2000023", "data reg ok no");
-assert(val(byId["mock-data-reg-rev"], "登记号") === "HBD-2026-2000024", "data reg rev no");
-assert(val(byId["mock-work-reg-ok"], "登记日期") === "2026-01-25", "work reg date");
-
-console.log(`OK: ${catalog.length} unified DCI query scenarios verified`);
+console.log(`OK: ${catalog.length} scenarios verified`);
 for (const row of catalog) {
   console.log(
     `- ${row.id}: ${row.dciCode}${row.relatedRegNo ? " / " + row.relatedRegNo : ""} | ${row.dciStatus === "2" ? "撤销" : "正常"} | ${labels(row).join("、")}`,
