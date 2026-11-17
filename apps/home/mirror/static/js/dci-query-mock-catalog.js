@@ -165,7 +165,7 @@
     item({
       id: "mock-work-reg-rev",
       assetType: "work",
-      dciCode: "DCI:RQZARTANT.156.20250601D4F6H8J0L2",
+      dciCode: "DCI:RBQDJZCPC.156.20250601D4F6H8J0L2",
       relatedRegNo: "国作登字-2026-F-10000002",
       dciStatus: "2",
       dciApplyTime: "2025-06-01 15:36:12",
