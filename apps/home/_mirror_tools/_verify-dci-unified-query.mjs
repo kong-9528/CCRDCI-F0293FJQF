@@ -60,8 +60,11 @@ assert(!has(soft7, "软件名称"), "soft7 should use 软件全称");
 assert(!(soft7.fields[0] || {}).full, "soft7 name should share row");
 assert(val(soft7, "DCI申领时间") === "2026-02-01 16:40:00", "soft7 apply");
 assert(val(soft7, "著作权人") === "智造联科技股份有限公司", "soft7 owner");
+assert(val(soft7, "DCI注册中心") === "中国版权保护中心", "soft7 org");
+assert(soft7.dciCode === "DCI:RBQDJRCPC.156.20260201G7I9K1M3P5", "soft7 dci");
 assert(val(soft7, "软件简称") === "智造视检", "soft7 short name");
 assert(val(soft7, "版本号") === "V3.2.1", "soft7 version");
+assert(data11.dciCode === "DCI:RBQDJSCPC.156.20260212K1M3P5R7T9", "data11 dci");
 assert(
   labels(soft7).join("|") ===
     "软件全称|DCI申领时间|著作权人|DCI注册中心|软件简称|版本号|登记号|登记日期",

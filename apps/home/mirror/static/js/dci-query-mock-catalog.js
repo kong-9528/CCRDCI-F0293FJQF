@@ -190,14 +190,14 @@
     item({
       id: "mock-soft-reg-ok",
       assetType: "software",
-      dciCode: "DCI:RQZSW2ANT.156.20260201G7I9K1M3P5",
+      dciCode: "DCI:RBQDJRCPC.156.20260201G7I9K1M3P5",
       relatedRegNo: "2026SR10000013",
       dciApplyTime: "2026-02-01 16:40:00",
       regDate: "2026-01-28",
       caseName: "工业视觉检测软件",
       caseCategoryLabel: "嵌入式软件",
       registerName: "智造联科技股份有限公司",
-      regOrgName: ORG,
+      regOrgName: ORG_CC,
       keywords: [
         "工业视觉检测软件",
         "智造视检",
@@ -207,7 +207,7 @@
         { label: "软件全称", value: "工业视觉检测软件" },
         { label: "DCI申领时间", value: "2026-02-01 16:40:00" },
         { label: "著作权人", value: "智造联科技股份有限公司" },
-        { label: "DCI注册中心", value: ORG },
+        { label: "DCI注册中心", value: ORG_CC },
         { label: "软件简称", value: "智造视检" },
         { label: "版本号", value: "V3.2.1" },
         { label: "登记号", value: "2026SR10000013" },
@@ -217,7 +217,7 @@
     item({
       id: "mock-soft-reg-rev",
       assetType: "software",
-      dciCode: "DCI:RQZSW3ANT.156.20250410H8J0L2N4Q6",
+      dciCode: "DCI:RBQDJRCPC.156.20250410H8J0L2N4Q6",
       relatedRegNo: "2025SR10000014",
       dciStatus: "2",
       dciApplyTime: "2025-04-10 09:12:55",
@@ -241,7 +241,7 @@
     item({
       id: "mock-data-reg-ok",
       assetType: "data",
-      dciCode: "DCI:RBQHB1CPC.156.20260212K1M3P5R7T9",
+      dciCode: "DCI:RBQDJSCPC.156.20260212K1M3P5R7T9",
       relatedRegNo: "HBD-2026-2000023",
       dciApplyTime: "2026-02-12 10:18:45",
       regDate: "2026-02-08",
@@ -263,7 +263,7 @@
     item({
       id: "mock-data-reg-rev",
       assetType: "data",
-      dciCode: "DCI:RBQHB1CPC.156.20250715L2N4Q6S8U0",
+      dciCode: "DCI:RBQDJSCPC.156.20250715L2N4Q6S8U0",
       relatedRegNo: "HBD-2026-2000024",
       dciStatus: "2",
       dciApplyTime: "2025-07-15 13:27:08",
