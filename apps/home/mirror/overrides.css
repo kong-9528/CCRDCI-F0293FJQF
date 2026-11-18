@@ -3343,3 +3343,72 @@ button.tc-apply-btn {
   color: #909399;
   text-align: left;
 }
+
+/* portal partner more card */
+.partner-card-more[data-v-58bb0b90],
+.partner-card.partner-card-more {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e8eaed !important;
+  background: #fff !important;
+  cursor: default;
+}
+.partner-card-more[data-v-58bb0b90]:hover,
+.partner-card.partner-card-more:hover {
+  background: #1345a5 !important;
+  border-color: #1345a5 !important;
+}
+.partner-more-visual {
+  position: relative;
+  width: 56px;
+  height: 36px;
+  margin-bottom: 10px;
+}
+.partner-more-stack {
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #9aa3af;
+  background: #fff;
+}
+.partner-more-stack-back {
+  width: 34px;
+  height: 22px;
+  left: 14px;
+  top: 0;
+  opacity: .45;
+}
+.partner-more-stack-mid {
+  width: 34px;
+  height: 22px;
+  left: 8px;
+  top: 6px;
+  opacity: .7;
+}
+.partner-more-stack-front {
+  width: 34px;
+  height: 22px;
+  left: 2px;
+  top: 12px;
+  opacity: 1;
+  background: #f3f5f8;
+}
+.partner-more-label {
+  display: block !important;
+  color: #5a6575;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: .04em;
+  font-weight: 500;
+}
+.partner-card-more:hover .partner-more-label {
+  color: #fff;
+}
+.partner-card-more:hover .partner-more-stack {
+  border-color: #ffffffd9;
+  background: transparent;
+}
+.partner-card-more:hover .partner-more-stack-front {
+  background: #ffffff24;
+}
+
