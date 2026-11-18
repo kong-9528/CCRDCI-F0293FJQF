@@ -39,6 +39,19 @@ function sanitize(pathName: string, body: any) {
   if (pathName.includes("/getInfo") && body.data) {
     body.data.isPasswordExpired = false;
     body.data.isDefaultModifyPwd = false;
+    const portalPerms = [
+      "*:*:*",
+      "dci:portal:article:edit",
+      "dci:portal:article:audit",
+      "dci:portal:article:remove",
+      "dci:portal:nav:list",
+      "dci:portal:nav:edit",
+      "dci:portal:nav:remove",
+    ];
+    if (!Array.isArray(body.data.permissions)) body.data.permissions = [];
+    for (const p of portalPerms) {
+      if (!body.data.permissions.includes(p)) body.data.permissions.push(p);
+    }
   }
   if (pathName.includes("/getRouters") && Array.isArray(body.data)) {
     const filterNodes = (nodes: any[]): any[] =>

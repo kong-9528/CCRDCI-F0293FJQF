@@ -280,6 +280,20 @@
     if (!Array.isArray(clone.data.permissions)) {
       clone.data.permissions = ["*:*:*"];
     }
+    var portalPerms = [
+      "*:*:*",
+      "dci:portal:article:edit",
+      "dci:portal:article:audit",
+      "dci:portal:article:remove",
+      "dci:portal:nav:list",
+      "dci:portal:nav:edit",
+      "dci:portal:nav:remove",
+    ];
+    for (var pi = 0; pi < portalPerms.length; pi++) {
+      if (clone.data.permissions.indexOf(portalPerms[pi]) < 0) {
+        clone.data.permissions.push(portalPerms[pi]);
+      }
+    }
     return clone;
   }
 
@@ -682,11 +696,172 @@
     return out;
   }
 
+  
+  function portalOk100(data, msg) {
+    return { code: 1000000, msg: msg || "成功", data: data === undefined ? null : data, success: true, traceId: "", timestamp: new Date().toISOString() };
+  }
+  function portalPage(rows, total) {
+    return { code: 1000000, msg: "成功", rows: rows || [], total: String(total != null ? total : (rows || []).length) };
+  }
+  function ensurePortalStore() {
+    var store = window.__OPS_MOCK_STORE__ || {};
+    if (!store.__portalNavList) {
+      var hit = store["GET /api/v1/dciManage/dci/portal/nav/list"];
+      store.__portalNavList = (hit && hit.data) ? JSON.parse(JSON.stringify(hit.data)) : [];
+    }
+    if (!store.__portalContents) {
+      store.__portalContents = {};
+      for (var k in store) {
+        if (!Object.prototype.hasOwnProperty.call(store, k)) continue;
+        var m = k.match(/\/dci\/portal\/nav\/([^/]+)\/contents$/);
+        if (m && store[k] && store[k].data) store.__portalContents[m[1]] = JSON.parse(JSON.stringify(store[k].data));
+      }
+    }
+    if (!store.__portalArticles) {
+      var ahit = store["GET /api/v1/dciManage/dci/portal/article/list"];
+      store.__portalArticles = (ahit && ahit.rows) ? JSON.parse(JSON.stringify(ahit.rows)) : [];
+    }
+    return store;
+  }
+  function portalNavMockHandle(method, path, data, rawUrl) {
+    if (path.indexOf("/dci/portal/") !== 0 && path.indexOf("/system/dict/data/type/sys_normal_disable") !== 0) return null;
+    var store = ensurePortalStore();
+    var m = String(method || "GET").toUpperCase();
+    if ((path === "/system/dict/data/type/sys_normal_disable" || path === "/api/v1/dciManage/system/dict/data/type/sys_normal_disable") && m === "GET") {
+      return portalOk100([
+        { dictLabel: "正常", dictValue: "0", listClass: "success", cssClass: "", status: "0" },
+        { dictLabel: "停用", dictValue: "1", listClass: "danger", cssClass: "", status: "0" }
+      ]);
+    }
+    if (path.indexOf("/dci/portal/") !== 0) return null;
+    if (path === "/dci/portal/nav/list" && m === "GET") {
+      return portalOk100(store.__portalNavList.slice());
+    }
+    var navOne = path.match(/^\/dci\/portal\/nav\/([^/]+)$/);
+    if (navOne && m === "GET") {
+      var id = decodeURIComponent(navOne[1]);
+      for (var i = 0; i < store.__portalNavList.length; i++) {
+        if (String(store.__portalNavList[i].id) === id) return portalOk100(store.__portalNavList[i]);
+      }
+      return portalOk100(null);
+    }
+    if (path === "/dci/portal/nav" && m === "POST") {
+      var row = Object.assign({}, data || {});
+      if (!row.id) row.id = String(Date.now());
+      var found = false;
+      for (var j = 0; j < store.__portalNavList.length; j++) {
+        if (String(store.__portalNavList[j].id) === String(row.id)) {
+          store.__portalNavList[j] = Object.assign({}, store.__portalNavList[j], row);
+          found = true; break;
+        }
+      }
+      if (!found) store.__portalNavList.push(row);
+      store["GET /api/v1/dciManage/dci/portal/nav/list"] = portalOk100(store.__portalNavList);
+      return portalOk100(row, "保存成功");
+    }
+    if (navOne && m === "DELETE") {
+      var did = decodeURIComponent(navOne[1]);
+      store.__portalNavList = store.__portalNavList.filter(function (r) { return String(r.id) !== did; });
+      delete store.__portalContents[did];
+      store["GET /api/v1/dciManage/dci/portal/nav/list"] = portalOk100(store.__portalNavList);
+      return portalOk100(null, "删除成功");
+    }
+    var contents = path.match(/^\/dci\/portal\/nav\/([^/]+)\/contents$/);
+    if (contents && m === "GET") {
+      var cid = decodeURIComponent(contents[1]);
+      return portalOk100((store.__portalContents[cid] || []).slice());
+    }
+    if (path === "/dci/portal/nav/content" && m === "POST") {
+      var c = Object.assign({}, data || {});
+      if (!c.id) c.id = String(Date.now());
+      var nid = String(c.navId || "");
+      if (!store.__portalContents[nid]) store.__portalContents[nid] = [];
+      var clist = store.__portalContents[nid];
+      var cfound = false;
+      for (var x = 0; x < clist.length; x++) {
+        if (String(clist[x].id) === String(c.id)) { clist[x] = Object.assign({}, clist[x], c); cfound = true; break; }
+      }
+      if (!cfound) clist.push(c);
+      return portalOk100(c, "保存成功");
+    }
+    var cdel = path.match(/^\/dci\/portal\/nav\/content\/([^/]+)$/);
+    if (cdel && m === "DELETE") {
+      var cdid = decodeURIComponent(cdel[1]);
+      Object.keys(store.__portalContents).forEach(function (k) {
+        store.__portalContents[k] = (store.__portalContents[k] || []).filter(function (r) { return String(r.id) !== cdid; });
+      });
+      return portalOk100(null, "删除成功");
+    }
+    if (path === "/dci/portal/article/list" && m === "GET") {
+      var qTitle = parsedSearchParam(rawUrl, "title");
+      var qStatus = parsedSearchParam(rawUrl, "status");
+      var qAudit = parsedSearchParam(rawUrl, "auditStatus");
+      var qCat = parsedSearchParam(rawUrl, "category") || "FAQ";
+      var list = store.__portalArticles.slice();
+      if (qCat) list = list.filter(function (r) { return r.category === qCat; });
+      if (qTitle) list = list.filter(function (r) { return String(r.title || "").indexOf(qTitle) >= 0; });
+      if (qStatus) list = list.filter(function (r) { return r.status === qStatus; });
+      if (qAudit) list = list.filter(function (r) { return r.auditStatus === qAudit; });
+      return portalPage(list, list.length);
+    }
+    if (path === "/dci/portal/article" && m === "POST") {
+      var art = Object.assign({}, data || {});
+      if (!art.id) {
+        art.id = String(Date.now());
+        art.status = art.status || "DRAFT";
+        art.auditStatus = art.auditStatus || "PENDING";
+        art.createdAt = new Date().toISOString().replace("T", " ").slice(0, 19);
+      }
+      art.updatedAt = new Date().toISOString().replace("T", " ").slice(0, 19);
+      var af = false;
+      for (var ai = 0; ai < store.__portalArticles.length; ai++) {
+        if (String(store.__portalArticles[ai].id) === String(art.id)) {
+          store.__portalArticles[ai] = Object.assign({}, store.__portalArticles[ai], art, {
+            status: "DRAFT",
+            auditStatus: "PENDING"
+          });
+          af = true; break;
+        }
+      }
+      if (!af) store.__portalArticles.push(art);
+      return portalOk100(art, "保存成功");
+    }
+    var adel = path.match(/^\/dci\/portal\/article\/([^/]+)$/);
+    if (adel && m === "DELETE") {
+      var adid = decodeURIComponent(adel[1]);
+      store.__portalArticles = store.__portalArticles.filter(function (r) { return String(r.id) !== adid; });
+      return portalOk100(null, "删除成功");
+    }
+    var aaudit = path.match(/^\/dci\/portal\/article\/([^/]+)\/audit$/);
+    if (aaudit && (m === "PUT" || m === "POST")) {
+      var aaid = decodeURIComponent(aaudit[1]);
+      var st = parsedSearchParam(rawUrl, "status") || (data && data.status) || "PUBLISHED";
+      for (var aj = 0; aj < store.__portalArticles.length; aj++) {
+        if (String(store.__portalArticles[aj].id) === aaid) {
+          if (st === "PUBLISHED") {
+            store.__portalArticles[aj].status = "PUBLISHED";
+            store.__portalArticles[aj].auditStatus = "PASS";
+          } else if (st === "OFFLINE") {
+            store.__portalArticles[aj].status = "OFFLINE";
+          } else {
+            store.__portalArticles[aj].status = st;
+          }
+          return portalOk100(store.__portalArticles[aj], "操作成功");
+        }
+      }
+      return portalOk100(null);
+    }
+    if (path === "/dci/portal/block/list" && m === "GET") return portalOk100([]);
+    if (path === "/dci/portal/block/save" && m === "POST") return portalOk100(data || {}, "保存成功");
+    return null;
+  }
+
   function handle(method, rawUrl, body) {
     var m = String(method || "GET").toUpperCase();
     var path = apiPath(rawUrl);
     var data = parseBody(body);
-
+    var portalHit = portalNavMockHandle(m, path, data, rawUrl);
+    if (portalHit) return portalHit;
 
     // DCI码分配列表：按 tab caseType 过滤
     if ((m === "POST" || m === "GET") && /\/dci\/applyDoc\/cursorList$/.test(path)) {

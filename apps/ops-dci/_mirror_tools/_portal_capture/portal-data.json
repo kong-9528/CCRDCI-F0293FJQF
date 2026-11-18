@@ -1,0 +1,532 @@
+{
+  "nav": [
+    {
+      "id": "1",
+      "title": "首页",
+      "columnType": "COMPONENT",
+      "componentCode": "HOME",
+      "routePath": "/",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 1,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "官方门户首页"
+    },
+    {
+      "id": "2112378438006984706",
+      "title": "DCI体系",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_SYSTEM",
+      "routePath": "/dci/system",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 2,
+      "isVisible": 1,
+      "status": "0",
+      "description": null
+    },
+    {
+      "id": "3",
+      "title": "DCI标准",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_STANDARD",
+      "routePath": "/dci/standard",
+      "externalUrl": null,
+      "target": "_blank",
+      "sortOrder": 3,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "DCI标准体系说明"
+    },
+    {
+      "id": "4",
+      "title": "DCI注册中心",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_REGORG",
+      "routePath": "/dci/regorg/portal",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 4,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "DCI注册中心门户申请"
+    },
+    {
+      "id": "5",
+      "title": "DCI生态",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_ECO",
+      "routePath": "/dci/eco",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 5,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "DCI可信生态伙伴"
+    },
+    {
+      "id": "6",
+      "title": "DCI实验室",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_LAB",
+      "routePath": "/dci/lab",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 6,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "DCI联合实验室"
+    },
+    {
+      "id": "7",
+      "title": "DCI查询",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_QUERY",
+      "routePath": "/dci/query",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 7,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "DCI权威凭证查验弹窗/页面"
+    },
+    {
+      "id": "8",
+      "title": "常见问题",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_FAQ",
+      "routePath": "/dci/faq",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 8,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "常见问题解答"
+    },
+    {
+      "id": "9",
+      "title": "联系我们",
+      "columnType": "COMPONENT",
+      "componentCode": "CONTACT_US",
+      "routePath": "/dci/contact",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 9,
+      "isVisible": 1,
+      "status": "ACTIVE",
+      "description": "联系我们官方信息"
+    },
+    {
+      "id": "10",
+      "title": "DCI®技术服务中心",
+      "columnType": "COMPONENT",
+      "componentCode": "DCI_TECH_CENTER",
+      "routePath": "/dci/tech-center",
+      "externalUrl": null,
+      "target": "_self",
+      "sortOrder": 10,
+      "isVisible": 1,
+      "status": "0",
+      "description": "技术服务中心"
+    }
+  ],
+  "articles": [
+    {
+      "id": "1001",
+      "category": "FAQ",
+      "title": "什么是 DCI 数字版权唯一标识符？",
+      "content": "DCI (Digital Copyright Identifier) 是数字空间中唯一的版权身份证和权益凭证，由中国版权保护中心统一发码与管理，实现版权的可信存照与全网确权。",
+      "summary": null,
+      "coverImage": null,
+      "sortOrder": 1,
+      "status": "PUBLISHED",
+      "auditStatus": "PASS",
+      "createdAt": "2026-10-12 17:23:25",
+      "updatedAt": "2026-10-24 05:03:54"
+    },
+    {
+      "id": "1002",
+      "category": "FAQ",
+      "title": "DCI 体系是什么？",
+      "content": "DCI体系是以DCI国家标准为引领，以标准化标识为基础手段，以AI、区块链等新技术的系统集成应用为驱动，涵盖标准、技术协议、产品服务、新型数智基础设施和生态联盟于一体的体系化解决方案。",
+      "summary": null,
+      "coverImage": null,
+      "sortOrder": 2,
+      "status": "PUBLISHED",
+      "auditStatus": "PASS",
+      "createdAt": "2026-10-12 17:23:25",
+      "updatedAt": "2026-10-12 17:23:25"
+    },
+    {
+      "id": "1003",
+      "category": "FAQ",
+      "title": "如何申请成为 DCI 注册中心？",
+      "content": "具备互联网平台运营资格与数据治理能力的企事业单位，均可通过主页“如何申请成为 DCI 注册中心”在线提交主体资质材料，经评估认证后签订合作协议。",
+      "summary": null,
+      "coverImage": null,
+      "sortOrder": 3,
+      "status": "PUBLISHED",
+      "auditStatus": "PASS",
+      "createdAt": "2026-10-12 17:23:25",
+      "updatedAt": "2026-10-12 17:23:25"
+    },
+    {
+      "id": "1004",
+      "category": "FAQ",
+      "title": "DCI 存照凭证具备司法法律效力吗？",
+      "content": "具备。DCI 体系融合了区块链不可篡改技术与国家级时间戳校验，存储结果直接对接司法存证链，在知识产权维权诉讼中具备权威证据效力。",
+      "summary": null,
+      "coverImage": null,
+      "sortOrder": 4,
+      "status": "PUBLISHED",
+      "auditStatus": "PASS",
+      "createdAt": "2026-10-12 17:23:25",
+      "updatedAt": "2026-10-12 17:23:25"
+    },
+    {
+      "id": "1005",
+      "category": "FAQ",
+      "title": "DCI 申领业务都支持哪些作品？",
+      "content": "著作权法规定的作品均支持，包括文字作品；音乐、戏剧、曲艺、舞蹈作品；美术、建筑作品；摄影作品；视听作品；计算机软件；符合作品特征的其他智力成果（如数据集、AI生成内容等）。",
+      "summary": null,
+      "coverImage": null,
+      "sortOrder": 5,
+      "status": "PUBLISHED",
+      "auditStatus": "PASS",
+      "createdAt": "2026-10-12 17:23:25",
+      "updatedAt": "2026-10-12 17:23:25"
+    }
+  ],
+  "contents": {
+    "1": [
+      {
+        "id": "101",
+        "navId": "1",
+        "contentKey": "hero",
+        "title": "DCI（数字版权唯一标识符）",
+        "subTitle": "权益凭证",
+        "textContent": "——数字空间唯一“版权身份证”和“权益凭证”",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "0"
+      },
+      {
+        "id": "102",
+        "navId": "1",
+        "contentKey": "system_intro",
+        "title": "DCI体系",
+        "subTitle": null,
+        "textContent": "DCI体系是以DCI国家标准为引领，以标准化标识为基础手段，以AI、区块链等新技术的系统集成应用为驱动，涵盖标准、技术协议、产品服务、新型数智基础设施和生态联盟于一体的体系化解决方案。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "0"
+      },
+      {
+        "id": "105",
+        "navId": "1",
+        "contentKey": "banner_2",
+        "title": "DCI体系4.0(全球版权数据中心)",
+        "subTitle": null,
+        "textContent": "——AI时代的版权可信数智基础设施",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "0"
+      },
+      {
+        "id": "103",
+        "navId": "1",
+        "contentKey": "standard_intro",
+        "title": "DCI标准",
+        "subTitle": null,
+        "textContent": "DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系，并面向音视图文等各垂直领域数字生态及AI新业态新场景开展贯标试点应用。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "104",
+        "navId": "1",
+        "contentKey": "regorg_intro",
+        "title": "DCI注册中心——DCI可信生态合作伙伴",
+        "subTitle": null,
+        "textContent": "DCI注册中心是经DCI管理中心评估认证，负责DCI业务的标准化落地与数据运营",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 4,
+        "status": "0"
+      }
+    ],
+    "3": [
+      {
+        "id": "301",
+        "navId": "3",
+        "contentKey": "standard_desc",
+        "title": "DCI标准体系",
+        "subTitle": null,
+        "textContent": "DCI体系始终以标准为创新引领，逐步构建以DCI国家标准为核心的版权标准体系，并面向音视图文等各垂直领域数字生态及AI新业态新场景开展贯标试点应用。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "302",
+        "navId": "3",
+        "contentKey": "dci_intro",
+        "title": "DCI",
+        "subTitle": null,
+        "textContent": "DCI，英文全称Digital Copyright Identifier，中文名称为数字版权唯一标识符。是数字网络环境下用于唯一标识和描述权利人对其符合作品特征的智力成果享有权益的一组字符，适用于版权创造、运用、保护、管理、服务等全生命周期的标识体系构建与数据互操作。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "303",
+        "navId": "3",
+        "contentKey": "national_standard",
+        "title": "国家标准",
+        "subTitle": null,
+        "textContent": "《GB/T 45913-2025数字版权唯一标识符（DCI）》国家标准由国家市场监督管理总局和国标委共同发布2025年11月1日起正式实施。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "304",
+        "navId": "3",
+        "contentKey": "industry_standard",
+        "title": "行业标准",
+        "subTitle": null,
+        "textContent": "行业标准体系覆盖数字版权核心元数据规范、标识编码与解析、版权资产跨链流通及全网监测保护技术标准。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 4,
+        "status": "ACTIVE"
+      }
+    ],
+    "4": [
+      {
+        "id": "401",
+        "navId": "4",
+        "contentKey": "banner",
+        "title": "DCI注册中心",
+        "subTitle": "——DCI可信生态合作伙伴",
+        "textContent": "DCI注册中心是经DCI管理中心评估认证的DCI可信生态合作伙伴，负责 DCI 业务的标准化落地与数据运营。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "0"
+      },
+      {
+        "id": "402",
+        "navId": "4",
+        "contentKey": "apply_intro",
+        "title": "如何申请成为DCI注册中心",
+        "subTitle": null,
+        "textContent": "具备互联网平台运营资格与数据治理能力的企事业单位，均可通过主页“如何申请成为 DCI 注册中心”在线提交主体资质材料，经评估认证后签订合作协议。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "403",
+        "navId": "4",
+        "contentKey": "regorg_duty",
+        "title": "DCI注册中心职责",
+        "subTitle": null,
+        "textContent": "DCI注册中心是经DCI管理中心评估认证的DCI可信生态合作伙伴，负责 DCI 业务的标准化落地与数据运营。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      }
+    ],
+    "5": [
+      {
+        "id": "501",
+        "navId": "5",
+        "contentKey": "eco_desc",
+        "title": "DCI可信生态伙伴",
+        "subTitle": null,
+        "textContent": "秉承“共建、共治、共享”理念，共同构建DCI可信生态。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      }
+    ],
+    "6": [
+      {
+        "id": "601",
+        "navId": "6",
+        "contentKey": "lab_desc",
+        "title": "DCI联合实验室",
+        "subTitle": null,
+        "textContent": "DCI技术研究与应用联合实验室，探索AI时代的数字版权技术前沿。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "602",
+        "navId": "6",
+        "contentKey": "banner",
+        "title": "DCI技术研究与应用联合实验室",
+        "subTitle": null,
+        "textContent": "探索AI时代的数字版权技术前沿",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "603",
+        "navId": "6",
+        "contentKey": "lab_direction",
+        "title": "DCI实验室科研方向",
+        "subTitle": null,
+        "textContent": "作为版权科技的倡导者、践行者和传播者，DCI实验室始终坚持“共建、共治、共享”的核心理念。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "604",
+        "navId": "6",
+        "contentKey": "lab_result",
+        "title": "DCI实验室核心科研成果",
+        "subTitle": null,
+        "textContent": "版权智能能力，研发攻关版权登记智能辅助审核能力。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 4,
+        "status": "0"
+      }
+    ],
+    "7": [],
+    "8": [],
+    "9": [],
+    "10": [
+      {
+        "id": "1001c",
+        "navId": "10",
+        "contentKey": "banner",
+        "title": "DCI®技术服务中心",
+        "subTitle": null,
+        "textContent": "以DCI国家标准为引领，以DCI体系4.0（全球版权数据中心）版权数智基础设施为底层支撑，基于DCI可信版权数据构建的技术服务支撑能力",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "0"
+      },
+      {
+        "id": "1002c",
+        "navId": "10",
+        "contentKey": "verify_section",
+        "title": "版权核验",
+        "subTitle": null,
+        "textContent": "基于DCI国家标准和全球版权数据中心的可信版权数据，面向机构提供版权核验标准化服务",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "0"
+      },
+      {
+        "id": "1003c",
+        "navId": "10",
+        "contentKey": "verify_card_1",
+        "title": "DCI核验",
+        "subTitle": null,
+        "textContent": "对提供的DCI码或作品样本进行核验，确认DCI码的真实性和有效性。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      }
+    ],
+    "2112378438006984706": [
+      {
+        "id": "201",
+        "navId": "2112378438006984706",
+        "contentKey": "banner",
+        "title": "DCI体系4.0(全球版权数据中心)",
+        "subTitle": null,
+        "textContent": "——AI时代的版权可信数智基础设施",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 1,
+        "status": "0"
+      },
+      {
+        "id": "202",
+        "navId": "2112378438006984706",
+        "contentKey": "system_desc",
+        "title": "DCI体系",
+        "subTitle": null,
+        "textContent": "DCI体系是以DCI国家标准为引领，以标准化标识为基础手段，以AI、区块链等新技术的系统集成应用为驱动，涵盖标准、技术协议、产品服务、新型数智基础设施和生态联盟于一体的体系化解决方案。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 2,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "203",
+        "navId": "2112378438006984706",
+        "contentKey": "history_1",
+        "title": "DCI体系1.0 (2011-2017)",
+        "subTitle": "2011-2017",
+        "textContent": "提出DCI体系概念、研制核心标准。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 3,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "204",
+        "navId": "2112378438006984706",
+        "contentKey": "history_2",
+        "title": "DCI体系2.0 (2018-2021)",
+        "subTitle": "2018-2021",
+        "textContent": "面向内容创作终端与发布源头，聚力推进关键技术能力研发集成及版权服务基础设施建设。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 4,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "205",
+        "navId": "2112378438006984706",
+        "contentKey": "history_3",
+        "title": "DCI体系3.0 (2022-2024)",
+        "subTitle": "2022-2024",
+        "textContent": "以 “区块链 +”“人工智能 +” 融合应用为驱动，联合各伙伴单位共建数字版权链（DCI 体系 3.0），聚焦研发孵化平台级版权智能化可信服务能力，夯实数字版权服务技术底座。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 5,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "206",
+        "navId": "2112378438006984706",
+        "contentKey": "history_4",
+        "title": "DCI体系4.0 (2025-)",
+        "subTitle": "2025-",
+        "textContent": "以DCI国家标准发布实施为契机，以AI等新技术在版权领域的集成创新应用为驱动，打造全球版权数据中心1.0，探索构建AI时代的版权可信数据基础设施和版权全生命周期解决方案。",
+        "imageUrl": null,
+        "linkUrl": null,
+        "sortOrder": 6,
+        "status": "ACTIVE"
+      }
+    ]
+  }
+}
