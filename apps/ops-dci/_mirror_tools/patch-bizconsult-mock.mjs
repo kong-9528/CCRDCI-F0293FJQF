@@ -16,11 +16,11 @@ const rows = [
   {
     id: "101",
     orgName: "深圳市雅昌艺术网股份有限公司",
-    contactPerson: "王敏",
+    contactPerson: "刘晓雯",
     phoneNumber: "13800138001",
     consultType: "1",
     description:
-      "您好，我们是艺术内容平台，希望申请成为 DCI 注册中心。想了解申请材料、审核周期，以及测试环境开通方式，请协助对接。",
+      "我们这边想申请开通 DCI 注册中心，主要服务书画、影像类作品确权。想先确认一下：需要准备哪些材料、大概多久能审完，测试环境什么时候能开？麻烦帮忙对接一下。",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -32,12 +32,12 @@ const rows = [
   },
   {
     id: "102",
-    orgName: "杭州青禾数字传媒有限公司",
-    contactPerson: "陈思远",
+    orgName: "杭州网易云音乐有限公司",
+    contactPerson: "周俊杰",
     phoneNumber: "13912345678",
     consultType: "2",
     description:
-      "在门户「联系我们」提交后想补充说明：技术服务中心申请上传营业执照时提示「文件类型不支持」。已试 PDF、JPG，均小于 5MB，请问支持哪些格式？",
+      "申请技术服务中心时上传营业执照一直提示「文件类型不支持」。我试了 PDF 和 JPG，都不到 2MB，还是不行。请问现在支持哪些格式、大小上限是多少？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -50,11 +50,11 @@ const rows = [
   {
     id: "103",
     orgName: "上海阅文信息技术有限公司",
-    contactPerson: "韩立",
+    contactPerson: "张丽华",
     phoneNumber: "13687654321",
     consultType: "1",
     description:
-      "我司文学平台计划为网文作品批量确权并申领 DCI 码。想咨询：适合自建注册中心还是接入现有注册中心？接口能力与内容合规有哪些要求？",
+      "我们网文业务量比较大，想给作品批量确权、申领 DCI 码。不清楚该自己建注册中心，还是对接你们现有的注册中心更合适？另外接口侧对内容合规有没有硬性要求？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -66,12 +66,12 @@ const rows = [
   },
   {
     id: "104",
-    orgName: "成都星澜影音文化工作室",
-    contactPerson: "林婉清",
+    orgName: "成都索拓文化传播有限公司",
+    contactPerson: "陈鹏",
     phoneNumber: "13700001122",
     consultType: "1",
     description:
-      "我们是独立音乐厂牌，希望在发行链路嵌入 DCI 码做确权与分发追踪。请问是否有音频类作品对接说明或样例文档？方便发到我邮箱。",
+      "我们是音乐厂牌，发行侧想嵌入 DCI 码做确权和分发追踪。有没有音频作品的对接文档或样例？方便的话发到我这个手机号绑定的邮箱。",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -83,12 +83,12 @@ const rows = [
   },
   {
     id: "105",
-    orgName: "北京知信版权科技有限公司",
-    contactPerson: "赵明哲",
+    orgName: "北京版权保护中心有限公司",
+    contactPerson: "王志强",
     phoneNumber: "15010203040",
     consultType: "2",
     description:
-      "测试环境调用发码接口返回「AccessKey 无效」。密钥已按邮件配置，环境变量也核对过。请帮忙确认账号是否已开通、密钥是否过期。",
+      "测试环境调发码接口一直报 AccessKey 无效。密钥是按开通邮件配的，本地环境变量也核对过两遍了。能不能帮看下账号开通过没有、密钥是不是过期了？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -100,12 +100,12 @@ const rows = [
   },
   {
     id: "106",
-    orgName: "广州南湾短视频科技有限公司",
-    contactPerson: "吴佳宁",
+    orgName: "北京快手科技有限公司",
+    contactPerson: "黄婷",
     phoneNumber: "18611112222",
     consultType: "1",
     description:
-      "希望就短视频 / 直播内容的 DCI 标识合作沟通：注册中心能力、可开放接口，以及后续运营支持方式。期待安排一次线上会议。",
+      "短视频、直播内容这边想接 DCI 标识，想先了解注册中心能提供哪些能力、能开哪些接口，后面运营支持怎么做。方便约个线上会细聊吗？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -118,11 +118,11 @@ const rows = [
   {
     id: "107",
     orgName: "中国音像著作权集体管理协会",
-    contactPerson: "孙启明",
+    contactPerson: "李建国",
     phoneNumber: "15801020304",
     consultType: "1",
     description:
-      "作为集体管理组织，想了解 DCI 体系如何与现有著作权集体管理业务协同，以及成员单位接入注册中心的可行路径与材料要求。",
+      "我们是集体管理组织，想了解 DCI 和现有音著集体管理业务怎么协同。成员单位如果要接入注册中心，路径大概怎么走、材料要交哪些？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -134,12 +134,12 @@ const rows = [
   },
   {
     id: "108",
-    orgName: "南京云图教育科技有限公司",
-    contactPerson: "何雨桐",
+    orgName: "江苏凤凰数字科技有限公司",
+    contactPerson: "徐敏",
     phoneNumber: "13122334455",
     consultType: "2",
     description:
-      "门户账号已完成实名，但在「我的申请」里看不到注册中心进度。请问手机号、主体名称是否必须与营业执照完全一致？如何自查卡在哪一步？",
+      "门户实名已经过了，但「我的申请」里看不到注册中心进度。手机号、公司名是不是必须和执照一字不差？有没有办法自己查卡在哪一步？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -151,12 +151,12 @@ const rows = [
   },
   {
     id: "109",
-    orgName: "深圳拾光影像有限公司",
-    contactPerson: "郑凯",
+    orgName: "深圳市腾讯计算机系统有限公司",
+    contactPerson: "马晓东",
     phoneNumber: "18800009988",
     consultType: "2",
     description:
-      "咨询一下：作品已有版权登记证书，是否还需要单独申领 DCI 码？对外展示时登记号与 DCI 码分别怎么引用比较合适？",
+      "作品已经拿过版权登记证书了，还需要再单独申领 DCI 码吗？对外展示的时候登记号和 DCI 码一般怎么一起用比较规范？",
     smsCode: null,
     status: "0",
     replyContent: null,
@@ -169,11 +169,11 @@ const rows = [
   {
     id: "110",
     orgName: "北京中文在线数字出版股份有限公司",
-    contactPerson: "许清扬",
+    contactPerson: "赵雪梅",
     phoneNumber: "13566778899",
     consultType: "1",
     description:
-      "数字出版业务希望对接 DCI 唯一标识，用于电子书发行与渠道分发。请告知合作准入条件、接口文档申请方式，以及商务对接人联系方式。",
+      "电子书发行和渠道分发想对接 DCI 唯一标识。请问合作准入条件是什么、接口文档怎么申请，以及商务对接人怎么联系？",
     smsCode: null,
     status: "0",
     replyContent: null,
