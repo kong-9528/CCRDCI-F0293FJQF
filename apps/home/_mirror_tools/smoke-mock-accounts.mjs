@@ -18,6 +18,15 @@ const USERS = [
     expectOpen: ["未开通", "申请成为注册中心", "申请接入技术服务中心"],
   },
   {
+    key: "yachang1",
+    user: "yachang1",
+    pass: "Abcd1234",
+    expectMenu: ["账号中心", "DCI注册中心工作台", "申请接入技术服务中心", "退出登录"],
+    forbid: ["技术服务中心工作台"],
+    expectOpened: "DCI注册中心",
+    expectOpen: ["已开通", "进入工作台", "申请接入技术服务中心"],
+  },
+  {
     key: "mayi",
     user: "mayi",
     pass: "Abcd1234",

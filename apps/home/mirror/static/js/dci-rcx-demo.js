@@ -98,8 +98,16 @@
     var M = window.__DCI_MOCK__;
     var u = M && M.currentUser && M.currentUser();
     if (u && (u.username === "mayi" || u.username === "mayi2")) return "ANT";
+    if (u && u.username === "yachang1") return "ART";
     if (u && u.username) return "ANT";
     return "ANT";
+  }
+
+  function resolveCodeTypes() {
+    var M = window.__DCI_MOCK__;
+    var u = M && M.currentUser && M.currentUser();
+    if (u && u.username === "yachang1") return ["原始分配"];
+    return ALL_CODE_TYPES.slice();
   }
 
   function shapeOrg(body) {
@@ -107,6 +115,7 @@
     var prev = (body && body.data) || {};
     var code = mode.orgCode ? resolveOrgCode() : "";
     var configured = !!mode.configured;
+    var codeTypes = resolveCodeTypes();
     return {
       code: 200,
       msg: "操作成功",
@@ -126,7 +135,7 @@
         regOrgName: prev.regOrgName || prev.orgName || "演示登记机构",
         orgCode: code || "",
         dciRegOrgCode: code || "",
-        dciCodeType: configured ? ALL_CODE_TYPES.join(",") : "",
+        dciCodeType: configured ? codeTypes.join(",") : "",
         dciDataInterface: configured ? ALL_DATA_APIS.join(",") : "",
         apiPermissions: configured
           ? '[{"interfaceId":"2080587923100037121","startDate":"2026-09-09"},{"interfaceId":"2080588010370920449","startDate":"2026-09-09"},{"interfaceId":"2070330053367017473","startDate":"2026-09-09"},{"interfaceId":"2055556104074723330","startDate":"2026-09-09"}]'
@@ -262,6 +271,8 @@
     getModeId: getModeId,
     setModeId: setModeId,
     shapeOrg: shapeOrg,
+    resolveCodeTypes: resolveCodeTypes,
+    resolveOrgCode: resolveOrgCode,
     isInfoPage: isInfoPage,
     isDemoPage: isDemoPage,
     wantsApiPermissions: wantsApiPermissions,

@@ -34,9 +34,13 @@ function resolveView(apiData){
     return{orgCode:"",codeTypes:[],dataApis:[]};
   }
   if(demoFlag===true){
+    const typed=
+      typeof demo.resolveCodeTypes==="function"
+        ? demo.resolveCodeTypes()
+        : (demo.ALL_CODE_TYPES||FALLBACK_TYPES).slice();
     return{
-      orgCode:raw.orgCode||raw.dciRegOrgCode||"ANT",
-      codeTypes:(demo.ALL_CODE_TYPES||FALLBACK_TYPES).slice(),
+      orgCode:raw.orgCode||raw.dciRegOrgCode||(typeof demo.resolveOrgCode==="function"?demo.resolveOrgCode():"ANT"),
+      codeTypes:typed.slice(),
       dataApis:(demo.ALL_DATA_APIS||FALLBACK_APIS).slice()
     };
   }
@@ -47,7 +51,7 @@ function resolveView(apiData){
   }
   return{
     orgCode:raw.orgCode||raw.dciRegOrgCode||"ANT",
-    codeTypes:types.length?types:(demo.ALL_CODE_TYPES||FALLBACK_TYPES).slice(),
+    codeTypes:types.length?types:(typeof demo.resolveCodeTypes==="function"?demo.resolveCodeTypes():(demo.ALL_CODE_TYPES||FALLBACK_TYPES).slice()),
     dataApis:apis.length?apis:(demo.ALL_DATA_APIS||FALLBACK_APIS).slice()
   };
 }

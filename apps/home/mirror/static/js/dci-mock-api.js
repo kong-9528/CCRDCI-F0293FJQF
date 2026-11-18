@@ -134,6 +134,17 @@
     { id: 3, appOrgName: "星图内容确权系统", appOrgCode: "XT4P920", appOrgStatus: "停用", createTime: "2026-01-18 10:05:22" },
     { id: 4, appOrgName: "映像媒资管理平台", appOrgCode: "YX7M358", appOrgStatus: "正常", createTime: "2026-02-26 16:48:03" },
   ];
+  var APPORG_USER_ROWS = {
+    yachang1: [
+      {
+        id: 101,
+        appOrgName: "雅昌艺术家艺术数字文献系统",
+        appOrgCode: "DCS00",
+        appOrgStatus: "正常",
+        createTime: "2026-03-01 10:00:00",
+      },
+    ],
+  };
   var APPORG_RECORDS = {
     1: [
       { appOrgName: "版权云创作平台", appOrgCode: "CCY8K21", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-03-01 11:12:08" },
@@ -150,8 +161,17 @@
     4: [
       { appOrgName: "映像媒资管理平台", appOrgCode: "YX7M358", appOrgStatus: "正常", createBy: "mayi2", createTime: "2026-02-26 16:48:03" },
     ],
+    101: [
+      {
+        appOrgName: "雅昌艺术家艺术数字文献系统",
+        appOrgCode: "DCS00",
+        appOrgStatus: "正常",
+        createBy: "yachang1",
+        createTime: "2026-03-01 10:00:00",
+      },
+    ],
   };
-  var apporgSeq = 5;
+  var apporgSeq = 200;
 
   function nowStamp() {
     var d = new Date();
@@ -159,10 +179,24 @@
     return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
   }
 
+  function currentAppOrgRows() {
+    var u = currentUser();
+    var key = u && u.username ? String(u.username).toLowerCase() : "";
+    if (key && APPORG_USER_ROWS[key]) return APPORG_USER_ROWS[key];
+    return APPORG_ROWS;
+  }
+
   function findAppOrg(id) {
     id = Number(id);
-    for (var i = 0; i < APPORG_ROWS.length; i++) {
-      if (Number(APPORG_ROWS[i].id) === id) return APPORG_ROWS[i];
+    var pools = [APPORG_ROWS];
+    Object.keys(APPORG_USER_ROWS).forEach(function (k) {
+      pools.push(APPORG_USER_ROWS[k]);
+    });
+    for (var p = 0; p < pools.length; p++) {
+      var rows = pools[p];
+      for (var i = 0; i < rows.length; i++) {
+        if (Number(rows[i].id) === id) return rows[i];
+      }
     }
     return null;
   }
@@ -573,7 +607,8 @@
       if (window.__DCI_RCX_DEMO__ && __DCI_RCX_DEMO__.allowAppOrg && !__DCI_RCX_DEMO__.allowAppOrg()) {
         return page([]);
       }
-      return page(APPORG_ROWS.slice(), APPORG_ROWS.length);
+      var listRows = currentAppOrgRows();
+      return page(listRows.slice(), listRows.length);
     }
     if (path.indexOf("/dci/apporg/record/") === 0 && m === "GET") {
       var rid = String(path.split("/").pop());
@@ -587,7 +622,13 @@
         appOrgStatus: "正常",
         createTime: nowStamp(),
       };
-      APPORG_ROWS.unshift(created);
+      var cu = currentUser();
+      var ukey = cu && cu.username ? String(cu.username).toLowerCase() : "";
+      if (ukey && APPORG_USER_ROWS[ukey]) {
+        APPORG_USER_ROWS[ukey].unshift(created);
+      } else {
+        APPORG_ROWS.unshift(created);
+      }
       pushAppOrgRecord(created, "正常");
       return ok(created, { msg: "创建成功（演示）" });
     }

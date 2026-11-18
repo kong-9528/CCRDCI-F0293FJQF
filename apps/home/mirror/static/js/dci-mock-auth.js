@@ -17,6 +17,20 @@
       orgTypeCode: "NRPT",
       orgTypeName: "内容平台",
     },
+    yachang1: {
+      userId: "mock-yachang1",
+      username: "yachang1",
+      nickName: "yachang1",
+      phonenumber: "13900001112",
+      auditStatus: 1,
+      techStatus: null,
+      orgName: "深圳市雅昌艺术网股份有限公司",
+      orgNamePy: "yachangyishu",
+      creditCode: "91440300724726181Q",
+      orgAddress: "深圳市南山区深云路19号",
+      orgTypeCode: "NRPT",
+      orgTypeName: "内容平台",
+    },
     mayi: {
       userId: "mock-mayi",
       username: "mayi",
@@ -152,6 +166,26 @@
         linkPhone: "13900001111",
         contractFileName: "雅昌艺术网-DCI注册中心服务合同.pdf",
         techContractFileName: "雅昌艺术网-技术服务中心开通申请合同.pdf",
+      },
+      yachang1: {
+        orgName: "深圳市雅昌艺术网股份有限公司",
+        orgNamePy: "yachangyishuwang",
+        creditCode: "91440300724726181Q",
+        orgAddress: "广东省深圳市南山区深云路19号雅昌艺术中心",
+        invitationCode: "DCI-YC-2026B",
+        techInvitationCode: "TECH-YC-2026B",
+        orgTypeCode: "NRPT",
+        orgTypeName: "内容平台",
+        cooperationField:
+          "艺术品数字版权确权、展览及出版物内容核验、DCI码申领与同步",
+        techCooperationField:
+          "艺术品数字版权确权、展览内容核验与技术服务对接",
+        contractStartDate: "2026-01-01",
+        contractEndDate: "2027-12-31",
+        linkName: "王敏",
+        linkPhone: "13900001112",
+        contractFileName: "雅昌艺术网-DCI注册中心服务合同-yachang1.pdf",
+        techContractFileName: "雅昌艺术网-技术服务中心开通申请合同-yachang1.pdf",
       },
       mayi: {
         orgName: "蚂蚁科技集团股份有限公司",
@@ -294,8 +328,16 @@
       var code =
         u.username === "mayi" || u.username === "mayi2"
           ? "ANT"
-          : "ORG-" + String(u.username || "demo").toUpperCase();
+          : u.username === "yachang1"
+            ? "ART"
+            : "ORG-" + String(u.username || "demo").toUpperCase();
       var seed = getApplySeed(u);
+      var codeTypes =
+        u.username === "yachang1"
+          ? "原始分配"
+          : "原始分配,授权分配,其他";
+      var dataApis =
+        "实名信息接口,实名信息修改接口,DCI申领数据同步接口,DCI撤销数据同步接口";
       body = {
         code: 200,
         data: Object.assign(applySeedAsOrgData(u), {
@@ -303,9 +345,8 @@
           auditStatus: u.auditStatus,
           orgCode: code,
           dciRegOrgCode: code,
-          dciCodeType: "原始分配,授权分配,其他",
-          dciDataInterface:
-            "实名信息接口,实名信息修改接口,DCI申领数据同步接口,DCI撤销数据同步接口",
+          dciCodeType: codeTypes,
+          dciDataInterface: dataApis,
           accessKey: "AK" + String(u.username || "demo").toUpperCase() + "MOCK000000000001",
           accessSecret: "SK" + String(u.username || "demo").toUpperCase() + "MOCKSECRET00000001",
           dataEncrypKey: "DEK" + String(u.username || "demo").toUpperCase() + "MOCK000000001",

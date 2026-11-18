@@ -1,5 +1,5 @@
 /**
- * Smoke: registry navbar (mayi/mayi2) + portal header (all 4 mock users).
+ * Smoke: registry navbar (mayi/mayi2/yachang1) + portal header (all mock users).
  */
 import { chromium } from "playwright";
 import { createServer } from "vite";
@@ -51,12 +51,13 @@ async function registryMenu(user) {
 }
 
 const portal = {};
-for (const u of ["yachang", "mayi", "mayi1", "mayi2"]) {
+for (const u of ["yachang", "yachang1", "mayi", "mayi1", "mayi2"]) {
   portal[u] = await portalMenu(u);
 }
 const registry = {
   mayi: await registryMenu("mayi"),
   mayi2: await registryMenu("mayi2"),
+  yachang1: await registryMenu("yachang1"),
 };
 
 await browser.close();
@@ -68,6 +69,9 @@ const rHas = (u, t) => registry[u].some((x) => x.includes(t));
 const ok =
   !pHas("yachang", "注册中心工作台") &&
   !pHas("yachang", "技术服务中心工作台") &&
+  pHas("yachang1", "DCI注册中心工作台") &&
+  !pHas("yachang1", "技术服务中心工作台") &&
+  pHas("yachang1", "申请接入技术服务中心") &&
   pHas("mayi", "DCI注册中心工作台") &&
   !pHas("mayi", "技术服务中心工作台") &&
   !pHas("mayi1", "DCI注册中心工作台") &&
@@ -81,7 +85,11 @@ const ok =
   rHas("mayi2", "DCI注册中心工作台") &&
   rHas("mayi2", "当前平台") &&
   rHas("mayi2", "技术服务中心工作台") &&
-  !rHas("mayi2", "申请接入");
+  !rHas("mayi2", "申请接入") &&
+  rHas("yachang1", "DCI注册中心工作台") &&
+  rHas("yachang1", "当前平台") &&
+  !rHas("yachang1", "技术服务中心工作台") &&
+  !rHas("yachang1", "申请接入");
 
 console.log(JSON.stringify({ portal, registry }, null, 2));
 console.log(ok ? "REGISTRY MENU OK" : "REGISTRY MENU FAIL");
