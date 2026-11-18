@@ -209,6 +209,33 @@ remapChunk("nav-DJE1X9l6.js", "nav-opsPortal.js", [
   ['from"./portal-roTwjFkg.js"', 'from"./portal-api-ops.js"'],
 ]);
 
+// Drop「快捷选择系统预设」row in 新增内容条目 dialog
+{
+  const navOut = path.join(mirrorJs, "nav-opsPortal.js");
+  let navBody = fs.readFileSync(navOut, "utf8");
+  const marker = "快捷选择系统预设";
+  const mi = navBody.indexOf(marker);
+  if (mi >= 0) {
+    const start = navBody.lastIndexOf("!X.value.id&&ke.value.length>0?", mi);
+    let end = -1;
+    for (let j = mi; j < navBody.length - 12; j++) {
+      if (navBody.startsWith(":o(", j)) {
+        const slice = navBody.slice(j, j + 16);
+        if (slice.includes("!0)")) {
+          end = j + slice.indexOf("!0)") + 3;
+          break;
+        }
+      }
+    }
+    if (start >= 0 && end > start) {
+      navBody =
+        navBody.slice(0, start) + "o(" + "``" + ",!0)" + navBody.slice(end);
+      fs.writeFileSync(navOut, navBody);
+      console.log("stripped nav preset quick-select");
+    }
+  }
+}
+
 remapChunk("article-CamFXJY1.js", "article-opsPortal.js", [
   [
     'from"./vue.runtime.esm-bundler-BBGdfCsq.js"',
