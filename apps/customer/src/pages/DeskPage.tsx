@@ -165,10 +165,7 @@ export function DeskPage() {
               </header>
 
               <div className="c-desk-group__body">
-                <ul
-                  className="c-desk-sublist"
-                  style={{ ["--desk-sub-cols" as string]: String(verifyServices.length) }}
-                >
+                <ul className="c-desk-sublist">
                   {verifyServices.map((svc) => (
                     <li
                       key={svc.product}
