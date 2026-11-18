@@ -550,6 +550,138 @@
     return out;
   }
 
+  var REGORG_VALID_IFACES = [
+    "2080587923100037121",
+    "2080588010370920449",
+    "2080588682629771266",
+    "2080588786392657922",
+  ];
+  var REGORG_IFACE_LEGACY = {
+    "2070330053367017473": "2080588682629771266",
+    "2055556104074723330": "2080588786392657922",
+    "2082016982640128002": "2080588682629771266",
+    "2059188753364221953": "2080587923100037121",
+    "2059948230564302850": "2080588010370920449",
+  };
+
+  function normalizeRegOrgApiPermissions(raw, seed) {
+    var items = [];
+    if (raw == null || raw === "" || raw === "[]") items = [];
+    else if (typeof raw === "string" && raw.charAt(0) === "[") {
+      try {
+        items = JSON.parse(raw);
+      } catch (e) {
+        items = [];
+      }
+    } else if (typeof raw === "string" && /^\d+$/.test(String(raw).trim())) {
+      items = [{ interfaceId: String(raw).trim() }];
+    } else if (Array.isArray(raw)) items = raw;
+    var seen = {};
+    var out = [];
+    for (var i = 0; i < items.length; i += 1) {
+      var it = items[i];
+      var id =
+        it && typeof it === "object"
+          ? String(it.interfaceId || it.id || "")
+          : String(it || "");
+      if (REGORG_IFACE_LEGACY[id]) id = REGORG_IFACE_LEGACY[id];
+      if (REGORG_VALID_IFACES.indexOf(id) < 0 || seen[id]) continue;
+      seen[id] = true;
+      out.push({
+        interfaceId: id,
+        startDate: (it && it.startDate) || "2026-01-01",
+      });
+    }
+    if (!out.length) {
+      var n = 1 + (Math.abs(Number(seed) || 0) % 4);
+      for (var j = 0; j < n; j += 1) {
+        out.push({
+          interfaceId: REGORG_VALID_IFACES[j],
+          startDate: "2026-01-01",
+        });
+      }
+    }
+    return JSON.stringify(out);
+  }
+
+  function polishApprovedRegOrgRows(body) {
+    if (!body || !Array.isArray(body.rows)) return body;
+    var out = JSON.parse(JSON.stringify(body));
+    for (var i = 0; i < out.rows.length; i += 1) {
+      var row = out.rows[i];
+      var u = String(row.loginUsername || "").toLowerCase();
+      if (u === "mayi" || u === "mayi1" || u === "mayi2") {
+        row.orgTypeCode = "ZYFW";
+        row.orgTypeName = "专业服务";
+      }
+      if (
+        u === "mayi" ||
+        (String(row.orgName || "").indexOf("蚂蚁科技") >= 0 &&
+          String(row.orgCode || "") === "ANT")
+      ) {
+        row.rcxType = "R";
+      }
+      if (String(row.auditStatus) !== "1") continue;
+      if (row.orgCode == null || String(row.orgCode).trim() === "") {
+        var fallbacks = {
+          demoorg_a: "HDB",
+          demoorg_b: "NFD",
+          demoorg_c: "BFB",
+          cjiu1122: "SSC",
+          "14299998888": "ZBM",
+          "13911189963": "ZXH",
+        };
+        row.orgCode =
+          fallbacks[String(row.loginUsername || "")] ||
+          "OG" + String((Number(row.id) || i) % 90);
+      }
+      row.apiPermissions = normalizeRegOrgApiPermissions(
+        row.apiPermissions,
+        row.id || i,
+      );
+    }
+    return out;
+  }
+
+  function pinRegOrgDemoRows(body, usernames, specs) {
+    if (!body || !Array.isArray(body.rows)) return body;
+    var out = JSON.parse(JSON.stringify(body));
+    var list = out.rows.slice();
+    var picked = [];
+    for (var i = 0; i < usernames.length; i += 1) {
+      var u = usernames[i];
+      var spec = (specs && specs[u]) || {};
+      var idx = -1;
+      if (typeof spec.match === "function") {
+        for (var a = 0; a < list.length; a += 1) {
+          if (spec.match(list[a])) {
+            idx = a;
+            break;
+          }
+        }
+      }
+      if (idx < 0 && typeof spec.fallback === "function") {
+        for (var b = 0; b < list.length; b += 1) {
+          if (spec.fallback(list[b])) {
+            idx = b;
+            break;
+          }
+        }
+      }
+      var row;
+      if (idx >= 0) {
+        row = list.splice(idx, 1)[0];
+      } else {
+        row = JSON.parse(JSON.stringify(list[0] || { id: String(9100 + i) }));
+      }
+      if (typeof spec.apply === "function") spec.apply(row);
+      picked.push(row);
+    }
+    out.rows = picked.concat(list);
+    if (out.total == null) out.total = out.rows.length;
+    return out;
+  }
+
   function handle(method, rawUrl, body) {
     var m = String(method || "GET").toUpperCase();
     var path = apiPath(rawUrl);
@@ -565,6 +697,123 @@
     // DCI码分配列表导出：字段与列表列一致，返回可下载 blob
     if ((m === "POST" || m === "GET") && /\/dci\/applyDoc\/export/.test(path)) {
       return mockApplyDocExport(rawUrl, body);
+    }
+
+    // 注册中心列表：待审核 / 我的审核「已通过」置顶演示账号
+    if (m === "GET" && (path === "/dci/regorg/list" || path === "/dci/regorg/myList")) {
+      var regHit = lookup(m, rawUrl);
+      var auditQ = parsedSearchParam(rawUrl, "auditStatus");
+      if (!regHit) {
+        // fall through
+      } else if (path === "/dci/regorg/list" && String(auditQ) === "0") {
+        return pinRegOrgDemoRows(regHit, ["yachang", "mayi1"], {
+          yachang: {
+            match: function (r) {
+              return String(r.loginUsername || "").toLowerCase() === "yachang";
+            },
+            fallback: function (r) {
+              return (
+                String(r.loginUsername || "") === "AAAAA1" ||
+                String(r.loginUsername || "") === "yachang01"
+              );
+            },
+            apply: function (row) {
+              row.loginUsername = "yachang";
+              row.createBy = "yachang";
+              row.orgName = "深圳市雅昌艺术网股份有限公司";
+              row.creditCode = "91440300724726181Q";
+              row.orgTypeCode = "NRPT";
+              row.orgTypeName = "内容平台";
+              row.auditStatus = "0";
+              row.orgCode = null;
+            },
+          },
+          mayi1: {
+            match: function (r) {
+              return String(r.loginUsername || "").toLowerCase() === "mayi1";
+            },
+            fallback: function (r) {
+              return (
+                String(r.loginUsername || "") === "yachang00" ||
+                String(r.loginUsername || "") === "test3"
+              );
+            },
+            apply: function (row) {
+              row.loginUsername = "mayi1";
+              row.createBy = "mayi1";
+              row.orgName = "蚂蚁科技集团股份有限公司";
+              row.creditCode = "913301067046373179";
+              row.orgTypeCode = "ZYFW";
+              row.orgTypeName = "专业服务";
+              row.auditStatus = "0";
+              row.orgCode = null;
+            },
+          },
+        });
+      } else if (
+        path === "/dci/regorg/myList" &&
+        (auditQ === "" || String(auditQ) === "1")
+      ) {
+        return polishApprovedRegOrgRows(
+          pinRegOrgDemoRows(regHit, ["yachang1", "mayi"], {
+            yachang1: {
+              match: function (r) {
+                return String(r.loginUsername || "").toLowerCase() === "yachang1";
+              },
+              fallback: function (r) {
+                return (
+                  String(r.loginUsername || "") === "yanshi" ||
+                  String(r.orgCode || "") === "ART"
+                );
+              },
+              apply: function (row) {
+                row.loginUsername = "yachang1";
+                row.createBy = "yachang1";
+                row.orgName = "深圳市雅昌艺术网股份有限公司";
+                row.creditCode = "91440300724726181Q";
+                row.orgCode = "ART";
+                row.orgTypeCode = "NRPT";
+                row.orgTypeName = "内容平台";
+                row.auditStatus = "1";
+              },
+            },
+            mayi: {
+              match: function (r) {
+                return String(r.loginUsername || "").toLowerCase() === "mayi";
+              },
+              fallback: function (r) {
+                return (
+                  String(r.loginUsername || "") === "mayi2" ||
+                  String(r.orgName || "").indexOf("蚂蚁科技") >= 0
+                );
+              },
+              apply: function (row) {
+                row.loginUsername = "mayi";
+                row.createBy = "mayi";
+                row.orgName = "蚂蚁科技集团股份有限公司";
+                row.creditCode = "913301067046373179";
+                row.orgCode = "ANT";
+                row.orgTypeCode = "ZYFW";
+                row.orgTypeName = "专业服务";
+                row.rcxType = "R";
+                row.auditStatus = "1";
+              },
+            },
+          }),
+        );
+      } else if (
+        (path === "/dci/regorg/myList" || path === "/dci/regorg/list") &&
+        String(auditQ) === "2"
+      ) {
+        return regHit || { code: 200, msg: "查询成功", rows: [], total: 0 };
+      } else if (
+        (path === "/dci/regorg/list" || path === "/dci/regorg/myList") &&
+        String(auditQ) === "1"
+      ) {
+        return polishApprovedRegOrgRows(regHit);
+      } else if (regHit) {
+        return regHit;
+      }
     }
 
     // 机构配置详情：本地 mock，不走真实接口
