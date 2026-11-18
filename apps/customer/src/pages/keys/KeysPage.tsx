@@ -8,7 +8,7 @@ import {
   IconEyeOff,
   IconWand,
 } from "@/components/icons/UiIcons";
-import { SERVICE_TABS, type ServiceTab } from "@/lib/apiStats";
+import { getServiceTabs, type ServiceTab } from "@/lib/apiStats";
 import {
   copyText,
   ensureStoredApiKey,
@@ -29,8 +29,11 @@ const REGEN_WARN =
   "请勿频繁或随意更换密钥。密钥一经更换，使用旧密钥的接口调用将立即失败，需同步将业务系统更新为新密钥后方可恢复正常调用。";
 
 export function KeysPage() {
-  const [serviceTab, setServiceTab] = useState<ServiceTab>("verify");
-  const [record, setRecord] = useState<ApiKeyRecord | null>(() => ensureStoredApiKey("verify"));
+  const tabs = getServiceTabs();
+  const [serviceTab, setServiceTab] = useState<ServiceTab>(tabs[0]?.key ?? "verify");
+  const [record, setRecord] = useState<ApiKeyRecord | null>(() =>
+    ensureStoredApiKey(tabs[0]?.key ?? "verify"),
+  );
   const [formOpen, setFormOpen] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -38,6 +41,11 @@ export function KeysPage() {
   const [copied, setCopied] = useState<"ak" | "sk" | "dek" | null>(null);
 
   useEffect(() => {
+    const next = getServiceTabs();
+    if (!next.some((t) => t.key === serviceTab) && next[0]) {
+      setServiceTab(next[0].key);
+      return;
+    }
     setRecord(ensureStoredApiKey(serviceTab));
     setRevealed(false);
     setFormOpen(false);
@@ -121,7 +129,7 @@ export function KeysPage() {
       />
 
       <div className="c-stats-service-tabs c-keys-service-tabs" role="tablist" aria-label="服务类型">
-        {SERVICE_TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"

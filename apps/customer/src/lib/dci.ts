@@ -1,3 +1,5 @@
+import { daysAgo as demoDaysAgo, nowStamp as demoNowStamp } from "@/lib/demoClock";
+
 export type DciWorkType = "software" | "work" | "dataset";
 
 export type DciVerifyStatus = "pass" | "not_found" | "fail";
@@ -187,9 +189,7 @@ export function validateDciForm(input: DciVerifyInput): string | null {
 }
 
 function daysAgo(n: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 19).replace("T", " ");
+  return demoDaysAgo(n);
 }
 
 /** 演示核验人 */
@@ -440,7 +440,7 @@ const MOCK_REGISTRY: Record<string, DciVerifyResult["snapshot"] & { workType: Dc
 };
 
 function nowStamp() {
-  return new Date().toISOString().slice(0, 19).replace("T", " ");
+  return demoNowStamp();
 }
 
 function inferWorkTypeFromCode(dciCode: string): DciWorkType {

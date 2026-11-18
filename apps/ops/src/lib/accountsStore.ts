@@ -94,7 +94,7 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     contractFiles: [
       {
         id: "af-bj-1",
-        name: "北京市人民检察院-DCI技术服务中心开通合同（版权核验）.pdf",
+        name: "北京市人民检察院-DCI技术服务中心开通合同（版权登记证书核验）.pdf",
         size: 1_420_000,
       },
       {
@@ -113,6 +113,40 @@ const MOCK_APPLICATIONS: AccountApplication[] = [
     reviewedAt: "2026-03-02 11:20:00",
     reviewer: "超级管理员",
     customerId: "bj-1",
+    requestedProducts: ["certificate"],
+  },
+  {
+    id: "app-mayi1",
+    status: "approved",
+    creditCode: "913301067046373179",
+    companyName: "蚂蚁科技集团股份有限公司",
+    contactName: "李四",
+    contactPhone: "13800008001",
+    address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+    cooperationField: "DCI核验、版权登记信息核验、版权登记证书核验",
+    contractNo: "ANT-DCI-TECH-2026-B",
+    contractFiles: [
+      {
+        id: "af-mayi1-1",
+        name: "蚂蚁科技-技术服务中心开通申请合同-mayi1.pdf",
+        size: 1_180_000,
+      },
+      {
+        id: "af-mayi1-2",
+        name: "蚂蚁科技-版权核验服务开通确认函-mayi1.pdf",
+        size: 360_000,
+      },
+    ],
+    contractStart: "2026-03-01",
+    contractEnd: "2028-02-28",
+    contractAmount: 280000,
+    account: "mayi1",
+    boundPhone: "13800008001",
+    passwordHint: "Abcd1234",
+    submittedAt: "2026-02-20 11:00:00",
+    reviewedAt: "2026-03-02 10:00:00",
+    reviewer: "超级管理员",
+    customerId: "mayi1-1",
     requestedProducts: ["dci", "info", "certificate"],
   },
   {

@@ -1,4 +1,5 @@
 import type { ProductCode } from "@/lib/catalog";
+import { daysAgo } from "@/lib/demoClock";
 import { MOCK_TENANT_SERVICES } from "@/lib/tenant";
 
 export type ReviewProductCode = Extract<ProductCode, "safety" | "duplicate" | "infringement">;
@@ -83,13 +84,13 @@ export const REVIEW_RECORD_STATUS_LABEL: Record<ReviewRecordStatus, string> = {
   reviewing: "正在审核",
 };
 
-/** 三个审核接口的共用任务流水（异步：先提交再按流水号查结果） */
+/** 三个审核接口的共用任务流水（异步：先提交再按流水号查结果；日期对齐演示今天 2026-11-18） */
 export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   {
     id: "r1",
-    taskId: "WR20260819171000421",
-    submittedAt: "2026-08-19 17:10:12",
-    finishedAt: "2026-08-19 17:12:48",
+    taskId: "WR20261118171000421",
+    submittedAt: daysAgo(0, 17, 10, 12),
+    finishedAt: daysAgo(0, 17, 12, 48),
     apiName: "疑似侵权审核",
     productCode: "infringement",
     status: "success",
@@ -97,8 +98,8 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r2",
-    taskId: "WR20260819165500388",
-    submittedAt: "2026-08-19 16:55:03",
+    taskId: "WR20261118165500388",
+    submittedAt: daysAgo(0, 16, 55, 3),
     finishedAt: null,
     apiName: "内容安全审核",
     productCode: "safety",
@@ -107,9 +108,9 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r3",
-    taskId: "WR20260819163000291",
-    submittedAt: "2026-08-19 16:30:44",
-    finishedAt: "2026-08-19 16:31:18",
+    taskId: "WR20261117163000291",
+    submittedAt: daysAgo(1, 16, 30, 44),
+    finishedAt: daysAgo(1, 16, 31, 18),
     apiName: "作品登记查重",
     productCode: "duplicate",
     status: "success",
@@ -117,9 +118,9 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r4",
-    taskId: "WR20260819152200156",
-    submittedAt: "2026-08-19 15:22:09",
-    finishedAt: "2026-08-19 15:25:41",
+    taskId: "WR20261116152200156",
+    submittedAt: daysAgo(2, 15, 22, 9),
+    finishedAt: daysAgo(2, 15, 25, 41),
     apiName: "疑似侵权审核",
     productCode: "infringement",
     status: "fail",
@@ -127,8 +128,8 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r5",
-    taskId: "WR20260819145500102",
-    submittedAt: "2026-08-19 14:55:27",
+    taskId: "WR20261115145500102",
+    submittedAt: daysAgo(3, 14, 55, 27),
     finishedAt: null,
     apiName: "作品登记查重",
     productCode: "duplicate",
@@ -137,9 +138,9 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r6",
-    taskId: "WR20260819132000087",
-    submittedAt: "2026-08-19 13:20:05",
-    finishedAt: "2026-08-19 13:20:06",
+    taskId: "WR20261112132000087",
+    submittedAt: daysAgo(6, 13, 20, 5),
+    finishedAt: daysAgo(6, 13, 20, 6),
     apiName: "内容安全审核",
     productCode: "safety",
     status: "fail",
@@ -147,13 +148,33 @@ export const WORK_REVIEW_RECORDS: ReviewRecord[] = [
   },
   {
     id: "r7",
-    taskId: "WR20260819111000061",
-    submittedAt: "2026-08-19 11:10:33",
-    finishedAt: "2026-08-19 11:11:02",
+    taskId: "WR20261110111000061",
+    submittedAt: daysAgo(8, 11, 10, 33),
+    finishedAt: daysAgo(8, 11, 11, 2),
     apiName: "内容安全审核",
     productCode: "safety",
     status: "success",
     quotaCost: 1,
+  },
+  {
+    id: "r8",
+    taskId: "WR20261105094500214",
+    submittedAt: daysAgo(13, 9, 45, 18),
+    finishedAt: daysAgo(13, 9, 46, 2),
+    apiName: "作品登记查重",
+    productCode: "duplicate",
+    status: "success",
+    quotaCost: 1,
+  },
+  {
+    id: "r9",
+    taskId: "WR20261028143000103",
+    submittedAt: daysAgo(21, 14, 30, 11),
+    finishedAt: daysAgo(21, 14, 32, 40),
+    apiName: "疑似侵权审核",
+    productCode: "infringement",
+    status: "success",
+    quotaCost: 2,
   },
 ];
 

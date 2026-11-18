@@ -178,20 +178,37 @@ export const USAGE_DEFAULT_DAYS = 30;
 export const USAGE_PAGE_SIZES = [10, 20, 30, 50] as const;
 export const USAGE_DEFAULT_VERIFIER = "admin2";
 
+/** 演示「今天」固定 2026-11-18，与客户门户 mock 对齐 */
+const DEMO_TODAY = new Date(2026, 10, 18, 12, 0, 0, 0);
+
 const ACCOUNTS = [
   { customerId: "1", account: "acme_corp", companyName: "艾克米文化传媒有限公司" },
   { customerId: "2", account: "north_press", companyName: "北方出版集团股份有限公司" },
   { customerId: "3", account: "pixel_lab", companyName: "像素实验室（深圳）有限公司" },
   { customerId: "101", account: "zhilian_sz", companyName: "前海智链科技有限公司" },
   { customerId: "4", account: "ocean_music", companyName: "瀚海音乐文化有限公司" },
+  { customerId: "yn-1", account: "yunnan", companyName: "云南省新闻出版局" },
+  { customerId: "bj-1", account: "beijian", companyName: "北京市人民检察院" },
 ] as const;
+
+const YUNNAN: AccountRef = {
+  customerId: "yn-1",
+  account: "yunnan",
+  companyName: "云南省新闻出版局",
+};
+
+const BEIJIAN: AccountRef = {
+  customerId: "bj-1",
+  account: "beijian",
+  companyName: "北京市人民检察院",
+};
 
 function pick(i: number): AccountRef {
   return { ...ACCOUNTS[i % ACCOUNTS.length]! };
 }
 
 function daysAgo(n: number, hour = 10, minute = 0) {
-  const d = new Date();
+  const d = new Date(DEMO_TODAY);
   d.setDate(d.getDate() - n);
   d.setHours(hour, minute, 12, 0);
   return d.toISOString().slice(0, 19).replace("T", " ");
@@ -598,6 +615,110 @@ const CERT_RECORDS: CertUsageRecord[] = [
       registerNo: "2023SR998877",
     },
   },
+  {
+    id: "cert-bj-1",
+    ...BEIJIAN,
+    verifyCode: "R1187530000985",
+    verifier: "beijian",
+    verifiedAt: daysAgo(0, 12, 0),
+    fileName: "软著证书-检察业务辅助系统.pdf",
+    fileUrl: demoCertImage("2024SR088801", "ok"),
+    channel: "WebUI",
+    status: "pass",
+    recognition: {
+      certTitleNo: "软著登字第19467968号",
+      workName: "检察业务辅助系统",
+      owner: "北京市人民检察院",
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: "2024-06-18",
+      registerNo: "2024SR088801",
+    },
+  },
+  {
+    id: "cert-bj-2",
+    ...BEIJIAN,
+    verifyCode: "R1187530000986",
+    verifier: "beijian",
+    verifiedAt: daysAgo(4, 14, 18),
+    fileName: "证书扫描件-法治宣传.jpg",
+    fileUrl: demoCertImage("2024ZP088802", "info"),
+    channel: "API",
+    status: "pass",
+    recognition: {
+      certTitleNo: "作登字第18221088号",
+      workName: "法治宣传短片",
+      owner: "北京市人民检察院",
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: "2024-08-10",
+      registerNo: "2024ZP088802",
+    },
+  },
+  {
+    id: "cert-bj-3",
+    ...BEIJIAN,
+    verifyCode: "R1187530000987",
+    verifier: "beijian",
+    verifiedAt: daysAgo(9, 9, 45),
+    fileName: "fail-证书-bj.png",
+    fileUrl: demoCertImage("BJ-fail", "warn"),
+    channel: "WebUI",
+    status: "fail",
+    recognition: {
+      certTitleNo: "软著登字第16328088号",
+      workName: "检察业务辅助系统V2.0",
+      owner: "北京市人民检察院",
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: "2026-02-09",
+      registerNo: "2026SR0253688",
+    },
+    mismatches: ["certNo", "workName"],
+    message: "证书编号不一致、软件名称不一致",
+  },
+  {
+    id: "cert-bj-4",
+    ...BEIJIAN,
+    verifyCode: "R1187530000988",
+    verifier: "beijian",
+    verifiedAt: daysAgo(1, 15, 20),
+    fileName: "软著证书-案件材料管理系统.pdf",
+    fileUrl: demoCertImage("2025SR010088", "ok"),
+    channel: "API",
+    status: "pass",
+    recognition: {
+      certTitleNo: "软著登字第20110088号",
+      workName: "案件材料管理系统",
+      owner: "北京市人民检察院",
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: "2025-01-20",
+      registerNo: "2025SR010088",
+    },
+  },
+  {
+    id: "cert-bj-5",
+    ...BEIJIAN,
+    verifyCode: "R1187530000989",
+    verifier: "beijian",
+    verifiedAt: daysAgo(2, 10, 8),
+    fileName: "证书扫描-公开课课件.pdf",
+    fileUrl: demoCertImage("2024ZP088810", "warn"),
+    channel: "WebUI",
+    status: "fail",
+    recognition: {
+      certTitleNo: "作登字第18881088号",
+      workName: "公开课课件合集",
+      owner: "北京市人民检察院",
+      acquireMethod: "原始取得",
+      rightScope: "全部权利",
+      registerDate: "2024-09-12",
+      registerNo: "2024ZP088810",
+    },
+    mismatches: ["workName"],
+    message: "软件名称不一致",
+  },
 ];
 
 const REVIEW_RECORDS: ReviewUsageRecord[] = [
@@ -661,6 +782,96 @@ const REVIEW_RECORDS: ReviewUsageRecord[] = [
     status: "fail",
     resultSummary: "检出内容安全风险，任务失败。",
   },
+  {
+    id: "rev-yn-1",
+    ...YUNNAN,
+    submittedAt: daysAgo(0, 17, 10),
+    finishedAt: daysAgo(0, 17, 12),
+    taskId: "WR20261118171000421",
+    apiName: "疑似侵权审核",
+    status: "success",
+    resultSummary: "未发现明显疑似侵权风险，可继续后续登记流程。",
+  },
+  {
+    id: "rev-yn-2",
+    ...YUNNAN,
+    submittedAt: daysAgo(0, 16, 55),
+    finishedAt: null,
+    taskId: "WR20261118165500388",
+    apiName: "内容安全审核",
+    status: "reviewing",
+    resultSummary: "任务仍在审核中，请稍后再次查询。",
+  },
+  {
+    id: "rev-yn-3",
+    ...YUNNAN,
+    submittedAt: daysAgo(1, 16, 30),
+    finishedAt: daysAgo(1, 16, 31),
+    taskId: "WR20261117163000291",
+    apiName: "作品登记查重",
+    status: "success",
+    resultSummary: "与已登记样本比对通过，未检出高度雷同样本。",
+  },
+  {
+    id: "rev-yn-4",
+    ...YUNNAN,
+    submittedAt: daysAgo(2, 15, 22),
+    finishedAt: daysAgo(2, 15, 25),
+    taskId: "WR20261116152200156",
+    apiName: "疑似侵权审核",
+    status: "fail",
+    resultSummary: "检出疑似肖像/商标风险，建议人工复核后处理。",
+  },
+  {
+    id: "rev-yn-5",
+    ...YUNNAN,
+    submittedAt: daysAgo(3, 14, 55),
+    finishedAt: null,
+    taskId: "WR20261115145500102",
+    apiName: "作品登记查重",
+    status: "reviewing",
+    resultSummary: "任务仍在审核中，请稍后再次查询。",
+  },
+  {
+    id: "rev-yn-6",
+    ...YUNNAN,
+    submittedAt: daysAgo(6, 13, 20),
+    finishedAt: daysAgo(6, 13, 20),
+    taskId: "WR20261112132000087",
+    apiName: "内容安全审核",
+    status: "fail",
+    resultSummary: "检出内容安全风险，任务失败。",
+  },
+  {
+    id: "rev-yn-7",
+    ...YUNNAN,
+    submittedAt: daysAgo(8, 11, 10),
+    finishedAt: daysAgo(8, 11, 11),
+    taskId: "WR20261110111000061",
+    apiName: "内容安全审核",
+    status: "success",
+    resultSummary: "内容安全筛查通过，未发现底线风险。",
+  },
+  {
+    id: "rev-yn-8",
+    ...YUNNAN,
+    submittedAt: daysAgo(13, 9, 45),
+    finishedAt: daysAgo(13, 9, 46),
+    taskId: "WR20261105094500214",
+    apiName: "作品登记查重",
+    status: "success",
+    resultSummary: "与已登记样本比对通过，未检出高度雷同样本。",
+  },
+  {
+    id: "rev-yn-9",
+    ...YUNNAN,
+    submittedAt: daysAgo(21, 14, 30),
+    finishedAt: daysAgo(21, 14, 32),
+    taskId: "WR20261028143000103",
+    apiName: "疑似侵权审核",
+    status: "success",
+    resultSummary: "未发现明显疑似侵权风险，可继续后续登记流程。",
+  },
 ];
 
 export function listDciUsageRecords() {
@@ -680,8 +891,8 @@ export function listReviewUsageRecords() {
 }
 
 export function defaultUsageDateRange(days = USAGE_DEFAULT_DAYS) {
-  const to = new Date();
-  const from = new Date();
+  const to = new Date(DEMO_TODAY);
+  const from = new Date(DEMO_TODAY);
   from.setDate(from.getDate() - days);
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
   return { from: fmt(from), to: fmt(to) };

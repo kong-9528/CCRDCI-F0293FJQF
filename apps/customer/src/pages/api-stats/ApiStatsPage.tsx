@@ -1,12 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import { PaneHeader, PaneIconChart } from "@/components/PaneHeader";
 import {
   CHANNEL_FILTERS,
-  SERVICE_TABS,
-  STATS_METRICS,
   formatStatNumber,
+  getServiceTabs,
+  getStatsMetrics,
   statsChartSeries,
   statsDayLabels,
   statsSeriesMeta,
@@ -210,8 +210,17 @@ function StatsTrendChart({ series }: { series: ChartSeriesItem[] }) {
 }
 
 export function ApiStatsPage() {
-  const [serviceTab, setServiceTab] = useState<ServiceTab>("verify");
+  const tabs = getServiceTabs();
+  const metrics = getStatsMetrics();
+  const [serviceTab, setServiceTab] = useState<ServiceTab>(tabs[0]?.key ?? "verify");
   const [channel, setChannel] = useState<ChannelFilter>("all");
+
+  useEffect(() => {
+    const next = getServiceTabs();
+    if (!next.some((t) => t.key === serviceTab) && next[0]) {
+      setServiceTab(next[0].key);
+    }
+  }, [serviceTab]);
 
   const series = useMemo(
     () => statsChartSeries(serviceTab, serviceTab === "verify" ? channel : "all"),
@@ -230,7 +239,7 @@ export function ApiStatsPage() {
       />
 
       <div className="c-stats-service-tabs" role="tablist" aria-label="服务类型">
-        {SERVICE_TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
@@ -248,7 +257,7 @@ export function ApiStatsPage() {
       </div>
 
       <div className="c-stats-metrics">
-        {STATS_METRICS.map((card, i) => (
+        {metrics.map((card, i) => (
           <div key={card.label} className="c-stats-metric">
             <div className="c-stats-metric__header">
               <span className="c-stats-metric__label">{card.label}</span>

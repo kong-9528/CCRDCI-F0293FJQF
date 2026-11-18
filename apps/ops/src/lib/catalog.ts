@@ -743,7 +743,7 @@ export const MOCK_CUSTOMERS = [
     contractFiles: [
       {
         id: "f-bj-1",
-        name: "北京市人民检察院-DCI技术服务中心开通合同（版权核验）.pdf",
+        name: "北京市人民检察院-DCI技术服务中心开通合同（版权登记证书核验）.pdf",
         size: 1_420_000,
       },
       {
@@ -760,13 +760,65 @@ export const MOCK_CUSTOMERS = [
     status: "enabled",
     servicePackages: [
       {
-        id: "bj-verify",
-        name: "版权核验服务",
+        id: "bj-cert",
+        name: "版权登记证书核验",
         quotaType: "total" as const,
         quotaTotal: 20000,
-        usedCount: 8940,
+        usedCount: 1950,
         startDate: "2026-03-01",
         endDate: "2027-12-31",
+        stopped: false,
+        services: [
+          {
+            product: "certificate" as const,
+            businessTypes: [...DEFAULT_BUSINESS_TYPES],
+            usageChannels: [...DEFAULT_USAGE_CHANNELS],
+            consumePerWork: 1,
+          },
+        ],
+      },
+    ],
+    productServices: [
+      svc("certificate", "total", 20000, 1950, "2026-03-01", "2027-12-31"),
+    ],
+    createdAt: "2026-03-02 11:20:00",
+    updatedAt: "2026-11-18 10:00:00",
+  },
+  {
+    id: "mayi1-1",
+    customerType: "enterprise",
+    creditCode: "913301067046373179",
+    companyName: "蚂蚁科技集团股份有限公司",
+    contactName: "李四",
+    contactPhone: "13800008001",
+    address: "浙江省杭州市西湖区西溪路543号-569号（单号连续）1幢2号楼5层517室",
+    contractFiles: [
+      {
+        id: "f-mayi1-1",
+        name: "蚂蚁科技-技术服务中心开通申请合同-mayi1.pdf",
+        size: 1_180_000,
+      },
+      {
+        id: "f-mayi1-2",
+        name: "蚂蚁科技-版权核验服务开通确认函-mayi1.pdf",
+        size: 360_000,
+      },
+    ],
+    contractStart: "2026-03-01",
+    contractEnd: "2028-02-28",
+    contractAmount: 280000,
+    account: "mayi1",
+    passwordHint: "Abcd1234",
+    status: "enabled",
+    servicePackages: [
+      {
+        id: "mayi1-verify",
+        name: "版权核验服务",
+        quotaType: "total" as const,
+        quotaTotal: 50000,
+        usedCount: 24467,
+        startDate: "2026-03-01",
+        endDate: "2028-02-28",
         stopped: false,
         services: [
           {
@@ -791,11 +843,11 @@ export const MOCK_CUSTOMERS = [
       },
     ],
     productServices: [
-      svc("dci", "total", 20000, 4120, "2026-03-01", "2027-12-31"),
-      svc("info", "total", 20000, 2870, "2026-03-01", "2027-12-31"),
-      svc("certificate", "total", 20000, 1950, "2026-03-01", "2027-12-31"),
+      svc("dci", "total", 50000, 12847, "2026-03-01", "2028-02-28"),
+      svc("info", "total", 50000, 8432, "2026-03-01", "2028-02-28"),
+      svc("certificate", "total", 50000, 3188, "2026-03-01", "2028-02-28"),
     ],
-    createdAt: "2026-03-02 11:20:00",
+    createdAt: "2026-03-02 10:00:00",
     updatedAt: "2026-11-18 10:00:00",
   },
   {

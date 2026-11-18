@@ -245,7 +245,7 @@
         orgTypeCode: "ZYFW",
         orgTypeName: "专业服务",
         cooperationField: "数字版权确权、内容合规核验、DCI码申领与同步",
-        techCooperationField: "内容合规核验、DCI码申领与技术服务中心对接",
+        techCooperationField: "DCI核验、版权登记信息核验、版权登记证书核验",
         contractStartDate: "2026-03-01",
         contractEndDate: "2028-02-28",
         linkName: "李娜",
@@ -308,7 +308,7 @@
         linkPhone: "13800109100",
         contractFileName: "北京市人民检察院-DCI注册中心服务合同.pdf",
         techContractFileName:
-          "北京市人民检察院-DCI技术服务中心开通合同（版权核验）.pdf",
+          "北京市人民检察院-DCI技术服务中心开通合同（版权登记证书核验）.pdf",
       },
     };
     var s = table[name] || table.mayi;

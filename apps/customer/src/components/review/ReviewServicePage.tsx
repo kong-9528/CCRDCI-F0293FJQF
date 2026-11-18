@@ -5,6 +5,7 @@ import { PaneIconShield } from "@/components/PaneHeader";
 import { ReviewIntroVisual } from "@/components/review/ReviewIntroVisual";
 import { SectionGuideLayout } from "@/components/SectionGuideLayout";
 import { ServiceDisclaimer } from "@/components/ServiceDisclaimer";
+import { defaultDemoDateRange } from "@/lib/demoClock";
 import {
   REVIEW_DEFAULT_DAYS,
   REVIEW_RECORD_STATUS_LABEL,
@@ -30,11 +31,7 @@ type Filters = {
 };
 
 function defaultDateRange() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - REVIEW_DEFAULT_DAYS);
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
-  return { from: fmt(from), to: fmt(to) };
+  return defaultDemoDateRange(REVIEW_DEFAULT_DAYS);
 }
 
 function serviceStatusTag(status: "active" | "expiring" | "stopped") {

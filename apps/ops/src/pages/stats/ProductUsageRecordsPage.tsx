@@ -76,7 +76,8 @@ export function ProductUsageRecordsPage() {
   if (!isStatsScope(scopeParam)) {
     return <Navigate to="/stats/verify/usage-records" replace />;
   }
-  return <ProductUsageRecordsBody scope={scopeParam} />;
+  // scope 在 verify ↔ audit 切换时须重挂载，否则 Tab/筛选/分页会残留
+  return <ProductUsageRecordsBody key={scopeParam} scope={scopeParam} />;
 }
 
 function ProductUsageRecordsBody({ scope }: { scope: StatsScope }) {

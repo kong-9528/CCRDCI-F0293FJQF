@@ -1,5 +1,8 @@
 /** 调用统计：演示数据与图表系列 */
 
+import { DEMO_TODAY } from "@/lib/demoClock";
+import { tenantHasProduct } from "@/lib/tenant";
+
 export type ServiceTab = "verify" | "review";
 export type ChannelFilter = "all" | "webui" | "api";
 
@@ -17,16 +20,66 @@ export type ChartSeriesItem = {
   values: number[];
 };
 
-export const STATS_METRICS: MetricCard[] = [
+const DEFAULT_STATS_METRICS: MetricCard[] = [
   { label: "今日调用总数", value: 1842, trendPct: 12.5, trendText: "较上一周期" },
   { label: "本月调用总数", value: 52890, trendPct: 8.3, trendText: "较上一周期" },
   { label: "累计调用总数", value: 1_284_567, trendPct: null, trendText: "" },
 ];
 
+/** 按开通产品缩放的演示指标（yunnan 仅审核 / beijian 仅证书核验） */
+export function getStatsMetrics(): MetricCard[] {
+  const hasVerify =
+    tenantHasProduct("dci") || tenantHasProduct("info") || tenantHasProduct("certificate");
+  const hasReview = tenantHasProduct("workReview");
+  const onlyCert =
+    tenantHasProduct("certificate") &&
+    !tenantHasProduct("dci") &&
+    !tenantHasProduct("info") &&
+    !hasReview;
+
+  if (hasReview && !hasVerify) {
+    return [
+      { label: "今日调用总数", value: 86, trendPct: 9.2, trendText: "较上一周期" },
+      { label: "本月调用总数", value: 2140, trendPct: 11.4, trendText: "较上一周期" },
+      { label: "累计调用总数", value: 3260, trendPct: null, trendText: "" },
+    ];
+  }
+  if (onlyCert) {
+    return [
+      { label: "今日调用总数", value: 68, trendPct: 4.8, trendText: "较上一周期" },
+      { label: "本月调用总数", value: 640, trendPct: 4.1, trendText: "较上一周期" },
+      { label: "累计调用总数", value: 1950, trendPct: null, trendText: "" },
+    ];
+  }
+  if (hasVerify && !hasReview) {
+    return [
+      { label: "今日调用总数", value: 312, trendPct: 7.6, trendText: "较上一周期" },
+      { label: "本月调用总数", value: 8940, trendPct: 6.1, trendText: "较上一周期" },
+      { label: "累计调用总数", value: 8940, trendPct: null, trendText: "" },
+    ];
+  }
+  return DEFAULT_STATS_METRICS;
+}
+
+/** @deprecated 请用 getStatsMetrics()；保留兼容旧引用 */
+export const STATS_METRICS: MetricCard[] = DEFAULT_STATS_METRICS;
+
 export const SERVICE_TABS: { key: ServiceTab; label: string }[] = [
   { key: "verify", label: "版权核验服务" },
   { key: "review", label: "作品智能辅助审核服务" },
 ];
+
+/** 按当前账号已开通服务过滤 Tab */
+export function getServiceTabs(): { key: ServiceTab; label: string }[] {
+  const hasVerify =
+    tenantHasProduct("dci") || tenantHasProduct("info") || tenantHasProduct("certificate");
+  const hasReview = tenantHasProduct("workReview");
+  return SERVICE_TABS.filter((tab) => {
+    if (tab.key === "verify") return hasVerify;
+    if (tab.key === "review") return hasReview;
+    return true;
+  });
+}
 
 export const CHANNEL_FILTERS: { key: ChannelFilter; label: string }[] = [
   { key: "all", label: "全部" },
@@ -60,16 +113,29 @@ function genSeries(seed: number, amp: number, bias: number): number[] {
   return out;
 }
 
+/** 审核账号量级更小（对齐 2 万额度用量） */
+function genReviewSeries(seed: number, amp: number, bias: number): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < 30; i++) {
+    const wave =
+      Math.sin((i + seed) * 0.45) * amp * 0.35 +
+      Math.cos((i + seed) * 0.22) * amp * 0.25 +
+      ((i * 17 + seed * 13) % 23) * (amp * 0.02);
+    out.push(Math.max(8, Math.round(bias + wave + i * (amp * 0.01))));
+  }
+  return out;
+}
+
 const VERIFY_BASE: Record<string, number[]> = {
-  dci: genSeries(1, 380, 520),
-  info: genSeries(4, 280, 360),
-  cert: genSeries(7, 240, 300),
+  dci: genSeries(1, 120, 140),
+  info: genSeries(4, 90, 95),
+  cert: genSeries(7, 70, 65),
 };
 
 const REVIEW_BASE: Record<string, number[]> = {
-  safety: genSeries(2, 360, 480),
-  duplicate: genSeries(5, 300, 390),
-  infringement: genSeries(8, 260, 320),
+  safety: genReviewSeries(2, 28, 32),
+  duplicate: genReviewSeries(5, 24, 28),
+  infringement: genReviewSeries(8, 22, 24),
 };
 
 function sumSeries(parts: number[][]): number[] {
@@ -78,7 +144,7 @@ function sumSeries(parts: number[][]): number[] {
 }
 
 function scaleSeries(values: number[], factor: number): number[] {
-  return values.map((v) => Math.max(20, Math.round(v * factor)));
+  return values.map((v) => Math.max(4, Math.round(v * factor)));
 }
 
 function channelFactor(channel: ChannelFilter): number {
@@ -88,7 +154,7 @@ function channelFactor(channel: ChannelFilter): number {
 }
 
 export function statsDayLabels(): string[] {
-  const end = new Date(2026, 8, 17);
+  const end = new Date(DEMO_TODAY);
   const labels: string[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(end);
@@ -108,12 +174,26 @@ export function statsChartSeries(tab: ServiceTab, channel: ChannelFilter = "all"
   const factor = channelFactor(channel);
 
   if (tab === "verify") {
-    const dci = scaleSeries(VERIFY_BASE.dci!, factor);
-    const info = scaleSeries(VERIFY_BASE.info!, factor);
-    const cert = scaleSeries(VERIFY_BASE.cert!, factor);
-    const all = sumSeries([dci, info, cert]);
+    const includeDci = tenantHasProduct("dci");
+    const includeInfo = tenantHasProduct("info");
+    const includeCert = tenantHasProduct("certificate");
+    const dci = includeDci ? scaleSeries(VERIFY_BASE.dci!, factor) : Array(30).fill(0);
+    const info = includeInfo ? scaleSeries(VERIFY_BASE.info!, factor) : Array(30).fill(0);
+    const cert = includeCert ? scaleSeries(VERIFY_BASE.cert!, factor) : Array(30).fill(0);
+    const parts = [
+      includeDci ? dci : null,
+      includeInfo ? info : null,
+      includeCert ? cert : null,
+    ].filter(Boolean) as number[][];
+    const all = parts.length ? sumSeries(parts) : Array(30).fill(0);
     const values: Record<string, number[]> = { all, dci, info, cert };
-    return VERIFY_META.map((m) => ({ ...m, values: values[m.key]! }));
+    return VERIFY_META.filter((m) => {
+      if (m.key === "all") return true;
+      if (m.key === "dci") return includeDci;
+      if (m.key === "info") return includeInfo;
+      if (m.key === "cert") return includeCert;
+      return true;
+    }).map((m) => ({ ...m, values: values[m.key]! }));
   }
 
   const safety = REVIEW_BASE.safety!;

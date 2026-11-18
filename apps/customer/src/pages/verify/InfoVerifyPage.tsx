@@ -30,14 +30,11 @@ import {
   type InfoVerifyResult,
   type InfoWorkType,
 } from "@/lib/verifyInfo";
+import { defaultDemoDateRange } from "@/lib/demoClock";
 import { VERIFY_DETAIL_DRAWER_ENABLED } from "@/lib/verifyFeatureFlags";
 
 function defaultDateRange() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - INFO_DEFAULT_DAYS);
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
-  return { from: fmt(from), to: fmt(to) };
+  return defaultDemoDateRange(INFO_DEFAULT_DAYS);
 }
 
 type Filters = {

@@ -350,7 +350,7 @@ export function AccountApplicationsPage({ mode }: Props) {
               <th className="a-table__col-credit">组织机构代码</th>
               <th>联系人</th>
               <th>申请账号</th>
-              {isApprovedTab ? <th>开通技术服务</th> : null}
+              {isApprovedTab ? <th className="a-table__col-products">开通技术服务</th> : null}
               {mode === "pending" || isApprovedTab ? (
                 <th className="a-table__col-period">合同起止日期</th>
               ) : null}
@@ -381,7 +381,7 @@ export function AccountApplicationsPage({ mode }: Props) {
                     <code style={{ fontFamily: "var(--font-mono)" }}>{row.account}</code>
                   </td>
                   {isApprovedTab ? (
-                    <td>
+                    <td className="a-table__col-products">
                       <ProductServiceTags services={applicationProductServices(row)} />
                     </td>
                   ) : null}

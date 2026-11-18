@@ -235,7 +235,7 @@ export function CustomerListPage() {
                 <th>账号</th>
                 <th>机构名称</th>
                 <th>联系人</th>
-                <th>开通技术服务</th>
+                <th className="a-table__col-products">开通技术服务</th>
                 <th>账号状态</th>
                 <th>合同服务期</th>
                 <th>操作</th>
@@ -258,7 +258,7 @@ export function CustomerListPage() {
                       </td>
                       <td>{row.companyName}</td>
                       <td>{row.contactName}</td>
-                      <td>
+                      <td className="a-table__col-products">
                         <ProductServiceTags services={row.productServices} />
                       </td>
                       <td>

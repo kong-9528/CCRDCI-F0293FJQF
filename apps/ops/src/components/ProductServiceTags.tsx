@@ -12,16 +12,21 @@ type Props = {
 export function ProductServiceTags({ services }: Props) {
   const display = productServicesForDisplay(services);
   if (display.length === 0) {
-    return <span style={{ color: "var(--n-400)" }}>—</span>;
+    return (
+      <div className="a-tag--list">
+        <span style={{ color: "var(--n-400)" }}>—</span>
+      </div>
+    );
   }
 
   return (
-    <div className="a-tag--list">
+    <div className="a-tag--list" role="list">
       {display.map((svc) => {
         const expired = derivePeriodStatus(svc.startDate, svc.endDate) === "expired";
         return (
           <span
             key={svc.product}
+            role="listitem"
             className={`a-tag${expired ? " a-tag--muted" : " a-tag--cyan"}`}
             title={
               expired

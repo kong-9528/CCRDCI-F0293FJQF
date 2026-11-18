@@ -348,6 +348,39 @@ const DEFAULT_TENANT_SERVICES: TenantService[] = [
 
 /** 按门户演示账号覆盖已开通技术服务（额度 / 产品范围） */
 const TENANT_SERVICES_BY_USER: Record<string, TenantService[]> = {
+  /** 仅三类核验，不开通作品智能辅助审核 */
+  mayi1: [
+    {
+      product: "dci",
+      entitlement: "verify",
+      openedAt: "2026-03-01",
+      expireAt: "2028-02-28",
+      quotaTotal: 50000,
+      usedCount: 12847,
+      consumePerWork: 1,
+      status: "active",
+    },
+    {
+      product: "info",
+      entitlement: "verify",
+      openedAt: "2026-03-01",
+      expireAt: "2028-02-28",
+      quotaTotal: 50000,
+      usedCount: 8432,
+      consumePerWork: 1,
+      status: "active",
+    },
+    {
+      product: "certificate",
+      entitlement: "verify",
+      openedAt: "2026-03-01",
+      expireAt: "2028-02-28",
+      quotaTotal: 50000,
+      usedCount: 3188,
+      consumePerWork: 1,
+      status: "active",
+    },
+  ],
   yunnan: [
     {
       product: "workReview",
@@ -360,26 +393,6 @@ const TENANT_SERVICES_BY_USER: Record<string, TenantService[]> = {
     },
   ],
   beijian: [
-    {
-      product: "dci",
-      entitlement: "verify",
-      openedAt: "2026-03-01",
-      expireAt: "2027-12-31",
-      quotaTotal: 20000,
-      usedCount: 4120,
-      consumePerWork: 1,
-      status: "active",
-    },
-    {
-      product: "info",
-      entitlement: "verify",
-      openedAt: "2026-03-01",
-      expireAt: "2027-12-31",
-      quotaTotal: 20000,
-      usedCount: 2870,
-      consumePerWork: 1,
-      status: "active",
-    },
     {
       product: "certificate",
       entitlement: "verify",
@@ -409,6 +422,28 @@ const DEFAULT_TENANT_CONTRACTS: TenantContract[] = [
 ];
 
 const TENANT_CONTRACTS_BY_USER: Record<string, TenantContract[]> = {
+  mayi1: [
+    {
+      id: "c-mayi1-1",
+      contractNo: "ANT-DCI-TECH-2026-B",
+      startDate: "2026-03-01",
+      endDate: "2028-02-28",
+      amount: 280000,
+      periodStatus: "active",
+      files: [
+        {
+          id: "f-mayi1-1",
+          name: "蚂蚁科技-技术服务中心开通申请合同-mayi1.pdf",
+          size: 1_180_000,
+        },
+        {
+          id: "f-mayi1-2",
+          name: "蚂蚁科技-版权核验服务开通确认函-mayi1.pdf",
+          size: 360_000,
+        },
+      ],
+    },
+  ],
   yunnan: [
     {
       id: "c-yn-1",
@@ -442,7 +477,7 @@ const TENANT_CONTRACTS_BY_USER: Record<string, TenantContract[]> = {
       files: [
         {
           id: "f-bj-1",
-          name: "北京市人民检察院-DCI技术服务中心开通合同（版权核验）.pdf",
+          name: "北京市人民检察院-DCI技术服务中心开通合同（版权登记证书核验）.pdf",
           size: 1_420_000,
         },
         {
@@ -459,6 +494,10 @@ const TENANT_PROFILE_BY_USER: Record<
   string,
   Pick<TenantProfile, "cooperationField" | "inviteCode">
 > = {
+  mayi1: {
+    cooperationField: "DCI核验、版权登记信息核验、版权登记证书核验",
+    inviteCode: "TECH-ANT-2026B",
+  },
   yunnan: {
     cooperationField: "作品智能辅助审核",
     inviteCode: "TECH-YN-2026A",

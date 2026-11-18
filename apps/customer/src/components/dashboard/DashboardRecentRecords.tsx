@@ -1,16 +1,25 @@
 import { Link } from "react-router-dom";
-import { RECENT_VERIFY_ROWS } from "@/lib/dashboard";
+import {
+  getRecentActivityRows,
+  recentActivityAllLink,
+  recentActivityTitle,
+} from "@/lib/dashboard";
 
 export function DashboardRecentRecords() {
+  const rows = getRecentActivityRows();
+  const title = recentActivityTitle();
+  const allLink = recentActivityAllLink();
+  const isReview = title.includes("审核");
+
   return (
     <div className="a-card">
       <div className="a-card__head">
-        最近核验记录
+        {title}
         <span className="a-field__hint" style={{ marginLeft: 8 }}>
-          近 5 条
+          近 {rows.length} 条
         </span>
         <div className="a-card__extra">
-          <Link to="/verify/dci" className="a-btn a-btn--text a-btn--sm">
+          <Link to={allLink} className="a-btn a-btn--text a-btn--sm">
             查看全部 →
           </Link>
         </div>
@@ -26,14 +35,20 @@ export function DashboardRecentRecords() {
             </tr>
           </thead>
           <tbody>
-            {RECENT_VERIFY_ROWS.map((row) => (
+            {rows.map((row) => (
               <tr key={row.id}>
                 <td>{row.at}</td>
                 <td>{row.typeLabel}</td>
                 <td>{row.channel}</td>
                 <td>
                   <span className={`a-tag ${row.status === "pass" ? "a-tag--ok" : "a-tag--er"}`}>
-                    {row.status === "pass" ? "核验通过" : "核验不通过"}
+                    {isReview
+                      ? row.status === "pass"
+                        ? "成功"
+                        : "失败"
+                      : row.status === "pass"
+                        ? "核验通过"
+                        : "核验不通过"}
                   </span>
                 </td>
               </tr>

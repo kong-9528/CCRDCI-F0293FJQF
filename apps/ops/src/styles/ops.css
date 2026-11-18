@@ -277,10 +277,34 @@ body,
 }
 
 .a-tag--list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+}
+
+.a-tag--list .a-tag {
   display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  max-width: 280px;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  text-align: center;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.a-table__col-products,
+.a-table--accounts th.a-table__col-products,
+.a-table--accounts td.a-table__col-products {
+  text-align: center;
+  vertical-align: middle;
+  min-width: 10em;
+  max-width: 14em;
 }
 
 .a-modal-backdrop {

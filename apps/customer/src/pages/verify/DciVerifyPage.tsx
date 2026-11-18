@@ -44,6 +44,7 @@ import {
   type DciVerifyInput,
   type DciVerifyResult,
 } from "@/lib/dci";
+import { defaultDemoDateRange } from "@/lib/demoClock";
 import { VERIFY_DETAIL_DRAWER_ENABLED } from "@/lib/verifyFeatureFlags";
 
 type Filters = {
@@ -60,11 +61,7 @@ type VerifyMode = "code" | "sample";
 type SampleTab = "upload" | "hash";
 
 function defaultDateRange() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - DCI_DEFAULT_DAYS);
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
-  return { from: fmt(from), to: fmt(to) };
+  return defaultDemoDateRange(DCI_DEFAULT_DAYS);
 }
 
 function UploadIcon() {

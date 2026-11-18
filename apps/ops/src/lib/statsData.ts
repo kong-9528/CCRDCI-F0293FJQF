@@ -51,6 +51,9 @@ export function isTrendPeriod(v: unknown): v is TrendPeriod {
   );
 }
 
+/** 演示「今天」固定 2026-11-18，保证 yunnan/beijian 近 30 日统计可见 */
+const DEMO_TODAY = new Date(2026, 10, 18, 12, 0, 0, 0);
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
@@ -64,7 +67,7 @@ export function formatYearMonth(d: Date) {
 }
 
 export function daysAgo(n: number) {
-  const d = new Date();
+  const d = new Date(DEMO_TODAY);
   d.setHours(12, 0, 0, 0);
   d.setDate(d.getDate() - n);
   return d;
@@ -80,7 +83,7 @@ export function dateRange(days: number): string[] {
 
 /** 按月默认近 12 个月；按年默认近 5 年（均含当天）。默认粒度：按月 */
 export function defaultTrendPeriod(grain: TrendGrain = "month"): TrendPeriod {
-  const now = new Date();
+  const now = new Date(DEMO_TODAY);
   now.setHours(12, 0, 0, 0);
   const end = formatDate(now);
   const start =
@@ -144,7 +147,7 @@ export function dailyDateInTrendPeriod(date: string, period: TrendPeriod): boole
 /** 演示用：近 30 日逐日 + 近 60 个月各取月中一日，覆盖按年/按月默认区间 */
 function mockStatDates(): string[] {
   const set = new Set(dateRange(30));
-  const now = new Date();
+  const now = new Date(DEMO_TODAY);
   now.setHours(12, 0, 0, 0);
   for (let i = 0; i < 60; i += 1) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 15);

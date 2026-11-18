@@ -1,3 +1,5 @@
+import { daysAgo as demoDaysAgo, nowStamp as demoNowStamp } from "@/lib/demoClock";
+
 export type InfoWorkType = "software" | "work" | "dataset";
 
 export type InfoVerifyStatus = "match" | "mismatch" | "not_found";
@@ -69,13 +71,11 @@ export function infoNameLabel(workType: InfoWorkType): string {
 }
 
 function daysAgo(n: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 19).replace("T", " ");
+  return demoDaysAgo(n);
 }
 
 function nowStamp() {
-  return new Date().toISOString().slice(0, 19).replace("T", " ");
+  return demoNowStamp();
 }
 
 function normCompare(a: string) {

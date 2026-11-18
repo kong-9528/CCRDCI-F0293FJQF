@@ -1,7 +1,8 @@
 import type { ProductCode } from "@/lib/catalog";
 import { productName } from "@/lib/catalog";
+import { DEMO_TODAY, shortDaysAgo } from "@/lib/demoClock";
 import { WORK_REVIEW_ENTITLEMENT } from "@/lib/review";
-import { MOCK_TENANT_SERVICES } from "@/lib/tenant";
+import { MOCK_TENANT_SERVICES, tenantHasProduct } from "@/lib/tenant";
 
 export type ServiceStatus = "active" | "expiring" | "stopped";
 
@@ -39,7 +40,7 @@ export type ChartRange = "7d" | "30d";
 
 function daysLeftUntil(expireAt: string): number {
   const end = new Date(`${expireAt}T23:59:59`);
-  const now = new Date();
+  const now = new Date(DEMO_TODAY);
   return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000));
 }
 
@@ -78,12 +79,31 @@ const MONTH_HINTS: Partial<
   workReview: { monthCalls: 1200, momPercent: 12.8 },
 };
 
+/** 按开通产品给出更贴近额度的本月调用演示值 */
+function monthHint(code: ProductCode): { monthCalls: number; momPercent: number | null } {
+  const opened = MOCK_TENANT_SERVICES.map((s) => s.product);
+  const onlyReview = opened.length === 1 && opened[0] === "workReview";
+  const onlyVerify = opened.length > 0 && opened.every((p) => p !== "workReview");
+  if (onlyReview && code === "workReview") {
+    return { monthCalls: 2140, momPercent: 11.4 };
+  }
+  if (onlyVerify) {
+    if (opened.length === 1 && opened[0] === "certificate" && code === "certificate") {
+      return { monthCalls: 640, momPercent: 4.1 };
+    }
+    if (code === "dci") return { monthCalls: 1420, momPercent: 7.6 };
+    if (code === "info") return { monthCalls: 980, momPercent: 5.2 };
+    if (code === "certificate") return { monthCalls: 640, momPercent: 4.1 };
+  }
+  return MONTH_HINTS[code] ?? { monthCalls: 0, momPercent: null };
+}
+
 /** 按当前账号已开通技术服务生成看板产品（随门户桥接切换） */
 export function getDashboardProducts(): DashboardProduct[] {
   const codes: ProductCode[] = ["dci", "info", "certificate", "workReview"];
   const out: DashboardProduct[] = [];
   for (const code of codes) {
-    const hint = MONTH_HINTS[code] ?? { monthCalls: 0, momPercent: null };
+    const hint = monthHint(code);
     if (code === "workReview") {
       const row = MOCK_TENANT_SERVICES.find((s) => s.product === "workReview");
       if (!row) continue;
@@ -141,10 +161,10 @@ export function countWarnings(products: DashboardProduct[]): number {
   return products.filter((p) => productWarnings(p).kind !== "ok").length;
 }
 
-export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
+const DEFAULT_RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   {
     id: "r1",
-    at: "08-19 14:32",
+    at: shortDaysAgo(0, 14, 32),
     typeLabel: "DCI核验",
     channel: "WebUI",
     status: "pass",
@@ -152,7 +172,7 @@ export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   },
   {
     id: "r2",
-    at: "08-19 11:15",
+    at: shortDaysAgo(0, 11, 15),
     typeLabel: "DCI核验",
     channel: "API",
     status: "pass",
@@ -160,7 +180,7 @@ export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   },
   {
     id: "r3",
-    at: "08-18 16:48",
+    at: shortDaysAgo(1, 16, 48),
     typeLabel: "信息核验",
     channel: "WebUI",
     status: "fail",
@@ -168,7 +188,7 @@ export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   },
   {
     id: "r4",
-    at: "08-18 09:22",
+    at: shortDaysAgo(1, 9, 22),
     typeLabel: "DCI核验",
     channel: "API",
     status: "pass",
@@ -176,7 +196,7 @@ export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   },
   {
     id: "r5",
-    at: "08-17 15:03",
+    at: shortDaysAgo(2, 15, 3),
     typeLabel: "证书核验",
     channel: "WebUI",
     status: "pass",
@@ -184,12 +204,136 @@ export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = [
   },
 ];
 
+const YUNNAN_RECENT_ROWS: RecentVerifyRow[] = [
+  {
+    id: "yn-r1",
+    at: shortDaysAgo(0, 17, 10),
+    typeLabel: "疑似侵权审核",
+    channel: "API",
+    status: "pass",
+    link: "/review/infringement",
+  },
+  {
+    id: "yn-r2",
+    at: shortDaysAgo(0, 16, 55),
+    typeLabel: "内容安全审核",
+    channel: "WebUI",
+    status: "pass",
+    link: "/review/safety",
+  },
+  {
+    id: "yn-r3",
+    at: shortDaysAgo(1, 16, 30),
+    typeLabel: "作品登记查重",
+    channel: "API",
+    status: "pass",
+    link: "/review/duplicate",
+  },
+  {
+    id: "yn-r4",
+    at: shortDaysAgo(2, 15, 22),
+    typeLabel: "疑似侵权审核",
+    channel: "WebUI",
+    status: "fail",
+    link: "/review/infringement",
+  },
+  {
+    id: "yn-r5",
+    at: shortDaysAgo(3, 14, 55),
+    typeLabel: "作品登记查重",
+    channel: "API",
+    status: "pass",
+    link: "/review/duplicate",
+  },
+];
+
+const BEIJIAN_RECENT_ROWS: RecentVerifyRow[] = [
+  {
+    id: "bj-r1",
+    at: shortDaysAgo(0, 12, 0),
+    typeLabel: "证书核验",
+    channel: "WebUI",
+    status: "pass",
+    link: "/verify/certificate",
+  },
+  {
+    id: "bj-r2",
+    at: shortDaysAgo(1, 15, 20),
+    typeLabel: "证书核验",
+    channel: "API",
+    status: "pass",
+    link: "/verify/certificate",
+  },
+  {
+    id: "bj-r3",
+    at: shortDaysAgo(2, 10, 8),
+    typeLabel: "证书核验",
+    channel: "WebUI",
+    status: "fail",
+    link: "/verify/certificate",
+  },
+  {
+    id: "bj-r4",
+    at: shortDaysAgo(4, 14, 18),
+    typeLabel: "证书核验",
+    channel: "API",
+    status: "pass",
+    link: "/verify/certificate",
+  },
+  {
+    id: "bj-r5",
+    at: shortDaysAgo(9, 9, 45),
+    typeLabel: "证书核验",
+    channel: "WebUI",
+    status: "fail",
+    link: "/verify/certificate",
+  },
+];
+
+/** @deprecated 请用 getRecentActivityRows() */
+export const RECENT_VERIFY_ROWS: RecentVerifyRow[] = DEFAULT_RECENT_VERIFY_ROWS;
+
+export function getRecentActivityRows(): RecentVerifyRow[] {
+  const hasVerify =
+    tenantHasProduct("dci") || tenantHasProduct("info") || tenantHasProduct("certificate");
+  const hasReview = tenantHasProduct("workReview");
+  const onlyCert =
+    tenantHasProduct("certificate") &&
+    !tenantHasProduct("dci") &&
+    !tenantHasProduct("info") &&
+    !hasReview;
+  if (hasReview && !hasVerify) return YUNNAN_RECENT_ROWS;
+  if (onlyCert) return BEIJIAN_RECENT_ROWS;
+  return DEFAULT_RECENT_VERIFY_ROWS.filter((row) => {
+    if (row.link?.includes("/verify/dci")) return tenantHasProduct("dci");
+    if (row.link?.includes("/verify/info")) return tenantHasProduct("info");
+    if (row.link?.includes("/verify/certificate")) return tenantHasProduct("certificate");
+    return true;
+  });
+}
+
+export function recentActivityTitle(): string {
+  const hasVerify =
+    tenantHasProduct("dci") || tenantHasProduct("info") || tenantHasProduct("certificate");
+  const hasReview = tenantHasProduct("workReview");
+  if (hasReview && !hasVerify) return "最近审核记录";
+  return "最近核验记录";
+}
+
+export function recentActivityAllLink(): string {
+  if (tenantHasProduct("dci")) return "/verify/dci";
+  if (tenantHasProduct("info")) return "/verify/info";
+  if (tenantHasProduct("certificate")) return "/verify/certificate";
+  if (tenantHasProduct("workReview")) return "/review/safety";
+  return "/desk";
+}
+
 /** 近 7 / 30 天调用量（演示序列） */
 const CHART_7D: Record<ProductCode, number[]> = {
-  dci: [420, 380, 510, 460, 490, 520, 641],
-  info: [280, 310, 290, 320, 300, 340, 316],
-  certificate: [95, 110, 88, 120, 105, 130, 154],
-  workReview: [42, 38, 51, 46, 49, 52, 64],
+  dci: [148, 132, 176, 158, 169, 182, 196],
+  info: [98, 110, 102, 118, 108, 124, 116],
+  certificate: [62, 71, 58, 78, 69, 84, 76],
+  workReview: [68, 62, 84, 76, 79, 88, 96],
   safety: [0, 0, 0, 0, 0, 0, 0],
   duplicate: [0, 0, 0, 0, 0, 0, 0],
   infringement: [0, 0, 0, 0, 0, 0, 0],
@@ -224,6 +368,7 @@ export function chartSeries(
     dci: "#0075c1",
     info: "#52c41a",
     certificate: "#ff9c6e",
+    workReview: "#2F5BA8",
   };
   const data = range === "7d" ? CHART_7D : CHART_30D;
   return codes.map((code) => ({
@@ -235,3 +380,11 @@ export function chartSeries(
 }
 
 export const CHART_DEFAULT_PRODUCTS: ProductCode[] = ["dci", "info", "certificate"];
+
+/** 看板趋势图可选产品：仅当前账号已开通 */
+export function getChartProducts(): ProductCode[] {
+  const verify = CHART_DEFAULT_PRODUCTS.filter((c) => tenantHasProduct(c));
+  if (verify.length) return verify;
+  if (tenantHasProduct("workReview")) return ["workReview"];
+  return [];
+}

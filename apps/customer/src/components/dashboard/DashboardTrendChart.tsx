@@ -1,24 +1,28 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { productName, type ProductCode } from "@/lib/catalog";
 import {
-  CHART_DEFAULT_PRODUCTS,
   chartLabels,
   chartSeries,
+  getChartProducts,
   type ChartRange,
 } from "@/lib/dashboard";
 import { LineTrendChart } from "@/components/charts/LineTrendChart";
 
-const CHART_OPTIONS: ProductCode[] = CHART_DEFAULT_PRODUCTS;
-
 function chartColor(code: ProductCode): string {
   if (code === "dci") return "#0075c1";
   if (code === "info") return "#52c41a";
+  if (code === "workReview") return "#2F5BA8";
   return "#ff9c6e";
 }
 
 export function DashboardTrendChart() {
+  const options = getChartProducts();
   const [range, setRange] = useState<ChartRange>("7d");
-  const [selected, setSelected] = useState<ProductCode[]>([...CHART_DEFAULT_PRODUCTS]);
+  const [selected, setSelected] = useState<ProductCode[]>(options);
+
+  useEffect(() => {
+    setSelected(getChartProducts());
+  }, []);
 
   const series = useMemo(
     () =>
@@ -36,6 +40,8 @@ export function DashboardTrendChart() {
     setSelected((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   };
 
+  if (!options.length) return null;
+
   return (
     <div className="a-card">
       <div className="c-chart__head">
@@ -45,7 +51,7 @@ export function DashboardTrendChart() {
         </div>
         <div className="c-chart__controls">
           <div className="c-chart__checks">
-            {CHART_OPTIONS.map((code) => (
+            {options.map((code) => (
               <label key={code} className="c-chart__check">
                 <input
                   type="checkbox"
@@ -79,8 +85,6 @@ export function DashboardTrendChart() {
         <LineTrendChart
           series={series}
           labels={labels}
-          labelStep={range === "30d" ? 5 : 1}
-          emptyText="请至少勾选一个技术服务"
         />
       </div>
     </div>
