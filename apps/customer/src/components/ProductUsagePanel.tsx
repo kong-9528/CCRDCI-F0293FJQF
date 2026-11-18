@@ -1,6 +1,6 @@
 import type { ProductCode } from "@/lib/catalog";
 import {
-  DASHBOARD_PRODUCTS,
+  getDashboardProducts,
   type ServiceStatus,
 } from "@/lib/dashboard";
 import { verifyPoolUsedTotal } from "@/lib/tenant";
@@ -23,7 +23,7 @@ type Props = {
 
 /** 产品页使用量板块（核验：突出本技术服务用量 + 共享池进度条；停用仍展示用量） */
 export function ProductUsagePanel({ product, hideHead = false }: Props) {
-  const item = DASHBOARD_PRODUCTS.find((p) => p.code === product);
+  const item = getDashboardProducts().find((p) => p.code === product);
   if (!item) return null;
 
   const shared = item.entitlement === "verify";

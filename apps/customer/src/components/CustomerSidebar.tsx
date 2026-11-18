@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { NavIcon } from "@/components/icons/NavIcons";
-import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
+import { getVisibleCustomerNav, isNavItemActive } from "@/lib/nav";
 
 type Props = {
   collapsed: boolean;
@@ -12,7 +12,7 @@ export function CustomerSidebar({ collapsed }: Props) {
   return (
     <aside className="a-sidebar">
       <nav className="a-sidebar__nav">
-        {CUSTOMER_NAV.map((item) => {
+        {getVisibleCustomerNav().map((item) => {
           const active = isNavItemActive(item, pathname);
           return (
             <NavLink

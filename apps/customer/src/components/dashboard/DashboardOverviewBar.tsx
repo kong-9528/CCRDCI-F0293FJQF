@@ -1,8 +1,8 @@
-import { dashboardOverview, DASHBOARD_PRODUCTS } from "@/lib/dashboard";
+import { dashboardOverview, getDashboardProducts } from "@/lib/dashboard";
 
 export function DashboardOverviewBar() {
   const { normalCount, stoppedCount, expiringSoonCount, monthTotal } =
-    dashboardOverview(DASHBOARD_PRODUCTS);
+    dashboardOverview(getDashboardProducts());
 
   return (
     <div className="c-kpi-row">

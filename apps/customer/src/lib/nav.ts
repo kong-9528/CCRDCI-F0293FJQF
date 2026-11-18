@@ -1,4 +1,6 @@
 import type { NavIconId } from "@/components/icons/NavIcons";
+import type { ProductCode } from "@/lib/catalog";
+import { tenantHasProduct } from "@/lib/tenant";
 
 export type NavItem = {
   to: string;
@@ -6,21 +8,34 @@ export type NavItem = {
   icon: NavIconId;
   /** 匹配子路径时也视为选中（如审核入口） */
   matchPrefix?: string;
+  /** 关联已开通技术服务；缺省表示始终展示（如工作台） */
+  product?: ProductCode;
 };
 
 /** 顶栏主导航（原侧栏模块 + API文档 / 帮助中心） */
 export const CUSTOMER_NAV: NavItem[] = [
   { to: "/desk", label: "工作台", icon: "dashboard" },
-  { to: "/verify/dci", label: "DCI核验", icon: "dci" },
-  { to: "/verify/info", label: "版权登记信息核验", icon: "info" },
-  { to: "/verify/certificate", label: "版权登记证书核验", icon: "cert" },
+  { to: "/verify/dci", label: "DCI核验", icon: "dci", product: "dci" },
+  { to: "/verify/info", label: "版权登记信息核验", icon: "info", product: "info" },
+  {
+    to: "/verify/certificate",
+    label: "版权登记证书核验",
+    icon: "cert",
+    product: "certificate",
+  },
   {
     to: "/review/safety",
     label: "作品智能辅助审核",
     icon: "safety",
     matchPrefix: "/review",
+    product: "workReview",
   },
 ];
+
+/** 按当前账号已开通技术服务过滤主导航 */
+export function getVisibleCustomerNav(): NavItem[] {
+  return CUSTOMER_NAV.filter((item) => !item.product || tenantHasProduct(item.product));
+}
 
 const NAV_LABELS: Record<string, string> = {
   "/desk": "工作台",

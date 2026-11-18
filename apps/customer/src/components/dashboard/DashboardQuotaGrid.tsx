@@ -1,5 +1,5 @@
 import { productName } from "@/lib/catalog";
-import { DASHBOARD_PRODUCTS, type DashboardProduct } from "@/lib/dashboard";
+import { getDashboardProducts, type DashboardProduct } from "@/lib/dashboard";
 
 function QuotaCard({ item }: { item: DashboardProduct }) {
   const stopped = item.status === "stopped";
@@ -53,7 +53,7 @@ function QuotaCard({ item }: { item: DashboardProduct }) {
 export function DashboardQuotaGrid() {
   return (
     <div className="c-quota-grid">
-      {DASHBOARD_PRODUCTS.map((item) => (
+      {getDashboardProducts().map((item) => (
         <QuotaCard key={item.code} item={item} />
       ))}
     </div>

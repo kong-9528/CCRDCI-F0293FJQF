@@ -69,24 +69,49 @@ function fromTenantService(
   };
 }
 
-/** 产品配额与状态（核验三类共用 VERIFY_ENTITLEMENT；审核自有额度） */
-export const DASHBOARD_PRODUCTS: DashboardProduct[] = [
-  fromTenantService("dci", { monthCalls: 3421, momPercent: 12.5 })!,
-  fromTenantService("info", { monthCalls: 2156, momPercent: 8.3 })!,
-  fromTenantService("certificate", { monthCalls: 892, momPercent: -2.1 })!,
-  {
-    code: "workReview",
-    status: WORK_REVIEW_ENTITLEMENT.status,
-    usedCount: WORK_REVIEW_ENTITLEMENT.usedCount,
-    quotaTotal: WORK_REVIEW_ENTITLEMENT.quotaTotal,
-    monthCalls: 1200,
-    momPercent: 12.8,
-    expireAt: WORK_REVIEW_ENTITLEMENT.expireAt,
-    daysLeft: daysLeftUntil(WORK_REVIEW_ENTITLEMENT.expireAt),
-    quotaUsagePct: WORK_REVIEW_ENTITLEMENT.quotaUsagePct,
-    entitlement: "audit",
-  },
-];
+const MONTH_HINTS: Partial<
+  Record<ProductCode, { monthCalls: number; momPercent: number | null }>
+> = {
+  dci: { monthCalls: 3421, momPercent: 12.5 },
+  info: { monthCalls: 2156, momPercent: 8.3 },
+  certificate: { monthCalls: 892, momPercent: -2.1 },
+  workReview: { monthCalls: 1200, momPercent: 12.8 },
+};
+
+/** 按当前账号已开通技术服务生成看板产品（随门户桥接切换） */
+export function getDashboardProducts(): DashboardProduct[] {
+  const codes: ProductCode[] = ["dci", "info", "certificate", "workReview"];
+  const out: DashboardProduct[] = [];
+  for (const code of codes) {
+    const hint = MONTH_HINTS[code] ?? { monthCalls: 0, momPercent: null };
+    if (code === "workReview") {
+      const row = MOCK_TENANT_SERVICES.find((s) => s.product === "workReview");
+      if (!row) continue;
+      const quotaTotal = row.quotaTotal;
+      const quotaUsagePct =
+        quotaTotal && quotaTotal > 0
+          ? Math.round((row.usedCount / quotaTotal) * 1000) / 10
+          : WORK_REVIEW_ENTITLEMENT.quotaUsagePct;
+      out.push({
+        code,
+        status: row.status,
+        usedCount: row.usedCount,
+        quotaTotal,
+        monthCalls: hint.monthCalls,
+        momPercent: hint.momPercent,
+        expireAt: row.expireAt,
+        daysLeft: daysLeftUntil(row.expireAt),
+        quotaUsagePct,
+        entitlement: "audit",
+      });
+      continue;
+    }
+    const item = fromTenantService(code, hint);
+    if (item) out.push(item);
+  }
+  return out;
+}
+
 
 export function dashboardOverview(products: DashboardProduct[]) {
   const active = products.filter((p) => p.status !== "stopped");

@@ -1,7 +1,7 @@
 import { productName } from "@/lib/catalog";
 import {
   countWarnings,
-  DASHBOARD_PRODUCTS,
+  getDashboardProducts,
   productWarnings,
   type ProductWarning,
 } from "@/lib/dashboard";
@@ -45,7 +45,8 @@ function cardTone(warning: ProductWarning): string {
 }
 
 export function DashboardWarningPanel() {
-  const total = countWarnings(DASHBOARD_PRODUCTS);
+  const products = getDashboardProducts();
+  const total = countWarnings(products);
 
   return (
     <div className="a-card">
@@ -58,7 +59,7 @@ export function DashboardWarningPanel() {
       </div>
       <div className="a-card__body">
         <div className="c-warn-grid">
-          {DASHBOARD_PRODUCTS.map((p) => {
+          {products.map((p) => {
             const warning = productWarnings(p);
             return (
               <div key={p.code} className={`c-warn-card${cardTone(warning)}`}>

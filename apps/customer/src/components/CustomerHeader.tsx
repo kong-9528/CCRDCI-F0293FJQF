@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PLATFORM_NAME } from "@/lib/catalog";
-import { CUSTOMER_NAV, isNavItemActive } from "@/lib/nav";
+import { getVisibleCustomerNav, isNavItemActive } from "@/lib/nav";
 import { TrademarkText } from "@/lib/trademark";
 import {
   clearPortalBridge,
@@ -69,7 +69,7 @@ export function CustomerHeader({ pathname }: Props) {
 
         <div className="a-header__right">
           <nav className="a-header__nav" aria-label="主导航">
-            {CUSTOMER_NAV.map((item) => {
+            {getVisibleCustomerNav().map((item) => {
               const active = isNavItemActive(item, pathname);
               return (
                 <NavLink

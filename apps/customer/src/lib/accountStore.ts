@@ -56,6 +56,13 @@ function emit() {
   listeners.forEach((fn) => fn());
 }
 
+/** 门户桥接切换账号后，同步工作台机构信息与合同 */
+export function syncAccountStoreFromTenant() {
+  profile = { ...MOCK_TENANT };
+  contract = primaryContract();
+  emit();
+}
+
 function subscribe(fn: () => void) {
   listeners.add(fn);
   return () => {

@@ -1,4 +1,5 @@
 import type { ProductCode } from "@/lib/catalog";
+import { MOCK_TENANT_SERVICES } from "@/lib/tenant";
 
 export type ReviewProductCode = Extract<ProductCode, "safety" | "duplicate" | "infringement">;
 
@@ -15,8 +16,7 @@ export type WorkReviewEntitlement = {
   allowOverQuota: boolean;
 };
 
-/** 作品智能辅助审核统一额度（三个审核接口共用）；演示尚未超出用量 */
-export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
+const DEFAULT_WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
   status: "active",
   usedCount: 68420,
   quotaTotal: 100000,
@@ -24,6 +24,26 @@ export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = {
   expireAt: "2026-12-31",
   allowOverQuota: true,
 };
+
+/** 作品智能辅助审核统一额度（随门户桥接账号的开通配置变化） */
+export function getWorkReviewEntitlement(): WorkReviewEntitlement {
+  const row = MOCK_TENANT_SERVICES.find((s) => s.product === "workReview");
+  if (!row) return { ...DEFAULT_WORK_REVIEW_ENTITLEMENT, status: "stopped" };
+  const quotaTotal = row.quotaTotal ?? DEFAULT_WORK_REVIEW_ENTITLEMENT.quotaTotal;
+  const quotaUsagePct =
+    quotaTotal > 0 ? Math.round((row.usedCount / quotaTotal) * 1000) / 10 : 0;
+  return {
+    status: row.status,
+    usedCount: row.usedCount,
+    quotaTotal,
+    quotaUsagePct,
+    expireAt: row.expireAt,
+    allowOverQuota: true,
+  };
+}
+
+/** @deprecated 兼容旧引用；请优先使用 getWorkReviewEntitlement() */
+export const WORK_REVIEW_ENTITLEMENT: WorkReviewEntitlement = DEFAULT_WORK_REVIEW_ENTITLEMENT;
 
 /**
  * 异步审核任务状态：
@@ -213,17 +233,18 @@ export const REVIEW_SERVICES: Record<ReviewProductCode, ReviewServiceConfig> = {
 };
 
 export function getReviewServiceStatus(_productCode: ReviewProductCode) {
-  return WORK_REVIEW_ENTITLEMENT.status;
+  return getWorkReviewEntitlement().status;
 }
 
 export function getReviewQuota(_productCode: ReviewProductCode) {
+  const e = getWorkReviewEntitlement();
   return {
-    usedCount: WORK_REVIEW_ENTITLEMENT.usedCount,
-    quotaTotal: WORK_REVIEW_ENTITLEMENT.quotaTotal,
-    quotaUsagePct: WORK_REVIEW_ENTITLEMENT.quotaUsagePct,
-    expireAt: WORK_REVIEW_ENTITLEMENT.expireAt,
-    allowOverQuota: WORK_REVIEW_ENTITLEMENT.allowOverQuota,
-    overQuota: WORK_REVIEW_ENTITLEMENT.usedCount > WORK_REVIEW_ENTITLEMENT.quotaTotal,
+    usedCount: e.usedCount,
+    quotaTotal: e.quotaTotal,
+    quotaUsagePct: e.quotaUsagePct,
+    expireAt: e.expireAt,
+    allowOverQuota: e.allowOverQuota,
+    overQuota: e.usedCount > e.quotaTotal,
   };
 }
 
